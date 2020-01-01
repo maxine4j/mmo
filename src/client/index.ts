@@ -1,8 +1,8 @@
 import * as io from "socket.io-client"
 
-import Button from "./gui/button";
+import UIParent from "./ui/uiparent";
+import Button from "./ui/button";
 
-console.log("hi!");
 const socket = io.connect("http://localhost:3000");
 const canvas = <HTMLCanvasElement> document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -27,10 +27,7 @@ function registerInputs() {
 
 function main() {
     registerInputs();
-
-    let btn = new Button("my-button");
-    btn.update();
-
+    let btn = new Button("my-button", UIParent.get(), "This is the button text");
 }
 
 main();

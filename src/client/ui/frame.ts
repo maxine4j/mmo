@@ -7,17 +7,21 @@ export default abstract class Frame {
 
     private parent: Frame;
     private visible: boolean;
-    private element: HTMLElement;
+    protected element: HTMLElement;
 
     constructor(id: string, tag: string, parent: Frame) {
         this.id = id;
         this.visible = true;
-        this.element = document.createElement(tag);
-        this.parent = parent;
-        parent.addChild(this);
-        this.element.textContent = "THIS IS A FRAME";
+        this.children = new Map();
+        if (id === "uiparent") {
+            this.element = document.getElementById(this.id);
+        } else {
+            this.element = document.createElement(tag);
+            this.parent = parent;
+            this.parent.addChild(this);
+        }
     }
-    
+
     public show() {
         this.visible = true;
         this.element.style.visibility = "visible";
@@ -29,7 +33,7 @@ export default abstract class Frame {
     }
 
     public setVisible(visible: boolean) {
-        this.visible = visible;
+        visible ? this.show() : this.hide();
     }
 
     public isVisible(): boolean {
