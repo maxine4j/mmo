@@ -7,9 +7,18 @@
                 overflow: hidden;
                 margin: 0;
             }
+            #ui {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                z-index: 1;
+            }
         </style>
     </head>
     <body>
+        <div id="ui">
+            <button id="testbtn">TEST</button>
+        </div>
         <canvas id="canvas"></canvas>
     </body>
     <script type="text/javascript">

@@ -1,5 +1,7 @@
 import * as io from "socket.io-client"
 
+import Button from "./gui/button";
+
 console.log("hi!");
 const socket = io.connect("http://localhost:3000");
 const canvas = <HTMLCanvasElement> document.getElementById("canvas");
@@ -15,11 +17,20 @@ function onClick(e: MouseEvent) {
 }
 
 function registerInputs() {
-    window.addEventListener('click', onClick);
+    canvas.addEventListener('click', onClick);
+    const tbtn = document.getElementById("testbtn");
+    tbtn.addEventListener('click', (e: MouseEvent) => {
+        socket.emit("message", `BUTTON CLICKED`);
+        e.stopPropagation();
+    })
 }
 
 function main() {
     registerInputs();
+
+    let btn = new Button("my-button");
+    btn.update();
+
 }
 
 main();
