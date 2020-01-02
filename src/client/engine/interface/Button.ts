@@ -1,11 +1,11 @@
-import Frame from './frame';
+import { Frame } from './Frame';
 
 
-export default class Label extends Frame {
-    protected element: HTMLLabelElement;
+export default class Button extends Frame {
+    protected element: HTMLButtonElement;
 
     constructor(id: string, parent: Frame, text: string) {
-        super(id, 'label', parent);
+        super(id, 'button', parent);
         this.text = text;
     }
 

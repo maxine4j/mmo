@@ -8,22 +8,34 @@ module.exports = {
     mode: 'development',
     module: {
         rules: [
-        {
-            test: /\.tsx?$/,
-            use: 'awesome-typescript-loader?configFileName=./tsconfig.client.json',
-            exclude: /node_modules/,
-        },
+            {
+                test: /\.tsx?$/,
+                use: 'awesome-typescript-loader?configFileName=./tsconfig.client.json',
+                exclude: /node_modules/,
+            },
+            {
+                test: /\.scss$/,
+                use: ['style-loader', 'css-loader', 'sass-loader']
+            },
+            {
+                test: /\.ttf$/,
+                loader: 'url-loader',
+                query: {
+                    outputPath: './client/fonts/',
+                    name: '[name].[ext]'
+                }
+            }
         ],
     },
     resolve: {
-        extensions: [ '.tsx', '.ts', '.js' ],
+        extensions: ['.tsx', '.ts', '.js', '.scss'],
     },
     output: {
-        filename: './client/bundle.js'
+        filename: './client/bundle.js',
     },
     externals: [
-        "fs",
-        "uws"
+        'fs',
+        'uws',
     ],
     plugins: [
         new CheckerPlugin(),
@@ -31,7 +43,7 @@ module.exports = {
             hash: true,
             title: 'MMO',
             template: './src/client/index.html',
-            filename: './client/index.html'
-        })
-   ]
+            filename: './client/index.html',
+        }),
+    ],
 };

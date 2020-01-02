@@ -1,4 +1,5 @@
-import Frame from './frame';
+import { Frame } from './Frame';
+
 
 export default class UIParent extends Frame {
     private static self: UIParent;

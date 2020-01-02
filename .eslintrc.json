@@ -50,20 +50,19 @@
             4
         ],
         "import/extensions": [
-            "error",
-            "ignorePackages",
-            {
-              "js": "never",
-              "jsx": "never",
-              "ts": "never",
-              "tsx": "never"
-            }
+            "off"
         ],
         "no-unused-expressions": [
             "warn"
         ],
         "camelcase": [
             "warn"
+        ],
+        "class-methods-use-this": [
+            "warn"
+        ],
+        "no-restricted-syntax": [
+            "off"
         ]
     }
 }

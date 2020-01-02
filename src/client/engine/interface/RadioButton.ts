@@ -1,4 +1,4 @@
-import Frame from './frame';
+import { Frame } from './Frame';
 
 
 export default class RadioButton extends Frame {

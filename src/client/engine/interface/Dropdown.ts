@@ -1,4 +1,4 @@
-import Frame from './frame';
+import { Frame } from './Frame';
 
 
 class DropdownOption extends Frame {

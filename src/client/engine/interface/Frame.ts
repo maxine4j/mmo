@@ -1,25 +1,48 @@
-export default abstract class Frame {
+import './styles/default';
+
+export enum FrameStrata {
+    WORLD = 0,
+    BACKGROUND = 10,
+    LOW = 20,
+    MEDIUM = 30,
+    HIGH = 40,
+    DIALOG = 50,
+    FULLSCREEN = 60,
+    FULLSCREEN_DIALOG = 70,
+    TOOLTIP = 80,
+}
+
+export abstract class Frame {
     readonly id: string;
     private _children: Map<string, Frame>;
     private _visible: boolean;
     private tag: string;
+    public clickThrough: boolean;
     protected _parent: Frame;
     protected element: HTMLElement;
+    private _strata: FrameStrata;
 
     constructor(id: string, tag: string, parent: Frame, createElement: boolean = true) {
         this.id = id;
         this.tag = tag;
+        this.clickThrough = false;
         this._visible = true;
         this._children = new Map();
         this._parent = parent;
         if (createElement) {
             this.createElement();
         }
+        this.strata = FrameStrata.BACKGROUND;
+    }
+
+    public destroy() {
+        this.element.parentNode.removeChild(this.element);
     }
 
     protected createElement() {
         this.element = document.createElement(this.tag);
         this.element.style.userSelect = 'none';
+        this.element.style.position = 'fixed';
         this.parent.addChild(this);
     }
 
@@ -57,6 +80,14 @@ export default abstract class Frame {
         this.parent.element.appendChild(this.parent.element);
     }
 
+    get strata(): FrameStrata {
+        return this._strata;
+    }
+    set strata(strata: FrameStrata) {
+        this._strata = strata;
+        this.element.style.zIndex = (<number>strata).toString();
+    }
+
     public addChild(child: Frame, appendDom: boolean = true) {
         this.children.set(child.id, child);
         if (appendDom) {
@@ -68,12 +99,30 @@ export default abstract class Frame {
         return this.element.style;
     }
 
+    get width(): number {
+        return this.element.offsetWidth;
+    }
+
+    get height(): number {
+        return this.element.offsetHeight;
+    }
+
+    public centreHorizontal() {
+        this.element.style.left = '50%';
+        this.element.style.marginLeft = `${-0.5 * this.width}px`;
+    }
+
+    public centreVertical() {
+        this.element.style.top = '50%';
+        this.element.style.marginTop = `${-0.5 * this.height}px`;
+    }
+
     public addEventListener<K extends keyof HTMLElementEventMap>(type: K,
         listener: (self: Frame, ev: HTMLElementEventMap[K]) => any,
         options?: boolean | AddEventListenerOptions): void {
         this.element.addEventListener(type, (ev: HTMLElementEventMap[K]) => {
             listener(this, ev);
-            ev.stopImmediatePropagation();
+            if (!this.clickThrough) ev.stopImmediatePropagation();
         },
         options);
     }

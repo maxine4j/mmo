@@ -1,0 +1,26 @@
+@import './rune.ttf';
+
+@font-face {
+    font-family: 'rune';
+    src: url('./rune.ttf');
+}
+
+#uiparent {
+    position: fixed;
+    z-index: 1;
+    user-select: 'none';
+    color: white;
+    *:focus {
+        outline: none;
+    }
+
+    font-family: 'rune';
+
+    button {
+        font-size: 20px;
+        background-color: rgb(102, 6, 8);
+        color: #ffffff;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+}
