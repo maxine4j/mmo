@@ -1,4 +1,3 @@
-
 export default abstract class Frame {
     readonly id: string;
 
@@ -17,6 +16,7 @@ export default abstract class Frame {
             this.element = document.getElementById(this.id);
         } else {
             this.element = document.createElement(tag);
+            this.element.style.userSelect = "none";
             this.parent = parent;
             this.parent.addChild(this);
         }
@@ -53,5 +53,17 @@ export default abstract class Frame {
     public addChild(child: Frame) {
         this.children.set(child.id, child);
         this.element.appendChild(child.element);
+    }
+
+    public style(): CSSStyleDeclaration {
+        return this.element.style;
+    }
+
+    public addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (self: Frame, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void {
+        this.element.addEventListener(type, (ev: HTMLElementEventMap[K]) => {
+            listener(this, ev);
+            ev.stopImmediatePropagation();
+        }, 
+        options);
     }
 }
