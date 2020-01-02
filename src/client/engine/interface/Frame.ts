@@ -36,7 +36,9 @@ export abstract class Frame {
     }
 
     public destroy() {
-        this.element.parentNode.removeChild(this.element);
+        if (this.element != null) {
+            this.element.remove();
+        }
     }
 
     protected createElement() {

@@ -33,12 +33,17 @@ export default class ContextMenu extends Frame {
         this.width = 120;
         this.element.classList.add('context-menu');
         this.element.addEventListener('mouseleave', (ev: MouseEvent) => { this.close(); });
+
+        const header = document.createElement('p');
+        header.textContent = 'Chose option';
+        header.classList.add('context-menu-header');
+        this.element.appendChild(header);
     }
 
     public open(x: number, y: number) {
         this.style.position = 'fixed';
         this.style.left = `${x - this.width / 2}px`;
-        this.style.top = `${y}px`;
+        this.style.top = `${y - 10}px`;
         this.style.zIndex = (<number> this.strata).toString();
         this.show();
     }

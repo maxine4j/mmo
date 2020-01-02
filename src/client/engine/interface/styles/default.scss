@@ -17,16 +17,31 @@
 
     .context-menu {
         $bg-col: #3b3b3b;
+        $border-col: #616161;
 
-        border: 1px solid black;
-        border-radius: 5px;
+        border: 1px solid $border-col;
+        border-radius: 0px;
+        background-color: $bg-col;
+
+        .context-menu-header {
+            height: 20px;
+            line-height: 20px;
+            padding: 2px 10px;
+            text-align: left;
+            margin: 0;
+            background-color: darken($bg-col, 15%);
+            border: 1px solid $border-col;
+            font-size: 90%;
+        }
 
         .context-menu-option {
             color: 'white';
             background-color: $bg-col;
             border: none;
             border-radius: 0px;
-            border-bottom: 1px solid black;
+            border-top: 1px solid $border-col;
+            font-size: 90%;
+            text-align: left;
 
             &:hover {
                 background-color: lighten($bg-col, 10%);
