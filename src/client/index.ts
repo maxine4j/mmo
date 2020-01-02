@@ -27,6 +27,7 @@ function main() {
     window.requestAnimationFrame(loop);
 }
 
+
 function onResize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -35,5 +36,10 @@ function onResize() {
 }
 onResize();
 window.addEventListener('resize', () => { onResize(); });
+
+const body = document.getElementById('body');
+body.addEventListener('contextmenu', (e: MouseEvent) => {
+    e.preventDefault();
+});
 
 main();

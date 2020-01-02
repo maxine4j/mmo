@@ -31,8 +31,8 @@ export abstract class Frame {
         this._parent = parent;
         if (createElement) {
             this.createElement();
+            this.strata = FrameStrata.BACKGROUND;
         }
-        this.strata = FrameStrata.BACKGROUND;
     }
 
     public destroy() {
@@ -101,6 +101,9 @@ export abstract class Frame {
 
     get width(): number {
         return this.element.offsetWidth;
+    }
+    set width(w: number) {
+        this.style.width = `${w}px`;
     }
 
     get height(): number {

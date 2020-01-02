@@ -5,6 +5,7 @@ import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import Character from '../../common/Character';
 import Panel from '../engine/interface/Panel';
+import ContextMenu from '../engine/interface/ContextMenu';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
@@ -64,6 +65,18 @@ export default class CharSelectScene extends Scene {
             console.log('Entering world...');
         });
         this.addGUI(btnCreateCharacter);
+
+        const contextMenu = new ContextMenu('ctxm-mymenu', UIParent.get());
+        contextMenu.addOption('Option1', () => { console.log('option 1 clicked'); });
+        contextMenu.addOption('Option2', () => { console.log('option 2 clicked'); });
+        contextMenu.addOption('Option3', () => { console.log('option 3 clicked'); });
+        contextMenu.addOption('Option4', () => { console.log('option 4 clicked'); });
+
+        const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+        canvas.addEventListener('contextmenu', (ev: MouseEvent) => {
+            contextMenu.open(ev.clientX, ev.clientY);
+            ev.preventDefault();
+        });
     }
 
     init() {
