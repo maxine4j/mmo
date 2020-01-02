@@ -1,69 +1,80 @@
 export default abstract class Frame {
     readonly id: string;
-
-    children: Map<string, Frame>;
-    styles: string;
-
-    private parent: Frame;
-    private visible: boolean;
+    private _children: Map<string, Frame>;
+    private _visible: boolean;
+    private tag: string;
+    protected _parent: Frame;
     protected element: HTMLElement;
 
-    constructor(id: string, tag: string, parent: Frame) {
+    constructor(id: string, tag: string, parent: Frame, createElement: boolean = true) {
         this.id = id;
-        this.visible = true;
-        this.children = new Map();
-        if (id === "uiparent") {
-            this.element = document.getElementById(this.id);
-        } else {
-            this.element = document.createElement(tag);
-            this.element.style.userSelect = "none";
-            this.parent = parent;
-            this.parent.addChild(this);
+        this.tag = tag;
+        this._visible = true;
+        this._children = new Map();
+        this._parent = parent;
+        if (createElement) {
+            this.createElement();
         }
     }
 
+    protected createElement() {
+        this.element = document.createElement(this.tag);
+        this.element.style.userSelect = 'none';
+        this.parent.addChild(this);
+    }
+
     public show() {
-        this.visible = true;
-        this.element.style.visibility = "visible";
+        this._visible = true;
+        this.element.style.visibility = 'visible';
     }
 
     public hide() {
-        this.visible = false;
-        this.element.style.visibility = "hidden";
+        this._visible = false;
+        this.element.style.visibility = 'hidden';
     }
 
-    public setVisible(visible: boolean) {
-        visible ? this.show() : this.hide();
+    set visible(visible: boolean) {
+        if (visible) {
+            this.show();
+        } else {
+            this.hide();
+        }
+    }
+    get visible(): boolean {
+        return this._visible;
     }
 
-    public isVisible(): boolean {
-        return this.visible;
+    get children(): Map<string, Frame> {
+        return this._children;
     }
 
-    public getParent(): Frame {
-        return this.parent;
+    get parent(): Frame {
+        return this._parent;
     }
-
-    public setParent(parent: Frame) {
+    set parent(parent: Frame) {
         this.parent.children.delete(this.id);
-        this.parent = parent;
-        parent.element.appendChild(this.parent.element);
+        this._parent = parent;
+        this.parent.element.appendChild(this.parent.element);
     }
 
-    public addChild(child: Frame) {
+    public addChild(child: Frame, appendDom: boolean = true) {
         this.children.set(child.id, child);
-        this.element.appendChild(child.element);
+        if (appendDom) {
+            this.element.appendChild(child.element);
+        }
     }
 
-    public style(): CSSStyleDeclaration {
+    get style(): CSSStyleDeclaration {
         return this.element.style;
     }
 
-    public addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (self: Frame, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void {
+    public addEventListener<K extends keyof HTMLElementEventMap>(type: K,
+        listener: (self: Frame, ev: HTMLElementEventMap[K]) => any,
+        options?: boolean | AddEventListenerOptions): void {
         this.element.addEventListener(type, (ev: HTMLElementEventMap[K]) => {
             listener(this, ev);
             ev.stopImmediatePropagation();
-        }, 
+        },
         options);
     }
 }
