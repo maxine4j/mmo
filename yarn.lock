@@ -5819,10 +5819,10 @@ trim-newlines@^1.0.0:
   dependencies:
     glob "^7.1.2"
 
-ts-keycode-enum@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/ts-keycode-enum/-/ts-keycode-enum-1.0.6.tgz#aeefd1c2fc7b0557f86a0e696e300905bbb4c1c1"
-  integrity sha512-DF8+Cf/FJJnPRxwz8agCoDelQXKZWQOS/gnnwx01nZ106tPJdB3BgJ9QTtLwXgR82D8O+nTjuZzWgf0Rg4vuRA==
+ts-key-enum@^3.0.1:
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/ts-key-enum/-/ts-key-enum-3.0.1.tgz#1e60315fe9984188d0f1347d67d48f6caa207bdf"
+  integrity sha512-B15f15yLEDK5wSLdScrOrewQF0Cy6qmWwWMQP5qNA2X7bOOMM/hwm/uZaihpIunMSWptmFC9zMBMJnGF2PaOMg==
 
 ts-loader@^6.2.1:
   version "6.2.1"

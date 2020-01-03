@@ -6,16 +6,19 @@ import SceneManager from '../engine/scene/SceneManager';
 import Character from '../../common/Character';
 import Panel from '../engine/interface/Panel';
 import ContextMenu from '../engine/interface/ContextMenu';
+import Label from '../engine/interface/Label';
+import Camera from '../engine/graphics/Camera';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
     private _selectedChar: Character;
+    private camera: Camera;
 
-    constructor(manager: SceneManager) {
-        super('char-select', manager);
+    public constructor() {
+        super('char-select');
     }
 
-    fetchCharacerList() {
+    public fetchCharacerList() {
         this.characters = [];
         this.characters.push(new Character('Arwic', 120));
         this.characters.push(new Character('Arwicdruid', 120));
@@ -24,17 +27,17 @@ export default class CharSelectScene extends Scene {
         this.characters.push(new Character('Arwiclock', 120));
     }
 
-    get selectedChar(): Character {
+    public get selectedChar(): Character {
         return this._selectedChar;
     }
-    set selectedChar(char: Character) {
+    public set selectedChar(char: Character) {
         this._selectedChar = this.selectedChar;
     }
 
-    initGUI() {
+    public initGUI() {
         // build enter world button
         const btnEnterWorld = new Button('btn-enter-world', UIParent.get(), 'Enter World');
-        btnEnterWorld.style.bottom = '0';
+        btnEnterWorld.style.bottom = '50px';
         btnEnterWorld.centreHorizontal();
         btnEnterWorld.addEventListener('click', (self: Button, ev: MouseEvent) => {
             console.log('Entering world...');
@@ -42,29 +45,70 @@ export default class CharSelectScene extends Scene {
         this.addGUI(btnEnterWorld);
         // build character list
         const panelCharacters = new Panel('panel-characters', UIParent.get());
-        let lastBottom = 0;
-        for (const char of this.characters) {
-            const btnChar = new Button(`btn-char-${char.name}`, panelCharacters, char.name);
-            lastBottom += btnChar.height;
-            btnChar.style.top = `${lastBottom}px`;
-            btnChar.style.width = '200px';
-            this.addGUI(btnChar);
-        }
-        panelCharacters.style.right = '0px';
-        panelCharacters.style.top = '0px';
-        panelCharacters.style.height = '100%';
-        panelCharacters.style.width = '200px';
+        panelCharacters.style.display = 'block';
+        panelCharacters.style.margin = '10px 10px 60px 10px';
+        panelCharacters.style.right = '0';
+        panelCharacters.style.top = '0';
+        panelCharacters.style.bottom = '0';
+        panelCharacters.style.height = 'auto';
+        panelCharacters.style.width = '300px';
         panelCharacters.style.backgroundColor = 'rgba(255,0,0,0.3)';
         panelCharacters.style.borderRadius = '5px';
+        panelCharacters.style.padding = '10px';
         this.addGUI(panelCharacters);
+        // realm label
+        const charListLabel = new Label('lbl-characters', panelCharacters, 'Characters');
+        charListLabel.style.position = 'initial';
+        charListLabel.style.display = 'block';
+        charListLabel.style.fontSize = '180%';
+        charListLabel.style.textAlign = 'center';
+        this.addGUI(charListLabel);
+        // add characters to the panel
+        for (const char of this.characters) {
+            const btnChar = new Button(`btn-char-${char.name}`, panelCharacters, char.name);
+            btnChar.style.position = 'initial';
+            btnChar.style.marginTop = '10px';
+            btnChar.style.width = '100%';
+            btnChar.style.height = '60px';
+            btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            this.addGUI(btnChar);
+        }
         // build new character button
         const btnCreateCharacter = new Button('btn-create-character', panelCharacters, 'Create Character');
-        btnEnterWorld.centreHorizontal();
-        btnEnterWorld.style.bottom = '0px';
-        btnEnterWorld.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            console.log('Entering world...');
+        btnCreateCharacter.style.position = 'fixed';
+        btnCreateCharacter.style.display = 'block';
+        btnCreateCharacter.style.width = '250px';
+        btnCreateCharacter.style.float = 'bottom';
+        btnCreateCharacter.style.bottom = '75px';
+        btnCreateCharacter.style.right = '40px';
+        btnCreateCharacter.addEventListener('click', (self: Button, ev: MouseEvent) => {
+            console.log('Creating new character...');
         });
         this.addGUI(btnCreateCharacter);
+        // build delete character button
+        const btnDeleteChar = new Button('btn-create-character', panelCharacters, 'Delete Character');
+        btnDeleteChar.style.position = 'fixed';
+        btnDeleteChar.style.margin = '5px 10px';
+        btnDeleteChar.style.display = 'block';
+        btnDeleteChar.style.width = '200px';
+        btnDeleteChar.style.float = 'bottom';
+        btnDeleteChar.style.bottom = '5px';
+        btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
+            console.log('Creating new character...');
+        });
+        this.addGUI(btnDeleteChar);
+        // build bakc button
+        const btnBack = new Button('btn-create-character', panelCharacters, 'Delete Character');
+        btnDeleteChar.style.position = 'fixed';
+        btnDeleteChar.style.margin = '5px 10px';
+        btnDeleteChar.style.display = 'block';
+        btnDeleteChar.style.width = '200px';
+        btnDeleteChar.style.float = 'bottom';
+        btnDeleteChar.style.bottom = '5px';
+        btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
+            console.log('Creating new character...');
+        });
+        this.addGUI(btnDeleteChar);
 
         const contextMenu = new ContextMenu('ctxm-mymenu', UIParent.get());
         contextMenu.addOption('Option1', () => { console.log('option 1 clicked'); });
@@ -79,20 +123,21 @@ export default class CharSelectScene extends Scene {
         });
     }
 
-    init() {
+    public init() {
         this.fetchCharacerList();
         this.initGUI();
+
+        this.camera = new Camera();
     }
 
-    final() {
-        this.clearGUI();
+    public final() {
     }
 
-    update(delta: number) {
-        // console.log(`updated! ${delta}`);
+    public update(delta: number) {
+
     }
 
-    draw() {
+    public draw() {
 
     }
 }

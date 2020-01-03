@@ -2,11 +2,11 @@ import { Frame } from './Frame';
 
 
 class DropdownOption extends Frame {
-    key: string;
-    value: string;
+    public key: string;
+    public value: string;
     protected element: HTMLOptionElement;
 
-    constructor(key: string, value: string, parent: Dropdown) {
+    public constructor(key: string, value: string, parent: Dropdown) {
         super(parent.id + key, 'option', parent, false);
         this.key = key;
         this.value = value;
@@ -23,14 +23,14 @@ class DropdownOption extends Frame {
 export default class Dropdown extends Frame {
     protected element: HTMLInputElement;
 
-    constructor(id: string, parent: Frame) {
+    public constructor(id: string, parent: Frame) {
         super(id, 'select', parent);
     }
 
-    get selected(): string {
+    public get selected(): string {
         return this.element.value;
     }
-    set selected(key: string) {
+    public set selected(key: string) {
         this.element.value = key;
     }
 

@@ -4,24 +4,32 @@ export default class SceneManager {
     private scenes: Map<string, Scene>;
     private _currentScene: Scene;
 
-    constructor() {
+    public constructor() {
         this.scenes = new Map();
     }
 
-    get currentScene(): Scene {
+    public get currentScene(): Scene {
         return this._currentScene;
     }
-    set currentScene(scene: Scene) {
-        if (this.currentScene !== undefined) this.currentScene.final();
+    public set currentScene(scene: Scene) {
+        if (this.currentScene !== undefined) {
+            this.currentScene.final();
+            this.currentScene.clearGUI();
+        }
         this._currentScene = scene;
         this.currentScene.init();
     }
 
-    addScene(scene: Scene) {
+    public addScene(scene: Scene) {
+        scene.manager = this;
         this.scenes.set(scene.id, scene);
     }
 
-    getScene(key: string): Scene {
+    public getScene(key: string): Scene {
         return this.scenes.get(key);
+    }
+
+    public changeScene(key: string) {
+        this.currentScene = this.getScene(key);
     }
 }

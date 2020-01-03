@@ -4,22 +4,22 @@ import { Frame } from './Frame';
 export default class TextBox extends Frame {
     protected element: HTMLInputElement;
 
-    constructor(id: string, parent: Frame) {
+    public constructor(id: string, parent: Frame, type: string = 'text') {
         super(id, 'input', parent);
-        this.element.type = 'text';
+        this.element.type = type;
     }
 
-    get text(): string {
+    public get text(): string {
         return this.element.value;
     }
-    set text(text: string) {
+    public set text(text: string) {
         this.element.value = text;
     }
 
-    get placeholder(): string {
+    public get placeholder(): string {
         return this.element.placeholder;
     }
-    set placeholder(text: string) {
+    public set placeholder(text: string) {
         this.element.placeholder = text;
     }
 }

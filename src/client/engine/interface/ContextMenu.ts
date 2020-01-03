@@ -2,11 +2,11 @@ import { Frame, FrameStrata } from './Frame';
 
 
 class ContextMenuOption extends Frame {
-    key: string;
-    value: string;
+    public key: string;
+    public value: string;
     protected element: HTMLButtonElement;
 
-    constructor(key: string, value: string, parent: ContextMenu) {
+    public constructor(key: string, value: string, parent: ContextMenu) {
         super(parent.id + key, 'button', parent, false);
         this.key = key;
         this.value = value;
@@ -27,7 +27,7 @@ class ContextMenuOption extends Frame {
 export default class ContextMenu extends Frame {
     protected element: HTMLSpanElement;
 
-    constructor(id: string, parent: Frame) {
+    public constructor(id: string, parent: Frame) {
         super(id, 'div', parent);
         this.visible = false;
         this.width = 120;
@@ -35,7 +35,7 @@ export default class ContextMenu extends Frame {
         this.element.addEventListener('mouseleave', (ev: MouseEvent) => { this.close(); });
 
         const header = document.createElement('p');
-        header.textContent = 'Chose option';
+        header.textContent = 'Choose Option';
         header.classList.add('context-menu-header');
         this.element.appendChild(header);
     }

@@ -13,7 +13,7 @@ export enum FrameStrata {
 }
 
 export abstract class Frame {
-    readonly id: string;
+    public readonly id: string;
     private _children: Map<string, Frame>;
     private _visible: boolean;
     private tag: string;
@@ -22,7 +22,7 @@ export abstract class Frame {
     protected element: HTMLElement;
     private _strata: FrameStrata;
 
-    constructor(id: string, tag: string, parent: Frame, createElement: boolean = true) {
+    public constructor(id: string, tag: string, parent: Frame, createElement: boolean = true) {
         this.id = id;
         this.tag = tag;
         this.clickThrough = false;
@@ -58,34 +58,34 @@ export abstract class Frame {
         this.element.style.visibility = 'hidden';
     }
 
-    set visible(visible: boolean) {
+    public set visible(visible: boolean) {
         if (visible) {
             this.show();
         } else {
             this.hide();
         }
     }
-    get visible(): boolean {
+    public get visible(): boolean {
         return this._visible;
     }
 
-    get children(): Map<string, Frame> {
+    public get children(): Map<string, Frame> {
         return this._children;
     }
 
-    get parent(): Frame {
+    public get parent(): Frame {
         return this._parent;
     }
-    set parent(parent: Frame) {
+    public set parent(parent: Frame) {
         this.parent.children.delete(this.id);
         this._parent = parent;
         this.parent.element.appendChild(this.parent.element);
     }
 
-    get strata(): FrameStrata {
+    public get strata(): FrameStrata {
         return this._strata;
     }
-    set strata(strata: FrameStrata) {
+    public set strata(strata: FrameStrata) {
         this._strata = strata;
         this.element.style.zIndex = (<number>strata).toString();
     }
@@ -97,18 +97,18 @@ export abstract class Frame {
         }
     }
 
-    get style(): CSSStyleDeclaration {
+    public get style(): CSSStyleDeclaration {
         return this.element.style;
     }
 
-    get width(): number {
+    public get width(): number {
         return this.element.offsetWidth;
     }
-    set width(w: number) {
+    public set width(w: number) {
         this.style.width = `${w}px`;
     }
 
-    get height(): number {
+    public get height(): number {
         return this.element.offsetHeight;
     }
 

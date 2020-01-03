@@ -2,32 +2,30 @@ import SceneManager from './SceneManager';
 import { Frame } from '../interface/Frame';
 
 export default abstract class Scene {
-    readonly id: string;
-    readonly manager: SceneManager;
+    public readonly id: string;
+    public manager: SceneManager;
     protected gui: Map<string, Frame>;
 
-    constructor(id: string, manager: SceneManager) {
+    public constructor(id: string) {
         this.id = id;
         this.gui = new Map();
-        this.manager = manager;
-        this.manager.addScene(this);
     }
 
     protected addGUI(frame: Frame) {
         this.gui.set(frame.id, frame);
     }
 
-    protected clearGUI() {
+    public clearGUI() {
         for (const [_, f] of this.gui) {
             f.destroy();
         }
     }
 
-    abstract init(): void;
+    public abstract init(): void;
 
-    abstract final(): void;
+    public abstract final(): void;
 
-    abstract update(delta: number): void;
+    public abstract update(delta: number): void;
 
-    abstract draw(): void;
+    public abstract draw(): void;
 }

@@ -1,18 +1,45 @@
-#uiparent {
+#canvas {
     position: fixed;
+    z-index: 0;
+}
+
+#uiparent.default {
     z-index: 1;
     user-select: 'none';
+    position: fixed;
     color: white;
+    width: 100vw;
+    height: 100vh;
+
     *:focus {
         outline: none;
     }
 
+    input[type=text], input[type=password] {
+        $bg-col: #3b3b3b69;
+        background-color: $bg-col;
+        border-color: rgba(167, 167, 167, 0.733)3b69;
+        border-radius: 5px;
+        color: #ffffff;
+        font-size: 18px;
+
+    }
+
     button {
+        $bg-col: rgb(102, 6, 8);
         font-size: 20px;
-        background-color: rgb(102, 6, 8);
+        background-color: $bg-col;
         color: #ffffff;
         border-radius: 5px;
+        padding: 5px 15px;
         cursor: pointer;
+
+        &:hover {
+            background-color: lighten($bg-col, 5%);
+        }
+        &:active {
+            background-color: lighten($bg-col, 7.5%);
+        }
     }
 
     .context-menu {
@@ -47,5 +74,12 @@
                 background-color: lighten($bg-col, 10%);
             }
         }
+    }
+
+    .dialog {
+        border: 1px solid white;
+        background-color: rgba(100, 100, 100, 0.4);
+        width: 400px;
+        height: 300px;
     }
 }

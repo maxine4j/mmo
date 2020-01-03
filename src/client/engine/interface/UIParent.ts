@@ -2,7 +2,7 @@ import { Frame } from './Frame';
 
 
 export default class UIParent extends Frame {
-    private static self: UIParent;
+    private static instance: UIParent;
 
     private constructor() {
         super('uiparent', 'div', null);
@@ -13,9 +13,9 @@ export default class UIParent extends Frame {
     }
 
     public static get(): UIParent {
-        if (this.self === undefined) {
-            this.self = new UIParent();
+        if (UIParent.instance === undefined) {
+            UIParent.instance = new UIParent();
         }
-        return this.self;
+        return UIParent.instance;
     }
 }

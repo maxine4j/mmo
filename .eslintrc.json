@@ -18,6 +18,28 @@
         }
     },
     "rules": {
+        "no-plusplus": [
+            "off"
+        ],
+        "import/no-unresolved": [
+            "warn"
+        ],
+        "max-len": [
+            "warn",
+            200
+        ],
+        "class-methods-use-this": [
+            "off"
+        ],
+        "no-console": [
+            "off"
+        ],
+        "@typescript-eslint/explicit-member-accessibility": [
+            "error"
+        ],
+        "react/static-property-placement": [
+            "off"
+        ],
         "no-param-reassign": [
             "warn",
             { 
@@ -58,10 +80,10 @@
         "camelcase": [
             "warn"
         ],
-        "class-methods-use-this": [
-            "warn"
-        ],
         "no-restricted-syntax": [
+            "off"
+        ],
+        "no-dupe-class-members": [
             "off"
         ]
     }

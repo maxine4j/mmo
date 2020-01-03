@@ -7,7 +7,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "scripts": {
-    "watch-ts-server": "tsc -w --p tsconfig.server.json -outDir dist/server",
+    "watch-ts-server": "tsc -w --p tsconfig.server.json -outDir dist/",
     "watch-webpack-client": "yarn webpack --watch",
     "watch-node-server": "nodemon dist/server/index.js",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn run watch-ts-server\" \"yarn run watch-webpack-client\" \"yarn run watch-node-server\"",
@@ -21,7 +21,7 @@
     "global": "^4.4.0",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "ts-keycode-enum": "^1.0.6"
+    "ts-key-enum": "^3.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.2",
