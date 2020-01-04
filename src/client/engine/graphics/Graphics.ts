@@ -31,4 +31,9 @@ export default class Graphics {
     public static calcFPS(delta: number): number {
         return 1 / (delta / 1000);
     }
+
+    public static clear() {
+        this.context.fillStyle = 'black';
+        this.context.fillRect(0, 0, this.viewportWidth, this.viewportHeight);
+    }
 }

@@ -14,6 +14,7 @@ import TextBox from '../engine/interface/TextBox';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
 import NetClient from '../engine/NetClient';
+import Dialog from '../engine/interface/Dialog';
 
 export default class LoginScene extends Scene {
     private spriteBg: Sprite;
@@ -28,7 +29,7 @@ export default class LoginScene extends Scene {
         panel.style.width = '300px';
         panel.style.height = '200px';
         panel.style.padding = '20px';
-        panel.style.backgroundColor = '#20202069';
+        panel.style.backgroundColor = 'rgba(10, 10, 10, 0.5)';
         panel.centreHorizontal();
         panel.centreVertical();
         this.addGUI(panel);
@@ -43,8 +44,8 @@ export default class LoginScene extends Scene {
         const txtUsername = new TextBox('txt-username', panel);
         txtUsername.style.position = 'initial';
         txtUsername.style.width = '100%';
+        txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
         this.addGUI(txtUsername);
-
 
         const lblPassword = new Label('lbl-username', panel, 'Account Password');
         lblPassword.style.position = 'initial';
@@ -56,19 +57,23 @@ export default class LoginScene extends Scene {
         const txtPassword = new TextBox('txt-password', panel, 'password');
         txtPassword.style.position = 'initial';
         txtPassword.style.width = '100%';
+        txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
         this.addGUI(txtPassword);
+
+        const dialog = new Dialog('dialog-loginerr', UIParent.get(), 'THis is a dialog', false);
 
         const btnLogin = new Button('btn-login', panel, 'Login');
         btnLogin.style.width = '150px';
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';
-
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
             NetClient.login(txtUsername.text, txtPassword.text, (resp: AuthLoginRespPacket) => {
                 if (resp.success) {
                     SceneManager.changeScene('char-select');
                 } else {
-                    console.log(`failed to log in: ${resp.message}`);
+                    console.log(`Failed to log in: ${resp.message}`);
+                    dialog.setText(resp.message);
+                    dialog.show();
                 }
             });
         });
@@ -81,9 +86,11 @@ export default class LoginScene extends Scene {
     }
 
     public final() {
+
     }
 
     public update(delta: number) {
+
     }
 
     public draw() {

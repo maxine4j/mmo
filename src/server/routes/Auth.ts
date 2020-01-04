@@ -22,7 +22,7 @@ export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket
         };
     }
     console.log(`\tUser ${packet.username} provided incorrect login details`);
-    return <AuthLoginRespPacket>{ success: false, message: 'Unable to find account that username and password' };
+    return <AuthLoginRespPacket>{ success: false, message: 'Incorrect username or password' };
 }
 
 export async function handleAuthLogout(sessionid: string) {

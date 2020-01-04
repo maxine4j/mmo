@@ -10,11 +10,13 @@ import Label from '../engine/interface/Label';
 import Camera from '../engine/graphics/Camera';
 import Engine from '../engine/Engine';
 import NetClient from '../engine/NetClient';
+import Sprite from '../engine/graphics/Sprite';
+import Graphics from '../engine/graphics/Graphics';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
     private _selectedChar: Character;
-    private camera: Camera;
+    private spriteBg: Sprite;
 
     public constructor() {
         super('char-select');
@@ -49,7 +51,7 @@ export default class CharSelectScene extends Scene {
         panelCharacters.style.bottom = '0';
         panelCharacters.style.height = 'auto';
         panelCharacters.style.width = '300px';
-        panelCharacters.style.backgroundColor = 'rgba(255,0,0,0.3)';
+        panelCharacters.style.backgroundColor = 'rgba(10, 10, 10, 0.6)';
         panelCharacters.style.borderRadius = '5px';
         panelCharacters.style.padding = '10px';
         this.addGUI(panelCharacters);
@@ -127,10 +129,11 @@ export default class CharSelectScene extends Scene {
         this.fetchCharacerList();
         this.initGUI();
 
-        this.camera = new Camera();
+        this.spriteBg = new Sprite('../img/char-select.jpg');
     }
 
     public final() {
+
     }
 
     public update(delta: number) {
@@ -138,6 +141,6 @@ export default class CharSelectScene extends Scene {
     }
 
     public draw() {
-
+        this.spriteBg.draw(0, 0, Graphics.viewportWidth, Graphics.viewportHeight);
     }
 }

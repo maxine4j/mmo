@@ -51,11 +51,17 @@ export abstract class Frame {
     public show() {
         this._visible = true;
         this.element.style.visibility = 'visible';
+        for (const [_, child] of this.children) {
+            child.show();
+        }
     }
 
     public hide() {
         this._visible = false;
         this.element.style.visibility = 'hidden';
+        for (const [_, child] of this.children) {
+            child.hide();
+        }
     }
 
     public set visible(visible: boolean) {

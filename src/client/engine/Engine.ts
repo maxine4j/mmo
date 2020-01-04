@@ -52,6 +52,7 @@ export default class Engine {
         SceneManager.current.update(delta);
         Input.afterUpdate();
         Engine.lblFps.text = Graphics.calcFPS(delta).toFixed(2);
+        Graphics.clear();
         SceneManager.current.draw();
 
         Engine.lastrender = timestamp;
