@@ -1,8 +1,10 @@
+import { json } from 'express';
+
 export enum PacketHeader {
-    AUTH_LOGIN,
-    AUTH_LOGIN_RESP,
-    CHAR_CREATE,
-    CHAR_GET,
+    AUTH_LOGIN = 'AUTH_LOGIN',
+    AUTH_LOGIN_RESP = 'AUTH_LOGIN_RESP',
+    CHAR_CREATE = 'CHAR_CREATE',
+    CHAR_GET = 'CHAR_GET',
 }
 
 export enum Channel {
@@ -16,12 +18,13 @@ export interface Packet {
     header: PacketHeader;
 }
 
-export interface AuthPacket extends Packet {
+export interface AuthLoginPacket extends Packet {
     username: string;
     password: string;
 }
 
-export interface Response extends Packet {
+export interface ResponsePacket extends Packet {
     success: boolean;
     message: string;
+    data: string;
 }

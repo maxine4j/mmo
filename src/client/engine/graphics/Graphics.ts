@@ -3,29 +3,29 @@ export default class Graphics {
     private static _context: CanvasRenderingContext2D;
 
     public static init() {
-        Graphics._canvas = <HTMLCanvasElement>document.getElementById('canvas');
-        Graphics._context = Graphics._canvas.getContext('2d');
-        window.addEventListener('resize', () => { Graphics.windowResize(); });
-        Graphics.windowResize();
+        this._canvas = <HTMLCanvasElement>document.getElementById('canvas');
+        this._context = this._canvas.getContext('2d');
+        window.addEventListener('resize', () => { this.windowResize(); });
+        this.windowResize();
     }
 
     private static windowResize() {
-        Graphics._canvas.width = window.innerWidth;
-        Graphics._canvas.height = window.innerHeight;
-        Graphics.context.fillStyle = 'black';
-        Graphics.context.fillRect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight);
+        this._canvas.width = window.innerWidth;
+        this._canvas.height = window.innerHeight;
+        this.context.fillStyle = 'black';
+        this.context.fillRect(0, 0, this.viewportWidth, this.viewportHeight);
     }
 
     public static get viewportWidth(): number {
-        return Graphics._canvas.width;
+        return this._canvas.width;
     }
 
     public static get viewportHeight(): number {
-        return Graphics._canvas.height;
+        return this._canvas.height;
     }
 
     public static get context(): CanvasRenderingContext2D {
-        return Graphics._context;
+        return this._context;
     }
 
     public static calcFPS(delta: number): number {

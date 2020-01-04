@@ -1,35 +1,37 @@
 import Scene from './Scene';
 
 export default class SceneManager {
-    private scenes: Map<string, Scene>;
-    private _currentScene: Scene;
+    private static scenes: Map<string, Scene>;
+    private static _current: Scene;
 
-    public constructor() {
+    public static init() {
         this.scenes = new Map();
     }
 
-    public get currentScene(): Scene {
-        return this._currentScene;
+    public static get current(): Scene {
+        return this._current;
     }
-    public set currentScene(scene: Scene) {
-        if (this.currentScene !== undefined) {
-            this.currentScene.final();
-            this.currentScene.clearGUI();
+    public static set current(scene: Scene) {
+        if (this.current !== undefined) {
+            this.current.final();
+            this.current.clearGUI();
         }
-        this._currentScene = scene;
-        this.currentScene.init();
+        this._current = scene;
+        this.current.init();
     }
 
-    public addScene(scene: Scene) {
-        scene.manager = this;
+    public static addScene(scene: Scene) {
         this.scenes.set(scene.id, scene);
+        if (!this.current) {
+            this.current = scene;
+        }
     }
 
-    public getScene(key: string): Scene {
+    public static getScene(key: string): Scene {
         return this.scenes.get(key);
     }
 
-    public changeScene(key: string) {
-        this.currentScene = this.getScene(key);
+    public static changeScene(key: string) {
+        this.current = this.getScene(key);
     }
 }

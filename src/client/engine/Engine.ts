@@ -8,7 +8,6 @@ import UIParent from './interface/UIParent';
 
 export default class Engine {
     private static lastrender: number = 0;
-    private static sceneManager: SceneManager;
     private static lblFps: Label;
 
     public static init() {
@@ -16,9 +15,7 @@ export default class Engine {
         Input.init();
         Graphics.init();
         NetClient.init();
-
-        // initialise scene manager
-        Engine.sceneManager = new SceneManager();
+        SceneManager.init();
 
         // add warning leaving page
         // window.onbeforeunload = () => 'Are you sure you want to quit?';
@@ -33,23 +30,20 @@ export default class Engine {
     }
 
     public static start() {
-        window.requestAnimationFrame(Engine.loop);
+        window.requestAnimationFrame(this.loop);
     }
 
     public static addScene(scene: Scene) {
-        this.sceneManager.addScene(scene);
-        if (!this.sceneManager.currentScene) {
-            this.sceneManager.currentScene = scene;
-        }
+        SceneManager.addScene(scene);
     }
 
-    private static loop(timestamp: number) {
+    private static loop(timestamp: number) { // use Engine instead of this as requestAnimationFrame changes it
         const delta: number = timestamp - Engine.lastrender;
 
-        Engine.sceneManager.currentScene.update(delta);
+        SceneManager.current.update(delta);
         Input.afterUpdate();
         Engine.lblFps.text = Graphics.calcFPS(delta).toFixed(2);
-        Engine.sceneManager.currentScene.draw();
+        SceneManager.current.draw();
 
         Engine.lastrender = timestamp;
         window.requestAnimationFrame(Engine.loop);

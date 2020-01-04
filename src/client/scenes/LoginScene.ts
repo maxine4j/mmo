@@ -1,3 +1,4 @@
+import { PacketHeader, Packet, AuthLoginPacket } from '../../common/Packet';
 import Scene from '../engine/scene/Scene';
 import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
@@ -10,6 +11,7 @@ import Camera from '../engine/graphics/Camera';
 import TextBox from '../engine/interface/TextBox';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
+import NetClient from '../engine/NetClient';
 
 export default class LoginScene extends Scene {
     private spriteBg: Sprite;
@@ -58,15 +60,20 @@ export default class LoginScene extends Scene {
         btnLogin.style.width = '150px';
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';
+
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            this.manager.changeScene('char-select');
+            NetClient.send(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
+                username: txtUsername.text,
+                password: txtPassword.text,
+            });
+            SceneManager.changeScene('char-select');
         });
         this.addGUI(btnLogin);
     }
 
     public init() {
         this.initGUI();
-        this.spriteBg = new Sprite('../img/dark-portal.jpg');
+        this.spriteBg = new Sprite('../img/login-background.jpg');
     }
 
     public final() {

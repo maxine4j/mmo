@@ -8,6 +8,8 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "baseUrl": ".",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "paths": {
             "*": [
                 "node_modules/*",

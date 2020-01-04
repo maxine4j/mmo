@@ -1,8 +1,17 @@
-export default class Character {
-    name: string;
-    level: number;
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-    constructor(name: string, level: number) {
+@Entity()
+export default class Character {
+    @PrimaryGeneratedColumn()
+    public id: number;
+
+    @Column()
+    public name: string;
+
+    @Column()
+    public level: number;
+
+    public constructor(name: string, level: number) {
         this.name = name;
         this.level = level;
     }

@@ -1,5 +1,7 @@
 import io from 'socket.io';
 import * as http from 'http';
+import { ResponsePacket, PacketHeader, AuthLoginPacket } from '../common/Packet';
+import handleAuthLogin from './routes/Auth';
 
 export default class NetServer {
     private static server: io.Server;
@@ -7,12 +9,17 @@ export default class NetServer {
     public static init(port: number = 3000) {
         console.log('setting up netserver');
 
-        NetServer.server = io().listen(port);
-        NetServer.server.on('connection', (socket: io.Socket) => {
-            console.log('got a connection from', socket.client.id);
-            socket.on('message', (message: any) => {
-                console.log(message);
-            });
+        this.server = io().listen(port);
+        this.server.on('connection', this.onConnection);
+    }
+
+    private static onConnection(socket: io.Socket) {
+        console.log('got a connection from', socket.client.id);
+        socket.on(PacketHeader.AUTH_LOGIN, async (packet: AuthLoginPacket) => {
+            socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(packet));
+        });
+        socket.on('disconnect', () => {
+            console.log('client disconected');
         });
     }
 }

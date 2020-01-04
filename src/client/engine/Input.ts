@@ -10,50 +10,50 @@ export default class Input {
 
     public static init() {
         window.addEventListener('keydown', (ev: KeyboardEvent) => {
-            Input.setState(ev, true);
+            this.setState(ev, true);
         });
         window.addEventListener('keyup', (ev: KeyboardEvent) => {
-            Input.setState(ev, false);
+            this.setState(ev, false);
         });
     }
 
     public static afterUpdate() {
-        Input.lastKeyStates = new Map(Input.keyStates);
+        this.lastKeyStates = new Map(this.keyStates);
     }
 
     private static setState(ev: KeyboardEvent, down: boolean) {
-        Input.keyStates.set(<Key>ev.key, down);
-        Input.ctrl = ev.ctrlKey;
-        Input.shift = ev.shiftKey;
-        Input.alt = ev.altKey;
-        Input.meta = ev.metaKey;
+        this.keyStates.set(<Key>ev.key, down);
+        this.ctrl = ev.ctrlKey;
+        this.shift = ev.shiftKey;
+        this.alt = ev.altKey;
+        this.meta = ev.metaKey;
     }
 
     public static isKeyDown(key: Key): boolean {
-        return Input.keyStates.get(key);
+        return this.keyStates.get(key);
     }
 
     public static wasKeyDown(key: Key): boolean {
-        return Input.lastKeyStates.get(key);
+        return this.lastKeyStates.get(key);
     }
 
     public static wasKeyPressed(key: Key): boolean { // check if the key was just released this frame
-        return Input.wasKeyDown(key) && !Input.isKeyDown(key);
+        return this.wasKeyDown(key) && !this.isKeyDown(key);
     }
 
     public static ctrlDown(): boolean {
-        return Input.ctrl;
+        return this.ctrl;
     }
 
     public static shiftDown(): boolean {
-        return Input.shift;
+        return this.shift;
     }
 
     public static altDown(): boolean {
-        return Input.alt;
+        return this.alt;
     }
 
     public static metaDown(): boolean {
-        return Input.meta;
+        return this.meta;
     }
 }

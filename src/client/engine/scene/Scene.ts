@@ -1,9 +1,7 @@
-import SceneManager from './SceneManager';
 import { Frame } from '../interface/Frame';
 
 export default abstract class Scene {
     public readonly id: string;
-    public manager: SceneManager;
     protected gui: Map<string, Frame>;
 
     public constructor(id: string) {
