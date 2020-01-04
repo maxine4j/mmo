@@ -1,4 +1,5 @@
 import { json } from 'express';
+import Account from './Account';
 
 export enum PacketHeader {
     AUTH_LOGIN = 'AUTH_LOGIN',
@@ -26,5 +27,8 @@ export interface AuthLoginPacket extends Packet {
 export interface ResponsePacket extends Packet {
     success: boolean;
     message: string;
-    data: string;
+}
+
+export interface AuthLoginRespPacket extends Packet, ResponsePacket {
+    account: Account;
 }

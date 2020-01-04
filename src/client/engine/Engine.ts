@@ -5,10 +5,12 @@ import SceneManager from './scene/SceneManager';
 import Scene from './scene/Scene';
 import Label from './interface/Label';
 import UIParent from './interface/UIParent';
+import Account from '../../common/Account';
 
 export default class Engine {
     private static lastrender: number = 0;
     private static lblFps: Label;
+    private static _account: Account;
 
     public static init() {
         // initialise modules
@@ -27,6 +29,13 @@ export default class Engine {
         body.addEventListener('contextmenu', (e: MouseEvent) => {
             e.preventDefault();
         });
+    }
+
+    public static get account(): Account {
+        return this._account;
+    }
+    public static set account(account: Account) {
+        this._account = account;
     }
 
     public static start() {

@@ -14,12 +14,12 @@ export default class NetServer {
     }
 
     private static onConnection(socket: io.Socket) {
-        console.log('got a connection from', socket.client.id);
+        console.log(`Client connected: ${socket.id}`);
         socket.on(PacketHeader.AUTH_LOGIN, async (packet: AuthLoginPacket) => {
             socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(packet));
         });
         socket.on('disconnect', () => {
-            console.log('client disconected');
+            console.log(`Client disconnected: ${socket.id}`);
         });
     }
 }

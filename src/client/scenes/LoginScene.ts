@@ -1,4 +1,6 @@
-import { PacketHeader, Packet, AuthLoginPacket } from '../../common/Packet';
+import {
+    PacketHeader, Packet, AuthLoginPacket, AuthLoginRespPacket,
+} from '../../common/Packet';
 import Scene from '../engine/scene/Scene';
 import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
@@ -62,11 +64,13 @@ export default class LoginScene extends Scene {
         btnLogin.style.marginTop = '30px';
 
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            NetClient.send(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
-                username: txtUsername.text,
-                password: txtPassword.text,
+            NetClient.login(txtUsername.text, txtPassword.text, (resp: AuthLoginRespPacket) => {
+                if (resp.success) {
+                    SceneManager.changeScene('char-select');
+                } else {
+                    console.log(`failed to log in: ${resp.message}`);
+                }
             });
-            SceneManager.changeScene('char-select');
         });
         this.addGUI(btnLogin);
     }
