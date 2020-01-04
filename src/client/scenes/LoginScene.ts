@@ -15,6 +15,7 @@ import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/Dialog';
+import Engine from '../engine/Engine';
 
 export default class LoginScene extends Scene {
     private spriteBg: Sprite;
@@ -69,6 +70,7 @@ export default class LoginScene extends Scene {
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
             NetClient.login(txtUsername.text, txtPassword.text, (resp: AuthLoginRespPacket) => {
                 if (resp.success) {
+                    Engine.account = resp.account;
                     SceneManager.changeScene('char-select');
                 } else {
                     console.log(`Failed to log in: ${resp.message}`);

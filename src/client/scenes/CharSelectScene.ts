@@ -12,18 +12,24 @@ import Engine from '../engine/Engine';
 import NetClient from '../engine/NetClient';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
+import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
     private _selectedChar: Character;
     private spriteBg: Sprite;
+    private panelChars: Panel;
 
     public constructor() {
         super('char-select');
     }
 
     public fetchCharacerList() {
-        this.characters = [];
+        NetClient.onNext(PacketHeader.CHAR_MYLIST, (resp: CharactersRespPacket) => {
+            this.characters = resp.characters;
+            this.buildCharList();
+        });
+        NetClient.send(PacketHeader.CHAR_MYLIST);
     }
 
     public get selectedChar(): Character {
@@ -33,7 +39,20 @@ export default class CharSelectScene extends Scene {
         this._selectedChar = this.selectedChar;
     }
 
-    public initGUI() {
+    private buildCharList() {
+        // add characters to the panel
+        for (const char of this.characters) {
+            const btnChar = new Button(`btn-char-${char.name}`, this.panelChars, char.name);
+            btnChar.style.position = 'initial';
+            btnChar.style.marginTop = '10px';
+            btnChar.style.width = '100%';
+            btnChar.style.height = '60px';
+            btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            this.addGUI(btnChar);
+        }
+    }
+
+    private initGUI() {
         // build enter world button
         const btnEnterWorld = new Button('btn-enter-world', UIParent.get(), 'Enter World');
         btnEnterWorld.style.bottom = '50px';
@@ -43,37 +62,28 @@ export default class CharSelectScene extends Scene {
         });
         this.addGUI(btnEnterWorld);
         // build character list
-        const panelCharacters = new Panel('panel-characters', UIParent.get());
-        panelCharacters.style.display = 'block';
-        panelCharacters.style.margin = '10px 10px 60px 10px';
-        panelCharacters.style.right = '0';
-        panelCharacters.style.top = '0';
-        panelCharacters.style.bottom = '0';
-        panelCharacters.style.height = 'auto';
-        panelCharacters.style.width = '300px';
-        panelCharacters.style.backgroundColor = 'rgba(10, 10, 10, 0.6)';
-        panelCharacters.style.borderRadius = '5px';
-        panelCharacters.style.padding = '10px';
-        this.addGUI(panelCharacters);
+        this.panelChars = new Panel('panel-characters', UIParent.get());
+        this.panelChars.style.display = 'block';
+        this.panelChars.style.margin = '10px 10px 60px 10px';
+        this.panelChars.style.right = '0';
+        this.panelChars.style.top = '0';
+        this.panelChars.style.bottom = '0';
+        this.panelChars.style.height = 'auto';
+        this.panelChars.style.width = '300px';
+        this.panelChars.style.backgroundColor = 'rgba(10, 10, 10, 0.6)';
+        this.panelChars.style.borderRadius = '5px';
+        this.panelChars.style.padding = '10px';
+        this.addGUI(this.panelChars);
         // realm label
-        const charListLabel = new Label('lbl-characters', panelCharacters, 'Characters');
+        const charListLabel = new Label('lbl-characters', this.panelChars, 'Characters');
         charListLabel.style.position = 'initial';
         charListLabel.style.display = 'block';
         charListLabel.style.fontSize = '180%';
         charListLabel.style.textAlign = 'center';
         this.addGUI(charListLabel);
-        // add characters to the panel
-        for (const char of this.characters) {
-            const btnChar = new Button(`btn-char-${char.name}`, panelCharacters, char.name);
-            btnChar.style.position = 'initial';
-            btnChar.style.marginTop = '10px';
-            btnChar.style.width = '100%';
-            btnChar.style.height = '60px';
-            btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-            this.addGUI(btnChar);
-        }
+
         // build new character button
-        const btnCreateCharacter = new Button('btn-create-character', panelCharacters, 'Create Character');
+        const btnCreateCharacter = new Button('btn-create-character', this.panelChars, 'Create Character');
         btnCreateCharacter.style.position = 'fixed';
         btnCreateCharacter.style.display = 'block';
         btnCreateCharacter.style.width = '250px';
@@ -85,7 +95,7 @@ export default class CharSelectScene extends Scene {
         });
         this.addGUI(btnCreateCharacter);
         // build delete character button
-        const btnDeleteChar = new Button('btn-create-character', panelCharacters, 'Delete Character');
+        const btnDeleteChar = new Button('btn-create-character', this.panelChars, 'Delete Character');
         btnDeleteChar.style.position = 'fixed';
         btnDeleteChar.style.margin = '5px 10px';
         btnDeleteChar.style.display = 'block';
@@ -98,7 +108,7 @@ export default class CharSelectScene extends Scene {
         });
         this.addGUI(btnDeleteChar);
         // build back button
-        const btnBack = new Button('btn-create-character', panelCharacters, 'Back');
+        const btnBack = new Button('btn-create-character', this.panelChars, 'Back');
         btnBack.style.position = 'fixed';
         btnBack.style.margin = '5px 10px';
         btnBack.style.display = 'block';
@@ -126,8 +136,9 @@ export default class CharSelectScene extends Scene {
     }
 
     public init() {
-        this.fetchCharacerList();
         this.initGUI();
+        this.fetchCharacerList();
+
 
         this.spriteBg = new Sprite('../img/char-select.jpg');
     }

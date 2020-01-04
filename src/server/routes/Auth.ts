@@ -9,19 +9,19 @@ export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket
     const account = await AccountEntity.findOne({ temp_username: packet.username, temp_password: packet.password });
     if (account) {
         if (account.session != null) {
-            console.log(`\tUser ${packet.username} is already logged in`);
+            console.log(`User ${packet.username} is already logged in`);
             return <AuthLoginRespPacket>{ success: false, message: 'This account is already logged in' };
         }
         account.session = sessionid;
-        console.log(`\tUser ${packet.username} logged in successfully on ${account.session}`);
+        console.log(`User ${packet.username} logged in successfully on ${account.session}`);
         account.save();
         return <AuthLoginRespPacket>{
             success: true,
             message: `logged in as ${account.name}`,
-            account: account.toObj(),
+            account: account.build(),
         };
     }
-    console.log(`\tUser ${packet.username} provided incorrect login details`);
+    console.log(`User ${packet.username} provided incorrect login details`);
     return <AuthLoginRespPacket>{ success: false, message: 'Incorrect username or password' };
 }
 

@@ -24,7 +24,9 @@ export default class AccountEntity extends BaseEntity {
     @OneToMany((type) => CharacterEntity, (character) => character.account)
     public characters: CharacterEntity[];
 
-    public toObj() {
-        return new Account().build(this);
+    public build() {
+        return new Account().build({
+            name: this.name,
+        });
     }
 }

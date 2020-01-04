@@ -4,6 +4,7 @@ import {
     ResponsePacket, PacketHeader, AuthLoginPacket,
 } from '../common/Packet';
 import { handleAuthLogin, handleAuthLogout } from './routes/Auth';
+import handleMyList from './routes/Character';
 
 export default class NetServer {
     private static server: io.Server;
@@ -25,6 +26,9 @@ export default class NetServer {
         });
         socket.on(PacketHeader.AUTH_LOGOUT, async () => {
             await handleAuthLogout(socket.id);
+        });
+        socket.on(PacketHeader.CHAR_MYLIST, async () => {
+            socket.emit(PacketHeader.CHAR_MYLIST, await handleMyList(socket.id));
         });
     }
 }

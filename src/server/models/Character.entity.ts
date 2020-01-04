@@ -1,7 +1,8 @@
 import {
-    Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
+    Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany, ManyToOne,
 } from 'typeorm';
-import { Race } from '../../common/models/Character';
+import Buildable from '../../common/Buildable';
+import Character, { Race } from '../../common/models/Character';
 import AccountEntity from './Account.entity';
 
 @Entity()
@@ -15,6 +16,17 @@ export default class CharacterEntity extends BaseEntity {
     @Column({ transformer: { from: (val: number) => <Race>val, to: (val: Race) => <number>val } })
     public race: Race;
 
-    @OneToMany((type) => AccountEntity, (account) => account.characters)
+    @Column()
+    public level: number;
+
+    @ManyToOne((type) => AccountEntity, (account) => account.characters)
     public account: AccountEntity;
+
+    public build(): Buildable {
+        return new Character().build({
+            name: this.name,
+            race: this.race,
+            level: this.level,
+        });
+    }
 }
