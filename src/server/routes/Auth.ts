@@ -1,11 +1,35 @@
-import { Packet, AuthLoginPacket, ResponsePacket } from '../../common/Packet';
+import {
+    Packet, AuthLoginPacket, ResponsePacket, AuthLoginRespPacket,
+} from '../../common/Packet';
 import NetServer from '../NetServer';
-import Account from '../models/Account.entity';
+import AccountEntity from '../models/Account.entity';
 
-export default async function handleAuthLogin(packet: AuthLoginPacket): Promise<ResponsePacket> {
-    const account = await Account.findOne({ temp_username: packet.username, temp_password: packet.password });
+export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket): Promise<AuthLoginRespPacket> {
+    console.log(`User ${packet.username} is attempting to log in`);
+    const account = await AccountEntity.findOne({ temp_username: packet.username, temp_password: packet.password });
     if (account) {
-        return <ResponsePacket>{ success: true, message: `logged in as ${account.name}` };
+        if (account.session != null) {
+            console.log(`\tUser ${packet.username} is already logged in`);
+            return <AuthLoginRespPacket>{ success: false, message: 'This account is already logged in' };
+        }
+        account.session = sessionid;
+        console.log(`\tUser ${packet.username} logged in successfully on ${account.session}`);
+        account.save();
+        return <AuthLoginRespPacket>{
+            success: true,
+            message: `logged in as ${account.name}`,
+            account: account.toObj(),
+        };
     }
-    return <ResponsePacket>{ success: false, message: 'Unable to find account that username and password' };
+    console.log(`\tUser ${packet.username} provided incorrect login details`);
+    return <AuthLoginRespPacket>{ success: false, message: 'Unable to find account that username and password' };
+}
+
+export async function handleAuthLogout(sessionid: string) {
+    const account = await AccountEntity.findOne({ session: sessionid });
+    if (account) {
+        console.log(`User ${account.temp_username} has logged out`);
+        account.session = null;
+        account.save();
+    }
 }

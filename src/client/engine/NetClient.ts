@@ -3,6 +3,7 @@ import {
     Packet, PacketHeader, ResponsePacket, AuthLoginPacket, AuthLoginRespPacket,
 } from '../../common/Packet';
 import Engine from './Engine';
+import SceneManager from './scene/SceneManager';
 
 export default class NetClient {
     private static client: SocketIOClient.Socket;
@@ -14,6 +15,11 @@ export default class NetClient {
     }
 
     private static initEvents() {
+        this.client.on('disconnect', () => {
+            this.accountRecvCallback = null;
+            Engine.account = null;
+            SceneManager.changeScene('login');
+        });
         this.client.on(PacketHeader.AUTH_LOGIN, (resp: AuthLoginRespPacket) => {
             Engine.account = resp.account;
             this.accountRecvCallback(resp);
@@ -26,6 +32,12 @@ export default class NetClient {
             password,
         });
         this.accountRecvCallback = cb;
+    }
+
+    public static logout() {
+        this.accountRecvCallback = null;
+        Engine.account = null;
+        this.send(PacketHeader.AUTH_LOGOUT, null);
     }
 
     public static send(header: PacketHeader, packet: Packet) {

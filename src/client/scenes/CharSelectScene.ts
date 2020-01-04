@@ -3,11 +3,13 @@ import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import Character from '../../common/Character';
+import Character from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
 import ContextMenu from '../engine/interface/ContextMenu';
 import Label from '../engine/interface/Label';
 import Camera from '../engine/graphics/Camera';
+import Engine from '../engine/Engine';
+import NetClient from '../engine/NetClient';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
@@ -20,11 +22,6 @@ export default class CharSelectScene extends Scene {
 
     public fetchCharacerList() {
         this.characters = [];
-        this.characters.push(new Character('Arwic', 120));
-        this.characters.push(new Character('Arwicdruid', 120));
-        this.characters.push(new Character('Arwicdk', 120));
-        this.characters.push(new Character('Arwicmage', 120));
-        this.characters.push(new Character('Arwiclock', 120));
     }
 
     public get selectedChar(): Character {
@@ -93,20 +90,23 @@ export default class CharSelectScene extends Scene {
         btnDeleteChar.style.width = '200px';
         btnDeleteChar.style.float = 'bottom';
         btnDeleteChar.style.bottom = '5px';
+        btnDeleteChar.style.right = '210px';
         btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            console.log('Creating new character...');
+            console.log('Delete character...');
         });
         this.addGUI(btnDeleteChar);
-        // build bakc button
-        const btnBack = new Button('btn-create-character', panelCharacters, 'Delete Character');
-        btnDeleteChar.style.position = 'fixed';
-        btnDeleteChar.style.margin = '5px 10px';
-        btnDeleteChar.style.display = 'block';
-        btnDeleteChar.style.width = '200px';
-        btnDeleteChar.style.float = 'bottom';
-        btnDeleteChar.style.bottom = '5px';
-        btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            console.log('Creating new character...');
+        // build back button
+        const btnBack = new Button('btn-create-character', panelCharacters, 'Back');
+        btnBack.style.position = 'fixed';
+        btnBack.style.margin = '5px 10px';
+        btnBack.style.display = 'block';
+        btnBack.style.width = '200px';
+        btnBack.style.float = 'bottom';
+        btnBack.style.bottom = '5px';
+        btnBack.style.right = '0';
+        btnBack.addEventListener('click', (self: Button, ev: MouseEvent) => {
+            NetClient.logout();
+            SceneManager.changeScene('login');
         });
         this.addGUI(btnDeleteChar);
 

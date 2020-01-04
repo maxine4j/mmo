@@ -8,6 +8,7 @@ async function initDB() {
     account.name = 'Tim Ings';
     account.temp_username = 'arwic';
     account.temp_password = 'asd';
+    account.session = null;
     await account.save();
 }
 

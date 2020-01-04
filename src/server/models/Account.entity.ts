@@ -1,11 +1,16 @@
 import {
-    Entity, PrimaryGeneratedColumn, Column, BaseEntity,
+    Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
 } from 'typeorm';
+import Account from '../../common/models/Account';
+import CharacterEntity from './Character.entity';
 
 @Entity()
-export default class Account extends BaseEntity {
+export default class AccountEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     public id: number;
+
+    @Column({ nullable: true })
+    public session: string;
 
     @Column()
     public name: string;
@@ -15,4 +20,11 @@ export default class Account extends BaseEntity {
 
     @Column()
     public temp_password: string;
+
+    @OneToMany((type) => CharacterEntity, (character) => character.account)
+    public characters: CharacterEntity[];
+
+    public toObj() {
+        return new Account().build(this);
+    }
 }

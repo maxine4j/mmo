@@ -1,9 +1,9 @@
 import { json } from 'express';
-import Account from './Account';
+import Account from './models/Account';
 
 export enum PacketHeader {
     AUTH_LOGIN = 'AUTH_LOGIN',
-    AUTH_LOGIN_RESP = 'AUTH_LOGIN_RESP',
+    AUTH_LOGOUT = 'AUTH_LOGOUT',
     CHAR_CREATE = 'CHAR_CREATE',
     CHAR_GET = 'CHAR_GET',
 }
