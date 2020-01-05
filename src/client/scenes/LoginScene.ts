@@ -46,6 +46,7 @@ export default class LoginScene extends Scene {
         txtUsername.style.position = 'initial';
         txtUsername.style.width = '100%';
         txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        txtUsername.text = 'arwic';
         this.addGUI(txtUsername);
 
         const lblPassword = new Label('lbl-username', panel, 'Account Password');
@@ -59,9 +60,11 @@ export default class LoginScene extends Scene {
         txtPassword.style.position = 'initial';
         txtPassword.style.width = '100%';
         txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        txtPassword.text = 'asd';
         this.addGUI(txtPassword);
 
-        const dialog = new Dialog('dialog-loginerr', UIParent.get(), 'THis is a dialog', false);
+        const dialog = new Dialog('dialog-login-err', UIParent.get(), '', false);
+        this.addGUI(dialog);
 
         const btnLogin = new Button('btn-login', panel, 'Login');
         btnLogin.style.width = '150px';

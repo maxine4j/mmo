@@ -1,10 +1,10 @@
 import io from 'socket.io';
 import * as http from 'http';
 import {
-    ResponsePacket, PacketHeader, AuthLoginPacket,
+    ResponsePacket, PacketHeader, AuthLoginPacket, CharacterPacket,
 } from '../common/Packet';
 import { handleAuthLogin, handleAuthLogout } from './routes/Auth';
-import handleMyList from './routes/Character';
+import { handleMyList, handleCreate } from './routes/Character';
 
 export default class NetServer {
     private static server: io.Server;
@@ -29,6 +29,9 @@ export default class NetServer {
         });
         socket.on(PacketHeader.CHAR_MYLIST, async () => {
             socket.emit(PacketHeader.CHAR_MYLIST, await handleMyList(socket.id));
+        });
+        socket.on(PacketHeader.CHAR_CREATE, async (packet: CharacterPacket) => {
+            socket.emit(PacketHeader.CHAR_CREATE, await handleCreate(socket.id, packet));
         });
     }
 }

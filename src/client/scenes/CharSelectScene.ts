@@ -56,6 +56,7 @@ export default class CharSelectScene extends Scene {
         // build enter world button
         const btnEnterWorld = new Button('btn-enter-world', UIParent.get(), 'Enter World');
         btnEnterWorld.style.bottom = '50px';
+        btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
         btnEnterWorld.addEventListener('click', (self: Button, ev: MouseEvent) => {
             console.log('Entering world...');
@@ -91,48 +92,35 @@ export default class CharSelectScene extends Scene {
         btnCreateCharacter.style.bottom = '75px';
         btnCreateCharacter.style.right = '40px';
         btnCreateCharacter.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            console.log('Creating new character...');
+            SceneManager.changeScene('char-create');
         });
         this.addGUI(btnCreateCharacter);
         // build delete character button
-        const btnDeleteChar = new Button('btn-create-character', this.panelChars, 'Delete Character');
+        const btnDeleteChar = new Button('btn-delete-character', this.panelChars, 'Delete Character');
         btnDeleteChar.style.position = 'fixed';
         btnDeleteChar.style.margin = '5px 10px';
         btnDeleteChar.style.display = 'block';
-        btnDeleteChar.style.width = '200px';
+        btnDeleteChar.style.width = '185px';
         btnDeleteChar.style.float = 'bottom';
         btnDeleteChar.style.bottom = '5px';
-        btnDeleteChar.style.right = '210px';
+        btnDeleteChar.style.right = '130px';
         btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
             console.log('Delete character...');
         });
         this.addGUI(btnDeleteChar);
         // build back button
-        const btnBack = new Button('btn-create-character', this.panelChars, 'Back');
+        const btnBack = new Button('btn-back', this.panelChars, 'Back');
         btnBack.style.position = 'fixed';
         btnBack.style.margin = '5px 10px';
         btnBack.style.display = 'block';
-        btnBack.style.width = '200px';
-        btnBack.style.float = 'bottom';
+        btnBack.style.width = '120px';
         btnBack.style.bottom = '5px';
         btnBack.style.right = '0';
         btnBack.addEventListener('click', (self: Button, ev: MouseEvent) => {
             NetClient.logout();
             SceneManager.changeScene('login');
         });
-        this.addGUI(btnDeleteChar);
-
-        const contextMenu = new ContextMenu('ctxm-mymenu', UIParent.get());
-        contextMenu.addOption('Option1', () => { console.log('option 1 clicked'); });
-        contextMenu.addOption('Option2', () => { console.log('option 2 clicked'); });
-        contextMenu.addOption('Option3', () => { console.log('option 3 clicked'); });
-        contextMenu.addOption('Option4', () => { console.log('option 4 clicked'); });
-
-        const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-        canvas.addEventListener('contextmenu', (ev: MouseEvent) => {
-            contextMenu.open(ev.clientX, ev.clientY);
-            ev.preventDefault();
-        });
+        this.addGUI(btnBack);
     }
 
     public init() {

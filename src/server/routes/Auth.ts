@@ -6,7 +6,10 @@ import AccountEntity from '../models/Account.entity';
 
 export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket): Promise<AuthLoginRespPacket> {
     console.log(`User ${packet.username} is attempting to log in`);
-    const account = await AccountEntity.findOne({ temp_username: packet.username, temp_password: packet.password });
+    const account = await AccountEntity.createQueryBuilder()
+        .where('LOWER(temp_username) = LOWER(:username)', { username: packet.username })
+        .andWhere('temp_password = :password', { password: packet.password })
+        .getOne();
     if (account) {
         if (account.session != null) {
             console.log(`User ${packet.username} is already logged in`);

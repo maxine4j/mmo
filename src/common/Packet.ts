@@ -21,14 +21,14 @@ export interface Packet {
     header: PacketHeader;
 }
 
-export interface AuthLoginPacket extends Packet {
-    username: string;
-    password: string;
-}
-
 export interface ResponsePacket extends Packet {
     success: boolean;
     message: string;
+}
+
+export interface AuthLoginPacket extends Packet {
+    username: string;
+    password: string;
 }
 
 export interface AuthLoginRespPacket extends Packet, ResponsePacket {
@@ -37,4 +37,8 @@ export interface AuthLoginRespPacket extends Packet, ResponsePacket {
 
 export interface CharactersRespPacket extends Packet, ResponsePacket {
     characters: Character[];
+}
+
+export interface CharacterPacket extends Packet {
+    character: Character,
 }
