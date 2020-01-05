@@ -19,7 +19,7 @@ export default abstract class Scene {
         }
     }
 
-    public abstract init(): void;
+    public abstract async init(): Promise<void>;
 
     public abstract final(): void;
 

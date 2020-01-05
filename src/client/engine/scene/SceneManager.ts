@@ -16,13 +16,15 @@ export default class SceneManager {
             this.current.final();
             this.current.clearGUI();
         }
-        this._current = scene;
-        this.current.init();
+
+        scene.init().then(() => {
+            this._current = scene;
+        });
     }
 
     public static addScene(scene: Scene) {
         this.scenes.set(scene.id, scene);
-        if (!this.current) {
+        if (this.scenes.size === 1) {
             this.current = scene;
         }
     }

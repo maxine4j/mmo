@@ -16,6 +16,8 @@ import Graphics from '../engine/graphics/Graphics';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/Dialog';
 import Engine from '../engine/Engine';
+import Rect from '../engine/graphics/Rect';
+import loginBackground from '../assets/imgs/login-background.jpg';
 
 export default class LoginScene extends Scene {
     private spriteBg: Sprite;
@@ -85,9 +87,9 @@ export default class LoginScene extends Scene {
         this.addGUI(btnLogin);
     }
 
-    public init() {
+    public async init() {
         this.initGUI();
-        this.spriteBg = new Sprite('../img/login-background.jpg');
+        this.spriteBg = await Sprite.fromUrl(loginBackground);
     }
 
     public final() {
@@ -99,6 +101,6 @@ export default class LoginScene extends Scene {
     }
 
     public draw() {
-        this.spriteBg.draw(0, 0, Graphics.viewportWidth, Graphics.viewportHeight);
+        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
     }
 }

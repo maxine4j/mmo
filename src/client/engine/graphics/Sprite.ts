@@ -1,42 +1,54 @@
 import Graphics from './Graphics';
+import Rect from './Rect';
 
 export default class Sprite {
     private src: string;
-    private bitmap: ImageBitmap;
+    public bitmap: ImageBitmap;
 
-    public constructor(src: string, sx?: number, sy?: number, sw?: number, sh?: number) {
-        this.src = src;
-        const img = new Image();
-        img.src = this.src;
-        img.onload = () => {
-            if (sh) {
-                createImageBitmap(img, sx, sy, sw, sh).then((val: ImageBitmap) => {
-                    this.bitmap = val;
-                });
-            } else {
-                createImageBitmap(img).then((val: ImageBitmap) => {
-                    this.bitmap = val;
-                });
-            }
-        };
+    public constructor(src?: ImageBitmap, source?: Rect) {
+        // create a sprite from an existing ImageBitmap
+        if (source) {
+            // create the bitmap with a source
+            createImageBitmap(src, source.x, source.y, source.width, source.height).then((val: ImageBitmap) => {
+                this.bitmap = val;
+            });
+        }
+        if (src) {
+            // create the bitmap from the entire image
+            this.bitmap = src;
+        }
     }
 
-    public draw(dx: number, dy: number, dw?: number, dh?: number, sx?: number, sy?: number, sw?: number, sh?: number) {
+    public static fromUrl(src: string, source?: Rect): Promise<Sprite> {
+        return new Promise((resolve, reject) => {
+            // create a sprite from a url
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                if (source) {
+                    // create the bitmap with a source
+                    createImageBitmap(img, source.x, source.y, source.width, source.height).then((val: ImageBitmap) => {
+                        resolve(new Sprite(val));
+                    });
+                } else {
+                    // create the bitmap from the entire image
+                    createImageBitmap(img).then((val: ImageBitmap) => {
+                        resolve(new Sprite(val));
+                    });
+                }
+            };
+        });
+    }
+
+    public draw(dest: Rect, source?: Rect) {
         if (this.bitmap) {
-            // TODO: how does this effect performance
-            if (dh === undefined) { // draw with just dest coords
+            if (source) {
                 Graphics.context.drawImage(this.bitmap,
-                    Math.floor(dx), Math.floor(dy));
-            } else if (sx === undefined) { // draw with dest width and height
+                    dest.x, dest.y, dest.width, dest.height,
+                    source.x, source.y, source.width, source.height);
+            } else {
                 Graphics.context.drawImage(this.bitmap,
-                    Math.floor(dx), Math.floor(dy),
-                    Math.floor(dw), Math.floor(dh));
-            } else { // draw with source
-                Graphics.context.drawImage(this.bitmap,
-                    Math.floor(dx), Math.floor(dy),
-                    Math.floor(dw), Math.floor(dh),
-                    Math.floor(sx), Math.floor(sy),
-                    Math.floor(sw), Math.floor(sh));
+                    dest.x, dest.y, dest.width, dest.height);
             }
         }
     }

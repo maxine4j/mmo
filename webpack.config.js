@@ -15,23 +15,28 @@ module.exports = {
             },
             {
                 test: /\.scss$/,
-                use: ['style-loader', 'css-loader', 'sass-loader']
+                use: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.ttf$/,
-                loader: 'url-loader',
-                query: {
-                    outputPath: './client/fonts/',
-                    name: '[name].[ext]'
-                }
-            }
+                test: /\.(png|jpe?g|gif)$/i,
+                use: [
+                    {
+                        loader: 'file-loader',
+                        options: {
+                            outputPath: './assets',
+                            name: '[name].[ext]',
+                        },
+                    },
+                ],
+            },
         ],
     },
     resolve: {
         extensions: ['.tsx', '.ts', '.js', '.scss'],
     },
     output: {
-        filename: './client/bundle.js',
+        path: `${__dirname}/dist/client/`,
+        filename: 'bundle.js',
     },
     externals: [
         'fs',
@@ -43,7 +48,7 @@ module.exports = {
             hash: true,
             title: 'MMO',
             template: './src/client/index.html',
-            filename: './client/index.html',
+            filename: 'index.html',
         }),
     ],
 };

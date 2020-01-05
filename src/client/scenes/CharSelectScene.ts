@@ -13,12 +13,18 @@ import NetClient from '../engine/NetClient';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
+import Rect from '../engine/graphics/Rect';
+import Animation from '../engine/graphics/Animation';
+import backgroundImg from '../assets/imgs/char-select.jpg';
+import KnightAnimDef from '../assets/anims/knight-idle.json';
+import KnightAnimAtlas from '../assets/anims/knight-idle.png';
 
 export default class CharSelectScene extends Scene {
     private characters: Character[];
     private _selectedChar: Character;
     private spriteBg: Sprite;
     private panelChars: Panel;
+    private selectedAnim: Animation;
 
     public constructor() {
         super('char-select');
@@ -123,12 +129,12 @@ export default class CharSelectScene extends Scene {
         this.addGUI(btnBack);
     }
 
-    public init() {
+    public async init() {
         this.initGUI();
         this.fetchCharacerList();
 
-
-        this.spriteBg = new Sprite('../img/char-select.jpg');
+        this.spriteBg = await Sprite.fromUrl(backgroundImg);
+        this.selectedAnim = new Animation(KnightAnimDef, await Sprite.fromUrl(KnightAnimAtlas));
     }
 
     public final() {
@@ -136,10 +142,11 @@ export default class CharSelectScene extends Scene {
     }
 
     public update(delta: number) {
-
+        this.selectedAnim.update(delta);
     }
 
     public draw() {
-        this.spriteBg.draw(0, 0, Graphics.viewportWidth, Graphics.viewportHeight);
+        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
+        this.selectedAnim.draw(new Rect(10, 10, 400, 400));
     }
 }

@@ -49,11 +49,13 @@ export default class Engine {
     private static loop(timestamp: number) { // use Engine instead of this as requestAnimationFrame changes it
         const delta: number = timestamp - Engine.lastrender;
 
-        SceneManager.current.update(delta);
-        Input.afterUpdate();
-        Engine.lblFps.text = Graphics.calcFPS(delta).toFixed(2);
-        Graphics.clear();
-        SceneManager.current.draw();
+        if (SceneManager.current) {
+            SceneManager.current.update(delta);
+            Input.afterUpdate();
+            Engine.lblFps.text = Graphics.calcFPS(delta).toFixed(2);
+            Graphics.clear();
+            SceneManager.current.draw();
+        }
 
         Engine.lastrender = timestamp;
         window.requestAnimationFrame(Engine.loop);

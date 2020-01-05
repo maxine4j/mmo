@@ -17,6 +17,8 @@ import {
 } from '../../common/Packet';
 import TextBox from '../engine/interface/TextBox';
 import Dialog from '../engine/interface/Dialog';
+import Rect from '../engine/graphics/Rect';
+import backgroundImg from '../assets/imgs/char-select.jpg';
 
 export default class CharCreateScene extends Scene {
     private spriteBg: Sprite;
@@ -94,10 +96,9 @@ export default class CharCreateScene extends Scene {
         this.addGUI(btnBack);
     }
 
-    public init() {
+    public async init() {
         this.initGUI();
-
-        this.spriteBg = new Sprite('../img/char-select.jpg');
+        this.spriteBg = await Sprite.fromUrl(backgroundImg);
     }
 
     public final() {
@@ -109,6 +110,6 @@ export default class CharCreateScene extends Scene {
     }
 
     public draw() {
-        this.spriteBg.draw(0, 0, Graphics.viewportWidth, Graphics.viewportHeight);
+        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
     }
 }

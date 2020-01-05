@@ -10,15 +10,17 @@
     "watch-ts-server": "tsc -w --p tsconfig.server.json -outDir dist/",
     "watch-webpack-client": "yarn webpack --watch",
     "watch-node-server": "nodemon dist/server/index.js",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn run watch-ts-server\" \"yarn run watch-webpack-client\" \"yarn run watch-node-server\"",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch-ts-server\" \"yarn watch-webpack-client\" \"yarn watch-node-server\"",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
     "clean": "rm -rf dist/*"
   },
   "dependencies": {
     "concurrently": "^5.0.2",
     "express": "^4.17.1",
+    "file-loader": "^5.0.2",
     "fs": "^0.0.1-security",
     "global": "^4.4.0",
+    "json-loader": "^0.5.7",
     "pg": "^7.17.0",
     "reflect-metadata": "^0.1.13",
     "socket.io": "^2.3.0",
