@@ -1,15 +1,10 @@
-import {
-    PacketHeader, Packet, AuthLoginPacket, AuthLoginRespPacket,
-} from '../../common/Packet';
+import { AuthLoginRespPacket } from '../../common/Packet';
 import Scene from '../engine/scene/Scene';
-import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import Panel from '../engine/interface/Panel';
-import ContextMenu from '../engine/interface/ContextMenu';
 import Label from '../engine/interface/Label';
-import Camera from '../engine/graphics/Camera';
 import TextBox from '../engine/interface/TextBox';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';

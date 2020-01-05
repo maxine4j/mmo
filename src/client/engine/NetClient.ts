@@ -1,5 +1,4 @@
 import * as io from 'socket.io-client';
-import { IndexOptions } from 'typeorm';
 import {
     Packet, PacketHeader, ResponsePacket, AuthLoginPacket, AuthLoginRespPacket,
 } from '../../common/Packet';

@@ -1,14 +1,10 @@
 import Scene from '../engine/scene/Scene';
-import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import Character from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
-import ContextMenu from '../engine/interface/ContextMenu';
 import Label from '../engine/interface/Label';
-import Camera from '../engine/graphics/Camera';
-import Engine from '../engine/Engine';
 import NetClient from '../engine/NetClient';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
@@ -64,7 +60,7 @@ export default class CharSelectScene extends Scene {
         btnEnterWorld.style.bottom = '50px';
         btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
-        btnEnterWorld.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnEnterWorld.addEventListener('click', () => {
             console.log('Entering world...');
         });
         this.addGUI(btnEnterWorld);
@@ -97,7 +93,7 @@ export default class CharSelectScene extends Scene {
         btnCreateCharacter.style.float = 'bottom';
         btnCreateCharacter.style.bottom = '75px';
         btnCreateCharacter.style.right = '40px';
-        btnCreateCharacter.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnCreateCharacter.addEventListener('click', () => {
             SceneManager.changeScene('char-create');
         });
         this.addGUI(btnCreateCharacter);
@@ -110,7 +106,7 @@ export default class CharSelectScene extends Scene {
         btnDeleteChar.style.float = 'bottom';
         btnDeleteChar.style.bottom = '5px';
         btnDeleteChar.style.right = '130px';
-        btnDeleteChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnDeleteChar.addEventListener('click', () => {
             console.log('Delete character...');
         });
         this.addGUI(btnDeleteChar);
@@ -122,7 +118,7 @@ export default class CharSelectScene extends Scene {
         btnBack.style.width = '120px';
         btnBack.style.bottom = '5px';
         btnBack.style.right = '0';
-        btnBack.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnBack.addEventListener('click', () => {
             NetClient.logout();
             SceneManager.changeScene('login');
         });

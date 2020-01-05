@@ -1,20 +1,14 @@
 import Scene from '../engine/scene/Scene';
-import { Frame } from '../engine/interface/Frame';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import Character, { Race } from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
-import ContextMenu from '../engine/interface/ContextMenu';
 import Label from '../engine/interface/Label';
-import Camera from '../engine/graphics/Camera';
-import Engine from '../engine/Engine';
 import NetClient from '../engine/NetClient';
 import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
-import {
-    PacketHeader, CharactersRespPacket, Packet, CharacterPacket, ResponsePacket,
-} from '../../common/Packet';
+import { PacketHeader, CharacterPacket, ResponsePacket } from '../../common/Packet';
 import TextBox from '../engine/interface/TextBox';
 import Dialog from '../engine/interface/Dialog';
 import Rect from '../engine/graphics/Rect';
@@ -66,7 +60,7 @@ export default class CharCreateScene extends Scene {
         btnCreate.style.display = 'float';
         btnCreate.style.float = 'right';
         btnCreate.style.width = '150px';
-        btnCreate.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnCreate.addEventListener('click', () => {
             this.characterCharacter();
         });
         this.addGUI(btnCreate);
@@ -90,7 +84,7 @@ export default class CharCreateScene extends Scene {
         btnBack.style.display = 'float';
         btnBack.style.float = 'left';
         btnBack.style.width = '150px';
-        btnBack.addEventListener('click', (self: Button, ev: MouseEvent) => {
+        btnBack.addEventListener('click', () => {
             SceneManager.changeScene('char-select');
         });
         this.addGUI(btnBack);
