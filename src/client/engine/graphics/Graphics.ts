@@ -1,39 +1,33 @@
+import * as THREE from 'three';
+
 export default class Graphics {
-    private static _canvas: HTMLCanvasElement;
-    private static _context: CanvasRenderingContext2D;
+    private static renderer: THREE.WebGLRenderer;
 
     public static init() {
-        this._canvas = <HTMLCanvasElement>document.getElementById('canvas');
-        this._context = this._canvas.getContext('2d');
+        this.renderer = new THREE.WebGLRenderer();
+        document.body.appendChild(this.renderer.domElement);
+
         window.addEventListener('resize', () => { this.windowResize(); });
         this.windowResize();
     }
 
     private static windowResize() {
-        this._canvas.width = window.innerWidth;
-        this._canvas.height = window.innerHeight;
-        this.context.fillStyle = 'black';
-        this.context.fillRect(0, 0, this.viewportWidth, this.viewportHeight);
+        this.renderer.setSize(Graphics.viewportWidth, Graphics.viewportHeight);
     }
 
     public static get viewportWidth(): number {
-        return this._canvas.width;
+        return window.innerWidth;
     }
 
     public static get viewportHeight(): number {
-        return this._canvas.height;
-    }
-
-    public static get context(): CanvasRenderingContext2D {
-        return this._context;
+        return window.innerHeight;
     }
 
     public static calcFPS(delta: number): number {
-        return 1 / (delta / 1000);
+        return 1 / delta;
     }
 
-    public static clear() {
-        this.context.fillStyle = 'black';
-        this.context.fillRect(0, 0, this.viewportWidth, this.viewportHeight);
+    public static render(scene: THREE.Scene, camera: THREE.Camera) {
+        this.renderer.render(scene, camera);
     }
 }

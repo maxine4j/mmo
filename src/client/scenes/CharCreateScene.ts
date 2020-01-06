@@ -1,4 +1,4 @@
-import Scene from '../engine/scene/Scene';
+import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
@@ -6,16 +6,12 @@ import Character, { Race } from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
-import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharacterPacket, ResponsePacket } from '../../common/Packet';
 import TextBox from '../engine/interface/TextBox';
 import Dialog from '../engine/interface/Dialog';
-import Rect from '../engine/graphics/Rect';
-import backgroundImg from '../assets/imgs/char-select.jpg';
 
-export default class CharCreateScene extends Scene {
-    private spriteBg: Sprite;
+export default class CharCreateScene extends GameScene {
     private txtName: TextBox;
     private dialog: Dialog;
 
@@ -92,7 +88,6 @@ export default class CharCreateScene extends Scene {
 
     public async init() {
         this.initGUI();
-        this.spriteBg = await Sprite.fromUrl(backgroundImg);
     }
 
     public final() {
@@ -104,6 +99,5 @@ export default class CharCreateScene extends Scene {
     }
 
     public draw() {
-        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
     }
 }

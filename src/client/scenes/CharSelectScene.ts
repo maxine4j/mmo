@@ -1,4 +1,5 @@
-import Scene from '../engine/scene/Scene';
+import * as THREE from 'three';
+import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
@@ -6,21 +7,16 @@ import Character from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
-import Sprite from '../engine/graphics/Sprite';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
-import Rect from '../engine/graphics/Rect';
-import Animation from '../engine/graphics/Animation';
-import backgroundImg from '../assets/imgs/char-select.jpg';
-import KnightAnimDef from '../assets/anims/knight-idle.json';
-import KnightAnimAtlas from '../assets/anims/knight-idle.png';
 
-export default class CharSelectScene extends Scene {
+export default class CharSelectScene extends GameScene {
     private characters: Character[];
     private _selectedChar: Character;
-    private spriteBg: Sprite;
     private panelChars: Panel;
-    private selectedAnim: Animation;
+    private scene: THREE.Scene;
+    private camera: THREE.Camera;
+    private cube: THREE.Mesh;
 
     public constructor() {
         super('char-select');
@@ -129,8 +125,17 @@ export default class CharSelectScene extends Scene {
         this.initGUI();
         this.fetchCharacerList();
 
-        this.spriteBg = await Sprite.fromUrl(backgroundImg);
-        this.selectedAnim = new Animation(KnightAnimDef, await Sprite.fromUrl(KnightAnimAtlas));
+        console.log('this is three', THREE);
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+
+        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const material = new THREE.MeshBasicMaterial({ color: 'red' });
+        this.cube = new THREE.Mesh(geometry, material);
+        this.scene.add(this.cube);
+
+        this.camera.position.z = 5;
     }
 
     public final() {
@@ -138,11 +143,12 @@ export default class CharSelectScene extends Scene {
     }
 
     public update(delta: number) {
-        this.selectedAnim.update(delta);
+        console.log(delta);
+        this.cube.rotation.x += 1 * delta;
+        this.cube.rotation.y += 1 * delta;
     }
 
     public draw() {
-        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
-        this.selectedAnim.draw(new Rect(10, 10, 400, 400));
+        Graphics.render(this.scene, this.camera);
     }
 }

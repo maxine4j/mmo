@@ -2,7 +2,7 @@ import Input from './Input';
 import Graphics from './graphics/Graphics';
 import NetClient from './NetClient';
 import SceneManager from './scene/SceneManager';
-import Scene from './scene/Scene';
+import GameScene from './scene/GameScene';
 import Label from './interface/Label';
 import UIParent from './interface/UIParent';
 import Account from '../../common/models/Account';
@@ -42,18 +42,17 @@ export default class Engine {
         window.requestAnimationFrame(this.loop);
     }
 
-    public static addScene(scene: Scene) {
+    public static addScene(scene: GameScene) {
         SceneManager.addScene(scene);
     }
 
     private static loop(timestamp: number) { // use Engine instead of this as requestAnimationFrame changes it
-        const delta: number = timestamp - Engine.lastrender;
+        const delta: number = (timestamp - Engine.lastrender) / 1000;
 
         if (SceneManager.current) {
             SceneManager.current.update(delta);
             Input.afterUpdate();
             Engine.lblFps.text = Graphics.calcFPS(delta).toFixed(2);
-            Graphics.clear();
             SceneManager.current.draw();
         }
 

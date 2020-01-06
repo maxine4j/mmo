@@ -1,17 +1,17 @@
-import Scene from './Scene';
+import GameScene from './GameScene';
 
 export default class SceneManager {
-    private static scenes: Map<string, Scene>;
-    private static _current: Scene;
+    private static scenes: Map<string, GameScene>;
+    private static _current: GameScene;
 
     public static init() {
         this.scenes = new Map();
     }
 
-    public static get current(): Scene {
+    public static get current(): GameScene {
         return this._current;
     }
-    public static set current(scene: Scene) {
+    public static set current(scene: GameScene) {
         if (this.current !== undefined) {
             this.current.final();
             this.current.clearGUI();
@@ -22,14 +22,14 @@ export default class SceneManager {
         });
     }
 
-    public static addScene(scene: Scene) {
+    public static addScene(scene: GameScene) {
         this.scenes.set(scene.id, scene);
         if (this.scenes.size === 1) {
             this.current = scene;
         }
     }
 
-    public static getScene(key: string): Scene {
+    public static getScene(key: string): GameScene {
         return this.scenes.get(key);
     }
 

@@ -1,22 +1,16 @@
 import { AuthLoginRespPacket } from '../../common/Packet';
-import Scene from '../engine/scene/Scene';
+import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import TextBox from '../engine/interface/TextBox';
-import Sprite from '../engine/graphics/Sprite';
-import Graphics from '../engine/graphics/Graphics';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/Dialog';
 import Engine from '../engine/Engine';
-import Rect from '../engine/graphics/Rect';
-import loginBackground from '../assets/imgs/login-background.jpg';
 
-export default class LoginScene extends Scene {
-    private spriteBg: Sprite;
-
+export default class LoginScene extends GameScene {
     public constructor() {
         super('login');
     }
@@ -84,7 +78,6 @@ export default class LoginScene extends Scene {
 
     public async init() {
         this.initGUI();
-        this.spriteBg = await Sprite.fromUrl(loginBackground);
     }
 
     public final() {
@@ -96,6 +89,5 @@ export default class LoginScene extends Scene {
     }
 
     public draw() {
-        this.spriteBg.draw(new Rect(0, 0, Graphics.viewportWidth, Graphics.viewportHeight));
     }
 }

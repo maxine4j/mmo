@@ -1,6 +1,6 @@
 import { Frame } from '../interface/Frame';
 
-export default abstract class Scene {
+export default abstract class GameScene {
     public readonly id: string;
     protected gui: Map<string, Frame>;
 
