@@ -1,6 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CheckerPlugin } = require('awesome-typescript-loader');
-
+const path = require('path');
 
 module.exports = {
     entry: './src/client/index.ts',
@@ -18,7 +18,7 @@ module.exports = {
                 use: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
-                test: /\.(png|jpe?g|gif)$/i,
+                test: /\.(png|jpe?g|gif|obj|mtl|dae|gltf|bin|glb|fbx)$/i,
                 use: [
                     {
                         loader: 'file-loader',
@@ -39,7 +39,6 @@ module.exports = {
         filename: 'bundle.js',
     },
     externals: [
-        'fs',
         'uws',
     ],
     plugins: [
@@ -51,4 +50,9 @@ module.exports = {
             filename: 'index.html',
         }),
     ],
+    devServer: {
+        contentBase: path.join(__dirname, 'dist/client'),
+        compress: true,
+        port: 9000,
+    },
 };

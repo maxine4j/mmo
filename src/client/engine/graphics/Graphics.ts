@@ -4,7 +4,9 @@ export default class Graphics {
     private static renderer: THREE.WebGLRenderer;
 
     public static init() {
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setClearColor(0xccccff);
+
         document.body.appendChild(this.renderer.domElement);
 
         window.addEventListener('resize', () => { this.windowResize(); });

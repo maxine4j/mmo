@@ -9,6 +9,14 @@ import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
+import Model from '../engine/graphics/Model';
+import HumanModel from '../engine/graphics/HumanModel';
+import duck from '../assets/models/Duck.gltf';
+import duckBin from '../assets/models/Duck0.bin';
+import duckPng from '../assets/models/DuckCM.png';
+import jadModel from '../assets/models/jad.glb';
+import humanModelFbx from '../assets/models/human.fbx';
+import manModel from '../assets/models/man/man.glb';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
@@ -16,7 +24,7 @@ export default class CharSelectScene extends GameScene {
     private panelChars: Panel;
     private scene: THREE.Scene;
     private camera: THREE.Camera;
-    private cube: THREE.Mesh;
+    private selectedModel: Model;
 
     public constructor() {
         super('char-select');
@@ -125,17 +133,20 @@ export default class CharSelectScene extends GameScene {
         this.initGUI();
         this.fetchCharacerList();
 
-        console.log('this is three', THREE);
-
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 'red' });
-        this.cube = new THREE.Mesh(geometry, material);
-        this.scene.add(this.cube);
-
         this.camera.position.z = 5;
+
+        const light = new THREE.AmbientLight(0xffffff, 3);
+        light.position.set(0, 0, 1).normalize();
+        this.scene.add(light);
+
+        this.selectedModel = await HumanModel.load();
+        this.selectedModel.obj.scale.set(0.02, 0.02, 0.02);
+        this.selectedModel.obj.translateY(-2.25);
+        // this.selectedModel.playAnim('arms.001Action');
+        // this.selectedModel.playAnim('legs.001Action');
+        this.scene.add(this.selectedModel.obj);
     }
 
     public final() {
@@ -143,9 +154,8 @@ export default class CharSelectScene extends GameScene {
     }
 
     public update(delta: number) {
-        console.log(delta);
-        this.cube.rotation.x += 1 * delta;
-        this.cube.rotation.y += 1 * delta;
+        this.selectedModel.obj.rotation.y += 1 * delta;
+        this.selectedModel.update(delta);
     }
 
     public draw() {
