@@ -10,18 +10,13 @@ import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
-import HumanModel from '../engine/graphics/HumanModel';
-import duck from '../assets/models/Duck.gltf';
-import duckBin from '../assets/models/Duck0.bin';
-import duckPng from '../assets/models/DuckCM.png';
-import jadModel from '../assets/models/jad.glb';
-import humanModelFbx from '../assets/models/human.fbx';
-import manModel from '../assets/models/man/man.glb';
-import guitarModel from '../assets/models/man/guitar.glb';
-import walkingModel from '../assets/models/man/walking.glb';
 import ybotRunModel from '../assets/models/ybot/run.glb';
 import ybotModel from '../assets/models/ybot/ybot.glb';
 import charSelectBgModel from '../assets/models/ui_characterselect.glb';
+import humanFbx from '../assets/models/human/human.fbx';
+import humanRun from '../assets/models/human/anims/human_Run_2.fbx';
+import humanStand from '../assets/models/human/anims/human_Stand_0.fbx';
+import humanWalk from '../assets/models/human/anims/human_Walk_1.fbx';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
@@ -148,23 +143,27 @@ export default class CharSelectScene extends GameScene {
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.load(charSelectBgModel);
+        this.background = await Model.loadGLTF(charSelectBgModel);
         this.background.obj.rotateY(-1.5);
         this.background.obj.rotateZ(0.2);
         this.background.obj.translateY(-2.5);
         this.background.obj.scale.addScalar(5);
         this.scene.add(this.background.obj);
 
-        // run animation from seperate files!!!
-        this.selectedModel = await Model.load(ybotModel);
-        this.runModel = await Model.load(ybotRunModel);
-        const action = this.selectedModel.mixer.clipAction(this.runModel.gltf.animations[0]);
-        action.play();
+        // this.selectedModel = await Model.loadGLTF(ybotModel);
+        // await this.selectedModel.loadAnimGLTF('run', ybotRunModel);
+        // this.selectedModel.animations.get('run').play();
+
+        this.selectedModel = await Model.loadFBX(humanFbx);
+        await Promise.all([
+            this.selectedModel.loadAnimFBX('run', humanRun),
+            this.selectedModel.loadAnimFBX('stand', humanStand),
+            this.selectedModel.loadAnimFBX('walk', humanWalk),
+        ]);
+        this.selectedModel.animations.get('walk').play();
 
         this.selectedModel.obj.scale.set(0.02, 0.02, 0.02);
         this.selectedModel.obj.translateY(-2.25);
-        // this.selectedModel.playAnim('mixamo.com');
-        // this.selectedModel.playAnim('legs.001Action');
         this.scene.add(this.selectedModel.obj);
     }
 

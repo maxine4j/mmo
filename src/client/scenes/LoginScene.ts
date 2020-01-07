@@ -95,7 +95,7 @@ export default class LoginScene extends GameScene {
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.load(backgroundModel);
+        this.background = await Model.loadGLTF(backgroundModel);
         this.background.obj.rotateY(-1.6);
         this.scene.add(this.background.obj);
     }

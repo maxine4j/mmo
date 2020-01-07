@@ -27,13 +27,13 @@ export default class HumanModel extends Model {
     public static async load(): Promise<HumanModel> {
         return new Promise((resolve) => {
             Promise.all([
-                Model.load(manHeadUpper),
-                Model.load(manHeadLower),
-                Model.load(manTorso),
-                Model.load(manArms),
-                Model.load(manHands),
-                Model.load(manLegs),
-                Model.load(manFeet),
+                Model.loadGLTF(manHeadUpper),
+                Model.loadGLTF(manHeadLower),
+                Model.loadGLTF(manTorso),
+                Model.loadGLTF(manArms),
+                Model.loadGLTF(manHands),
+                Model.loadGLTF(manLegs),
+                Model.loadGLTF(manFeet),
             ]).then((results: Model[]) => {
                 const human = new HumanModel(null);
                 human.parts = results;
