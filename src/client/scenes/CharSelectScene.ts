@@ -1,7 +1,4 @@
-import {
-    AmbientLight, TextureLoader, SpriteMaterial,
-} from 'three';
-import { Key } from 'ts-key-enum';
+import { AmbientLight } from 'three';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
@@ -14,7 +11,6 @@ import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
-import Input from '../engine/Input';
 import Scene from '../engine/graphics/Scene';
 import Sprite from '../engine/graphics/Sprite';
 

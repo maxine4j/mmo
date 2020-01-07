@@ -26,7 +26,9 @@ export default abstract class GameScene {
     public abstract async init(): Promise<void>;
 
     public final() {
-        this.scene.clear();
+        if (this.scene) {
+            this.scene.clear();
+        }
     }
 
     public abstract update(delta: number): void;

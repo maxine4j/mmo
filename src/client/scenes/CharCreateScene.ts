@@ -90,7 +90,7 @@ export default class CharCreateScene extends GameScene {
     }
 
     public final() {
-
+        super.final();
     }
 
     public update(delta: number) {
