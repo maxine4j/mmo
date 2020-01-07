@@ -7,6 +7,7 @@ export default class Model {
     private _obj: THREE.Object3D;
     public mixer: THREE.AnimationMixer;
     public animations: Map<string, AnimationAction>;
+    public gltf: GLTF;
 
     public constructor(obj: THREE.Object3D) {
         this._obj = obj;
@@ -20,7 +21,15 @@ export default class Model {
         this._obj.castShadow = true;
     }
 
-    public async loadAnimGLTF(name: string, src: string): Promise<AnimationAction> {
+    public async loadAnims(nameSrc: [string, string][]): Promise<AnimationAction[]> {
+        const loaders: Promise<AnimationAction>[] = [];
+        nameSrc.forEach((ns) => {
+            loaders.push(this.loadAnim(ns[0], ns[1]));
+        });
+        return Promise.all(loaders);
+    }
+
+    public async loadAnim(name: string, src: string): Promise<AnimationAction> {
         return new Promise((resolve) => {
             const loader = new GLTFLoader();
             loader.load(src, (gltf) => {
@@ -43,11 +52,13 @@ export default class Model {
         });
     }
 
-    public static async loadGLTF(src: string): Promise<Model> {
+    public static async load(src: string): Promise<Model> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
             loader.load(src, (gltf) => {
-                resolve(new Model(gltf.scene));
+                const model = new Model(gltf.scene);
+                model.gltf = gltf;
+                resolve(model);
             });
         });
     }

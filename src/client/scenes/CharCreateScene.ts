@@ -6,7 +6,6 @@ import Character, { Race } from '../../common/models/Character';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
-import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharacterPacket, ResponsePacket } from '../../common/Packet';
 import TextBox from '../engine/interface/TextBox';
 import Dialog from '../engine/interface/Dialog';

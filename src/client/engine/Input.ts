@@ -1,8 +1,8 @@
 import { Key } from 'ts-key-enum';
 
 export default class Input {
-    private static lastKeyStates: Map<Key, boolean> = new Map();
-    private static keyStates: Map<Key, boolean> = new Map();
+    private static lastKeyStates: Map<string, boolean> = new Map();
+    private static keyStates: Map<string, boolean> = new Map();
     private static ctrl: boolean = false;
     private static shift: boolean = false;
     private static alt: boolean = false;
@@ -29,15 +29,15 @@ export default class Input {
         this.meta = ev.metaKey;
     }
 
-    public static isKeyDown(key: Key): boolean {
+    public static isKeyDown(key: Key | string): boolean {
         return this.keyStates.get(key);
     }
 
-    public static wasKeyDown(key: Key): boolean {
+    public static wasKeyDown(key: Key | string): boolean {
         return this.lastKeyStates.get(key);
     }
 
-    public static wasKeyPressed(key: Key): boolean { // check if the key was just released this frame
+    public static wasKeyPressed(key: Key | string): boolean { // check if the key was just released this frame
         return this.wasKeyDown(key) && !this.isKeyDown(key);
     }
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 export default class Graphics {
-    private static renderer: THREE.WebGLRenderer;
+    public static renderer: THREE.WebGLRenderer;
 
     public static init() {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -31,5 +31,13 @@ export default class Graphics {
 
     public static render(scene: THREE.Scene, camera: THREE.Camera) {
         this.renderer.render(scene, camera);
+    }
+
+    public static toDegrees(radians: number) {
+        return radians * (180 / Math.PI);
+    }
+
+    public static toRadians(degrees: number): number {
+        return degrees * (Math.PI / 180);
     }
 }

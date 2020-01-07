@@ -1,4 +1,7 @@
-import * as THREE from 'three';
+import {
+    AmbientLight, TextureLoader, SpriteMaterial,
+} from 'three';
+import { Key } from 'ts-key-enum';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
@@ -10,23 +13,17 @@ import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
 import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
-import ybotRunModel from '../assets/models/ybot/run.glb';
-import ybotModel from '../assets/models/ybot/ybot.glb';
-import charSelectBgModel from '../assets/models/ui_characterselect.glb';
-import humanFbx from '../assets/models/human/human.fbx';
-import humanRun from '../assets/models/human/anims/human_Run_2.fbx';
-import humanStand from '../assets/models/human/anims/human_Stand_0.fbx';
-import humanWalk from '../assets/models/human/anims/human_Walk_1.fbx';
+import Camera from '../engine/graphics/Camera';
+import Input from '../engine/Input';
+import Scene from '../engine/graphics/Scene';
+import Sprite from '../engine/graphics/Sprite';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
     private _selectedChar: Character;
     private panelChars: Panel;
-    private scene: THREE.Scene;
-    private camera: THREE.Camera;
     private selectedModel: Model;
-    private runModel: Model;
-    private background: Model;
+    private background: Sprite;
 
     public constructor() {
         super('char-select');
@@ -108,7 +105,7 @@ export default class CharSelectScene extends GameScene {
         btnDeleteChar.style.position = 'fixed';
         btnDeleteChar.style.margin = '5px 10px';
         btnDeleteChar.style.display = 'block';
-        btnDeleteChar.style.width = '185px';
+        btnDeleteChar.style.width = '190px';
         btnDeleteChar.style.float = 'bottom';
         btnDeleteChar.style.bottom = '5px';
         btnDeleteChar.style.right = '130px';
@@ -135,44 +132,47 @@ export default class CharSelectScene extends GameScene {
         this.initGUI();
         this.fetchCharacerList();
 
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.scene = new Scene();
+        this.camera = new Camera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
         this.camera.position.z = 5;
 
-        const light = new THREE.AmbientLight(0xffffff, 3);
+        const light = new AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.loadGLTF(charSelectBgModel);
-        this.background.obj.rotateY(-1.5);
-        this.background.obj.rotateZ(0.2);
-        this.background.obj.translateY(-2.5);
-        this.background.obj.scale.addScalar(5);
-        this.scene.add(this.background.obj);
+        // this.background = await Model.load('assets/models/ui/charselect/charselect.glb');
+        // await this.background.loadAnim('stand', 'assets/models/ui/charselect/anims/charselect_Stand_0.glb');
+        // this.background.animations.get('stand').play();
+        // this.background.obj.position.set(0.05134603696449329, -0.26914933500212745, 5.413116343522639);
+        // this.background.obj.rotation.set(-3.141592653589793, 1.0315274535897696, -3.141592653589793);
+        // this.scene.add(this.background.obj);
 
-        // this.selectedModel = await Model.loadGLTF(ybotModel);
-        // await this.selectedModel.loadAnimGLTF('run', ybotRunModel);
-        // this.selectedModel.animations.get('run').play();
+        this.background = await Sprite.load('assets/imgs/char-select.jpg');
+        this.background.scale.set(16 * 2.5, 9 * 2.5, 1);
+        this.background.position.z -= 5;
+        this.background.position.x += 2.5;
+        this.background.position.y += 0.5;
+        this.scene.add(this.background);
 
-        this.selectedModel = await Model.loadFBX(humanFbx);
-        await Promise.all([
-            this.selectedModel.loadAnimFBX('run', humanRun),
-            this.selectedModel.loadAnimFBX('stand', humanStand),
-            this.selectedModel.loadAnimFBX('walk', humanWalk),
+        this.selectedModel = await Model.load('assets/models/human/human.glb');
+        await this.selectedModel.loadAnims([
+            ['run', 'assets/models/human/anims/human_Run_2.glb'],
+            ['stand', 'assets/models/human/anims/human_Stand_0.glb'],
+            ['walk', 'assets/models/human/anims/human_Walk_1.glb'],
         ]);
-        this.selectedModel.animations.get('walk').play();
+        this.selectedModel.animations.get('stand').play();
 
-        this.selectedModel.obj.scale.set(0.02, 0.02, 0.02);
+        this.selectedModel.obj.scale.set(4, 4, 4);
         this.selectedModel.obj.translateY(-2.25);
+        this.selectedModel.obj.rotateY(Graphics.toRadians(-90));
         this.scene.add(this.selectedModel.obj);
     }
 
     public final() {
-
+        super.final();
     }
 
     public update(delta: number) {
-        // this.selectedModel.obj.rotation.y += 1 * delta;
         this.selectedModel.update(delta);
     }
 

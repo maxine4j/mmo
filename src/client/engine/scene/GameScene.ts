@@ -1,8 +1,12 @@
 import { Frame } from '../interface/Frame';
+import Scene from '../graphics/Scene';
+import Camera from '../graphics/Camera';
 
 export default abstract class GameScene {
     public readonly id: string;
     protected gui: Map<string, Frame>;
+    protected scene: Scene;
+    protected camera: Camera;
 
     public constructor(id: string) {
         this.id = id;
@@ -21,7 +25,9 @@ export default abstract class GameScene {
 
     public abstract async init(): Promise<void>;
 
-    public abstract final(): void;
+    public final() {
+        this.scene.clear();
+    }
 
     public abstract update(delta: number): void;
 

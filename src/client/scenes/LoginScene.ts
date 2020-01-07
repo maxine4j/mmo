@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import { AmbientLight } from 'three';
+import { Key } from 'ts-key-enum';
 import { AuthLoginRespPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
@@ -10,13 +11,13 @@ import TextBox from '../engine/interface/TextBox';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/Dialog';
 import Engine from '../engine/Engine';
-import Model from '../engine/graphics/Model';
-import backgroundModel from '../assets/models/ui_mainmenu.glb';
 import Graphics from '../engine/graphics/Graphics';
+import Camera from '../engine/graphics/Camera';
+import Model from '../engine/graphics/Model';
+import Input from '../engine/Input';
+import Scene from '../engine/graphics/Scene';
 
 export default class LoginScene extends GameScene {
-    private scene: THREE.Scene;
-    private camera: THREE.Camera;
     private background: Model;
 
     public constructor() {
@@ -87,21 +88,24 @@ export default class LoginScene extends GameScene {
     public async init() {
         this.initGUI();
 
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.z = 3;
+        this.scene = new Scene();
+        this.camera = new Camera(45, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 2000);
 
-        const light = new THREE.AmbientLight(0xffffff, 3);
+        const light = new AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.loadGLTF(backgroundModel);
-        this.background.obj.rotateY(-1.6);
+        this.background = await Model.load('assets/models/ui/mainmenu/mainmenu.glb');
+        await this.background.loadAnim('stand', 'assets/models/ui/mainmenu/anims/mainmenu_Stand_0.glb');
+        this.background.animations.get('stand').play();
         this.scene.add(this.background.obj);
+
+        this.camera.position.set(5.095108853409366, -1.049448850028543, -2.400366781879153);
+        this.camera.rotation.set(2.2974621772131085, 1.1874227779871385, -2.335010669610211);
     }
 
     public final() {
-
+        super.final();
     }
 
     public update(delta: number) {
