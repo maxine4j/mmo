@@ -13,6 +13,7 @@ import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import Sprite from '../engine/graphics/Sprite';
+import Input, { MouseButton } from '../engine/Input';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
@@ -20,6 +21,8 @@ export default class CharSelectScene extends GameScene {
     private panelChars: Panel;
     private selectedModel: Model;
     private background: Sprite;
+    private charSpinStartMouse: number = -1;
+    private charSpinInitialRot: number = -1;
 
     public constructor() {
         super('char-select');
@@ -168,8 +171,26 @@ export default class CharSelectScene extends GameScene {
         super.final();
     }
 
+    private updateCharRotation(delta: number) {
+        // start rotation
+        if (Input.mouseStartDown(MouseButton.LEFT)) {
+            this.charSpinStartMouse = Input.mousePos().x;
+            this.charSpinInitialRot = this.selectedModel.obj.rotation.y;
+        }
+        // end rotation
+        if (Input.wasMousePressed(MouseButton.LEFT)) {
+            this.charSpinStartMouse = -1;
+        }
+        if (this.charSpinStartMouse !== -1) {
+            const { x, y, z } = this.selectedModel.obj.rotation;
+            const dy = (Input.mousePos().x - this.charSpinStartMouse) * 0.01;
+            this.selectedModel.obj.rotation.set(x, this.charSpinInitialRot + dy, z);
+        }
+    }
+
     public update(delta: number) {
         this.selectedModel.update(delta);
+        this.updateCharRotation(delta);
     }
 
     public draw() {

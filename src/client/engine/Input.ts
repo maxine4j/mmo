@@ -1,32 +1,59 @@
 import { Key } from 'ts-key-enum';
 
+export interface Point {
+    x: number;
+    y: number;
+}
+
+export enum MouseButton {
+    LEFT = 0,
+    MIDDLE = 1,
+    RIGHT = 2,
+}
+
 export default class Input {
-    private static lastKeyStates: Map<string, boolean> = new Map();
     private static keyStates: Map<string, boolean> = new Map();
-    private static ctrl: boolean = false;
-    private static shift: boolean = false;
-    private static alt: boolean = false;
-    private static meta: boolean = false;
+    private static lastKeyStates: Map<string, boolean> = new Map();
+    private static mouseButtonStates: Map<MouseButton, boolean> = new Map();
+    private static lastMouseButtonStates: Map<MouseButton, boolean> = new Map();
+    private static mousePosition: Point;
 
     public static init() {
+        this.mousePosition = {
+            x: 0,
+            y: 0,
+        };
+
         window.addEventListener('keydown', (ev: KeyboardEvent) => {
-            this.setState(ev, true);
+            this.setKeyState(ev, true);
         });
         window.addEventListener('keyup', (ev: KeyboardEvent) => {
-            this.setState(ev, false);
+            this.setKeyState(ev, false);
+        });
+        window.addEventListener('mousedown', (ev: MouseEvent) => {
+            this.setMouseState(ev, true);
+        });
+        window.addEventListener('mouseup', (ev: MouseEvent) => {
+            this.setMouseState(ev, false);
+        });
+        window.addEventListener('mousemove', (ev: MouseEvent) => {
+            this.mousePosition.x = ev.clientX;
+            this.mousePosition.y = ev.clientY;
         });
     }
 
     public static afterUpdate() {
         this.lastKeyStates = new Map(this.keyStates);
+        this.lastMouseButtonStates = new Map(this.mouseButtonStates);
     }
 
-    private static setState(ev: KeyboardEvent, down: boolean) {
+    private static setKeyState(ev: KeyboardEvent, down: boolean) {
         this.keyStates.set(<Key>ev.key, down);
-        this.ctrl = ev.ctrlKey;
-        this.shift = ev.shiftKey;
-        this.alt = ev.altKey;
-        this.meta = ev.metaKey;
+        console.log('set a key state!', <Key>ev.key, down);
+    }
+
+    private static setMouseState(ev: MouseEvent, down: boolean) {
+        this.mouseButtonStates.set(ev.button, down);
     }
 
     public static isKeyDown(key: Key | string): boolean {
@@ -41,19 +68,23 @@ export default class Input {
         return this.wasKeyDown(key) && !this.isKeyDown(key);
     }
 
-    public static ctrlDown(): boolean {
-        return this.ctrl;
+    public static isMouseDown(btn: MouseButton): boolean {
+        return this.mouseButtonStates.get(btn);
     }
 
-    public static shiftDown(): boolean {
-        return this.shift;
+    public static wasMouseDown(btn: MouseButton): boolean {
+        return this.lastMouseButtonStates.get(btn);
     }
 
-    public static altDown(): boolean {
-        return this.alt;
+    public static wasMousePressed(btn: MouseButton): boolean { // check if the button was just released this frame
+        return this.wasMouseDown(btn) && !this.isMouseDown(btn);
     }
 
-    public static metaDown(): boolean {
-        return this.meta;
+    public static mouseStartDown(btn: MouseButton): boolean {
+        return !this.wasMouseDown(btn) && this.isMouseDown(btn);
+    }
+
+    public static mousePos(): Point {
+        return this.mousePosition;
     }
 }
