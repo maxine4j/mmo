@@ -5,7 +5,7 @@ export default class Graphics {
 
     public static init() {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setClearColor(0xccccff);
+        // this.renderer.setClearColor(0xccccff);
 
         document.body.appendChild(this.renderer.domElement);
 

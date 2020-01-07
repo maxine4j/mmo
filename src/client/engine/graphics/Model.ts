@@ -4,16 +4,17 @@ import * as THREE from 'three';
 
 export default class Model {
     private _gltf: GLTF;
-    private _fbx: THREE.Group;
-    private mixer: THREE.AnimationMixer;
+    private _obj: THREE.Object3D;
+    public mixer: THREE.AnimationMixer;
 
-    public constructor(obj: GLTF | THREE.Group) {
-        if (obj instanceof THREE.Group) {
-            this._fbx = obj;
+    public constructor(obj: GLTF | THREE.Object3D) {
+        if (obj instanceof THREE.Object3D) {
+            this._obj = obj;
             this.mixer = new THREE.AnimationMixer(this.obj);
         } else {
             this._gltf = obj;
             this.mixer = new THREE.AnimationMixer(this.obj);
+            console.log('Animations:', obj.animations);
         }
     }
 
@@ -41,6 +42,10 @@ export default class Model {
 
     public get obj(): THREE.Object3D {
         return this._gltf.scene;
+    }
+
+    private initAnims() {
+        this.mixer = new THREE.AnimationMixer(this.obj);
     }
 
     public playAnim(name: string) {

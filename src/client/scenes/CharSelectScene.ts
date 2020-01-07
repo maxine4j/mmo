@@ -17,6 +17,11 @@ import duckPng from '../assets/models/DuckCM.png';
 import jadModel from '../assets/models/jad.glb';
 import humanModelFbx from '../assets/models/human.fbx';
 import manModel from '../assets/models/man/man.glb';
+import guitarModel from '../assets/models/man/guitar.glb';
+import walkingModel from '../assets/models/man/walking.glb';
+import ybotRunModel from '../assets/models/ybot/run.glb';
+import ybotModel from '../assets/models/ybot/ybot.glb';
+import charSelectBgModel from '../assets/models/ui_characterselect.glb';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
@@ -25,6 +30,8 @@ export default class CharSelectScene extends GameScene {
     private scene: THREE.Scene;
     private camera: THREE.Camera;
     private selectedModel: Model;
+    private runModel: Model;
+    private background: Model;
 
     public constructor() {
         super('char-select');
@@ -141,10 +148,22 @@ export default class CharSelectScene extends GameScene {
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.selectedModel = await HumanModel.load();
+        this.background = await Model.load(charSelectBgModel);
+        this.background.obj.rotateY(-1.5);
+        this.background.obj.rotateZ(0.2);
+        this.background.obj.translateY(-2.5);
+        this.background.obj.scale.addScalar(5);
+        this.scene.add(this.background.obj);
+
+        // run animation from seperate files!!!
+        this.selectedModel = await Model.load(ybotModel);
+        this.runModel = await Model.load(ybotRunModel);
+        const action = this.selectedModel.mixer.clipAction(this.runModel.gltf.animations[0]);
+        action.play();
+
         this.selectedModel.obj.scale.set(0.02, 0.02, 0.02);
         this.selectedModel.obj.translateY(-2.25);
-        // this.selectedModel.playAnim('arms.001Action');
+        // this.selectedModel.playAnim('mixamo.com');
         // this.selectedModel.playAnim('legs.001Action');
         this.scene.add(this.selectedModel.obj);
     }
@@ -154,7 +173,7 @@ export default class CharSelectScene extends GameScene {
     }
 
     public update(delta: number) {
-        this.selectedModel.obj.rotation.y += 1 * delta;
+        // this.selectedModel.obj.rotation.y += 1 * delta;
         this.selectedModel.update(delta);
     }
 

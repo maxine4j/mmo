@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { AuthLoginRespPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
@@ -9,8 +10,15 @@ import TextBox from '../engine/interface/TextBox';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/Dialog';
 import Engine from '../engine/Engine';
+import Model from '../engine/graphics/Model';
+import backgroundModel from '../assets/models/ui_mainmenu.glb';
+import Graphics from '../engine/graphics/Graphics';
 
 export default class LoginScene extends GameScene {
+    private scene: THREE.Scene;
+    private camera: THREE.Camera;
+    private background: Model;
+
     public constructor() {
         super('login');
     }
@@ -78,6 +86,18 @@ export default class LoginScene extends GameScene {
 
     public async init() {
         this.initGUI();
+
+        this.scene = new THREE.Scene();
+        this.camera = new THREE.PerspectiveCamera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera.position.z = 3;
+
+        const light = new THREE.AmbientLight(0xffffff, 3);
+        light.position.set(0, 0, 1).normalize();
+        this.scene.add(light);
+
+        this.background = await Model.load(backgroundModel);
+        this.background.obj.rotateY(-1.6);
+        this.scene.add(this.background.obj);
     }
 
     public final() {
@@ -89,5 +109,6 @@ export default class LoginScene extends GameScene {
     }
 
     public draw() {
+        Graphics.render(this.scene, this.camera);
     }
 }
