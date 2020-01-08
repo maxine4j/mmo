@@ -44,6 +44,13 @@ export default class NetClient {
         this.client.emit(header.toString(), packet);
     }
 
+    // sends a packet with given header and calls cb once when server responds with the same header
+    // same as onNext; send
+    public static sendRecv(header: PacketHeader, packet: Packet, cb: (p: ResponsePacket) => void) {
+        this.onNext(header, cb);
+        this.send(header, packet);
+    }
+
     public static get client(): SocketIOClient.Socket {
         return this._client;
     }

@@ -29,12 +29,10 @@ export default class CharCreateScene extends GameScene {
                     this.dialog.show();
                 }
             });
-            NetClient.send(PacketHeader.CHAR_CREATE, <CharacterPacket>{
-                character: new Character().build({
-                    name: this.txtName.text,
-                    race: Race.HUMAN,
-                }),
-            });
+            const character = new Character();
+            character.name = this.txtName.text;
+            character.race = Race.HUMAN;
+            NetClient.send(PacketHeader.CHAR_CREATE, <CharacterPacket>{ character });
         }
     }
 

@@ -24,9 +24,10 @@ export default class AccountEntity extends BaseEntity {
     @OneToMany((type) => CharacterEntity, (character) => character.account)
     public characters: CharacterEntity[];
 
-    public build() {
-        return new Account().build({
-            name: this.name,
-        });
+    // converts a db entity to a network account
+    public toNet(): Account {
+        const a = new Account();
+        a.name = this.name;
+        return a;
     }
 }

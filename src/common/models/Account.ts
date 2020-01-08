@@ -1,5 +1,3 @@
-import Buildable from '../Buildable';
-
-export default class Account extends Buildable {
+export default class Account {
     public name: string;
 }

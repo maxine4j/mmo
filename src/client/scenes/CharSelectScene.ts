@@ -8,7 +8,7 @@ import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
-import { PacketHeader, CharactersPacket } from '../../common/Packet';
+import { PacketHeader, CharactersPacket, CharacterPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
@@ -17,7 +17,7 @@ import Input, { MouseButton } from '../engine/Input';
 
 export default class CharSelectScene extends GameScene {
     private characters: Character[];
-    private _selectedChar: Character;
+    private selectedChar: Character;
     private panelChars: Panel;
     private selectedModel: Model;
     private background: Sprite;
@@ -29,18 +29,13 @@ export default class CharSelectScene extends GameScene {
     }
 
     public fetchCharacerList() {
-        NetClient.onNext(PacketHeader.CHAR_MYLIST, (resp: CharactersPacket) => {
+        NetClient.sendRecv(PacketHeader.CHAR_MYLIST, null, (resp: CharactersPacket) => {
             this.characters = resp.characters;
             this.buildCharList();
+            if (this.characters.length > 0) {
+                [this.selectedChar] = this.characters;
+            }
         });
-        NetClient.send(PacketHeader.CHAR_MYLIST);
-    }
-
-    public get selectedChar(): Character {
-        return this._selectedChar;
-    }
-    public set selectedChar(char: Character) {
-        this._selectedChar = this.selectedChar;
     }
 
     private buildCharList() {
@@ -52,8 +47,15 @@ export default class CharSelectScene extends GameScene {
             btnChar.style.width = '100%';
             btnChar.style.height = '60px';
             btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
+            btnChar.addEventListener('click', () => { this.selectedChar = char; });
             this.addGUI(btnChar);
         }
+    }
+
+    private enterWorld() {
+        NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD,
+            <CharacterPacket>{ character: this.selectedChar },
+            () => SceneManager.changeScene('world'));
     }
 
     private initGUI() {
@@ -62,9 +64,7 @@ export default class CharSelectScene extends GameScene {
         btnEnterWorld.style.bottom = '50px';
         btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
-        btnEnterWorld.addEventListener('click', () => {
-            console.log('Entering world...');
-        });
+        btnEnterWorld.addEventListener('click', () => this.enterWorld());
         this.addGUI(btnEnterWorld);
         // build character list
         this.panelChars = new Panel('panel-characters', UIParent.get());
@@ -95,9 +95,7 @@ export default class CharSelectScene extends GameScene {
         btnCreateCharacter.style.float = 'bottom';
         btnCreateCharacter.style.bottom = '75px';
         btnCreateCharacter.style.right = '40px';
-        btnCreateCharacter.addEventListener('click', () => {
-            SceneManager.changeScene('char-create');
-        });
+        btnCreateCharacter.addEventListener('click', () => SceneManager.changeScene('char-create'));
         this.addGUI(btnCreateCharacter);
         // build delete character button
         const btnDeleteChar = new Button('btn-delete-character', this.panelChars, 'Delete Character');
@@ -187,6 +185,10 @@ export default class CharSelectScene extends GameScene {
     public update(delta: number) {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
+        if (Input.wasKeyPressed('1')) {
+            this.selectedModel.getAnim('EmoteDance143').then((a) => a.play());
+            console.log('Got a list of chars:', this.characters);
+        }
     }
 
     public draw() {

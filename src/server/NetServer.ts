@@ -13,6 +13,8 @@ export default class NetServer {
     public static init(port: number = 3000) {
         console.log('setting up netserver');
 
+        this.world = new World();
+
         this.server = io().listen(port);
         this.server.on('connection', this.onConnection);
     }
@@ -27,7 +29,7 @@ export default class NetServer {
             socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(socket.id, packet));
         });
         socket.on(PacketHeader.AUTH_LOGOUT, async () => {
-            this.world.leaveWorld(socket.id);
+            NetServer.world.leaveWorld(socket.id);
             await handleAuthLogout(socket.id);
         });
 
@@ -41,7 +43,7 @@ export default class NetServer {
 
         // player login
         socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
-            const character = await this.world.enterWorld(socket, packet.character);
+            const character = await NetServer.world.enterWorld(socket, packet.character);
             socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>{ character });
         });
     }

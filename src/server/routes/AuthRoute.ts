@@ -24,7 +24,7 @@ export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket
         return <AccountPacket>{
             success: true,
             message: `logged in as ${account.name}`,
-            account: account.build(),
+            account: account.toNet(),
         };
     }
     console.log(`User ${packet.username} provided incorrect login details`);
