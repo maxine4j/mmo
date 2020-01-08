@@ -1,13 +1,13 @@
 import * as io from 'socket.io-client';
 import {
-    Packet, PacketHeader, ResponsePacket, AuthLoginPacket, AuthLoginRespPacket,
+    Packet, PacketHeader, ResponsePacket, AuthLoginPacket, AccountPacket,
 } from '../../common/Packet';
 import Engine from './Engine';
 import SceneManager from './scene/SceneManager';
 
 export default class NetClient {
     private static _client: SocketIOClient.Socket;
-    private static accountRecvCallback: (resp: AuthLoginRespPacket) => void;
+    private static accountRecvCallback: (resp: AccountPacket) => void;
 
     public static init(url: string = 'http://localhost:3000') {
         this._client = io.connect(url);
@@ -20,13 +20,13 @@ export default class NetClient {
             Engine.account = null;
             SceneManager.changeScene('login');
         });
-        this.client.on(PacketHeader.AUTH_LOGIN, (resp: AuthLoginRespPacket) => {
+        this.client.on(PacketHeader.AUTH_LOGIN, (resp: AccountPacket) => {
             Engine.account = resp.account;
             this.accountRecvCallback(resp);
         });
     }
 
-    public static login(username: string, password: string, cb: (resp: AuthLoginRespPacket) => void) {
+    public static login(username: string, password: string, cb: (resp: AccountPacket) => void) {
         NetClient.send(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
             username,
             password,

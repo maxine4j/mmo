@@ -1,10 +1,10 @@
 import {
-    Packet, AuthLoginPacket, ResponsePacket, AuthLoginRespPacket,
+    AuthLoginPacket, AccountPacket,
 } from '../../common/Packet';
-import NetServer from '../NetServer';
 import AccountEntity from '../models/Account.entity';
 
-export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket): Promise<AuthLoginRespPacket> {
+// log a user in with plaintext password (TEMP)
+export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket): Promise<AccountPacket> {
     console.log(`User ${packet.username} is attempting to log in`);
     const account = await AccountEntity.createQueryBuilder()
         .where('LOWER(temp_username) = LOWER(:username)', { username: packet.username })
@@ -13,21 +13,28 @@ export async function handleAuthLogin(sessionid: string, packet: AuthLoginPacket
     if (account) {
         if (account.session != null) {
             console.log(`User ${packet.username} is already logged in`);
-            return <AuthLoginRespPacket>{ success: false, message: 'This account is already logged in' };
+            return <AccountPacket>{
+                success: false,
+                message: 'This account is already logged in',
+            };
         }
         account.session = sessionid;
         console.log(`User ${packet.username} logged in successfully on ${account.session}`);
         account.save();
-        return <AuthLoginRespPacket>{
+        return <AccountPacket>{
             success: true,
             message: `logged in as ${account.name}`,
             account: account.build(),
         };
     }
     console.log(`User ${packet.username} provided incorrect login details`);
-    return <AuthLoginRespPacket>{ success: false, message: 'Incorrect username or password' };
+    return <AccountPacket>{
+        success: false,
+        message: 'Incorrect username or password',
+    };
 }
 
+// log a user account out and make sure all of their characters are logged out too
 export async function handleAuthLogout(sessionid: string) {
     const account = await AccountEntity.findOne({ session: sessionid });
     if (account) {

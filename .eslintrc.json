@@ -18,6 +18,9 @@
         }
     },
     "rules": {
+        "guard-for-in": [
+            "off"
+        ],
         "linebreak-style": [
             "off"
         ],

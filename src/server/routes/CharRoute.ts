@@ -1,25 +1,25 @@
 import {
-    Packet, CharactersRespPacket, PacketHeader, ResponsePacket, CharacterPacket,
+    CharactersPacket, ResponsePacket, CharacterPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../models/Character.entity';
 import AccountEntity from '../models/Account.entity';
 
-export async function handleMyList(sessionid: string): Promise<CharactersRespPacket> {
-    const chars = await CharacterEntity.createQueryBuilder()
+export async function handleMyList(sessionid: string): Promise<CharactersPacket> {
+    const charEntities = await CharacterEntity.createQueryBuilder()
         .leftJoinAndSelect('CharacterEntity.account', 'AccountEntity')
         .where('AccountEntity.session = :sessionid', { sessionid })
         .getMany();
 
-    if (chars) {
-        return <CharactersRespPacket>{
-            header: PacketHeader.CHAR_MYLIST,
+    if (charEntities) {
+        const chars = charEntities.map((ce) => ce.toNet());
+
+        return <CharactersPacket>{
             success: true,
             message: '',
             characters: chars,
         };
     }
-    return <CharactersRespPacket>{
-        header: PacketHeader.CHAR_MYLIST,
+    return <CharactersPacket>{
         success: false,
         message: 'Failed to get character list',
         characters: [],
@@ -30,7 +30,6 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     // check if the name length is within 2-12 characters
     if (packet.character.name.length < 2 || packet.character.name.length > 12) {
         return <ResponsePacket>{
-            header: PacketHeader.CHAR_CREATE,
             success: false,
             message: 'Character name must be between 2 and 12 characters',
         };
@@ -38,7 +37,6 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     // check if the name is only letters
     if (!/^[a-zA-Z]+$/.test(packet.character.name)) {
         return <ResponsePacket>{
-            header: PacketHeader.CHAR_CREATE,
             success: false,
             message: 'Character name must only contain letters',
         };
@@ -49,7 +47,6 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
         .getOne();
     if (exisitng) {
         return <ResponsePacket>{
-            header: PacketHeader.CHAR_CREATE,
             success: false,
             message: 'Character with that name already exists',
         };
@@ -70,7 +67,6 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     await char.save();
     // send success response
     return <ResponsePacket>{
-        header: PacketHeader.CHAR_MYLIST,
         success: true,
         message: '',
     };

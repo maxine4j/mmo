@@ -8,6 +8,11 @@ export enum PacketHeader {
     CHAR_MYLIST = 'CHAR_MYLIST',
     CHAR_CREATE = 'CHAR_CREATE',
     CHAR_GET = 'CHAR_GET',
+    PLAYER_ENTERWORLD = 'PLAYER_ENTERWORLD',
+    PLAYER_LEAVEWORLD = 'PLAYER_LEAVEWORLD',
+    PLAYER_MOVETO = 'PLAYER_MOVETO',
+    UNIT_UPDATE = '',
+    CHAT_EVENT = '',
 }
 
 export enum Channel {
@@ -17,9 +22,7 @@ export enum Channel {
     PLAYER
 }
 
-export interface Packet {
-    header: PacketHeader;
-}
+export interface Packet { }
 
 export interface ResponsePacket extends Packet {
     success: boolean;
@@ -31,11 +34,11 @@ export interface AuthLoginPacket extends Packet {
     password: string;
 }
 
-export interface AuthLoginRespPacket extends Packet, ResponsePacket {
+export interface AccountPacket extends Packet, ResponsePacket {
     account: Account;
 }
 
-export interface CharactersRespPacket extends Packet, ResponsePacket {
+export interface CharactersPacket extends Packet, ResponsePacket {
     characters: Character[];
 }
 

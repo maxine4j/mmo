@@ -49,7 +49,6 @@ export default class Input {
 
     private static setKeyState(ev: KeyboardEvent, down: boolean) {
         this.keyStates.set(<Key>ev.key, down);
-        console.log('set a key state!', <Key>ev.key, down);
     }
 
     private static setMouseState(ev: MouseEvent, down: boolean) {

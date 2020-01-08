@@ -1,6 +1,6 @@
 import { AmbientLight } from 'three';
 import { Key } from 'ts-key-enum';
-import { AuthLoginRespPacket } from '../../common/Packet';
+import { AccountPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
@@ -14,7 +14,6 @@ import Engine from '../engine/Engine';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Model from '../engine/graphics/Model';
-import Input from '../engine/Input';
 import Scene from '../engine/graphics/Scene';
 
 export default class LoginScene extends GameScene {
@@ -71,7 +70,7 @@ export default class LoginScene extends GameScene {
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            NetClient.login(txtUsername.text, txtPassword.text, (resp: AuthLoginRespPacket) => {
+            NetClient.login(txtUsername.text, txtPassword.text, (resp: AccountPacket) => {
                 if (resp.success) {
                     Engine.account = resp.account;
                     SceneManager.changeScene('char-select');
@@ -95,9 +94,8 @@ export default class LoginScene extends GameScene {
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.load('assets/models/ui/mainmenu/mainmenu.glb');
-        await this.background.loadAnim('stand', 'assets/models/ui/mainmenu/anims/mainmenu_Stand_0.glb');
-        this.background.animations.get('stand').play();
+        this.background = await Model.loadDef('assets/models/ui/mainmenu/mainmenu.model.json');
+        this.background.getAnim('Stand').then((a) => a.play());
         this.scene.add(this.background.obj);
 
         this.camera.position.set(5.095108853409366, -1.049448850028543, -2.400366781879153);

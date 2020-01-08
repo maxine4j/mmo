@@ -1,6 +1,7 @@
 import { Frame } from '../interface/Frame';
 import Scene from '../graphics/Scene';
 import Camera from '../graphics/Camera';
+import Graphics from '../graphics/Graphics';
 
 export default abstract class GameScene {
     public readonly id: string;
@@ -29,6 +30,7 @@ export default abstract class GameScene {
         if (this.scene) {
             this.scene.clear();
         }
+        Graphics.clear();
     }
 
     public abstract update(delta: number): void;

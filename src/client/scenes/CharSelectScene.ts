@@ -8,7 +8,7 @@ import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
-import { PacketHeader, CharactersRespPacket } from '../../common/Packet';
+import { PacketHeader, CharactersPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
@@ -29,7 +29,7 @@ export default class CharSelectScene extends GameScene {
     }
 
     public fetchCharacerList() {
-        NetClient.onNext(PacketHeader.CHAR_MYLIST, (resp: CharactersRespPacket) => {
+        NetClient.onNext(PacketHeader.CHAR_MYLIST, (resp: CharactersPacket) => {
             this.characters = resp.characters;
             this.buildCharList();
         });
@@ -153,13 +153,17 @@ export default class CharSelectScene extends GameScene {
         this.background.position.y += 0.5;
         this.scene.add(this.background);
 
-        this.selectedModel = await Model.load('assets/models/human/human.glb');
-        await this.selectedModel.loadAnims([
-            ['run', 'assets/models/human/anims/human_Run_2.glb'],
-            ['stand', 'assets/models/human/anims/human_Stand_0.glb'],
-            ['walk', 'assets/models/human/anims/human_Walk_1.glb'],
-        ]);
-        this.selectedModel.animations.get('stand').play();
+        // this.selectedModel = await Model.load('assets/models/human/human.glb');
+        // await this.selectedModel.loadAnims([
+        //     ['run', 'assets/models/human/anims/human_Run_2.glb'],
+        //     ['stand', 'assets/models/human/anims/human_Stand_0.glb'],
+        //     ['walk', 'assets/models/human/anims/human_Walk_1.glb'],
+        // ]);
+        // this.selectedModel.animations.get('stand').play();
+
+        this.selectedModel = await Model.loadDef('assets/models/human/human.model.json', true);
+        const a = await this.selectedModel.getAnim('Stand');
+        a.play();
 
         this.selectedModel.obj.scale.set(4, 4, 4);
         this.selectedModel.obj.translateY(-2.25);
@@ -169,6 +173,7 @@ export default class CharSelectScene extends GameScene {
 
     public final() {
         super.final();
+        this.charSpinStartMouse = -1;
     }
 
     private updateCharRotation(delta: number) {

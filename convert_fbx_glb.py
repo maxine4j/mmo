@@ -4,6 +4,7 @@ import json
 import glob
 import pathlib
 
+
 fbx2gltf_exe = "FBX2glTF.exe"
 
 cmd = "{} --embed --binary --input \"{}\" --output \"{}\""

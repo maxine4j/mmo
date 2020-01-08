@@ -33,6 +33,10 @@ export default class Graphics {
         this.renderer.render(scene, camera);
     }
 
+    public static clear() {
+        this.renderer.clear();
+    }
+
     public static toDegrees(radians: number) {
         return radians * (180 / Math.PI);
     }

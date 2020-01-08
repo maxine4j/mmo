@@ -1,5 +1,3 @@
-import Buildable from '../Buildable';
-
 export enum Race {
     HUMAN,
     DWARF,
@@ -9,8 +7,21 @@ export enum Race {
     UNDEAD,
 }
 
-export default class Character extends Buildable {
+export enum Facing {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
+}
+
+export default class Character {
+    public id: number;
     public name: string;
     public level: number;
     public race: Race;
+    public posX: number;
+    public posY: number;
+    public destX: number;
+    public destY: number;
+    public facing: Facing;
 }
