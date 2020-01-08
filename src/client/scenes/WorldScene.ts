@@ -1,4 +1,4 @@
-import { AmbientLight } from 'three';
+import * as THREE from 'three';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import SceneManager from '../engine/scene/SceneManager';
@@ -7,6 +7,7 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/UIParent';
+import { PacketHeader, CharacterPacket } from '../../common/Packet';
 
 export default class WorldScene extends GameScene {
     public constructor() {
@@ -26,16 +27,27 @@ export default class WorldScene extends GameScene {
         this.addGUI(btnBack);
     }
 
+    private async initPlayer() {
+        NetClient.sendRecv(PacketHeader.PLAYER_UPDATE_SELF).then((p: CharacterPacket) => {});
+    }
+
     public async init() {
         this.initGUI();
+        this.initPlayer();
 
         this.scene = new Scene();
         this.camera = new Camera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.z = 5;
+        this.camera.position.y += 10;
+        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-        const light = new AmbientLight(0xffffff, 3);
+        const light = new THREE.AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
+
+        const size = 10;
+        const divisions = 10;
+        const gridHelper = new THREE.GridHelper(size, divisions);
+        this.scene.add(gridHelper);
     }
 
     public final() {

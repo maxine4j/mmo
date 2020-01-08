@@ -29,13 +29,14 @@ export default class CharSelectScene extends GameScene {
     }
 
     public fetchCharacerList() {
-        NetClient.sendRecv(PacketHeader.CHAR_MYLIST, null, (resp: CharactersPacket) => {
-            this.characters = resp.characters;
-            this.buildCharList();
-            if (this.characters.length > 0) {
-                [this.selectedChar] = this.characters;
-            }
-        });
+        NetClient.sendRecv(PacketHeader.CHAR_MYLIST)
+            .then((resp: CharactersPacket) => {
+                this.characters = resp.characters;
+                this.buildCharList();
+                if (this.characters.length > 0) {
+                    [this.selectedChar] = this.characters;
+                }
+            });
     }
 
     private buildCharList() {
@@ -53,9 +54,8 @@ export default class CharSelectScene extends GameScene {
     }
 
     private enterWorld() {
-        NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD,
-            <CharacterPacket>{ character: this.selectedChar },
-            () => SceneManager.changeScene('world'));
+        NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>{ character: this.selectedChar })
+            .then(() => SceneManager.changeScene('world'));
     }
 
     private initGUI() {

@@ -46,24 +46,27 @@ export default class NetClient {
 
     // sends a packet with given header and calls cb once when server responds with the same header
     // same as onNext; send
-    public static sendRecv(header: PacketHeader, packet: Packet, cb: (p: ResponsePacket) => void) {
-        this.onNext(header, cb);
+    public static sendRecv(header: PacketHeader, packet?: Packet): Promise<Packet> {
+        const prom = this.onNext(header);
         this.send(header, packet);
+        return prom;
     }
 
     public static get client(): SocketIOClient.Socket {
         return this._client;
     }
 
-    public static on(header: PacketHeader, cb: (p: ResponsePacket) => void) {
+    public static on(header: PacketHeader, cb: (p: Packet) => void) {
         this.client.on(header, cb);
     }
 
-    public static onNext(header: PacketHeader, cb: (p: ResponsePacket) => void) {
-        const fn = (p: ResponsePacket) => {
-            cb(p);
-            this.client.off(header, fn);
-        };
-        this.client.on(header, fn);
+    public static onNext(header: PacketHeader): Promise<Packet> {
+        return new Promise((resolve) => {
+            const fn = (p: ResponsePacket) => {
+                this.client.off(header, fn);
+                resolve(p);
+            };
+            this.client.on(header, fn);
+        });
     }
 }

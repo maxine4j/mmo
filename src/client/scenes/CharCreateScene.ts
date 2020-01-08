@@ -21,18 +21,18 @@ export default class CharCreateScene extends GameScene {
     private characterCharacter() {
         const name = this.txtName.text;
         if (name.length >= 2 && name.length <= 12) {
-            NetClient.onNext(PacketHeader.CHAR_CREATE, (p: ResponsePacket) => {
-                if (p.success) {
-                    SceneManager.changeScene('char-select');
-                } else {
-                    this.dialog.setText(p.message);
-                    this.dialog.show();
-                }
-            });
             const character = new Character();
             character.name = this.txtName.text;
             character.race = Race.HUMAN;
-            NetClient.send(PacketHeader.CHAR_CREATE, <CharacterPacket>{ character });
+            NetClient.sendRecv(PacketHeader.CHAR_CREATE, <CharacterPacket>{ character })
+                .then((p: ResponsePacket) => {
+                    if (p.success) {
+                        SceneManager.changeScene('char-select');
+                    } else {
+                        this.dialog.setText(p.message);
+                        this.dialog.show();
+                    }
+                });
         }
     }
 
