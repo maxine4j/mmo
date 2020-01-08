@@ -1,0 +1,8 @@
+{
+    "heightmap": "3.bmp",
+    "texture": "grass.png",
+    "positon": {
+        "x": 1,
+        "y": 1
+    }
+}

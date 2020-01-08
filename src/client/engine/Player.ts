@@ -4,7 +4,7 @@ import NetClient from './NetClient';
 import { PacketHeader, CharacterPacket } from '../../common/Packet';
 
 export default class Player {
-    private character: Character
+    private character: Character;
     private model: Model;
 
     public constructor(char: Character) {
@@ -14,8 +14,5 @@ export default class Player {
 
     private onPlayerUpdate(packet: CharacterPacket) {
         this.character = packet.character;
-    }
-
-    public updateCharData() {
     }
 }

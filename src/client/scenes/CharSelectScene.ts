@@ -130,8 +130,8 @@ export default class CharSelectScene extends GameScene {
         this.fetchCharacerList();
 
         this.scene = new Scene();
-        this.camera = new Camera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.z = 5;
+        this.camera = new Camera(45, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera.position.z = 10;
 
         const light = new AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();

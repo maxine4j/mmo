@@ -6,7 +6,7 @@ interface AnimsDict {
     [index: string]: string
 }
 
-export interface ModelDef {
+interface ModelDef {
     main: string;
     animDir: string;
     anims: AnimsDict;

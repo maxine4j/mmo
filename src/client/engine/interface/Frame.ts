@@ -45,6 +45,7 @@ export abstract class Frame {
         this.element = document.createElement(this.tag);
         this.element.style.userSelect = 'none';
         this.element.style.position = 'fixed';
+        this.element.style.pointerEvents = 'initial';
         this.parent.addChild(this);
     }
 

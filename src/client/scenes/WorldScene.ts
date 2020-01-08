@@ -8,8 +8,13 @@ import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/UIParent';
 import { PacketHeader, CharacterPacket } from '../../common/Packet';
+import Player from '../engine/Player';
+import World from '../engine/World';
 
 export default class WorldScene extends GameScene {
+    private player: Player;
+    private world: World;
+
     public constructor() {
         super('world');
     }
@@ -28,7 +33,10 @@ export default class WorldScene extends GameScene {
     }
 
     private async initPlayer() {
-        NetClient.sendRecv(PacketHeader.PLAYER_UPDATE_SELF).then((p: CharacterPacket) => {});
+        NetClient.sendRecv(PacketHeader.PLAYER_UPDATE_SELF)
+            .then((p: CharacterPacket) => {
+                this.player = new Player(p.character);
+            });
     }
 
     public async init() {
@@ -36,18 +44,26 @@ export default class WorldScene extends GameScene {
         this.initPlayer();
 
         this.scene = new Scene();
-        this.camera = new Camera(75, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.y += 10;
-        this.camera.lookAt(new THREE.Vector3(0, 0, 0));
+        this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera.position.set(400, 200, 0);
+        this.camera.initOrbitControls();
 
-        const light = new THREE.AmbientLight(0xffffff, 3);
-        light.position.set(0, 0, 1).normalize();
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 1).normalize();
         this.scene.add(light);
 
-        const size = 10;
-        const divisions = 10;
+        const size = 100;
+        const divisions = 100;
         const gridHelper = new THREE.GridHelper(size, divisions);
         this.scene.add(gridHelper);
+
+        this.world = new World(this.scene);
+        await Promise.all([
+            this.world.loadChunk(0),
+            this.world.loadChunk(1),
+            this.world.loadChunk(2),
+            this.world.loadChunk(3),
+        ]);
     }
 
     public final() {
@@ -55,6 +71,11 @@ export default class WorldScene extends GameScene {
     }
 
     public update(delta: number) {
+        // const intersects = this.camera.rcast(this.scene, Input.mousePos());
+        // if (intersects.length > 0) {
+        //     const ints = intersects[0];
+        //     console.log(ints.point);
+        // }
     }
 
     public draw() {

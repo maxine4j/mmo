@@ -41,10 +41,14 @@ export default class NetServer {
             socket.emit(PacketHeader.CHAR_CREATE, await handleCreate(socket.id, packet));
         });
 
-        // player login
+        // player
         socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
             const character = await NetServer.world.enterWorld(socket, packet.character);
             socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>{ character });
+        });
+        socket.on(PacketHeader.PLAYER_UPDATE_SELF, async () => {
+            const character = NetServer.world.getSessionPlayer(socket.id).char;
+            socket.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>{ character });
         });
     }
 }

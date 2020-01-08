@@ -10,6 +10,7 @@ export default class UIParent extends Frame {
 
     protected createElement() {
         this.element = document.getElementById(this.id);
+        this.element.style.pointerEvents = 'none';
     }
 
     public static get(): UIParent {

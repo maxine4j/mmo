@@ -18,6 +18,12 @@
         }
     },
     "rules": {
+        "semi": [
+            "off"
+        ],
+        "@typescript-eslint/semi": [
+            "error"
+        ],
         "guard-for-in": [
             "off"
         ],
@@ -67,9 +73,6 @@
         ],
         "lines-between-class-members": [
             "off"
-        ],
-        "semi": [
-            "error"
         ],
         "max-classes-per-file": [
             "off"

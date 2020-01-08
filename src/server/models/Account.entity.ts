@@ -26,8 +26,9 @@ export default class AccountEntity extends BaseEntity {
 
     // converts a db entity to a network account
     public toNet(): Account {
-        const a = new Account();
-        a.name = this.name;
+        const a = <Account>{
+            name: this.name,
+        };
         return a;
     }
 }

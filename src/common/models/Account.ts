@@ -1,3 +1,3 @@
-export default class Account {
-    public name: string;
+export default interface Account {
+    name: string;
 }

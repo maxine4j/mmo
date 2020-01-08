@@ -1,5 +1,4 @@
 import { AmbientLight } from 'three';
-import { Key } from 'ts-key-enum';
 import { AccountPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';

@@ -60,4 +60,8 @@ export default class World {
             this.players.delete(sessionid);
         }
     }
+
+    public getSessionPlayer(sessionid: string) {
+        return this.players.get(sessionid);
+    }
 }

@@ -14,14 +14,14 @@ export enum Facing {
     WEST
 }
 
-export default class Character {
-    public id: number;
-    public name: string;
-    public level: number;
-    public race: Race;
-    public posX: number;
-    public posY: number;
-    public destX: number;
-    public destY: number;
-    public facing: Facing;
+export default interface Character {
+    id: number;
+    name: string;
+    level: number;
+    race: Race;
+    posX: number;
+    posY: number;
+    destX: number;
+    destY: number;
+    facing: Facing;
 }

@@ -32,16 +32,17 @@ export default class CharacterEntity extends BaseEntity {
 
     // converts a db entity to a network character
     public toNet(): Character {
-        const char = new Character();
-        char.id = this.id;
-        char.name = this.name;
-        char.level = this.level;
-        char.race = this.race;
-        char.posX = this.posX;
-        char.posY = this.posY;
-        char.destX = -1;
-        char.destY = -1;
-        char.facing = Facing.NORTH;
+        const char = <Character>{
+            id: this.id,
+            name: this.name,
+            level: this.level,
+            race: this.race,
+            posX: this.posX,
+            posY: this.posY,
+            destX: -1,
+            destY: -1,
+            facing: Facing.NORTH,
+        };
         return char;
     }
 

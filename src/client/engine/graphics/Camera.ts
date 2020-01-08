@@ -1,10 +1,13 @@
-import { PerspectiveCamera, Vector3 } from 'three';
-import { Key } from 'ts-key-enum';
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Graphics from './Graphics';
-import Input from '../Input';
+import { Point } from '../Input';
+import Scene from './Scene';
 
-export default class Camera extends PerspectiveCamera {
+export default class Camera extends THREE.PerspectiveCamera {
     private cameraRate = 0.5;
+    private controls: OrbitControls;
+    private raycaster: THREE.Raycaster = new THREE.Raycaster();
 
     public constructor(fov?: number, aspect?: number, near?: number, far?: number) {
         super(fov, aspect, near, far);
@@ -13,49 +16,28 @@ export default class Camera extends PerspectiveCamera {
         this.windowResize();
     }
 
+    public initOrbitControls() {
+        this.controls = new OrbitControls(this, Graphics.renderer.domElement);
+        this.controls.screenSpacePanning = false;
+        this.controls.minDistance = 1;
+        this.controls.maxDistance = 200;
+        // this.controls.maxPolarAngle = Math.PI / 2;
+        this.controls.update();
+    }
+
     private windowResize() {
         this.aspect = Graphics.viewportWidth / Graphics.viewportHeight;
         this.updateProjectionMatrix();
     }
 
-    public get lookingAt(): Vector3 {
-        return new Vector3(0, 0, -1).applyQuaternion(this.quaternion);
+    public get lookingAt(): THREE.Vector3 {
+        return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
     }
 
-    public updateDebugMove(delta: number) {
-        if (Input.isKeyDown(Key.ArrowLeft)) {
-            this.translateX(delta * -this.cameraRate);
-        }
-        if (Input.isKeyDown(Key.ArrowRight)) {
-            this.translateX(delta * this.cameraRate);
-        }
-        if (Input.isKeyDown(Key.ArrowUp)) {
-            this.translateZ(delta * -this.cameraRate);
-        }
-        if (Input.isKeyDown(Key.ArrowDown)) {
-            this.translateZ(delta * this.cameraRate);
-        }
-
-        if (Input.isKeyDown('w')) {
-            this.rotateOnAxis(new Vector3(1, 0, 0), delta * this.cameraRate);
-        }
-        if (Input.isKeyDown('s')) {
-            this.rotateOnAxis(new Vector3(1, 0, 0), delta * -this.cameraRate);
-        }
-        if (Input.isKeyDown('a')) {
-            this.rotateOnAxis(new Vector3(0, 1, 0), delta * this.cameraRate);
-        }
-        if (Input.isKeyDown('d')) {
-            this.rotateOnAxis(new Vector3(0, 1, 0), delta * -this.cameraRate);
-        }
-
-        if (Input.isKeyDown('q')) {
-            this.translateY(delta * this.cameraRate);
-        }
-        if (Input.isKeyDown('e')) {
-            this.translateY(delta * -this.cameraRate);
-        }
-
-        console.log(this.position, this.rotation);
+    public rcast(scene: Scene, p: Point): THREE.Intersection[] {
+        const dx = (p.x / Graphics.viewportWidth) * 2 - 1;
+        const dy = -(p.y / Graphics.viewportHeight) * 2 + 1;
+        this.raycaster.setFromCamera({ x: dx, y: dy }, this);
+        return this.raycaster.intersectObjects(scene.children);
     }
 }
