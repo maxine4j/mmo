@@ -153,17 +153,8 @@ export default class CharSelectScene extends GameScene {
         this.background.position.y += 0.5;
         this.scene.add(this.background);
 
-        // this.selectedModel = await Model.load('assets/models/human/human.glb');
-        // await this.selectedModel.loadAnims([
-        //     ['run', 'assets/models/human/anims/human_Run_2.glb'],
-        //     ['stand', 'assets/models/human/anims/human_Stand_0.glb'],
-        //     ['walk', 'assets/models/human/anims/human_Walk_1.glb'],
-        // ]);
-        // this.selectedModel.animations.get('stand').play();
-
-        this.selectedModel = await Model.loadDef('assets/models/human/human.model.json', true);
-        const a = await this.selectedModel.getAnim('Stand');
-        a.play();
+        this.selectedModel = await Model.loadDef('assets/models/human/human.model.json');
+        this.selectedModel.getAnim('Stand').then((a) => a.play());
 
         this.selectedModel.obj.scale.set(4, 4, 4);
         this.selectedModel.obj.translateY(-2.25);
