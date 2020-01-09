@@ -18,6 +18,15 @@
         }
     },
     "rules": {
+        "no-continue": [
+            "off"
+        ],
+        "no-bitwise": [
+            "off"
+        ],
+        "no-constant-condition": [
+            "off"
+        ],
         "semi": [
             "off"
         ],
