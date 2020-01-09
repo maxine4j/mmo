@@ -64,6 +64,9 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.name = packet.character.name;
     char.race = packet.character.race;
     char.level = 1;
+    char.posX = 0; // TODO: set this to starting zone based on race
+    char.posY = 0;
+    char.positionMapID = 0;
     await char.save();
     // send success response
     return <ResponsePacket>{

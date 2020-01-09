@@ -11,8 +11,6 @@ interface ChunkDef {
     positon: ChunkDefPositon;
 }
 
-const chunkSize = 150;
-
 export default class Chunk {
     public id: number;
     public terrain: Terrain;
@@ -28,7 +26,7 @@ export default class Chunk {
     }
 
     private positionTerrain() {
-        this.terrain.plane.position.set(this.x * chunkSize, 0, this.y * chunkSize);
+        this.terrain.plane.position.set(this.x * this.size, 0, this.y * this.size);
     }
 
     public static async load(id: number): Promise<Chunk> {
@@ -41,5 +39,16 @@ export default class Chunk {
                     });
                 });
         });
+    }
+
+    public getElevation(chunkX: number, chunkY: number) {
+        // transform chunk coord to terrain coord
+        const terrX = this.terrain.width - (this.terrain.width / 2 - chunkX);
+        const terrY = this.terrain.height - (this.terrain.height / 2 - chunkY);
+        return this.terrain.getElevation(terrX, terrY);
+    }
+
+    public get size(): number {
+        return this.terrain.width;
     }
 }

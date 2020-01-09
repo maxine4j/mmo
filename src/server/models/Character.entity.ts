@@ -12,13 +12,13 @@ export default class CharacterEntity extends BaseEntity {
     @ManyToOne((type) => AccountEntity, (account) => account.characters)
     public account: AccountEntity;
 
-    @Column({ nullable: true }) // TODO: temp
+    @Column()
     public posX: number;
 
-    @Column({ nullable: true }) // TODO: temp
+    @Column()
     public posY: number;
 
-    @Column({ nullable: true }) // TODO: temp
+    @Column()
     public positionMapID: number;
 
     @Column()

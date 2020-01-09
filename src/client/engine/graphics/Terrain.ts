@@ -6,9 +6,15 @@ const heightMapScale = 10;
 export default class Terrain {
     public plane: THREE.Mesh;
     public wireframe: THREE.LineSegments;
+    public heightData: Float32Array;
+    public width: number;
+    public height: number;
 
-    private constructor(plane: THREE.Mesh) {
+    private constructor(plane: THREE.Mesh, heights: Float32Array, width: number, height: number) {
         this.plane = plane;
+        this.heightData = heights;
+        this.width = width;
+        this.height = height;
     }
 
     public showWireframe() {
@@ -41,7 +47,7 @@ export default class Terrain {
                         geometry.vertices[i].z = data[i];
                     }
                     plane.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), Graphics.toRadians(-90));
-                    resolve(new Terrain(plane));
+                    resolve(new Terrain(plane, data, heightmap.width, heightmap.height));
                 });
             };
         });
@@ -71,5 +77,9 @@ export default class Terrain {
         }
 
         return data;
+    }
+
+    public getElevation(tx: number, ty: number): number {
+        return this.heightData[ty * this.width + tx];
     }
 }
