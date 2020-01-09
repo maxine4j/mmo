@@ -1,11 +1,29 @@
 import * as THREE from 'three';
 import Graphics from './Graphics';
 
+const heightMapScale = 10;
+
 export default class Terrain {
     public plane: THREE.Mesh;
+    public wireframe: THREE.LineSegments;
 
     private constructor(plane: THREE.Mesh) {
         this.plane = plane;
+    }
+
+    public showWireframe() {
+        if (!this.wireframe) {
+            const geo = new THREE.WireframeGeometry(this.plane.geometry); // or WireframeGeometry
+            const mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
+            this.wireframe = new THREE.LineSegments(geo, mat);
+        }
+        this.plane.add(this.wireframe);
+    }
+
+    public hideWireFrame() {
+        if (this.wireframe) {
+            this.plane.remove(this.wireframe);
+        }
     }
 
     public static async load(heightMapSrc: string, groundTextureSrc: string): Promise<Terrain> {
@@ -13,7 +31,7 @@ export default class Terrain {
             const heightmap = new Image();
             heightmap.src = heightMapSrc;
             heightmap.onload = () => {
-                const data = this.getHeightData(heightmap, 10);
+                const data = this.getHeightData(heightmap, heightMapScale);
                 const geometry = new THREE.PlaneGeometry(heightmap.width, heightmap.height, heightmap.width - 1, heightmap.height - 1);
                 const loader = new THREE.TextureLoader();
                 loader.load(groundTextureSrc, (texture) => {

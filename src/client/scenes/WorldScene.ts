@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Key } from 'ts-key-enum';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import SceneManager from '../engine/scene/SceneManager';
@@ -10,10 +11,13 @@ import UIParent from '../engine/interface/UIParent';
 import { PacketHeader, CharacterPacket } from '../../common/Packet';
 import Player from '../engine/Player';
 import World from '../engine/World';
+import Input from '../engine/Input';
+import Label from '../engine/interface/Label';
 
 export default class WorldScene extends GameScene {
     private player: Player;
     private world: World;
+    private lblMouseOverTile: Label;
 
     public constructor() {
         super('world');
@@ -30,6 +34,12 @@ export default class WorldScene extends GameScene {
         btnBack.style.right = '0';
         btnBack.addEventListener('click', () => SceneManager.changeScene('char-select'));
         this.addGUI(btnBack);
+
+        this.lblMouseOverTile = new Label('lbl-mouse-over-tile', UIParent.get(), 'Tile: { X, Y }');
+        this.lblMouseOverTile.style.position = 'fixed';
+        this.lblMouseOverTile.style.top = '10px';
+        this.lblMouseOverTile.style.left = '0';
+        this.addGUI(this.lblMouseOverTile);
     }
 
     private async initPlayer() {
@@ -52,17 +62,14 @@ export default class WorldScene extends GameScene {
         light.position.set(1, 1, 1).normalize();
         this.scene.add(light);
 
-        const size = 100;
-        const divisions = 100;
-        const gridHelper = new THREE.GridHelper(size, divisions);
-        this.scene.add(gridHelper);
+        // const size = 150;
+        // const divisions = 150;
+        // const gridHelper = new THREE.GridHelper(size, divisions);
+        // this.scene.add(gridHelper);
 
         this.world = new World(this.scene);
         await Promise.all([
             this.world.loadChunk(0),
-            this.world.loadChunk(1),
-            this.world.loadChunk(2),
-            this.world.loadChunk(3),
         ]);
     }
 
@@ -71,11 +78,21 @@ export default class WorldScene extends GameScene {
     }
 
     public update(delta: number) {
-        // const intersects = this.camera.rcast(this.scene, Input.mousePos());
-        // if (intersects.length > 0) {
-        //     const ints = intersects[0];
-        //     console.log(ints.point);
-        // }
+        const intersects = this.camera.rcast(this.scene, Input.mousePos());
+        if (intersects.length > 0) {
+            const tileCoord = this.world.tileCoord(intersects[0].point);
+            this.lblMouseOverTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} }`;
+        } else {
+            this.lblMouseOverTile.text = 'Tile: { ?, ? }';
+        }
+
+        if (Input.wasKeyPressed('1')) {
+            this.world.terrainWireframes(true);
+        }
+
+        if (Input.wasKeyPressed('2')) {
+            this.world.terrainWireframes(false);
+        }
     }
 
     public draw() {

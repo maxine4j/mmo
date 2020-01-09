@@ -11,7 +11,7 @@ interface ChunkDef {
     positon: ChunkDefPositon;
 }
 
-const chunkWidth = 10;
+const chunkSize = 150;
 
 export default class Chunk {
     public id: number;
@@ -28,7 +28,7 @@ export default class Chunk {
     }
 
     private positionTerrain() {
-        this.terrain.plane.position.set(this.x * chunkWidth, 0, this.y * chunkWidth);
+        this.terrain.plane.position.set(this.x * chunkSize, 0, this.y * chunkSize);
     }
 
     public static async load(id: number): Promise<Chunk> {
