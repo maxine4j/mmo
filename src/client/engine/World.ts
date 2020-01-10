@@ -43,7 +43,7 @@ export default class World {
     }
 
     public worldToTile(coord: THREE.Vector3): Point {
-        return { x: Math.floor(coord.x + 0.5), y: Math.floor(coord.z + 0.5) };
+        return new Point(Math.floor(coord.x + 0.5), Math.floor(coord.z + 0.5));
     }
 
     public tileToWorld(tileX: number, tileY: number): THREE.Vector3 {
@@ -76,10 +76,10 @@ export default class World {
             // check if the calculated point is within this chunk
             if (chunkX >= -chunkBound && chunkX <= chunkBound
                 && chunkY >= -chunkBound && chunkY <= chunkBound) {
-                return { x: chunkX, y: chunkY };
+                return new Point(chunkX, chunkY);
             }
         }
-        return { x: NaN, y: NaN };
+        return new Point(NaN, NaN);
     }
 
     public terrainWireframes(visible: boolean) {

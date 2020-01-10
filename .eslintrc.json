@@ -18,6 +18,9 @@
         }
     },
     "rules": {
+        "no-useless-return": [
+            "off"
+        ],
         "no-continue": [
             "off"
         ],

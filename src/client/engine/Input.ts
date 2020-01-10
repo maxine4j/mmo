@@ -15,10 +15,7 @@ export default class Input {
     private static mousePosition: Point;
 
     public static init() {
-        this.mousePosition = {
-            x: 0,
-            y: 0,
-        };
+        this.mousePosition = new Point(0, 0);
 
         window.addEventListener('keydown', (ev: KeyboardEvent) => {
             this.setKeyState(ev, true);

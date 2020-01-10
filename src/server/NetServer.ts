@@ -52,6 +52,8 @@ export default class NetServer {
             NetServer.world.handlePlayerUpdateSelf(socket);
         });
         socket.on(PacketHeader.CHUNK_LOAD, async () => {
+            console.log('got a chunk load request');
+
             NetServer.world.handleChunkLoad(socket);
         });
         socket.on(PacketHeader.PLAYER_MOVETO, async (packet: PointPacket) => {

@@ -186,7 +186,7 @@ export default class CharSelectScene extends GameScene {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
-            this.selectedModel.getAnim('EmoteDance143').then((a) => a.play());
+            this.selectedModel.getAnim('Run').then((a) => a.play());
             console.log('Got a list of chars:', this.characters);
         }
     }
