@@ -3,7 +3,7 @@ import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import Character from '../../common/models/Character';
+import Character from '../../common/Character';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
@@ -54,7 +54,7 @@ export default class CharSelectScene extends GameScene {
     }
 
     private enterWorld() {
-        NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>{ character: this.selectedChar })
+        NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket> this.selectedChar)
             .then(() => SceneManager.changeScene('world'));
     }
 
@@ -176,7 +176,7 @@ export default class CharSelectScene extends GameScene {
             this.charSpinStartMouse = -1;
         }
         if (this.charSpinStartMouse !== -1) {
-            const { x, y, z } = this.selectedModel.obj.rotation;
+            const { x, z } = this.selectedModel.obj.rotation;
             const dy = (Input.mousePos().x - this.charSpinStartMouse) * 0.01;
             this.selectedModel.obj.rotation.set(x, this.charSpinInitialRot + dy, z);
         }

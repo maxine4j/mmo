@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import Graphics from './Graphics';
 
 const heightMapScale = 10;
 
@@ -32,21 +31,77 @@ export default class Terrain {
         }
     }
 
+    private static unitPlaneGeom(width: number, height: number, heightmap: Float32Array): THREE.BufferGeometry {
+        // buffers
+        const indices: Array<number> = [];
+        const vertices: Array<number> = [];
+        const normals: Array<number> = [];
+        const uvs: Array<number> = [];
+
+        const width1 = width;// + 1;
+        const height1 = height;// + 1;
+
+        const widthHalf = width / 2;
+        const heightHalf = height / 2;
+
+        const segWidth = 1;
+        const segHeight = 1;
+
+        // generate vertices, normals and uvs
+        for (let iz = 0; iz < height1; iz++) {
+            const z = iz * segHeight - heightHalf;
+            for (let ix = 0; ix < width1; ix++) {
+                const x = ix * segWidth - widthHalf;
+                // TODO: also apply heightmap here
+                let y = heightmap[(iz * width) + ix];
+                if (!y) y = heightmap[((iz - 1) * width) + ix];
+                if (!y) y = heightmap[((iz - 1) * width) + (ix - 1)];
+                if (!y) console.log('NaN in heightmap:', ix, iz, y);
+
+                vertices.push(x, y, z);
+
+                normals.push(0, 1, 0); // TODO: maybe normal shouldnt alwasy be up bc this is a heightmap
+
+                uvs.push(ix / width); // might need to be width - 1
+                uvs.push(1 - (iz / height)); // might need to be height - 1, also might not need negation?
+            }
+        }
+
+        // indices
+        for (let iz = 0; iz < height - 1; iz++) {
+            for (let ix = 0; ix < width - 1; ix++) {
+                const a = ix + width1 * iz;
+                const b = ix + width1 * (iz + 1);
+                const c = (ix + 1) + width1 * (iz + 1);
+                const d = (ix + 1) + width1 * iz;
+
+                // faces
+                indices.push(a, b, d);
+                indices.push(b, c, d);
+            }
+        }
+
+        const geom = new THREE.BufferGeometry();
+        geom.setIndex(indices);
+        geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geom.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
+        geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+
+        return geom;
+    }
+
     public static async load(heightMapSrc: string, groundTextureSrc: string): Promise<Terrain> {
         return new Promise((resolve) => {
             const heightmap = new Image();
             heightmap.src = heightMapSrc;
             heightmap.onload = () => {
                 const data = this.getHeightData(heightmap, heightMapScale);
-                const geometry = new THREE.PlaneGeometry(heightmap.width, heightmap.height, heightmap.width - 1, heightmap.height - 1);
+                const geometry = this.unitPlaneGeom(heightmap.width, heightmap.height, data);
                 const loader = new THREE.TextureLoader();
                 loader.load(groundTextureSrc, (texture) => {
                     const material = new THREE.MeshLambertMaterial({ map: texture });
                     const plane = new THREE.Mesh(geometry, material);
-                    for (let i = 0; i < geometry.vertices.length; i++) {
-                        geometry.vertices[i].z = data[i];
-                    }
-                    plane.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), Graphics.toRadians(-90));
+                    plane.receiveShadow = true;
                     resolve(new Terrain(plane, data, heightmap.width, heightmap.height));
                 });
             };

@@ -71,7 +71,7 @@ export default class LoginScene extends GameScene {
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
             NetClient.login(txtUsername.text, txtPassword.text, (resp: AccountPacket) => {
                 if (resp.success) {
-                    Engine.account = resp.account;
+                    Engine.account = resp;
                     SceneManager.changeScene('char-select');
                 } else {
                     console.log(`Failed to log in: ${resp.message}`);

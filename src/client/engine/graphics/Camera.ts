@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Graphics from './Graphics';
-import { Point } from '../Input';
+import Point from '../../../common/Point';
 import Scene from './Scene';
 
 export default class Camera extends THREE.PerspectiveCamera {

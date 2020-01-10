@@ -21,7 +21,7 @@ export default class NetClient {
             SceneManager.changeScene('login');
         });
         this.client.on(PacketHeader.AUTH_LOGIN, (resp: AccountPacket) => {
-            Engine.account = resp.account;
+            Engine.account = resp;
             this.accountRecvCallback(resp);
         });
     }

@@ -1,3 +1,5 @@
+import Point from './Point';
+
 export enum Race {
     HUMAN,
     DWARF,
@@ -19,9 +21,6 @@ export default interface Character {
     name: string;
     level: number;
     race: Race;
-    posX: number;
-    posY: number;
-    destX: number;
-    destY: number;
+    position: Point;
     facing: Facing;
 }

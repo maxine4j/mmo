@@ -1,19 +1,22 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket,
 } from '../common/Packet';
-import { handleAuthLogin, handleAuthLogout } from './routes/AuthRoute';
-import { handleMyList, handleCreate } from './routes/CharRoute';
-import World from './World';
+import {
+    handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
+} from './managers/AccountManager';
+import WorldManager from './managers/WorldManager';
+
+const tickRate = 0.6;
 
 export default class NetServer {
     private static server: io.Server;
-    private static world: World;
+    private static world: WorldManager;
 
     public static init(port: number = 3000) {
         console.log('setting up netserver');
 
-        this.world = new World();
+        this.world = new WorldManager(tickRate);
 
         this.server = io().listen(port);
         this.server.on('connection', this.onConnection);
@@ -23,19 +26,19 @@ export default class NetServer {
         // client authentication
         console.log(`Client connected: ${socket.id}`);
         socket.on('disconnect', async () => {
-            await handleAuthLogout(socket.id);
+            await handleAuthLogout(socket);
         });
         socket.on(PacketHeader.AUTH_LOGIN, async (packet: AuthLoginPacket) => {
-            socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(socket.id, packet));
+            socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(socket, packet));
         });
         socket.on(PacketHeader.AUTH_LOGOUT, async () => {
-            NetServer.world.leaveWorld(socket.id);
-            await handleAuthLogout(socket.id);
+            NetServer.world.handlePlayerLeaveWorld(socket);
+            await handleAuthLogout(socket);
         });
 
         // character select
         socket.on(PacketHeader.CHAR_MYLIST, async () => {
-            socket.emit(PacketHeader.CHAR_MYLIST, await handleMyList(socket.id));
+            socket.emit(PacketHeader.CHAR_MYLIST, await handleMyList(socket));
         });
         socket.on(PacketHeader.CHAR_CREATE, async (packet: CharacterPacket) => {
             socket.emit(PacketHeader.CHAR_CREATE, await handleCreate(socket.id, packet));
@@ -43,12 +46,16 @@ export default class NetServer {
 
         // player
         socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
-            const character = await NetServer.world.enterWorld(socket, packet.character);
-            socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>{ character });
+            NetServer.world.handlePlayerEnterWorld(socket, packet);
         });
         socket.on(PacketHeader.PLAYER_UPDATE_SELF, async () => {
-            const character = NetServer.world.getSessionPlayer(socket.id).char;
-            socket.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>{ character });
+            NetServer.world.handlePlayerUpdateSelf(socket);
+        });
+        socket.on(PacketHeader.CHUNK_LOAD, async () => {
+            NetServer.world.handleChunkLoad(socket);
+        });
+        socket.on(PacketHeader.PLAYER_MOVETO, async (packet: PointPacket) => {
+            NetServer.world.handleMoveTo(socket, packet);
         });
     }
 }

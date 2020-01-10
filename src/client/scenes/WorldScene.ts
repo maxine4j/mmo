@@ -1,22 +1,22 @@
 import * as THREE from 'three';
-import { Key } from 'ts-key-enum';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import SceneManager from '../engine/scene/SceneManager';
-import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/UIParent';
-import { PacketHeader, CharacterPacket } from '../../common/Packet';
-import Player from '../engine/Player';
 import World from '../engine/World';
 import Input from '../engine/Input';
 import Label from '../engine/interface/Label';
 
 export default class WorldScene extends GameScene {
     private world: World;
-    private lblMouseOverTile: Label;
+    private lblMouseTile: Label;
+    private lblMouseWorld: Label;
+    private lblMouseChunk: Label;
+    private lblMouseTerrain: Label;
+    private lblTileToWorld: Label;
     private mousePoint: THREE.Vector3;
 
     public constructor() {
@@ -35,11 +35,35 @@ export default class WorldScene extends GameScene {
         btnBack.addEventListener('click', () => SceneManager.changeScene('char-select'));
         this.addGUI(btnBack);
 
-        this.lblMouseOverTile = new Label('lbl-mouse-over-tile', UIParent.get(), 'Tile: { X, Y }');
-        this.lblMouseOverTile.style.position = 'fixed';
-        this.lblMouseOverTile.style.top = '10px';
-        this.lblMouseOverTile.style.left = '0';
-        this.addGUI(this.lblMouseOverTile);
+        this.lblMouseWorld = new Label('lbl-mouse-world', UIParent.get(), 'World: { X, Y, Z }');
+        this.lblMouseWorld.style.position = 'fixed';
+        this.lblMouseWorld.style.top = '15px';
+        this.lblMouseWorld.style.left = '0';
+        this.addGUI(this.lblMouseWorld);
+
+        this.lblMouseTile = new Label('lbl-mouse-tile', UIParent.get(), 'Tile: { X, Y }');
+        this.lblMouseTile.style.position = 'fixed';
+        this.lblMouseTile.style.top = '30px';
+        this.lblMouseTile.style.left = '0';
+        this.addGUI(this.lblMouseTile);
+
+        this.lblMouseChunk = new Label('lbl-mouse-chunk', UIParent.get(), 'Chunk: { X, Y }');
+        this.lblMouseChunk.style.position = 'fixed';
+        this.lblMouseChunk.style.top = '45px';
+        this.lblMouseChunk.style.left = '0';
+        this.addGUI(this.lblMouseChunk);
+
+        this.lblMouseTerrain = new Label('lbl-mouse-terrain', UIParent.get(), 'Terrain: { X, Y }');
+        this.lblMouseTerrain.style.position = 'fixed';
+        this.lblMouseTerrain.style.top = '60px';
+        this.lblMouseTerrain.style.left = '0';
+        this.addGUI(this.lblMouseTerrain);
+
+        this.lblTileToWorld = new Label('lbl-tile-to-world', UIParent.get(), 'Tile To World: { X, Y, Z }');
+        this.lblTileToWorld.style.position = 'fixed';
+        this.lblTileToWorld.style.top = '75px';
+        this.lblTileToWorld.style.left = '0';
+        this.addGUI(this.lblTileToWorld);
     }
 
     public async init() {
@@ -47,11 +71,11 @@ export default class WorldScene extends GameScene {
 
         this.scene = new Scene();
         this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.set(400, 200, 0);
+        this.camera.position.set(0, 200, 0);
         this.camera.initOrbitControls();
 
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1).normalize();
+        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        light.position.set(0, 1, 0).normalize();
         this.scene.add(light);
 
         // const size = 150;
@@ -60,9 +84,6 @@ export default class WorldScene extends GameScene {
         // this.scene.add(gridHelper);
 
         this.world = new World(this.scene);
-        await Promise.all([
-            this.world.loadChunk(0),
-        ]);
     }
 
     public final() {
@@ -74,9 +95,20 @@ export default class WorldScene extends GameScene {
         if (intersects.length > 0) {
             this.mousePoint = intersects[0].point;
             const tileCoord = this.world.worldToTile(this.mousePoint);
-            this.lblMouseOverTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${this.world.getElevation(tileCoord.x, tileCoord.y)}`;
+            const chunkCoord = this.world.tileToChunk(tileCoord.x, tileCoord.y);
+            const terrainCoord = this.world.chunks.get(0).chunkToTerrain(chunkCoord.x, chunkCoord.y);
+            const tileToWorld = this.world.tileToWorld(tileCoord.x, tileCoord.y);
+            this.lblMouseWorld.text = `World: { ${this.mousePoint.x.toFixed(2)}, ${this.mousePoint.y.toFixed(2)}, ${this.mousePoint.z.toFixed(2)} }`;
+            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.getElevation(tileCoord.x, tileCoord.y) || 0).toFixed(2)}`;
+            this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} }`;
+            this.lblMouseTerrain.text = `Terrain: { ${terrainCoord.x}, ${terrainCoord.y} }`;
+            this.lblTileToWorld.text = `Tile To World: { ${tileToWorld.x.toFixed(2)}, ${tileToWorld.y.toFixed(2)}, ${tileToWorld.z.toFixed(2)} }`;
         } else {
-            this.lblMouseOverTile.text = 'Tile: { ?, ? }';
+            this.lblMouseWorld.text = 'World: { ?, ?, ? }';
+            this.lblMouseTile.text = 'Tile: { ?, ? }';
+            this.lblMouseChunk.text = 'Chunk: { ?, ? }';
+            this.lblMouseTerrain.text = 'Terrain: { ?, ? }';
+            this.lblTileToWorld.text = 'Tile To World: { ?, ?, ? }';
         }
 
         if (Input.wasKeyPressed('1')) {

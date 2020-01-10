@@ -1,9 +1,5 @@
 import { Key } from 'ts-key-enum';
-
-export interface Point {
-    x: number;
-    y: number;
-}
+import Point from '../../common/Point';
 
 export enum MouseButton {
     LEFT = 0,

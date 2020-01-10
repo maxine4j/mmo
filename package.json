@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@types/three": "^0.103.2",
+    "astar-typescript": "^1.0.96",
     "concurrently": "^5.0.2",
     "copy-webpack-plugin": "^5.1.1",
     "express": "^4.17.1",

@@ -4,7 +4,7 @@
    "synchronize": true,
    "logging": false,
    "entities": [
-      "dist/server/models/**/*.entity.js"
+      "dist/server/entities/**/*.entity.js"
    ],
    "migrations": [
       "src/migration/**/*.ts"

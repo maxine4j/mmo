@@ -2,7 +2,7 @@ import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import Character, { Race } from '../../common/models/Character';
+import Character, { Race } from '../../common/Character';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
@@ -25,7 +25,7 @@ export default class CharCreateScene extends GameScene {
                 name: this.txtName.text,
                 race: Race.HUMAN,
             };
-            NetClient.sendRecv(PacketHeader.CHAR_CREATE, <CharacterPacket>{ character })
+            NetClient.sendRecv(PacketHeader.CHAR_CREATE, <CharacterPacket>character)
                 .then((p: ResponsePacket) => {
                     if (p.success) {
                         SceneManager.changeScene('char-select');

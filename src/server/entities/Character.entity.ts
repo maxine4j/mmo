@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne,
 } from 'typeorm';
-import Character, { Race, Facing } from '../../common/models/Character';
+import Character, { Race, Facing } from '../../common/Character';
 import AccountEntity from './Account.entity';
 
 @Entity()
@@ -37,10 +37,10 @@ export default class CharacterEntity extends BaseEntity {
             name: this.name,
             level: this.level,
             race: this.race,
-            posX: this.posX,
-            posY: this.posY,
-            destX: -1,
-            destY: -1,
+            position: {
+                x: this.posX,
+                y: this.posY,
+            },
             facing: Facing.NORTH,
         };
         return char;
@@ -51,8 +51,8 @@ export default class CharacterEntity extends BaseEntity {
         return new Promise((resolve) => {
             this.findOne({ id: c.id }).then((ce) => {
                 ce.level = c.level;
-                ce.posX = c.posX;
-                ce.posY = c.posY;
+                ce.posX = c.position.x;
+                ce.posY = c.position.y;
                 ce.save();
                 resolve(ce);
             });

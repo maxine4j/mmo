@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
 } from 'typeorm';
-import Account from '../../common/models/Account';
+import Account from '../../common/Account';
 import CharacterEntity from './Character.entity';
 
 @Entity()

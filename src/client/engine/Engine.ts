@@ -5,7 +5,7 @@ import SceneManager from './scene/SceneManager';
 import GameScene from './scene/GameScene';
 import Label from './interface/Label';
 import UIParent from './interface/UIParent';
-import Account from '../../common/models/Account';
+import Account from '../../common/Account';
 
 export default class Engine {
     private static lastrender: number = 0;

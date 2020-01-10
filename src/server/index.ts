@@ -1,8 +1,8 @@
 import { createConnection, Connection } from 'typeorm';
 import NetServer from './NetServer';
-import AccountEntity from './models/Account.entity';
-import CharacterEntity from './models/Character.entity';
-import { Race } from '../common/models/Character';
+import AccountEntity from './entities/Account.entity';
+import CharacterEntity from './entities/Character.entity';
+import { Race } from '../common/Character';
 
 async function initDB() {
     const account = new AccountEntity();

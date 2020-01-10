@@ -1,0 +1,17 @@
+{
+    "0": {
+        "id": 0,
+        "heightmap": "0.bmp",
+        "texture": "uvcheck.png",
+        "x": 0,
+        "y": 0,
+        "doodads": [
+            {
+                "model": "doodad.model.json",
+                "x": 8,
+                "y": 4,
+                "walkable": false
+            }
+        ]
+    }
+}
