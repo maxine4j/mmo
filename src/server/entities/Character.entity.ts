@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne,
 } from 'typeorm';
-import Character, { Race, Facing } from '../../common/Character';
+import Character, { Race } from '../../common/Character';
 import AccountEntity from './Account.entity';
 
 @Entity()
@@ -41,7 +41,6 @@ export default class CharacterEntity extends BaseEntity {
                 x: this.posX,
                 y: this.posY,
             },
-            facing: Facing.NORTH,
         };
         return char;
     }
@@ -49,6 +48,8 @@ export default class CharacterEntity extends BaseEntity {
     // converts a network character to a db entity
     public static async fromNet(c: Character): Promise<CharacterEntity> {
         return new Promise((resolve) => {
+            console.log('saving a character');
+
             this.findOne({ id: c.id }).then((ce) => {
                 ce.level = c.level;
                 ce.posX = c.position.x;

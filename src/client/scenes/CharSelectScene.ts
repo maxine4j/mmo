@@ -8,7 +8,7 @@ import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
-import { PacketHeader, CharactersPacket, CharacterPacket } from '../../common/Packet';
+import { PacketHeader, CharacterListPacket, CharacterPacket } from '../../common/Packet';
 import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
@@ -30,7 +30,7 @@ export default class CharSelectScene extends GameScene {
 
     public fetchCharacerList() {
         NetClient.sendRecv(PacketHeader.CHAR_MYLIST)
-            .then((resp: CharactersPacket) => {
+            .then((resp: CharacterListPacket) => {
                 this.characters = resp.characters;
                 this.buildCharList();
                 if (this.characters.length > 0) {

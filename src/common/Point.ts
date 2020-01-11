@@ -7,7 +7,7 @@ export default class Point {
         this.y = y;
     }
 
-    public eq(other: Point): boolean {
-        return this.x === other.x && this.y === other.y;
+    public static eq(p0: Point, p1: Point): boolean {
+        return p0.x === p1.x && p0.y === p1.y;
     }
 }

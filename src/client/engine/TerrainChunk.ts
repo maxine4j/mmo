@@ -1,5 +1,7 @@
 import Terrain from './graphics/Terrain';
 import Chunk from '../../common/Chunk';
+import Point from '../../common/Point';
+import Rectangle from '../../common/Rectangle';
 
 export default class TerrainChunk {
     public id: number;
@@ -27,6 +29,18 @@ export default class TerrainChunk {
                 resolve(new TerrainChunk(chunk.id, t, chunk.x, chunk.y));
             });
         });
+    }
+
+    public worldOffset(): Point {
+        const x = this.x - this.terrain.width / 2;
+        const y = this.y - this.terrain.height / 2;
+        return new Point(x, y);
+    }
+
+    public containsPoint(point: Point): boolean {
+        const offset = this.worldOffset();
+        const bounds = new Rectangle(offset.x, offset.y, this.size, this.size);
+        return bounds.contains(point);
     }
 
     public chunkToTerrain(chunkX: number, chunkY: number): { x: number, y: number} {

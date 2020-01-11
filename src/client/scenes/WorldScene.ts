@@ -6,12 +6,14 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/UIParent';
-import World from '../engine/World';
+import LocalWorld from '../engine/LocalWorld';
 import Input from '../engine/Input';
 import Label from '../engine/interface/Label';
+import NetClient from '../engine/NetClient';
+import { PacketHeader } from '../../common/Packet';
 
 export default class WorldScene extends GameScene {
-    private world: World;
+    private world: LocalWorld;
     private lblMouseTile: Label;
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
@@ -32,7 +34,12 @@ export default class WorldScene extends GameScene {
         btnBack.style.width = '120px';
         btnBack.style.bottom = '5px';
         btnBack.style.right = '0';
-        btnBack.addEventListener('click', () => SceneManager.changeScene('char-select'));
+        btnBack.addEventListener('click', () => {
+            console.log('sending leave world');
+
+            NetClient.send(PacketHeader.PLAYER_LEAVEWORLD);
+            SceneManager.changeScene('char-select');
+        });
         this.addGUI(btnBack);
 
         this.lblMouseWorld = new Label('lbl-mouse-world', UIParent.get(), 'World: { X, Y, Z }');
@@ -71,19 +78,14 @@ export default class WorldScene extends GameScene {
 
         this.scene = new Scene();
         this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.set(0, 200, 0);
+        this.camera.position.set(0, 20, 0);
         this.camera.initOrbitControls();
 
         const light = new THREE.DirectionalLight(0xffffff, 1.5);
         light.position.set(0, 1, 0).normalize();
         this.scene.add(light);
 
-        // const size = 150;
-        // const divisions = 150;
-        // const gridHelper = new THREE.GridHelper(size, divisions);
-        // this.scene.add(gridHelper);
-
-        this.world = new World(this.scene);
+        this.world = new LocalWorld(this.scene);
     }
 
     public final() {

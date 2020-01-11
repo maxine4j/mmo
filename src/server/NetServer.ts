@@ -15,10 +15,8 @@ export default class NetServer {
 
     public static init(port: number = 3000) {
         console.log('setting up netserver');
-
-        this.world = new WorldManager(tickRate);
-
         this.server = io().listen(port);
+        this.world = new WorldManager(tickRate, this.server);
         this.server.on('connection', this.onConnection);
     }
 
@@ -26,6 +24,7 @@ export default class NetServer {
         // client authentication
         console.log(`Client connected: ${socket.id}`);
         socket.on('disconnect', async () => {
+            NetServer.world.handlePlayerLeaveWorld(socket);
             await handleAuthLogout(socket);
         });
         socket.on(PacketHeader.AUTH_LOGIN, async (packet: AuthLoginPacket) => {
@@ -47,6 +46,9 @@ export default class NetServer {
         // player
         socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
             NetServer.world.handlePlayerEnterWorld(socket, packet);
+        });
+        socket.on(PacketHeader.PLAYER_LEAVEWORLD, async () => {
+            NetServer.world.handlePlayerLeaveWorld(socket);
         });
         socket.on(PacketHeader.PLAYER_UPDATE_SELF, async () => {
             NetServer.world.handlePlayerUpdateSelf(socket);

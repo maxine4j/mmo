@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, PointPacket, ChunkPacket, CharacterPacket,
+    PacketHeader, PointPacket, ChunkPacket, CharacterPacket, TickPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -8,6 +8,9 @@ import _chunkDefs from '../data/chunks.json';
 import ChunksDataDef from '../data/ChunksJsonDef';
 import ChunkManager from './ChunkManager';
 import Point from '../../common/Point';
+import Character from '../../common/Character';
+import UnitManager from './UnitManager';
+import Unit from '../../common/Unit';
 
 // number of tiles away from the player that a player can see updates for in either direction
 const viewDistX = 50;
@@ -23,14 +26,17 @@ export interface Navmap {
 }
 
 export default class WorldManager {
-    public players: Map<string, PlayerManager>;
+    public players: Map<string, PlayerManager> = new Map();;
+    public units: Map<string, UnitManager> = new Map();;
+    public chunks: Map<number, ChunkManager> = new Map();;
+    public tickCounter: number = 0;
     public tickRate: number;
-    public chunks: Map<number, ChunkManager>;
+    public server: io.Server;
 
-    public constructor(tickRate: number) {
+    public constructor(tickRate: number, server: io.Server) {
         this.tickRate = tickRate;
-        this.players = new Map();
-        this.chunks = new Map();
+        this.server = server;
+
         this.loadChunk(0); // TODO: dynamicaly load chunks as we need them
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
@@ -38,17 +44,19 @@ export default class WorldManager {
     private tick() {
         this.players.forEach((player) => {
             player.tick();
-        });
+            player.socket.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>player.data);
 
-        this.sendPlayerPositions();
+            const players: Character[] = this.playersInRange(player.data.position.x, player.data.position.y, player).map((pm) => pm.data);
+            const units: Unit[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
+
+            player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
+                units,
+                players,
+                tick: this.tickCounter,
+            });
+        });
+        this.tickCounter++;
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
-    }
-
-    private sendPlayerPositions() {
-        // only update self for now
-        this.players.forEach((player) => {
-            player.socket.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>player.character);
-        });
     }
 
     private loadChunk(id: number) {
@@ -56,13 +64,27 @@ export default class WorldManager {
         this.chunks.set(id, cm);
     }
 
-    private playersInRange(x: number, y: number): PlayerManager[] {
+    private playersInRange(x: number, y: number, exclude?: PlayerManager): PlayerManager[] {
         const inrange: PlayerManager[] = [];
-        for (const [_, p] of this.players.entries()) {
-            // check if the other players pos is withing view dist of the target x,y
-            if (x + viewDistX > p.character.position.x && x - viewDistX < p.character.position.x
-                && y + viewDistY > p.character.position.y && y - viewDistY < p.character.position.y) {
-                inrange.push(p);
+        for (const [_, p] of this.players) {
+            // check if players pos is withing view dist of the target x,y
+            if (x + viewDistX > p.data.position.x && x - viewDistX < p.data.position.x
+                && y + viewDistY > p.data.position.y && y - viewDistY < p.data.position.y) {
+                if (exclude && exclude.socket.id !== p.socket.id) {
+                    inrange.push(p);
+                }
+            }
+        }
+        return inrange;
+    }
+
+    private unitsInRange(x: number, y: number): UnitManager[] {
+        const inrange: UnitManager[] = [];
+        for (const [_, u] of this.units) {
+            // check if units pos is withing view dist of the target x,y
+            if (x + viewDistX > u.data.position.x && x - viewDistX < u.data.position.x
+                && y + viewDistY > u.data.position.y && y - viewDistY < u.data.position.y) {
+                inrange.push(u);
             }
         }
         return inrange;
@@ -74,12 +96,12 @@ export default class WorldManager {
             const p = new PlayerManager(this, ce.toNet(), session);
 
             // notify all players in range
-            this.playersInRange(p.character.position.x, p.character.position.y).forEach((pir) => {
-                pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.character);
+            this.playersInRange(p.data.position.x, p.data.position.y).forEach((pir) => {
+                pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.data);
             });
             // add the char to the logged in players list
             this.players.set(session.id, p);
-            session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.character);
+            session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.data);
         });
     }
 
@@ -87,20 +109,20 @@ export default class WorldManager {
         // remove the sessions player from the world if one exists
         const p = this.players.get(session.id);
         if (p) {
-            CharacterEntity.fromNet(p.character);
+            CharacterEntity.fromNet(p.data);
             this.players.delete(session.id);
         }
     }
 
     public handlePlayerUpdateSelf(session: io.Socket) {
-        const { character } = this.players.get(session.id);
-        session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>character);
+        const { data } = this.players.get(session.id);
+        session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
     }
 
     public handleChunkLoad(session: io.Socket) {
         const player = this.players.get(session.id);
         for (const [_, chunk] of this.chunks) {
-            if (chunk.containsPoint(player.character.position)) {
+            if (chunk.containsPoint(player.data.position)) {
                 session.emit(PacketHeader.CHUNK_LOAD, <ChunkPacket> chunk.def);
                 break;
             }

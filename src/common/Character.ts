@@ -1,4 +1,4 @@
-import Point from './Point';
+import Unit from './Unit';
 
 export enum Race {
     HUMAN,
@@ -9,22 +9,6 @@ export enum Race {
     UNDEAD,
 }
 
-export enum Facing {
-    NORTH,
-    NORTH_EAST,
-    NORTH_WEST,
-    SOUTH,
-    SOUTH_EAST,
-    SOUTH_WEST,
-    EAST,
-    WEST
-}
-
-export default interface Character {
-    id: number;
-    name: string;
-    level: number;
+export default interface Character extends Unit {
     race: Race;
-    position: Point;
-    facing: Facing;
 }

@@ -1,21 +1,31 @@
 import * as THREE from 'three';
 import TerrainChunk from './TerrainChunk';
 import Scene from './graphics/Scene';
-import Player from './Player';
-import Input, { MouseButton } from './Input';
+import LocalPlayer from './LocalPlayer';
 import NetClient from './NetClient';
-import { PacketHeader, PointPacket, ChunkPacket } from '../../common/Packet';
+import {
+    PacketHeader, ChunkPacket, TickPacket,
+} from '../../common/Packet';
 import Point from '../../common/Point';
 import Chunk from '../../common/Chunk';
+import LocalUnit from './LocalUnit';
+import Unit from '../../common/Unit';
 
-export default class World {
+export default class LocalWorld {
     public scene: Scene;
     public chunks: Map<number, TerrainChunk> = new Map();
-    private player: Player;
+    public units: Map<number, LocalUnit> = new Map();
+    public players: Map<number, LocalPlayer> = new Map();
+    private player: LocalPlayer;
+    private _tickTimer: number;
+    private _tickRate: number;
+    private currentTick: number;
 
     public constructor(scene: Scene) {
         this.scene = scene;
-        this.player = new Player(this);
+        this.player = new LocalPlayer(this);
+        this._tickRate = 0.6; // TODO: get from server
+        NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => { this.loadChunk(p); });
         NetClient.send(PacketHeader.CHUNK_LOAD);
     }
@@ -30,16 +40,42 @@ export default class World {
         });
     }
 
-    public update(delta: number, mousePos: THREE.Vector3) {
-        this.player.update(delta, this);
+    public get tickTimer(): number { return this._tickTimer; }
+    public get tickRate(): number { return this._tickRate; }
+    public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
-        // move the player
-        if (Input.wasMousePressed(MouseButton.RIGHT)) {
-            const tile = this.worldToTile(mousePos);
-            if (tile) {
-                NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: tile.x, y: tile.y });
+    private tickUnits(tick: number, units: Unit[]) {
+        for (const u of units) {
+            const loc = this.units.get(u.id);
+            loc.onTick(u);
+            loc.lastTickUpdated = tick;
+        }
+    }
+
+    private removeStaleUnits(units: Map<number, LocalUnit>) {
+        for (const [id, entity] of this.units) {
+            if (entity.lastTickUpdated !== this.currentTick) {
+                this.units.delete(id);
             }
         }
+    }
+
+    public onTick(packet: TickPacket) {
+        this._tickTimer = 0; // reset tick timer
+        this.currentTick = packet.tick; // update the current tick
+
+        this.tickUnits(packet.tick, packet.units);
+        this.tickUnits(packet.tick, packet.players);
+        this.removeStaleUnits(this.units);
+        this.removeStaleUnits(this.players);
+    }
+
+    public update(delta: number, mousePoint: THREE.Vector3) {
+        this.player.update(delta);
+        this.player.updatePlayer(mousePoint);
+
+        // increment tick timer
+        this._tickTimer += delta;
     }
 
     public worldToTile(coord: THREE.Vector3): Point {
@@ -56,12 +92,9 @@ export default class World {
 
     public getElevation(tileX: number, tileY: number): number {
         for (const [_, chunk] of this.chunks) {
-            // transform tile coords to chunk coords
             const chunkX = tileX - (chunk.size * chunk.x);
             const chunkY = tileY - (chunk.size * chunk.y);
-
-            if (chunkX > -75 && chunkX < 75
-                && chunkY > -75 && chunkY < 75) {
+            if (chunk.containsPoint(new Point(chunkX, chunkY))) {
                 return chunk.getElevation(chunkX, chunkY);
             }
         }

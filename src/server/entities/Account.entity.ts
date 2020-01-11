@@ -16,9 +16,11 @@ export default class AccountEntity extends BaseEntity {
     public name: string;
 
     @Column()
+    // eslint-disable-next-line camelcase
     public temp_username: string;
 
     @Column()
+    // eslint-disable-next-line camelcase
     public temp_password: string;
 
     @OneToMany((type) => CharacterEntity, (character) => character.account)

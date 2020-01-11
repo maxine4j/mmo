@@ -2,6 +2,7 @@ import Account from './Account';
 import Character from './Character';
 import Point from './Point';
 import Chunk from './Chunk';
+import Unit from './Unit';
 
 export enum PacketHeader {
     AUTH_LOGIN = 'AUTH_LOGIN',
@@ -17,6 +18,7 @@ export enum PacketHeader {
     UNIT_UPDATE = 'UNIT_UPDATE',
     CHAT_EVENT = 'CHAT_EVENT',
     CHUNK_LOAD = 'CHUNK_LOAD',
+    WORLD_TICK = 'WORLD_TICK',
 }
 
 export enum Channel {
@@ -40,11 +42,18 @@ export interface AuthLoginPacket extends Packet {
 
 export interface AccountPacket extends Packet, ResponsePacket, Account { }
 
-export interface CharactersPacket extends Packet, ResponsePacket {
+export interface CharacterPacket extends Packet, Character { }
+export interface CharacterListPacket extends Packet, ResponsePacket {
     characters: Character[];
 }
 
-export interface CharacterPacket extends Packet, Character { }
+export interface UnitPacket extends Packet, Unit { }
+
+export interface TickPacket extends Packet {
+    units: Unit[];
+    players: Character[];
+    tick: number;
+}
 
 export interface PointPacket extends Packet, Point { }
 

@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    AuthLoginPacket, AccountPacket, CharactersPacket, ResponsePacket, CharacterPacket,
+    AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../../common/Packet';
 import AccountEntity from '../entities/Account.entity';
 import CharacterEntity from '../entities/Character.entity';
@@ -46,7 +46,7 @@ export async function handleAuthLogout(session: io.Socket) {
     }
 }
 
-export async function handleMyList(session: io.Socket): Promise<CharactersPacket> {
+export async function handleMyList(session: io.Socket): Promise<CharacterListPacket> {
     const charEntities = await CharacterEntity.createQueryBuilder()
         .leftJoinAndSelect('CharacterEntity.account', 'AccountEntity')
         .where('AccountEntity.session = :sessionid', { sessionid: session.id })
@@ -55,13 +55,13 @@ export async function handleMyList(session: io.Socket): Promise<CharactersPacket
     if (charEntities) {
         const chars = charEntities.map((ce) => ce.toNet());
 
-        return <CharactersPacket>{
+        return <CharacterListPacket>{
             success: true,
             message: '',
             characters: chars,
         };
     }
-    return <CharactersPacket>{
+    return <CharacterListPacket>{
         success: false,
         message: 'Failed to get character list',
         characters: [],
