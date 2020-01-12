@@ -7,9 +7,259 @@
         "y": 0,
         "doodads": [
             {
-                "model": "doodad.model.json",
-                "x": 8,
-                "y": 4,
+                "model": "environment/tree0.model.json",
+                "x": 82,
+                "y": 91,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/tree1.model.json",
+                "x": 63,
+                "y": 65,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/tree2.model.json",
+                "x": 91,
+                "y": 75,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/tree_snow.model.json",
+                "x": 70,
+                "y": 87,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/tree4.model.json",
+                "x": 76,
+                "y": 79,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 78,
+                "y": 90,
+                "hitboxes": [
+                    {
+                        "x": -1,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 1.5708,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 74,
+                "y": 90,
+                "hitboxes": [
+                    {
+                        "x": -1,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 1.5708,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 73,
+                "y": 91,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 73,
+                "y": 92,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 73,
+                "y": 94,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 74,
+                "y": 95,
+                "hitboxes": [
+                    {
+                        "x": -1,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 1.5708,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 76,
+                "y": 95,
+                "hitboxes": [
+                    {
+                        "x": -1,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 1.5708,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 78,
+                "y": 95,
+                "hitboxes": [
+                    {
+                        "x": -1,
+                        "y": 0,
+                        "w": 3,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 1.5708,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 79,
+                "y": 94,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 79,
+                "y": 92,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/wall.model.json",
+                "x": 79,
+                "y": 91,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": -1,
+                        "w": 1,
+                        "h": 3
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
                 "walkable": false
             }
         ]

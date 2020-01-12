@@ -151,7 +151,7 @@ export default class CharSelectScene extends GameScene {
         this.background.position.y += 0.5;
         this.scene.add(this.background);
 
-        this.selectedModel = await Model.loadDef('assets/models/human/human.model.json');
+        this.selectedModel = await Model.loadDef('assets/models/units/human/human.model.json');
         this.selectedModel.getAnim('Stand').then((a) => a.play());
 
         this.selectedModel.obj.scale.set(4, 4, 4);
@@ -186,8 +186,7 @@ export default class CharSelectScene extends GameScene {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
-            this.selectedModel.getAnim('Run').then((a) => a.play());
-            console.log('Got a list of chars:', this.characters);
+            this.selectedModel.getAnim('EmoteRude').then((a) => a.play());
         }
     }
 

@@ -19,7 +19,7 @@ export default class LocalUnit {
     }
 
     private loadModel() {
-        Model.loadDef('assets/models/human/human.model.json') // TODO: get from data.model
+        Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from data.model
             .then((model) => {
                 this.model = model;
                 this.model.obj.castShadow = true;
@@ -32,8 +32,6 @@ export default class LocalUnit {
                     this.animStand = a;
                     this.animStand.play();
                 });
-                console.log('adding model to scene');
-
                 this.world.scene.add(this.model.obj);
             });
     }

@@ -25,11 +25,22 @@ export default class ChunkManager {
             }
         }
         // make doodads not walkable
-        // for (const doodad of this.def.doodads) {
-        //     if (!doodad.walkable) {
-        //         this.navmap[doodad.y][doodad.x] = NOT_WALKABLE;
-        //     }
-        // }
+        for (const doodad of this.def.doodads) {
+            if (!doodad.walkable) {
+                // set the doodads hitboxes as not walkable
+                for (const hb of doodad.hitboxes) {
+                    const x = doodad.x + hb.x;
+                    const y = doodad.y + hb.y;
+                    const w = x + hb.w;
+                    const h = y + hb.h;
+                    for (let i = y; i < h; i++) {
+                        for (let j = x; j < w; j++) {
+                            this.navmap[i][j] = NOT_WALKABLE;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public static get chunkSize(): number {

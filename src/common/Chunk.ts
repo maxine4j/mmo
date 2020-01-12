@@ -1,7 +1,17 @@
+export interface Hitbox {
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+}
+
 export interface Doodad {
     model: string,
     x: number;
     y: number;
+    hitboxes: Hitbox[];
+    scale: number,
+    rotation: number,
     walkable: boolean,
 }
 

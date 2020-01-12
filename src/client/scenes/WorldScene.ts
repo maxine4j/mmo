@@ -82,7 +82,7 @@ export default class WorldScene extends GameScene {
         this.camera.position.set(0, 10, 0);
         this.camera.lookAt(0, 0, 0);
 
-        const light = new THREE.DirectionalLight(0xffffff, 1.5);
+        const light = new THREE.AmbientLight(0xffffff, 2);
         light.position.set(0, 1, 0).normalize();
         this.scene.add(light);
 

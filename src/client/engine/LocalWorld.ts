@@ -34,11 +34,8 @@ export default class LocalWorld {
 
     public async loadChunk(chunk: Chunk): Promise<TerrainChunk> {
         return new Promise((resolve) => {
-            TerrainChunk.load(chunk).then((tc) => {
+            TerrainChunk.load(chunk, this).then((tc: TerrainChunk) => {
                 this.chunks.set(chunk.id, tc);
-                this.scene.add(tc.terrain.plane);
-                console.log(this.scene.children);
-
                 resolve(tc);
             });
         });
@@ -122,6 +119,12 @@ export default class LocalWorld {
             }
         }
         return new Point(NaN, NaN);
+    }
+
+    public chunkToTile(chunk: TerrainChunk, chunkX: number, chunkY: number): Point {
+        const x = chunkX + (chunk.x * chunk.size);
+        const y = chunkY + (chunk.y * chunk.size);
+        return new Point(x, y);
     }
 
     public terrainWireframes(visible: boolean) {
