@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-const heightMapScale = 10;
+const heightMapScale = 5;
 
 export default class Terrain {
     public plane: THREE.Mesh;

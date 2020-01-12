@@ -25,6 +25,7 @@ export default class Input {
         });
         window.addEventListener('mousedown', (ev: MouseEvent) => {
             this.setMouseState(ev, true);
+            ev.preventDefault();
         });
         window.addEventListener('mouseup', (ev: MouseEvent) => {
             this.setMouseState(ev, false);
@@ -77,6 +78,6 @@ export default class Input {
     }
 
     public static mousePos(): Point {
-        return this.mousePosition;
+        return Point.clone(this.mousePosition);
     }
 }

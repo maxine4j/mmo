@@ -10,20 +10,22 @@ import Point from '../../common/Point';
 import Chunk from '../../common/Chunk';
 import LocalUnit from './LocalUnit';
 import Unit from '../../common/Unit';
+import Camera from './graphics/Camera';
 
 export default class LocalWorld {
     public scene: Scene;
     public chunks: Map<number, TerrainChunk> = new Map();
     public units: Map<number, LocalUnit> = new Map();
     public players: Map<number, LocalPlayer> = new Map();
-    private player: LocalPlayer;
+    private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
     private currentTick: number;
+    private camera: Camera;
 
     public constructor(scene: Scene) {
         this.scene = scene;
-        this.player = new LocalPlayer(this);
+        this._player = new LocalPlayer(this);
         this._tickRate = 0.6; // TODO: get from server
         NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => { this.loadChunk(p); });
@@ -35,11 +37,18 @@ export default class LocalWorld {
             TerrainChunk.load(chunk).then((tc) => {
                 this.chunks.set(chunk.id, tc);
                 this.scene.add(tc.terrain.plane);
+                console.log(this.scene.children);
+
                 resolve(tc);
             });
         });
     }
 
+    public attatchCamera(camera: Camera) {
+        this.camera = camera;
+    }
+
+    public get player(): LocalPlayer { return this._player; }
     public get tickTimer(): number { return this._tickTimer; }
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }

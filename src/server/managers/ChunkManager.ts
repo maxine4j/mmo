@@ -4,7 +4,7 @@ import Rectangle from '../../common/Rectangle';
 
 const WALKABLE = 0;
 const NOT_WALKABLE = 1;
-const CHUNK_SIZE = 16; // TODO: increase to 128 after testing
+const CHUNK_SIZE = 128; // TODO: increase to 128 after testing
 
 export default class ChunkManager {
     public def: Chunk;
@@ -25,11 +25,11 @@ export default class ChunkManager {
             }
         }
         // make doodads not walkable
-        for (const doodad of this.def.doodads) {
-            if (!doodad.walkable) {
-                this.navmap[doodad.y][doodad.x] = NOT_WALKABLE;
-            }
-        }
+        // for (const doodad of this.def.doodads) {
+        //     if (!doodad.walkable) {
+        //         this.navmap[doodad.y][doodad.x] = NOT_WALKABLE;
+        //     }
+        // }
     }
 
     public static get chunkSize(): number {

@@ -67,20 +67,17 @@ export default class LocalUnit {
         return false;
     }
 
-    private updateRotation() {
-        // lerp to the new roration
-        const dy = this.data.lastPosition.y - this.data.position.y;
-        const dx = -(this.data.lastPosition.x - this.data.position.x);
-        const angle = Math.atan2(dy, dx);
-        const targetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
-        this.model.obj.quaternion.slerp(targetRot, this.world.tickProgression);
-    }
-
     private updatePosition() {
         if (this.model) {
             const pos = this.world.tileToWorld(this.data.lastPosition.x, this.data.lastPosition.y);
             this.model.obj.position.set(pos.x, pos.y, pos.z);
         }
+    }
+
+    public getWorldPosition(): THREE.Vector3 {
+        const nextPos = this.world.tileToWorld(this.data.position.x, this.data.position.y);
+        const pos = this.world.tileToWorld(this.data.lastPosition.x, this.data.lastPosition.y);
+        return pos.lerp(nextPos, this.world.tickProgression);
     }
 
     private updateMovement() {
@@ -89,13 +86,18 @@ export default class LocalUnit {
         // lerp to the new position
         const nextPos = this.world.tileToWorld(this.data.position.x, this.data.position.y);
         this.model.obj.position.lerp(nextPos, this.world.tickProgression);
+        // slerp to new rotation
+        const dy = this.data.lastPosition.y - this.data.position.y;
+        const dx = -(this.data.lastPosition.x - this.data.position.x);
+        const angle = Math.atan2(dy, dx);
+        const targetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+        this.model.obj.quaternion.slerp(targetRot, this.world.tickProgression);
     }
 
     public update(delta: number) {
         if (this.model) {
             if (this.isMoving()) {
                 this.updateMovement();
-                this.updateRotation();
             }
             this.model.update(delta);
         }

@@ -7,7 +7,19 @@ export default class Point {
         this.y = y;
     }
 
-    public static eq(p0: Point, p1: Point): boolean {
-        return p0.x === p1.x && p0.y === p1.y;
+    public static eq(lhs: Point, rhs: Point): boolean {
+        return lhs.x === rhs.x && lhs.y === rhs.y;
+    }
+
+    public static sub(lhs: Point, rhs: Point): Point {
+        return new Point(lhs.x - rhs.x, lhs.y - rhs.y);
+    }
+
+    public static add(lhs: Point, rhs: Point): Point {
+        return new Point(lhs.x + rhs.x, lhs.y + rhs.y);
+    }
+
+    public static clone(other: Point) {
+        return new Point(other.x, other.y);
     }
 }

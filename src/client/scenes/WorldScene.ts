@@ -20,6 +20,7 @@ export default class WorldScene extends GameScene {
     private lblMouseTerrain: Label;
     private lblTileToWorld: Label;
     private mousePoint: THREE.Vector3;
+    private wireframesVisible: boolean = false;
 
     public constructor() {
         super('world');
@@ -78,8 +79,8 @@ export default class WorldScene extends GameScene {
 
         this.scene = new Scene();
         this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.set(0, 20, 0);
-        this.camera.initOrbitControls();
+        this.camera.position.set(0, 10, 0);
+        this.camera.lookAt(0, 0, 0);
 
         const light = new THREE.DirectionalLight(0xffffff, 1.5);
         light.position.set(0, 1, 0).normalize();
@@ -92,10 +93,17 @@ export default class WorldScene extends GameScene {
         super.final();
     }
 
-    public update(delta: number) {
+    private updateMousePoint() {
         const intersects = this.camera.rcast(this.scene, Input.mousePos());
         if (intersects.length > 0) {
             this.mousePoint = intersects[0].point;
+        } else {
+            this.mousePoint = null;
+        }
+    }
+
+    private updateMouseLabels() {
+        if (this.mousePoint) {
             const tileCoord = this.world.worldToTile(this.mousePoint);
             const chunkCoord = this.world.tileToChunk(tileCoord.x, tileCoord.y);
             const terrainCoord = this.world.chunks.get(0).chunkToTerrain(chunkCoord.x, chunkCoord.y);
@@ -112,15 +120,21 @@ export default class WorldScene extends GameScene {
             this.lblMouseTerrain.text = 'Terrain: { ?, ? }';
             this.lblTileToWorld.text = 'Tile To World: { ?, ?, ? }';
         }
+    }
 
+    private updateWireframesToggle() {
         if (Input.wasKeyPressed('1')) {
-            this.world.terrainWireframes(true);
+            this.wireframesVisible = !this.wireframesVisible;
+            this.world.terrainWireframes(this.wireframesVisible);
         }
+    }
 
-        if (Input.wasKeyPressed('2')) {
-            this.world.terrainWireframes(false);
-        }
+    public update(delta: number) {
+        this.updateMousePoint();
+        this.updateMouseLabels();
+        this.updateWireframesToggle();
 
+        this.camera.update(delta, this.world);
         this.world.update(delta, this.mousePoint);
     }
 

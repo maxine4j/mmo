@@ -20,9 +20,9 @@ export default class Player extends LocalUnit {
 
     public updatePlayer(mousePoint: THREE.Vector3) {
         // move the player
-        if (Input.wasMousePressed(MouseButton.RIGHT)) {
-            const tile = this.world.worldToTile(mousePoint);
-            if (tile) {
+        if (Input.mouseStartDown(MouseButton.LEFT)) {
+            if (mousePoint) {
+                const tile = this.world.worldToTile(mousePoint);
                 NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: tile.x, y: tile.y });
             }
         }
