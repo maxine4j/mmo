@@ -13,9 +13,14 @@ export default class LocalUnit {
     private animWalk: AnimationAction;
     private animStand: AnimationAction;
 
-    public constructor(world: World) {
+    public constructor(world: World, data: Unit) {
         this.world = world;
+        this.data = data;
         this.loadModel();
+    }
+
+    public dispose() {
+        this.world.scene.remove(this.model.obj);
     }
 
     private loadModel() {

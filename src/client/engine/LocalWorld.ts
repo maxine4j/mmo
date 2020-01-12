@@ -50,18 +50,23 @@ export default class LocalWorld {
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
-    private tickUnits(tick: number, units: Unit[]) {
+    private tickUnits(tick: number, units: Unit[], localUnits: Map<number, LocalUnit>) {
         for (const u of units) {
-            const loc = this.units.get(u.id);
+            let loc = localUnits.get(u.id);
+            if (!loc) {
+                loc = new LocalUnit(this, u);
+                localUnits.set(u.id, loc);
+            }
             loc.onTick(u);
             loc.lastTickUpdated = tick;
         }
     }
 
     private removeStaleUnits(units: Map<number, LocalUnit>) {
-        for (const [id, entity] of this.units) {
-            if (entity.lastTickUpdated !== this.currentTick) {
-                this.units.delete(id);
+        for (const [id, u] of units) {
+            if (u.lastTickUpdated !== this.currentTick) {
+                u.dispose();
+                units.delete(id);
             }
         }
     }
@@ -70,15 +75,29 @@ export default class LocalWorld {
         this._tickTimer = 0; // reset tick timer
         this.currentTick = packet.tick; // update the current tick
 
-        this.tickUnits(packet.tick, packet.units);
-        this.tickUnits(packet.tick, packet.players);
+        this.tickUnits(packet.tick, packet.units, this.units);
+        this.tickUnits(packet.tick, packet.players, this.players);
         this.removeStaleUnits(this.units);
         this.removeStaleUnits(this.players);
+    }
+
+    private updateUnits(delta: number) {
+        for (const [_, u] of this.units) {
+            u.update(delta);
+        }
+    }
+
+    private updatePlayers(delta: number) {
+        for (const [_, p] of this.players) {
+            p.update(delta);
+        }
     }
 
     public update(delta: number, mousePoint: THREE.Vector3) {
         this.player.update(delta);
         this.player.updatePlayer(mousePoint);
+        this.updateUnits(delta);
+        this.updatePlayers(delta);
 
         // increment tick timer
         this._tickTimer += delta;

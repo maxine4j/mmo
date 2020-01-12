@@ -23,6 +23,44 @@
                 "walkable": false
             },
             {
+                "model": "environment/lamp.model.json",
+                "x": 78,
+                "y": 86,
+                "hitboxes": [
+                    {
+                        "x": 0,
+                        "y": 0,
+                        "w": 1,
+                        "h": 1
+                    }
+                ],
+                "scale": 1,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
+                "model": "environment/gate.model.json",
+                "x": 64,
+                "y": 81,
+                "hitboxes": [
+                    {
+                        "x": -2,
+                        "y": 2,
+                        "w": 5,
+                        "h": 3
+                    },
+                    {
+                        "x": -2,
+                        "y": -4,
+                        "w": 5,
+                        "h": 3
+                    }
+                ],
+                "scale": 0.5,
+                "rotation": 0,
+                "walkable": false
+            },
+            {
                 "model": "environment/tree1.model.json",
                 "x": 63,
                 "y": 65,

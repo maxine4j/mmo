@@ -1,17 +1,24 @@
-import { createConnection, Connection } from 'typeorm';
+import { createConnection } from 'typeorm';
 import NetServer from './NetServer';
 import AccountEntity from './entities/Account.entity';
-import CharacterEntity from './entities/Character.entity';
-import { Race } from '../common/Character';
 
 async function initDB() {
-    const account = new AccountEntity();
-    account.id = 1;
-    account.name = 'Tim Ings';
-    account.temp_username = 'arwic';
-    account.temp_password = 'asd';
-    account.session = null;
-    await account.save();
+    const account1 = new AccountEntity();
+    account1.id = 1;
+    account1.name = 'Tim Ings';
+    account1.temp_username = 'arwic';
+    account1.temp_password = 'asd';
+    account1.session = null;
+
+    const account2 = new AccountEntity();
+    account2.id = 2;
+    account2.name = 'James';
+    account2.temp_username = 'other';
+    account2.temp_password = 'asd';
+    account2.session = null;
+
+    await account1.save();
+    await account2.save();
 }
 
 createConnection().then(async (connection) => {
