@@ -14,6 +14,7 @@ export default class Camera extends THREE.PerspectiveCamera {
     private minPolar: number = Graphics.toRadians(0);
     private maxZoom: number = 20;
     private minZoom: number = 5;
+    private zoomLevel: number = 10;
     private rotateDelta: Point;
     private polar: number = 0;
     private azimuth: number = 0;
@@ -22,13 +23,20 @@ export default class Camera extends THREE.PerspectiveCamera {
     public constructor(fov?: number, aspect?: number, near?: number, far?: number) {
         super(fov, aspect, near, far);
 
-        window.addEventListener('resize', () => { this.windowResize(); });
-        this.windowResize();
+        window.addEventListener('resize', () => { this.onWindowResize(); });
+        Graphics.renderer.domElement.addEventListener('wheel', (ev: WheelEvent) => { this.onScroll(ev); });
+        this.onWindowResize();
     }
 
-    private windowResize() {
+    private onWindowResize() {
         this.aspect = Graphics.viewportWidth / Graphics.viewportHeight;
         this.updateProjectionMatrix();
+    }
+
+    private onScroll(ev: WheelEvent) {
+        const scrollDir = Math.sign(ev.deltaY);
+        this.zoomLevel += scrollDir;
+        this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel));
     }
 
     public get lookingAt(): THREE.Vector3 {
@@ -65,8 +73,7 @@ export default class Camera extends THREE.PerspectiveCamera {
         spherical.phi = this.polar;
         spherical.theta = this.azimuth;
         spherical.makeSafe();
-        spherical.radius = 10;
-        spherical.radius = Math.max(this.minZoom, Math.min(this.maxZoom, spherical.radius)); // limit radius
+        spherical.radius = this.zoomLevel;
 
         offset.setFromSpherical(spherical);
         offset.applyQuaternion(worldToLocal); // rotate back to camera up is up space
