@@ -13,7 +13,7 @@ export default class ChatHoverMessage {
     public packet: ChatMsgPacket;
     public world: LocalWorld;
     public camera: Camera;
-    public destroyed: boolean;
+    public destroyed: boolean = false;
 
     public constructor(world: LocalWorld, camera: Camera, packet: ChatMsgPacket, lifetime: number = 4000) {
         this.world = world;
@@ -32,7 +32,7 @@ export default class ChatHoverMessage {
 
     private getScreenPos(): Point {
         const wpos = this.unit.model.obj.position.clone();
-        wpos.sub(new THREE.Vector3(0, 2, 0)); // TODO: get chat height
+        wpos.add(new THREE.Vector3(0, 1.5, 0)); // TODO: get chat height
         return this.camera.worldToScreen(wpos);
     }
 
@@ -43,12 +43,13 @@ export default class ChatHoverMessage {
             for (const [id, unit] of this.world.players) {
                 if (id === this.packet.authorId) {
                     this.unit = unit;
+                    break;
                 }
             }
         }
     }
 
-    public update() {
+    public update(): boolean {
         if (!this.destroyed) {
             const pos = this.getScreenPos();
             this.label.style.top = `${pos.y}px`;

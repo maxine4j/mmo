@@ -151,7 +151,7 @@ export default class WorldScene extends GameScene {
     }
 
     private updateChatHoverMsgs() {
-        this.chatHoverMsgs = this.chatHoverMsgs.filter((msg: ChatHoverMessage) => msg.update());
+        this.chatHoverMsgs = this.chatHoverMsgs.filter((msg: ChatHoverMessage) => !msg.update());
     }
 
     public update(delta: number) {

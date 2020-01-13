@@ -78,7 +78,7 @@ export default class LocalUnit {
     public onTick(u: Unit) {
         this.data = u;
         if (!this.currentPosition) this.currentPosition = this.data.position;
-        this.movesThisTick = this.data.moveQueue.length;
+        if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
         if (this.movesThisTick > 0) this.targetPosition = this.data.moveQueue.shift();
         this.moveTimer = 0;
 
