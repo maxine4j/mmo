@@ -105,11 +105,11 @@ export default class WorldScene extends GameScene {
     private updateMouseLabels() {
         if (this.mousePoint) {
             const tileCoord = this.world.worldToTile(this.mousePoint);
-            const chunkCoord = this.world.tileToChunk(tileCoord.x, tileCoord.y);
-            const terrainCoord = this.world.chunks.get(0).chunkToTerrain(chunkCoord.x, chunkCoord.y);
-            const tileToWorld = this.world.tileToWorld(tileCoord.x, tileCoord.y);
+            const chunkCoord = this.world.tileToChunk(tileCoord);
+            const terrainCoord = this.world.chunks.get(0).chunkToTerrain(chunkCoord);
+            const tileToWorld = this.world.tileToWorld(tileCoord);
             this.lblMouseWorld.text = `World: { ${this.mousePoint.x.toFixed(2)}, ${this.mousePoint.y.toFixed(2)}, ${this.mousePoint.z.toFixed(2)} }`;
-            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.getElevation(tileCoord.x, tileCoord.y) || 0).toFixed(2)}`;
+            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.getElevation(tileCoord) || 0).toFixed(2)}`;
             this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} }`;
             this.lblMouseTerrain.text = `Terrain: { ${terrainCoord.x}, ${terrainCoord.y} }`;
             this.lblTileToWorld.text = `Tile To World: { ${tileToWorld.x.toFixed(2)}, ${tileToWorld.y.toFixed(2)}, ${tileToWorld.z.toFixed(2)} }`;

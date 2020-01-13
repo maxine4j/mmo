@@ -23,7 +23,7 @@ class TerrainDoodad {
         // position the doodad model
         const chunkPos = chunk.terrainToChunk(this.def.x, this.def.y);
         const tilePos = chunk.world.chunkToTile(chunk, chunkPos.x, chunkPos.y);
-        const worldPos = chunk.world.tileToWorld(tilePos.x, tilePos.y);
+        const worldPos = chunk.world.tileToWorld(tilePos);
         this.model.obj.position.copy(worldPos);
 
         // add the doodad model to the scene
@@ -85,9 +85,9 @@ export default class TerrainChunk {
         return bounds.contains(point);
     }
 
-    public chunkToTerrain(chunkX: number, chunkY: number): Point {
-        const x = chunkX + (this.terrain.width / 2);
-        const y = chunkY + (this.terrain.height / 2);
+    public chunkToTerrain(chunk: Point): Point {
+        const x = chunk.x + (this.terrain.width / 2);
+        const y = chunk.y + (this.terrain.height / 2);
         return new Point(x, y);
     }
 
@@ -97,8 +97,8 @@ export default class TerrainChunk {
         return new Point(x, y);
     }
 
-    public getElevation(chunkX: number, chunkY: number): number {
-        const tp = this.chunkToTerrain(chunkX, chunkY);
+    public getElevation(chunk: Point): number {
+        const tp = this.chunkToTerrain(chunk);
         return this.terrain.getElevation(tp.x, tp.y);
     }
 

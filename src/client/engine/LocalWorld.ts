@@ -25,7 +25,7 @@ export default class LocalWorld {
 
     public constructor(scene: Scene) {
         this.scene = scene;
-        this._player = new LocalPlayer(this);
+        this._player = new LocalPlayer(this, null);
         this._tickRate = 0.6; // TODO: get from server
         NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => { this.loadChunk(p); });
@@ -75,6 +75,7 @@ export default class LocalWorld {
         this._tickTimer = 0; // reset tick timer
         this.currentTick = packet.tick; // update the current tick
 
+        this.player.onTick(packet.self);
         this.tickUnits(packet.tick, packet.units, this.units);
         this.tickUnits(packet.tick, packet.players, this.players);
         this.removeStaleUnits(this.units);
@@ -107,29 +108,27 @@ export default class LocalWorld {
         return new Point(Math.floor(coord.x + 0.5), Math.floor(coord.z + 0.5));
     }
 
-    public tileToWorld(tileX: number, tileY: number): THREE.Vector3 {
-        const wx = tileX;
-        const wz = tileY;
-
-        const elevation = this.getElevation(tileX, tileY);
-        return new THREE.Vector3(wx, elevation, wz);
+    public tileToWorld(tile: Point): THREE.Vector3 {
+        const elevation = this.getElevation(tile);
+        return new THREE.Vector3(tile.x, elevation, tile.y);
     }
 
-    public getElevation(tileX: number, tileY: number): number {
+    public getElevation(tile: Point): number {
         for (const [_, chunk] of this.chunks) {
-            const chunkX = tileX - (chunk.size * chunk.x);
-            const chunkY = tileY - (chunk.size * chunk.y);
-            if (chunk.containsPoint(new Point(chunkX, chunkY))) {
-                return chunk.getElevation(chunkX, chunkY);
+            const chunkX = tile.x - (chunk.size * chunk.x);
+            const chunkY = tile.y - (chunk.size * chunk.y);
+            const chunkPos = new Point(chunkX, chunkY);
+            if (chunk.containsPoint(chunkPos)) {
+                return chunk.getElevation(chunkPos);
             }
         }
         return null;
     }
 
-    public tileToChunk(tileX: number, tileY: number): Point {
+    public tileToChunk(tile: Point): Point {
         for (const [_, chunk] of this.chunks) {
-            const chunkX = tileX - (chunk.x * chunk.size);
-            const chunkY = tileY - (chunk.y * chunk.size);
+            const chunkX = tile.x - (chunk.x * chunk.size);
+            const chunkY = tile.y - (chunk.y * chunk.size);
             const chunkBound = chunk.size / 2;
             // check if the calculated point is within this chunk
             if (chunkX >= -chunkBound && chunkX <= chunkBound

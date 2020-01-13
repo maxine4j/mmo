@@ -14,12 +14,23 @@ export default class UnitManager {
         this.data = data;
     }
 
-    public tick() {
-        // update the characters movement
-        this.data.lastPosition = this.data.position;
+    private tickMovement() {
+        // update the units movement
+        this.data.running = false;
+        this.data.moveQueue = [];
         if (this.path && this.path.length > 0) {
-            this.data.position = this.path.pop();
+            let nextPos = this.path.pop();
+            this.data.moveQueue.push(nextPos);
+            if (this.data.running && this.path.length > 0) {
+                nextPos = this.path.pop();
+                this.data.moveQueue.push(nextPos);
+            }
+            this.data.position = nextPos;
         }
+    }
+
+    public tick() {
+        this.tickMovement();
     }
 
     public moveTo(dest: Point) {
@@ -30,7 +41,7 @@ export default class UnitManager {
                 matrix: navmap.matrix,
             },
             diagonalAllowed: true,
-            heuristicFunction: 'Manhatten',
+            heuristicFunction: 'Octile',
             includeEndNode: true,
             includeStartNode: false,
         });
@@ -39,5 +50,6 @@ export default class UnitManager {
         this.path = astar.findPath(navmap.start, navmap.end)
             .map(([x, y]) => new Point(x + navmap.offset.x, y + navmap.offset.y))
             .reverse(); // reverse so we can use array.pop()
+        console.log('made a new path', this.path);
     }
 }

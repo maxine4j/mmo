@@ -44,12 +44,12 @@ export default class WorldManager {
     private tick() {
         this.players.forEach((player) => {
             player.tick();
-            player.socket.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>player.data);
 
             const players: Character[] = this.playersInRange(player.data.position.x, player.data.position.y, player).map((pm) => pm.data);
             const units: Unit[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
 
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
+                self: player.data,
                 units,
                 players,
                 tick: this.tickCounter,

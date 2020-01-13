@@ -50,6 +50,7 @@ export interface CharacterListPacket extends Packet, ResponsePacket {
 export interface UnitPacket extends Packet, Unit { }
 
 export interface TickPacket extends Packet {
+    self: Character;
     units: Unit[];
     players: Character[];
     tick: number;

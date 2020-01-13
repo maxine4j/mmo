@@ -1,9 +1,7 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Graphics from './Graphics';
 import Point from '../../../common/Point';
 import Scene from './Scene';
-import LocalUnit from '../LocalUnit';
 import LocalWorld from '../LocalWorld';
 import Input, { MouseButton } from '../Input';
 

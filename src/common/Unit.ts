@@ -5,6 +5,7 @@ export default interface Unit {
     name: string;
     level: number;
     model: string;
+    running: boolean;
     position: Point;
-    lastPosition: Point;
+    moveQueue: Point[];
 }
