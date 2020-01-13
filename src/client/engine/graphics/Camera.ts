@@ -52,6 +52,13 @@ export default class Camera extends THREE.PerspectiveCamera {
         return Math.max(min, Math.min(max, n));
     }
 
+    public worldToScreen(world: THREE.Vector3): Point {
+        const v = world.clone().project(this);
+        const wh = Graphics.viewportWidth / 2;
+        const hh = Graphics.viewportHeight / 2;
+        return new Point((v.x * wh) + wh, (v.y * hh) + hh);
+    }
+
     public update(delta: number, world: LocalWorld) {
         // set the target to the players position
         if (world.player && world.player.data) {

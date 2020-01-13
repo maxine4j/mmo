@@ -13,6 +13,7 @@ import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
+import ChatHoverMessage from '../engine/interface/ChatHoverMessage';
 
 export default class WorldScene extends GameScene {
     private world: LocalWorld;
@@ -24,6 +25,7 @@ export default class WorldScene extends GameScene {
     private mousePoint: THREE.Vector3;
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
+    private chatHoverMsgs: ChatHoverMessage[] = [];
 
     public constructor() {
         super('world');
@@ -85,6 +87,7 @@ export default class WorldScene extends GameScene {
         };
         NetClient.on(PacketHeader.CHAT_EVENT, (p: ChatMsgPacket) => {
             this.chatbox.addChatMessage(p);
+            this.chatHoverMsgs.push(new ChatHoverMessage(this.world, this.camera, p));
         });
         this.addGUI(this.chatbox);
     }
@@ -147,10 +150,15 @@ export default class WorldScene extends GameScene {
         }
     }
 
+    private updateChatHoverMsgs() {
+        this.chatHoverMsgs = this.chatHoverMsgs.filter((msg: ChatHoverMessage) => msg.update());
+    }
+
     public update(delta: number) {
         this.updateMousePoint();
         this.updateMouseLabels();
         this.updateWireframesToggle();
+        this.updateChatHoverMsgs();
 
         this.camera.update(delta, this.world);
         this.world.update(delta, this.mousePoint);
