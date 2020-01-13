@@ -13,6 +13,8 @@ export default class Input {
     private static mouseButtonStates: Map<MouseButton, boolean> = new Map();
     private static lastMouseButtonStates: Map<MouseButton, boolean> = new Map();
     private static mousePosition: Point;
+    private static clickMarker: HTMLImageElement;
+    private static clickMarkerDim: number = 16;
 
     public static init(canvas: HTMLCanvasElement) {
         this.mousePosition = new Point(0, 0);
@@ -34,6 +36,26 @@ export default class Input {
             this.mousePosition.x = ev.clientX;
             this.mousePosition.y = ev.clientY;
         });
+
+        this.clickMarker = document.createElement('img');
+        document.body.appendChild(this.clickMarker);
+        this.clickMarker.src = 'assets/imgs/click.gif';
+        this.clickMarker.style.position = 'fixed';
+        this.clickMarker.style.display = 'none';
+        this.clickMarker.style.pointerEvents = 'none';
+    }
+
+    public static playClickMark(p: Point, color: string) {
+        this.clickMarker.style.left = `${p.x - this.clickMarkerDim / 2}px`;
+        this.clickMarker.style.top = `${p.y - this.clickMarkerDim / 2}px`;
+        this.clickMarker.style.width = `${this.clickMarkerDim}px`;
+        this.clickMarker.style.height = `${this.clickMarkerDim}px`;
+        this.clickMarker.style.color = 'red';
+        this.clickMarker.style.display = 'initial';
+        this.clickMarker.style.filter = `opacity(.5) drop-shadow(0 0 0 ${color})`;
+        this.clickMarker.style.webkitFilter = `opacity(.5) drop-shadow(0 0 0 ${color})`;
+        // eslint-disable-next-line no-self-assign
+        this.clickMarker.src = this.clickMarker.src;
     }
 
     public static afterUpdate() {

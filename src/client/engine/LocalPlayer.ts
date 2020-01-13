@@ -10,6 +10,7 @@ export default class Player extends LocalUnit {
             if (mousePoint) {
                 const tile = this.world.worldToTile(mousePoint);
                 NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: tile.x, y: tile.y });
+                Input.playClickMark(Input.mousePos(), 'yellow');
             }
         }
     }
