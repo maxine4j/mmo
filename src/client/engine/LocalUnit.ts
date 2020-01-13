@@ -129,7 +129,6 @@ export default class LocalUnit {
             this.targetPosition = this.data.moveQueue.shift(); // get a new target
             this.moveTimer -= 1; // reset the move timer, keep fractional for smooth lerping
         }
-        console.log(delta);
     }
 
     public update(delta: number) {
