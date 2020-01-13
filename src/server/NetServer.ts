@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket,
 } from '../common/Packet';
 import {
     handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
@@ -14,7 +14,6 @@ export default class NetServer {
     private static world: WorldManager;
 
     public static init(port: number = 3000) {
-        console.log('setting up netserver');
         this.server = io().listen(port);
         this.world = new WorldManager(tickRate, this.server);
         this.server.on('connection', this.onConnection);
@@ -54,12 +53,15 @@ export default class NetServer {
             NetServer.world.handlePlayerUpdateSelf(socket);
         });
         socket.on(PacketHeader.CHUNK_LOAD, async () => {
-            console.log('got a chunk load request');
-
             NetServer.world.handleChunkLoad(socket);
         });
         socket.on(PacketHeader.PLAYER_MOVETO, async (packet: PointPacket) => {
             NetServer.world.handleMoveTo(socket, packet);
+        });
+
+        // chat
+        socket.on(PacketHeader.CHAT_EVENT, async (packet: ChatMsgPacket) => {
+            NetServer.world.handleChatMessage(socket, packet);
         });
     }
 }

@@ -59,3 +59,10 @@ export interface TickPacket extends Packet {
 export interface PointPacket extends Packet, Point { }
 
 export interface ChunkPacket extends Packet, Chunk { }
+
+export interface ChatMsgPacket extends Packet {
+    authorId: number,
+    authorName: string,
+    timestamp: number,
+    message: string
+}

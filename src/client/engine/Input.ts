@@ -14,23 +14,23 @@ export default class Input {
     private static lastMouseButtonStates: Map<MouseButton, boolean> = new Map();
     private static mousePosition: Point;
 
-    public static init() {
+    public static init(canvas: HTMLCanvasElement) {
         this.mousePosition = new Point(0, 0);
 
-        window.addEventListener('keydown', (ev: KeyboardEvent) => {
+        canvas.addEventListener('keydown', (ev: KeyboardEvent) => {
             this.setKeyState(ev, true);
         });
-        window.addEventListener('keyup', (ev: KeyboardEvent) => {
+        canvas.addEventListener('keyup', (ev: KeyboardEvent) => {
             this.setKeyState(ev, false);
         });
-        window.addEventListener('mousedown', (ev: MouseEvent) => {
+        canvas.addEventListener('mousedown', (ev: MouseEvent) => {
             this.setMouseState(ev, true);
             ev.preventDefault();
         });
-        window.addEventListener('mouseup', (ev: MouseEvent) => {
+        canvas.addEventListener('mouseup', (ev: MouseEvent) => {
             this.setMouseState(ev, false);
         });
-        window.addEventListener('mousemove', (ev: MouseEvent) => {
+        canvas.addEventListener('mousemove', (ev: MouseEvent) => {
             this.mousePosition.x = ev.clientX;
             this.mousePosition.y = ev.clientY;
         });

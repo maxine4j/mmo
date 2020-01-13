@@ -10,7 +10,8 @@ import LocalWorld from '../engine/LocalWorld';
 import Input from '../engine/Input';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
-import { PacketHeader } from '../../common/Packet';
+import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
+import Chatbox from '../engine/interface/Chatbox';
 
 export default class WorldScene extends GameScene {
     private world: LocalWorld;
@@ -21,6 +22,7 @@ export default class WorldScene extends GameScene {
     private lblTileToWorld: Label;
     private mousePoint: THREE.Vector3;
     private wireframesVisible: boolean = false;
+    private chatbox: Chatbox;
 
     public constructor() {
         super('world');
@@ -72,6 +74,18 @@ export default class WorldScene extends GameScene {
         this.lblTileToWorld.style.top = '75px';
         this.lblTileToWorld.style.left = '0';
         this.addGUI(this.lblTileToWorld);
+
+        this.chatbox = new Chatbox('chatbox-main', UIParent.get(), 400, 200);
+        this.chatbox.style.left = '0';
+        this.chatbox.style.bottom = '0';
+        this.chatbox.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+        this.chatbox.onMessageSend = (message: string) => {
+            NetClient.send(PacketHeader.CHAT_EVENT, <ChatMsgPacket>{ message });
+        };
+        NetClient.on(PacketHeader.CHAT_EVENT, (p: ChatMsgPacket) => {
+            this.chatbox.addChatMessage(p);
+        });
+        this.addGUI(this.chatbox);
     }
 
     public async init() {

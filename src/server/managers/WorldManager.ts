@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, PointPacket, ChunkPacket, CharacterPacket, TickPacket,
+    PacketHeader, PointPacket, ChunkPacket, CharacterPacket, TickPacket, ChatMsgPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -45,7 +45,7 @@ export default class WorldManager {
         this.players.forEach((player) => {
             player.tick();
 
-            const players: Character[] = this.playersInRange(player.data.position.x, player.data.position.y, player).map((pm) => pm.data);
+            const players: Character[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
             const units: Unit[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
 
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
@@ -64,12 +64,12 @@ export default class WorldManager {
         this.chunks.set(id, cm);
     }
 
-    private playersInRange(x: number, y: number, exclude?: PlayerManager): PlayerManager[] {
+    private playersInRange(pos: Point, exclude?: PlayerManager): PlayerManager[] {
         const inrange: PlayerManager[] = [];
         for (const [_, p] of this.players) {
             // check if players pos is withing view dist of the target x,y
-            if (x + viewDistX > p.data.position.x && x - viewDistX < p.data.position.x
-                && y + viewDistY > p.data.position.y && y - viewDistY < p.data.position.y) {
+            if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
+                && pos.y + viewDistY > p.data.position.y && pos.y - viewDistY < p.data.position.y) {
                 if (exclude && exclude.socket.id !== p.socket.id) {
                     inrange.push(p);
                 }
@@ -96,7 +96,7 @@ export default class WorldManager {
             const p = new PlayerManager(this, ce.toNet(), session);
 
             // notify all players in range
-            this.playersInRange(p.data.position.x, p.data.position.y).forEach((pir) => {
+            this.playersInRange(p.data.position).forEach((pir) => {
                 pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.data);
             });
             // add the char to the logged in players list
@@ -117,6 +117,22 @@ export default class WorldManager {
     public handlePlayerUpdateSelf(session: io.Socket) {
         const { data } = this.players.get(session.id);
         session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
+    }
+
+    public handleChatMessage(session: io.Socket, msg: ChatMsgPacket) {
+        const self = this.players.get(session.id);
+        const out = <ChatMsgPacket>{
+            authorId: self.data.id,
+            authorName: self.data.name,
+            timestamp: Date.now(),
+            message: msg.message,
+        };
+        self.socket.emit(PacketHeader.CHAT_EVENT, out);
+        this.playersInRange(self.data.position, self).forEach((pm) => {
+            // TODO: better chat processing here
+            // channels, commands, etc
+            pm.socket.emit(PacketHeader.CHAT_EVENT, out);
+        });
     }
 
     public handleChunkLoad(session: io.Socket) {

@@ -14,8 +14,8 @@ export default class Engine {
 
     public static init() {
         // initialise modules
-        Input.init();
         Graphics.init();
+        Input.init(Graphics.renderer.domElement);
         NetClient.init();
         SceneManager.init();
 
