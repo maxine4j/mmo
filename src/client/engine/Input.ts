@@ -17,10 +17,10 @@ export default class Input {
     public static init(canvas: HTMLCanvasElement) {
         this.mousePosition = new Point(0, 0);
 
-        canvas.addEventListener('keydown', (ev: KeyboardEvent) => {
+        window.addEventListener('keydown', (ev: KeyboardEvent) => {
             this.setKeyState(ev, true);
         });
-        canvas.addEventListener('keyup', (ev: KeyboardEvent) => {
+        window.addEventListener('keyup', (ev: KeyboardEvent) => {
             this.setKeyState(ev, false);
         });
         canvas.addEventListener('mousedown', (ev: MouseEvent) => {

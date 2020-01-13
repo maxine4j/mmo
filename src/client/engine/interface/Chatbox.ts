@@ -49,7 +49,12 @@ export default class Chatbox extends Panel {
                 this.onMessageSend(this.editbox.text);
                 this.editbox.text = '';
             }
+            this.editbox.blur();
         }
+    }
+
+    public focus() {
+        this.editbox.focus();
     }
 
     public addRawMessage(msg: string) {

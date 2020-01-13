@@ -49,6 +49,14 @@ export abstract class Frame {
         this.parent.addChild(this);
     }
 
+    public blur() {
+        this.element.blur();
+    }
+
+    public focus() {
+        this.element.focus();
+    }
+
     public show() {
         this._visible = true;
         this.element.style.visibility = 'visible';

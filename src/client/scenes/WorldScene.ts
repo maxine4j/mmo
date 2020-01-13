@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Key } from 'ts-key-enum';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import SceneManager from '../engine/scene/SceneManager';
@@ -140,6 +141,9 @@ export default class WorldScene extends GameScene {
         if (Input.wasKeyPressed('1')) {
             this.wireframesVisible = !this.wireframesVisible;
             this.world.terrainWireframes(this.wireframesVisible);
+        }
+        if (Input.wasKeyPressed(Key.Enter)) {
+            this.chatbox.focus();
         }
     }
 
