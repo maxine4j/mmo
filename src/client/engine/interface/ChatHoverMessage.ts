@@ -3,7 +3,7 @@ import Label from './Label';
 import Camera from '../graphics/Camera';
 import Point from '../../../common/Point';
 import { ChatMsgPacket } from '../../../common/Packet';
-import LocalWorld from '../LocalWorld';
+import World from '../World';
 import LocalUnit from '../LocalUnit';
 import UIParent from './UIParent';
 
@@ -11,11 +11,11 @@ export default class ChatHoverMessage {
     public label: Label;
     public unit: LocalUnit;
     public packet: ChatMsgPacket;
-    public world: LocalWorld;
+    public world: World;
     public camera: Camera;
     public destroyed: boolean = false;
 
-    public constructor(world: LocalWorld, camera: Camera, packet: ChatMsgPacket, lifetime: number = 4000) {
+    public constructor(world: World, camera: Camera, packet: ChatMsgPacket, lifetime: number = 4000) {
         this.world = world;
         this.packet = packet;
         this.camera = camera;

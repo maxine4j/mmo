@@ -1,5 +1,5 @@
-import Chunk from '../../common/Chunk';
+import ChunkDef from '../../common/Chunk';
 
 export default interface ChunksJsonDef {
-    [key: string]: Chunk
+    [key: string]: ChunkDef
 }

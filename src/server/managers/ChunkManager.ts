@@ -1,4 +1,4 @@
-import Chunk from '../../common/Chunk';
+import ChunkDef from '../../common/Chunk';
 import Point from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 
@@ -7,10 +7,10 @@ const NOT_WALKABLE = 1;
 const CHUNK_SIZE = 128; // TODO: increase to 128 after testing
 
 export default class ChunkManager {
-    public def: Chunk;
+    public def: ChunkDef;
     public navmap: Array<Array<number>>;
 
-    public constructor(def: Chunk) {
+    public constructor(def: ChunkDef) {
         this.def = def;
         this.generateNavmap();
     }

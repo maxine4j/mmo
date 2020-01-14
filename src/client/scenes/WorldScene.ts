@@ -7,7 +7,7 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/UIParent';
-import LocalWorld from '../engine/LocalWorld';
+import World from '../engine/World';
 import Input from '../engine/Input';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
@@ -16,12 +16,10 @@ import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/ChatHoverMessage';
 
 export default class WorldScene extends GameScene {
-    private world: LocalWorld;
+    private world: World;
     private lblMouseTile: Label;
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
-    private lblMouseTerrain: Label;
-    private lblTileToWorld: Label;
     private mousePoint: THREE.Vector3;
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
@@ -66,18 +64,6 @@ export default class WorldScene extends GameScene {
         this.lblMouseChunk.style.left = '0';
         this.addGUI(this.lblMouseChunk);
 
-        this.lblMouseTerrain = new Label('lbl-mouse-terrain', UIParent.get(), 'Terrain: { X, Y }');
-        this.lblMouseTerrain.style.position = 'fixed';
-        this.lblMouseTerrain.style.top = '60px';
-        this.lblMouseTerrain.style.left = '0';
-        this.addGUI(this.lblMouseTerrain);
-
-        this.lblTileToWorld = new Label('lbl-tile-to-world', UIParent.get(), 'Tile To World: { X, Y, Z }');
-        this.lblTileToWorld.style.position = 'fixed';
-        this.lblTileToWorld.style.top = '75px';
-        this.lblTileToWorld.style.left = '0';
-        this.addGUI(this.lblTileToWorld);
-
         this.chatbox = new Chatbox('chatbox-main', UIParent.get(), 400, 200);
         this.chatbox.style.left = '0';
         this.chatbox.style.bottom = '0';
@@ -104,7 +90,7 @@ export default class WorldScene extends GameScene {
         light.position.set(0, 1, 0).normalize();
         this.scene.add(light);
 
-        this.world = new LocalWorld(this.scene);
+        this.world = new World(this.scene);
     }
 
     public final() {
@@ -122,28 +108,22 @@ export default class WorldScene extends GameScene {
 
     private updateMouseLabels() {
         if (this.mousePoint) {
-            const tileCoord = this.world.worldToTile(this.mousePoint);
-            const chunkCoord = this.world.tileToChunk(tileCoord);
-            const terrainCoord = this.world.chunks.get(0).chunkToTerrain(chunkCoord);
-            const tileToWorld = this.world.tileToWorld(tileCoord);
+            const tileCoord = this.world.chunkWorld.worldToTile(this.mousePoint);
+            const chunkCoord = this.world.chunkWorld.tileToChunk(tileCoord);
             this.lblMouseWorld.text = `World: { ${this.mousePoint.x.toFixed(2)}, ${this.mousePoint.y.toFixed(2)}, ${this.mousePoint.z.toFixed(2)} }`;
-            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.getElevation(tileCoord) || 0).toFixed(2)}`;
+            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.chunkWorld.getElevation(tileCoord) || 0).toFixed(2)}`;
             this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} }`;
-            this.lblMouseTerrain.text = `Terrain: { ${terrainCoord.x}, ${terrainCoord.y} }`;
-            this.lblTileToWorld.text = `Tile To World: { ${tileToWorld.x.toFixed(2)}, ${tileToWorld.y.toFixed(2)}, ${tileToWorld.z.toFixed(2)} }`;
         } else {
             this.lblMouseWorld.text = 'World: { ?, ?, ? }';
             this.lblMouseTile.text = 'Tile: { ?, ? }';
             this.lblMouseChunk.text = 'Chunk: { ?, ? }';
-            this.lblMouseTerrain.text = 'Terrain: { ?, ? }';
-            this.lblTileToWorld.text = 'Tile To World: { ?, ?, ? }';
         }
     }
 
     private updateWireframesToggle() {
         if (Input.wasKeyPressed('1')) {
             this.wireframesVisible = !this.wireframesVisible;
-            this.world.terrainWireframes(this.wireframesVisible);
+            this.world.chunkWorld.setWireframeVisibility(this.wireframesVisible);
         }
         if (Input.wasKeyPressed(Key.Enter)) {
             this.chatbox.focus();

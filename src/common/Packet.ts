@@ -1,7 +1,7 @@
 import Account from './Account';
 import Character from './Character';
 import Point from './Point';
-import Chunk from './Chunk';
+import ChunkDef from './Chunk';
 import Unit from './Unit';
 
 export enum PacketHeader {
@@ -58,7 +58,7 @@ export interface TickPacket extends Packet {
 
 export interface PointPacket extends Packet, Point { }
 
-export interface ChunkPacket extends Packet, Chunk { }
+export interface ChunkPacket extends Packet, ChunkDef { }
 
 export interface ChatMsgPacket extends Packet {
     authorId: number,

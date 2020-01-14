@@ -13,7 +13,8 @@
     "watch": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch-ts-server\" \"yarn watch-webpack-client\" \"yarn watch-node-server\"",
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
     "clean": "rm -rf dist/*",
-    "build-client": "yarn webpack"
+    "build-client": "yarn webpack",
+    "editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js"
   },
   "dependencies": {
     "@types/pathfinding": "^0.0.4",

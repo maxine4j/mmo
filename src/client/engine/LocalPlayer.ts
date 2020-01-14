@@ -8,7 +8,7 @@ export default class Player extends LocalUnit {
         // move the player
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             if (mousePoint) {
-                const tile = this.world.worldToTile(mousePoint);
+                const tile = this.world.chunkWorld.worldToTile(mousePoint);
                 NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: tile.x, y: tile.y });
                 Input.playClickMark(Input.mousePos(), 'yellow');
             }

@@ -12,11 +12,13 @@ export default class Engine {
     private static lblFps: Label;
     private static _account: Account;
 
-    public static init() {
+    public static init(enableNetworking: boolean = true) {
         // initialise modules
         Graphics.init();
         Input.init(Graphics.renderer.domElement);
-        NetClient.init();
+        if (enableNetworking) {
+            NetClient.init();
+        }
         SceneManager.init();
 
         // add warning leaving page

@@ -18,6 +18,9 @@
         }
     },
     "rules": {
+        "prefer-destructuring": [
+            "off"
+        ],
         "no-useless-return": [
             "off"
         ],

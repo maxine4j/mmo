@@ -1,20 +1,16 @@
 import * as THREE from 'three';
-import TerrainChunk from './TerrainChunk';
 import Scene from './graphics/Scene';
 import LocalPlayer from './LocalPlayer';
 import NetClient from './NetClient';
-import {
-    PacketHeader, ChunkPacket, TickPacket,
-} from '../../common/Packet';
-import Point from '../../common/Point';
-import Chunk from '../../common/Chunk';
+import { PacketHeader, ChunkPacket, TickPacket } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import Unit from '../../common/Unit';
 import Camera from './graphics/Camera';
+import ChunkWorld from './ChunkWorld';
 
-export default class LocalWorld {
+export default class World {
     public scene: Scene;
-    public chunks: Map<number, TerrainChunk> = new Map();
+    public chunkWorld: ChunkWorld;
     public units: Map<number, LocalUnit> = new Map();
     public players: Map<number, LocalPlayer> = new Map();
     private _player: LocalPlayer;
@@ -27,18 +23,14 @@ export default class LocalWorld {
         this.scene = scene;
         this._player = new LocalPlayer(this, null);
         this._tickRate = 0.6; // TODO: get from server
+        this.chunkWorld = new ChunkWorld(this.scene);
         NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
-        NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => { this.loadChunk(p); });
-        NetClient.send(PacketHeader.CHUNK_LOAD);
-    }
+        NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => {
+            console.log('got a chunk load packet', p);
 
-    public async loadChunk(chunk: Chunk): Promise<TerrainChunk> {
-        return new Promise((resolve) => {
-            TerrainChunk.load(chunk, this).then((tc: TerrainChunk) => {
-                this.chunks.set(chunk.id, tc);
-                resolve(tc);
-            });
+            this.chunkWorld.loadChunk(p);
         });
+        NetClient.send(PacketHeader.CHUNK_LOAD);
     }
 
     public attatchCamera(camera: Camera) {
@@ -102,56 +94,5 @@ export default class LocalWorld {
 
         // increment tick timer
         this._tickTimer += delta;
-    }
-
-    public worldToTile(coord: THREE.Vector3): Point {
-        return new Point(Math.floor(coord.x + 0.5), Math.floor(coord.z + 0.5));
-    }
-
-    public tileToWorld(tile: Point): THREE.Vector3 {
-        const elevation = this.getElevation(tile);
-        return new THREE.Vector3(tile.x, elevation, tile.y);
-    }
-
-    public getElevation(tile: Point): number {
-        for (const [_, chunk] of this.chunks) {
-            const chunkX = tile.x - (chunk.size * chunk.x);
-            const chunkY = tile.y - (chunk.size * chunk.y);
-            const chunkPos = new Point(chunkX, chunkY);
-            if (chunk.containsPoint(chunkPos)) {
-                return chunk.getElevation(chunkPos);
-            }
-        }
-        return null;
-    }
-
-    public tileToChunk(tile: Point): Point {
-        for (const [_, chunk] of this.chunks) {
-            const chunkX = tile.x - (chunk.x * chunk.size);
-            const chunkY = tile.y - (chunk.y * chunk.size);
-            const chunkBound = chunk.size / 2;
-            // check if the calculated point is within this chunk
-            if (chunkX >= -chunkBound && chunkX <= chunkBound
-                && chunkY >= -chunkBound && chunkY <= chunkBound) {
-                return new Point(chunkX, chunkY);
-            }
-        }
-        return new Point(NaN, NaN);
-    }
-
-    public chunkToTile(chunk: TerrainChunk, chunkX: number, chunkY: number): Point {
-        const x = chunkX + (chunk.x * chunk.size);
-        const y = chunkY + (chunk.y * chunk.size);
-        return new Point(x, y);
-    }
-
-    public terrainWireframes(visible: boolean) {
-        for (const [_, chunk] of this.chunks) {
-            if (visible) {
-                chunk.terrain.showWireframe();
-            } else {
-                chunk.terrain.hideWireFrame();
-            }
-        }
     }
 }

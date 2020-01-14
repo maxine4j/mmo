@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import Graphics from './Graphics';
 import Point from '../../../common/Point';
 import Scene from './Scene';
-import LocalWorld from '../LocalWorld';
+import World from '../World';
 import Input, { MouseButton } from '../Input';
 
 export default class Camera extends THREE.PerspectiveCamera {
@@ -61,7 +61,7 @@ export default class Camera extends THREE.PerspectiveCamera {
         );
     }
 
-    public update(delta: number, world: LocalWorld) {
+    public update(delta: number, world: World) {
         // set the target to the players position
         if (world.player && world.player.data) {
             this.target = world.player.getWorldPosition();

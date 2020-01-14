@@ -5,7 +5,7 @@ export interface Hitbox {
     h: number,
 }
 
-export interface Doodad {
+export interface DoodadDef {
     model: string,
     x: number;
     y: number;
@@ -15,11 +15,12 @@ export interface Doodad {
     walkable: boolean,
 }
 
-export default interface Chunk {
-    id: number,
-    heightmap: string,
-    texture: string,
+export default interface ChunkDef {
+    id: number;
     x: number;
     y: number;
-    doodads: Array<Doodad>;
+    size: number;
+    texture: string;
+    heightmap: number[];
+    doodads: Array<DoodadDef>;
 }

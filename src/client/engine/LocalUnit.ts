@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
 import Model from './graphics/Model';
-import World from './LocalWorld';
+import World from './World';
 import Unit from '../../common/Unit';
 import Point from '../../common/Point';
 
@@ -96,11 +96,11 @@ export default class LocalUnit {
     private updateModel() {
         if (this.model) {
             // set the model pos to the current tile position
-            const current = this.world.tileToWorld(this.currentPosition);
+            const current = this.world.chunkWorld.tileToWorld(this.currentPosition);
             this.model.obj.position.copy(current);
             if (this.targetPosition) {
                 // lerp towards the target
-                const target = this.world.tileToWorld(this.targetPosition);
+                const target = this.world.chunkWorld.tileToWorld(this.targetPosition);
                 this.model.obj.position.lerp(target, Math.min(this.moveTimer, 1));
                 // slerp towards the target
                 const diff = Point.sub(this.currentPosition, this.targetPosition);
@@ -112,9 +112,9 @@ export default class LocalUnit {
     }
 
     public getWorldPosition(): THREE.Vector3 {
-        const current = this.world.tileToWorld(this.currentPosition);
+        const current = this.world.chunkWorld.tileToWorld(this.currentPosition);
         if (this.targetPosition) {
-            const target = this.world.tileToWorld(this.targetPosition);
+            const target = this.world.chunkWorld.tileToWorld(this.targetPosition);
             return current.lerp(target, Math.min(this.moveTimer, 1));
         }
         return current;

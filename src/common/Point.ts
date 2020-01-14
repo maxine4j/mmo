@@ -22,4 +22,10 @@ export default class Point {
     public static clone(other: Point) {
         return new Point(other.x, other.y);
     }
+
+    public static dist(a: Point, b: Point): number {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        return Math.sqrt((dx * dx) + (dy * dy));
+    }
 }
