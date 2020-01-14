@@ -1,41 +1,9 @@
 import * as THREE from 'three';
-import ChunkDef, { DoodadDef } from '../../common/Chunk';
+import ChunkDef from '../../common/Chunk';
 import Point from '../../common/Point';
-import Model from './graphics/Model';
 import Rectangle from '../../common/Rectangle';
 import ChunkWorld from './ChunkWorld';
-
-class Doodad {
-    public def: DoodadDef;
-    public model: Model;
-
-    public constructor(def: DoodadDef, model: Model, chunk: Chunk) {
-        this.def = def;
-        this.model = model;
-
-        // scale the doodad model
-        this.model.obj.scale.set(this.def.scale, this.def.scale, this.def.scale);
-
-        // rotate the doodad model
-        this.model.obj.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), this.def.rotation);
-
-        // position the doodad model
-        const tilePos = chunk.world.chunkToTile(chunk, new Point(this.def.x, this.def.y));
-        const worldPos = chunk.world.tileToWorld(tilePos);
-        this.model.obj.position.copy(worldPos);
-
-        // add the doodad model to the scene
-        chunk.world.scene.add(this.model.obj);
-    }
-
-    public static async load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
-        return new Promise((resolve) => {
-            Model.loadDef(`assets/models/${def.model}`).then((model) => {
-                resolve(new Doodad(def, model, chunk));
-            });
-        });
-    }
-}
+import Doodad from './Doodad';
 
 export default class Chunk {
     public def: ChunkDef;
@@ -43,7 +11,7 @@ export default class Chunk {
     public world: ChunkWorld;
     public terrain: THREE.Mesh;
     private wireframe: THREE.LineSegments;
-    private wireframeVisibility: boolean;
+    private wireframeVisible: boolean;
 
     public constructor(def: ChunkDef, world: ChunkWorld, texture?: THREE.Texture) {
         this.def = def;
@@ -58,10 +26,7 @@ export default class Chunk {
     }
 
     public static async load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
-        console.log('im here now');
-
         return new Promise((resolve) => {
-            console.log('made a texture loader to load', def.texture);
             const loader = new THREE.TextureLoader();
             loader.load(def.texture, (texture) => { // load the texture
                 resolve(new Chunk(def, world, texture));
@@ -82,11 +47,12 @@ export default class Chunk {
         const geo = new THREE.WireframeGeometry(this.terrain.geometry);
         const mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
         this.wireframe = new THREE.LineSegments(geo, mat);
+        if (this.wireframeVisible) this.terrain.add(this.wireframe);
     }
 
     public setWireframeVisibility(visible: boolean) {
-        this.wireframeVisibility = visible;
-        if (this.wireframeVisibility) {
+        this.wireframeVisible = visible;
+        if (this.wireframeVisible) {
             this.updateWireframe();
             this.terrain.add(this.wireframe);
         } else if (this.wireframe) {

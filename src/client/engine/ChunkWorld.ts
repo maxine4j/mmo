@@ -14,16 +14,10 @@ export default class ChunkWorld {
     }
 
     public async loadChunk(def: ChunkDef): Promise<Chunk> {
-        console.log('loading chunk start');
-
         return new Promise((resolve) => {
-            console.log('calling chunk.load......');
             Chunk.load(def, this).then((c: Chunk) => {
-                console.log('chunk.load resolved, now to set it up in the world');
                 this.chunks.set(def.id, c);
                 this.scene.add(c.terrain);
-                console.log('loaded a chunk and added it to the scene!');
-
                 c.setWireframeVisibility(this.wireframeVisibility);
                 resolve(c);
             });

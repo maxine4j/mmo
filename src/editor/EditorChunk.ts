@@ -18,9 +18,13 @@ export default class EditorChunk {
 
     public incHeight(p: Point, amt: number) {
         const curh = this.getHeight(p);
-        console.log('inc height:', curh, ' -> ', curh + amt);
-
         this.setHeight(p, curh + amt);
+    }
+
+    public updateDoodads() {
+        for (const doodad of this.chunk.doodads) {
+            doodad.position();
+        }
     }
 
     public updateMesh() {

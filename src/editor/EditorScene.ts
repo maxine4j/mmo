@@ -14,6 +14,10 @@ import WorldPoint from './WorldPoint';
 import EditorChunk from './EditorChunk';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import ChunkDef from '../common/Chunk';
+import _chunkDefs from '../server/data/chunks.json';
+import ChunksDataDef from '../server/data/ChunksJsonDef';
+
+const chunkDefs = <ChunksDataDef>_chunkDefs;
 
 export default class EditorScene extends GameScene {
     private lblMouseTile: Label;
@@ -88,7 +92,8 @@ export default class EditorScene extends GameScene {
 
         this.chunkWorld = new ChunkWorld(this.scene);
         this.chunkWorld.setWireframeVisibility(true);
-        const def = await this.loadChunkDef('assets/chunks/editorchunk.json');
+        // const def = await this.loadChunkDef('assets/chunks/editorchunk.json');
+        const def = chunkDefs[0];
         this.currentChunk = new EditorChunk(await this.chunkWorld.loadChunk(def));
 
         this.brush = new Brush(this.scene);
@@ -128,6 +133,7 @@ export default class EditorScene extends GameScene {
                 this.currentChunk.incHeight(p, 1 * delta);
             });
             this.currentChunk.updateMesh();
+            this.currentChunk.updateDoodads();
         }
     }
 
