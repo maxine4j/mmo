@@ -1,11 +1,14 @@
 import Point from '../common/Point';
 import Chunk from '../client/engine/Chunk';
+import Rectangle from '../common/Rectangle';
 
 export default class EditorChunk {
     public chunk: Chunk;
+    private bounds: Rectangle;
 
     public constructor(chunk: Chunk) {
         this.chunk = chunk;
+        this.bounds = new Rectangle(0, 0, this.chunk.size, this.chunk.size);
     }
 
     public getHeight(p: Point): number {
@@ -19,6 +22,31 @@ export default class EditorChunk {
     public incHeight(p: Point, amt: number) {
         const curh = this.getHeight(p);
         this.setHeight(p, curh + amt);
+    }
+
+    public smooth(p: Point, strength: number = 1) {
+        // get all neighbouring points
+        const points: Point[] = [];
+        points.push(new Point(p.x, p.y - 1)); // N
+        points.push(new Point(p.x, p.y + 1)); // S
+        points.push(new Point(p.x + 1, p.y)); // E
+        points.push(new Point(p.x - 1, p.y)); // W
+
+        // calculate average height
+        let sum = 0;
+        let count = 0;
+        points.forEach((point) => {
+            if (this.bounds.contains(point)) {
+                sum += this.getHeight(point);
+                count++;
+            }
+        });
+
+        const newHeight = sum / count;
+        const curHeight = this.getHeight(p);
+        const heightDelta = (newHeight - curHeight) * strength;
+
+        this.setHeight(p, curHeight + heightDelta);
     }
 
     public updateDoodads() {

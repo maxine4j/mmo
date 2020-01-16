@@ -140,7 +140,10 @@ export default class WorldScene extends GameScene {
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
 
-        this.camera.update(delta, this.world);
+        if (this.world.player.data) {
+            this.camera.setTarget(this.world.player.getWorldPosition());
+        }
+        this.camera.update();
         this.world.update(delta, this.mousePoint);
     }
 

@@ -2,21 +2,20 @@ import * as THREE from 'three';
 import Graphics from './Graphics';
 import Point from '../../../common/Point';
 import Scene from './Scene';
-import World from '../World';
 import Input, { MouseButton } from '../Input';
 
 export default class Camera extends THREE.PerspectiveCamera {
-    private raycaster: THREE.Raycaster = new THREE.Raycaster();
-    private target: THREE.Vector3 = new THREE.Vector3();
-    private maxPolar: number = Graphics.toRadians(75);
-    private minPolar: number = Graphics.toRadians(0);
-    private maxZoom: number = 20;
-    private minZoom: number = 5;
-    private zoomLevel: number = 10;
-    private rotateDelta: Point;
-    private polar: number = 0;
-    private azimuth: number = 0;
-    private lastMouse: Point;
+    protected raycaster: THREE.Raycaster = new THREE.Raycaster();
+    protected target: THREE.Vector3 = new THREE.Vector3();
+    protected maxPolar: number = Graphics.toRadians(75);
+    protected minPolar: number = Graphics.toRadians(0);
+    protected maxZoom: number = 20;
+    protected minZoom: number = 5;
+    protected zoomLevel: number = 10;
+    protected rotateDelta: Point;
+    protected polar: number = 0;
+    protected azimuth: number = 0;
+    protected lastMouse: Point;
 
     public constructor(fov?: number, aspect?: number, near?: number, far?: number) {
         super(fov, aspect, near, far);
@@ -48,7 +47,7 @@ export default class Camera extends THREE.PerspectiveCamera {
         return this.raycaster.intersectObjects(scene.children);
     }
 
-    private clamp(n: number, min: number, max: number): number {
+    protected clamp(n: number, min: number, max: number): number {
         return Math.max(min, Math.min(max, n));
     }
 
@@ -61,12 +60,11 @@ export default class Camera extends THREE.PerspectiveCamera {
         );
     }
 
-    public update(delta: number, world: World) {
-        // set the target to the players position
-        if (world.player && world.player.data) {
-            this.target = world.player.getWorldPosition();
-        }
+    public setTarget(target: THREE.Vector3) {
+        this.target = target;
+    }
 
+    public update() {
         // make a quaterion from camera up to world up and its inverse
         const localToWorld = new THREE.Quaternion().setFromUnitVectors(this.up, new THREE.Vector3(0, 1, 0));
         const worldToLocal = localToWorld.clone().inverse();

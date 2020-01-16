@@ -112,6 +112,10 @@ export abstract class Frame {
         }
     }
 
+    public click() {
+        this.element.click();
+    }
+
     public get style(): CSSStyleDeclaration {
         return this.element.style;
     }
@@ -125,6 +129,9 @@ export abstract class Frame {
 
     public get height(): number {
         return this.element.offsetHeight;
+    }
+    public set height(h: number) {
+        this.style.height = `${h}px`;
     }
 
     public centreHorizontal() {

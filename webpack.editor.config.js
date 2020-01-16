@@ -56,6 +56,12 @@ module.exports = {
                 to: path.join(__dirname, 'dist/editor/assets'),
             },
         ]),
+        new CopyPlugin([
+            {
+                from: path.join(__dirname, 'src/editor/assets'),
+                to: path.join(__dirname, 'dist/editor/assets'),
+            },
+        ]),
     ],
     devServer: {
         contentBase: path.join(__dirname, 'dist/editor'),

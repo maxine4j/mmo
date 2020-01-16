@@ -1,6 +1,4 @@
 import * as THREE from 'three';
-import { Key } from 'ts-key-enum';
-import Input from '../client/engine/Input';
 import Scene from '../client/engine/graphics/Scene';
 import WorldPoint from './WorldPoint';
 import Point from '../common/Point';
@@ -32,6 +30,10 @@ export default class Brush {
     }
 
     public pointsIn(def: ChunkDef): Point[] {
+        if (!this.point || !this.point.chunk) {
+            return [];
+        }
+
         const imin = Math.max(0, this.point.chunk.y - this.size);
         const imax = Math.min(imin + (this.size * 2) + 1, def.size);
         const jmin = Math.max(0, this.point.chunk.x - this.size);
@@ -57,17 +59,7 @@ export default class Brush {
         }
     }
 
-    private updateSize() {
-        if (Input.wasKeyPressed(Key.PageUp)) {
-            this.size += 1;
-        }
-        if (Input.wasKeyPressed(Key.PageDown)) {
-            this.size -= 1;
-        }
-    }
-
-    public update(delta: number, wp: WorldPoint, world: ChunkWorld) {
+    public update(wp: WorldPoint, world: ChunkWorld) {
         this.updatePoint(wp, world);
-        this.updateSize();
     }
 }
