@@ -4,11 +4,17 @@ import WorldPoint from './WorldPoint';
 import Point from '../common/Point';
 import ChunkDef from '../common/Chunk';
 import ChunkWorld from '../client/engine/ChunkWorld';
+import Input from '../client/engine/Input';
 
 export default class Brush {
     private mesh: THREE.Mesh;
-    private _size: number = 1;
     private point: WorldPoint;
+    private _size: number = 1;
+    private _height: number = 0;
+    private _strength: number = 0;
+
+    public onSizeChange: (size: number) => void;
+    public onHeightChange: (size: number) => void;
 
     public constructor(scene: Scene) {
         const geom = new THREE.SphereGeometry(1, 32, 32);
@@ -27,6 +33,8 @@ export default class Brush {
         // updates mesh too via scale
         this._size = Math.max(0, size);
         this.mesh.scale.setScalar(Math.max(0.5, this._size));
+        // call listener
+        if (this.onSizeChange) this.onSizeChange(this._size);
     }
 
     public pointsIn(def: ChunkDef): Point[] {
@@ -59,7 +67,18 @@ export default class Brush {
         }
     }
 
+    private updateSize() {
+        // brush size
+        if (Input.wasKeyPressed(']')) {
+            this.size++;
+        }
+        if (Input.wasKeyPressed('[')) {
+            this.size--;
+        }
+    }
+
     public update(wp: WorldPoint, world: ChunkWorld) {
+        this.updateSize();
         this.updatePoint(wp, world);
     }
 }

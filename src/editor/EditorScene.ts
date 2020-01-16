@@ -6,7 +6,7 @@ import Button from '../client/engine/interface/Button';
 import Graphics from '../client/engine/graphics/Graphics';
 import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
-import Input, { MouseButton } from '../client/engine/Input';
+import Input from '../client/engine/Input';
 import Label from '../client/engine/interface/Label';
 import Brush from './Brush';
 import WorldPoint from './WorldPoint';
@@ -18,6 +18,8 @@ import Panel from '../client/engine/interface/Panel';
 import Slider from '../client/engine/interface/Slider';
 import EditorCamera from './EditorCamera';
 import CheckBox from '../client/engine/interface/CheckBox';
+import ToolPanel from './ToolPanel';
+import Tool from './Tool';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -31,31 +33,18 @@ Texture painting
 
 */
 
-enum BrushMode {
-    HEIGHT_ADD,
-    HEIGHT_SUB,
-    HEIGHT_SET,
-    HEIGHT_SMOOTH,
-}
-
-const selectedBg = 'rgba(84, 84, 84,0.8)';
-const unselectedBg = 'rgba(255,255,255,0.8)';
-const toolButtonSize = 32;
-
 export default class EditorScene extends GameScene {
     private point: WorldPoint;
     protected camera: EditorCamera;
     private currentChunk: EditorChunk;
     private chunkWorld: ChunkWorld;
+
     private brush: Brush;
-    private brushMode: BrushMode = BrushMode.HEIGHT_ADD;
-    private btnSelectedTool: Button;
+    private toolPanel: ToolPanel;
 
     private lblMouseTile: Label;
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
-
-    private panelTools: Panel;
 
     private panelProps: Panel;
     private txtBrushSize: TextBox;
@@ -98,45 +87,45 @@ export default class EditorScene extends GameScene {
         this.addGUI(this.lblMouseChunk);
     }
 
-    private addToolButton(id: string, panel: Panel, bgUrl: string, onClick: (self: Button, ev: MouseEvent) => void): Button {
-        const btn = new Button(id, panel, '');
-        this.addGUI(btn);
-        btn.width = toolButtonSize;
-        btn.height = toolButtonSize;
-        btn.style.position = 'initial';
-        btn.style.background = 'initial';
-        btn.style.backgroundColor = unselectedBg;
-        btn.style.backgroundImage = `url('${bgUrl}')`;
-        btn.style.backgroundSize = '100%';
-        btn.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            onClick(self, ev);
-            this.updateSelectedToolButton(self);
-        });
+    private initTools() {
+        this.toolPanel = new ToolPanel();
+        this.addGUI(this.toolPanel.panel);
 
-        return btn;
-    }
+        this.toolPanel.add(new Tool('height-add', 'assets/icons/terrain_add.png',
+            (delta, brush) => {
+                brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
+                    this.currentChunk.incHeight(p, 1 * delta);
+                });
+                this.currentChunk.updateMesh();
+                this.currentChunk.updateDoodads();
+            }));
 
-    private initToolsGUI() {
-        this.panelTools = new Panel('panel-tools', UIParent.get());
-        this.panelTools.width = toolButtonSize * 2 + 5;
-        this.panelTools.height = 600;
-        this.panelTools.style.left = '0';
-        this.panelTools.centreVertical();
-        this.panelTools.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-        this.addGUI(this.panelTools);
+        this.toolPanel.add(new Tool('height-sub', 'assets/icons/terrain_sub.png',
+            (delta, brush) => {
+                brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
+                    this.currentChunk.incHeight(p, -1 * delta);
+                });
+                this.currentChunk.updateMesh();
+                this.currentChunk.updateDoodads();
+            }));
 
-        this.addToolButton('height-add', this.panelTools, 'assets/icons/terrain_add.png',
-            () => { this.brushMode = BrushMode.HEIGHT_ADD; })
-            .click();
+        this.toolPanel.add(new Tool('height-set', 'assets/icons/terrain_set.png',
+            (delta, brush) => {
+                brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
+                    this.currentChunk.setHeight(p, this.brushHeight);
+                });
+                this.currentChunk.updateMesh();
+                this.currentChunk.updateDoodads();
+            }));
 
-        this.addToolButton('height-sub', this.panelTools, 'assets/icons/terrain_sub.png',
-            () => { this.brushMode = BrushMode.HEIGHT_SUB; });
-
-        this.addToolButton('height-set', this.panelTools, 'assets/icons/terrain_set.png',
-            () => { this.brushMode = BrushMode.HEIGHT_SET; });
-
-        this.addToolButton('height-smooth', this.panelTools, 'assets/icons/terrain_smooth.png',
-            () => { this.brushMode = BrushMode.HEIGHT_SMOOTH; });
+        this.toolPanel.add(new Tool('height-smooth', 'assets/icons/terrain_smooth.png',
+            (delta, brush) => {
+                brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
+                    this.currentChunk.smooth(p, 1); // TODO: add strength slider
+                });
+                this.currentChunk.updateMesh();
+                this.currentChunk.updateDoodads();
+            }));
     }
 
     private addCheckboxProp(id: string, panel: Panel, label: string, onChange: (self: CheckBox, ev: MouseEvent) => void): CheckBox {
@@ -203,7 +192,6 @@ export default class EditorScene extends GameScene {
             (cb) => {
                 this.chunkWorld.setWireframeVisibility(cb.checked);
             });
-
         this.panelProps.addBreak();
         this.panelProps.addBreak();
 
@@ -214,7 +202,10 @@ export default class EditorScene extends GameScene {
             });
         this.txtBrushSize = txtBrushSize;
         this.sliderBrushSize = sliderBrushSize;
-
+        this.brush.onSizeChange = (size) => {
+            this.sliderBrushSize.value = size;
+            this.txtBrushSize.text = size.toString();
+        };
         this.panelProps.addBreak();
         this.panelProps.addBreak();
 
@@ -224,25 +215,17 @@ export default class EditorScene extends GameScene {
             });
         this.txtHeight = txtHeight;
         this.sliderHeight = sliderHeight;
-
         this.panelProps.addBreak();
         this.panelProps.addBreak();
     }
 
     private initGUI() {
         this.initCoordsGUI();
-        this.initToolsGUI();
         this.initPropsGUI();
 
         const btnDownload = new Button('btn-download', UIParent.get(), 'Download');
         btnDownload.style.right = '0';
         btnDownload.addEventListener('click', this.downloadChunk.bind(this));
-    }
-
-    private setBrushSize(size: number) {
-        this.brush.size = size;
-        this.sliderBrushSize.value = size;
-        this.txtBrushSize.text = size.toString();
     }
 
     private setBrushHeight(height: number) {
@@ -251,16 +234,7 @@ export default class EditorScene extends GameScene {
         this.txtHeight.text = height.toString();
     }
 
-    private updateSelectedToolButton(newbtn: Button) {
-        if (this.btnSelectedTool) {
-            this.btnSelectedTool.style.backgroundColor = unselectedBg;
-        }
-        this.btnSelectedTool = newbtn;
-        this.btnSelectedTool.style.backgroundColor = selectedBg;
-    }
-
     public async init() {
-        this.initGUI();
         this.point = new WorldPoint();
 
         this.scene = new Scene();
@@ -277,6 +251,9 @@ export default class EditorScene extends GameScene {
         this.currentChunk = new EditorChunk(await this.chunkWorld.loadChunk(def));
 
         this.brush = new Brush(this.scene);
+
+        this.initTools();
+        this.initGUI();
     }
 
     public final() {
@@ -295,18 +272,6 @@ export default class EditorScene extends GameScene {
         } else { this.lblMouseChunk.text = 'Chunk: { ?, ? }'; }
     }
 
-    private updateMousePoint() {
-        const intersects = this.camera.rcast(this.scene, Input.mousePos());
-        let idx = 0;
-        while (idx < intersects.length) {
-            const int = intersects[idx++];
-            if (int.object.name === 'brush') {
-                continue;
-            }
-            this.point.set(int.point, this.chunkWorld);
-        }
-    }
-
     private updateHeightBrush(delta: number) {
         // height picker
         if (Input.isKeyDown(Key.Alt)) {
@@ -316,63 +281,12 @@ export default class EditorScene extends GameScene {
             }
         }
 
-        // brush size
-        if (Input.wasKeyPressed(']')) {
-            this.setBrushSize(this.brush.size + 1);
-        }
-        if (Input.wasKeyPressed('[')) {
-            this.setBrushSize(this.brush.size - 1);
-        }
-
-        // brush modes
-        switch (this.brushMode) {
-        case BrushMode.HEIGHT_ADD: {
-            if (Input.isMouseDown(MouseButton.LEFT)) { // increase the terrain height of all points in the brush
-                this.brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
-                    this.currentChunk.incHeight(p, 1 * delta);
-                });
-                this.currentChunk.updateMesh();
-                this.currentChunk.updateDoodads();
-            }
-            break;
-        }
-        case BrushMode.HEIGHT_SUB: {
-            if (Input.isMouseDown(MouseButton.LEFT)) { // decrease the terrain height of all points in the brush
-                this.brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
-                    this.currentChunk.incHeight(p, -1 * delta);
-                });
-                this.currentChunk.updateMesh();
-                this.currentChunk.updateDoodads();
-            }
-            break;
-        }
-        case BrushMode.HEIGHT_SET: {
-            if (Input.isMouseDown(MouseButton.LEFT)) { // set all the points under the brush to the brush height
-                this.brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
-                    this.currentChunk.setHeight(p, this.brushHeight);
-                });
-                this.currentChunk.updateMesh();
-                this.currentChunk.updateDoodads();
-            }
-            break;
-        }
-        case BrushMode.HEIGHT_SMOOTH: {
-            if (Input.isMouseDown(MouseButton.LEFT)) { // set all the points under the brush to the brush height
-                this.brush.pointsIn(this.currentChunk.chunk.def).forEach((p) => {
-                    this.currentChunk.smooth(p, 0.5); // TODO: pass radius here
-                });
-                this.currentChunk.updateMesh();
-                this.currentChunk.updateDoodads();
-            }
-            break;
-        }
-        default: break;
-        }
+        this.toolPanel.update(delta, this.brush);
     }
 
     public update(delta: number) {
         this.camera.update();
-        this.updateMousePoint();
+        this.point.update(this.scene, this.camera, this.chunkWorld);
         this.updateMouseLabels();
         this.updateHeightBrush(delta);
         this.brush.update(this.point, this.chunkWorld);
