@@ -6,6 +6,7 @@ import BaseDoodadTool from './BaseDoodadTool';
 import Point from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Doodad from '../../../client/engine/Doodad';
+import CheckBoxProp from '../../panelprops/CheckboxProp';
 
 class Navblock {
     public mesh: THREE.Mesh;
@@ -13,7 +14,7 @@ class Navblock {
     public doodad: Doodad;
     public props: EditorProps;
 
-    public constructor(pos: Point, doodad: Doodad, props: EditorProps) {
+    public constructor(pos: Point, doodad: Doodad, props: EditorProps, ontop: boolean) {
         this.position = pos;
         this.doodad = doodad;
         this.props = props;
@@ -24,9 +25,13 @@ class Navblock {
             opacity: 0.5,
             transparent: true,
         });
-        material.depthTest = false;
+        if (ontop) {
+            material.depthTest = false;
+        }
         this.mesh = new THREE.Mesh(geometry, material);
-        this.mesh.renderOrder = 999;
+        if (ontop) {
+            this.mesh.renderOrder = 999;
+        }
         this.positionInWorld();
     }
 
@@ -52,9 +57,17 @@ class Navblock {
 export default class DoodadNavigationTool extends BaseDoodadTool {
     private navblocks: Navblock[] = [];
     private toolSelected: boolean = false;
+    private renderOnTop: boolean = false;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super('doodad-navigation', 'assets/icons/doodad_navigation.png', props, panel);
+
+        const renderOnTopProp = new CheckBoxProp(this.propsPanel, 'Render On Top:',
+            (val) => {
+                this.renderOnTop = val;
+                this.generateNavblocks();
+            });
+        this.propsPanel.addProp(renderOnTopProp);
 
         this.props.onSelectedDoodadChanged.push((doodad) => {
             if (this.toolSelected) {
@@ -84,7 +97,7 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
             // make new ones
             for (const nbd of this.props.selectedDoodad.def.navblocks) {
                 const pos = new Point(nbd.x, nbd.y);
-                const navblock = new Navblock(pos, this.props.selectedDoodad, this.props);
+                const navblock = new Navblock(pos, this.props.selectedDoodad, this.props, this.renderOnTop);
                 this.navblocks.push(navblock);
                 navblock.addToScene();
             }
