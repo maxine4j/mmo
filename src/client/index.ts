@@ -4,7 +4,7 @@ import CharSelectScene from './scenes/CharSelectScene';
 import CharCreateScene from './scenes/CharCreateScene';
 import WorldScene from './scenes/WorldScene';
 
-function main() {
+function main(): void {
     Engine.init();
     Engine.addScene(new LoginScene());
     Engine.addScene(new CharSelectScene());

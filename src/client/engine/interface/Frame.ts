@@ -35,13 +35,13 @@ export abstract class Frame {
         }
     }
 
-    public destroy() {
+    public destroy(): void {
         if (this.element != null) {
             this.element.remove();
         }
     }
 
-    protected createElement() {
+    protected createElement(): void {
         this.element = document.createElement(this.tag);
         this.element.style.userSelect = 'none';
         this.element.style.position = 'fixed';
@@ -49,15 +49,15 @@ export abstract class Frame {
         this.parent.addChild(this);
     }
 
-    public blur() {
+    public blur(): void {
         this.element.blur();
     }
 
-    public focus() {
+    public focus(): void {
         this.element.focus();
     }
 
-    public show() {
+    public show(): void {
         this._visible = true;
         this.element.style.visibility = 'visible';
         for (const [_, child] of this.children) {
@@ -65,7 +65,7 @@ export abstract class Frame {
         }
     }
 
-    public hide() {
+    public hide(): void {
         this._visible = false;
         this.element.style.visibility = 'hidden';
         for (const [_, child] of this.children) {
@@ -105,14 +105,14 @@ export abstract class Frame {
         this.element.style.zIndex = (<number>strata).toString();
     }
 
-    public addChild(child: Frame, appendDom: boolean = true) {
+    public addChild(child: Frame, appendDom: boolean = true): void {
         this.children.set(child.id, child);
         if (appendDom) {
             this.element.appendChild(child.element);
         }
     }
 
-    public click() {
+    public click(): void {
         this.element.click();
     }
 
@@ -134,12 +134,12 @@ export abstract class Frame {
         this.style.height = `${h}px`;
     }
 
-    public centreHorizontal() {
+    public centreHorizontal(): void {
         this.element.style.left = '50%';
         this.element.style.marginLeft = `${-0.5 * this.width}px`;
     }
 
-    public centreVertical() {
+    public centreVertical(): void {
         this.element.style.top = '50%';
         this.element.style.marginTop = `${-0.5 * this.height}px`;
     }

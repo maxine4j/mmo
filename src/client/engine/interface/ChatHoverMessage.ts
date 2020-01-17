@@ -36,7 +36,7 @@ export default class ChatHoverMessage {
         return this.camera.worldToScreen(wpos);
     }
 
-    private findUnit() {
+    private findUnit(): void {
         if (this.world.player.data.id === this.packet.authorId) {
             this.unit = this.world.player;
         } else {

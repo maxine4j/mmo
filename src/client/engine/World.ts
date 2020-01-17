@@ -33,7 +33,7 @@ export default class World {
         NetClient.send(PacketHeader.CHUNK_LOAD);
     }
 
-    public attatchCamera(camera: Camera) {
+    public attatchCamera(camera: Camera): void {
         this.camera = camera;
     }
 
@@ -42,7 +42,7 @@ export default class World {
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
-    private tickUnits(tick: number, units: Unit[], localUnits: Map<number, LocalUnit>) {
+    private tickUnits(tick: number, units: Unit[], localUnits: Map<number, LocalUnit>): void {
         for (const u of units) {
             let loc = localUnits.get(u.id);
             if (!loc) {
@@ -54,7 +54,7 @@ export default class World {
         }
     }
 
-    private removeStaleUnits(units: Map<number, LocalUnit>) {
+    private removeStaleUnits(units: Map<number, LocalUnit>): void {
         for (const [id, u] of units) {
             if (u.lastTickUpdated !== this.currentTick) {
                 u.dispose();
@@ -63,7 +63,7 @@ export default class World {
         }
     }
 
-    public onTick(packet: TickPacket) {
+    public onTick(packet: TickPacket): void {
         this._tickTimer = 0; // reset tick timer
         this.currentTick = packet.tick; // update the current tick
 
@@ -74,19 +74,19 @@ export default class World {
         this.removeStaleUnits(this.players);
     }
 
-    private updateUnits(delta: number) {
+    private updateUnits(delta: number): void {
         for (const [_, u] of this.units) {
             u.update(delta);
         }
     }
 
-    private updatePlayers(delta: number) {
+    private updatePlayers(delta: number): void {
         for (const [_, p] of this.players) {
             p.update(delta);
         }
     }
 
-    public update(delta: number, mousePoint: THREE.Vector3) {
+    public update(delta: number, mousePoint: THREE.Vector3): void {
         this.player.update(delta);
         this.player.updatePlayer(mousePoint);
         this.updateUnits(delta);

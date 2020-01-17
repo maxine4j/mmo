@@ -29,7 +29,7 @@ export default class WorldScene extends GameScene {
         super('world');
     }
 
-    private initGUI() {
+    private initGUI(): void {
         // build back button
         const btnBack = new Button('btn-back', UIParent.get(), 'Back');
         btnBack.style.position = 'fixed';
@@ -78,7 +78,7 @@ export default class WorldScene extends GameScene {
         this.addGUI(this.chatbox);
     }
 
-    public async init() {
+    public async init(): Promise<void> {
         this.initGUI();
 
         this.scene = new Scene();
@@ -91,13 +91,15 @@ export default class WorldScene extends GameScene {
         this.scene.add(light);
 
         this.world = new World(this.scene);
+
+        super.init();
     }
 
-    public final() {
+    public final(): void {
         super.final();
     }
 
-    private updateMousePoint() {
+    private updateMousePoint(): void {
         const intersects = this.camera.rcast(this.scene, Input.mousePos());
         if (intersects.length > 0) {
             this.mousePoint = intersects[0].point;
@@ -106,7 +108,7 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private updateMouseLabels() {
+    private updateMouseLabels(): void {
         if (this.mousePoint) {
             const tileCoord = this.world.chunkWorld.worldToTile(this.mousePoint);
             const chunkCoord = this.world.chunkWorld.tileToChunk(tileCoord);
@@ -120,7 +122,7 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private updateWireframesToggle() {
+    private updateWireframesToggle(): void {
         if (Input.wasKeyPressed('1')) {
             this.wireframesVisible = !this.wireframesVisible;
             this.world.chunkWorld.setWireframeVisibility(this.wireframesVisible);
@@ -130,11 +132,11 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private updateChatHoverMsgs() {
+    private updateChatHoverMsgs(): void {
         this.chatHoverMsgs = this.chatHoverMsgs.filter((msg: ChatHoverMessage) => !msg.update());
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.updateMousePoint();
         this.updateMouseLabels();
         this.updateWireframesToggle();
@@ -147,7 +149,7 @@ export default class WorldScene extends GameScene {
         this.world.update(delta, this.mousePoint);
     }
 
-    public draw() {
-        Graphics.render(this.scene, this.camera);
+    public draw(): void {
+        super.draw();
     }
 }

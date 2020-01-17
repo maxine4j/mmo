@@ -61,7 +61,7 @@ export default class ChunkWorld {
         );
     }
 
-    public setWireframeVisibility(visible: boolean) {
+    public setWireframeVisibility(visible: boolean): void {
         this.wireframeVisibility = visible;
         for (const [_, chunk] of this.chunks) {
             chunk.setWireframeVisibility(this.wireframeVisibility);

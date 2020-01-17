@@ -20,17 +20,17 @@ export default class SmoothTool extends Tool {
         this.propsPanel.addProp(this.strengthSlider);
     }
 
-    public onSelected() {
+    public onSelected(): void {
         super.onSelected();
         this.brush.show();
     }
 
-    public onUnselected() {
+    public onUnselected(): void {
         super.onUnselected();
         this.brush.hide();
     }
 
-    public use(delta: number) {
+    public use(delta: number): void {
         this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
             this.props.chunk.smooth(p, this.strength);
         });
@@ -38,7 +38,7 @@ export default class SmoothTool extends Tool {
         this.props.chunk.updateDoodads();
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.brush.update();
     }
 }

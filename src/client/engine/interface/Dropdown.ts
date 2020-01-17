@@ -13,7 +13,7 @@ class DropdownOption extends Frame {
         this.createElement();
     }
 
-    protected createElement() {
+    protected createElement(): void {
         this.element = document.createElement('option');
         this.element.textContent = this.value;
         this.element.value = this.key;
@@ -34,7 +34,7 @@ export default class Dropdown extends Frame {
         this.element.value = key;
     }
 
-    public addOption(key: string, value: string) {
+    public addOption(key: string, value: string): void {
         const opt = new DropdownOption(key, value, this);
         this.addChild(opt);
     }

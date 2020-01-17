@@ -10,4 +10,10 @@ export default class EditorProps {
     public chunk: EditorChunk;
     public scene: Scene;
     public camera: Camera;
+
+    public constructor(camera: Camera, scene: Scene) {
+        this.camera = camera;
+        this.scene = scene;
+        this.point = new WorldPoint();
+    }
 }

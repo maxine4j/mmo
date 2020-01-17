@@ -22,12 +22,11 @@ export default class SliderProp extends PanelProp {
         this.slider = new Slider(this.nextId(), parent, min, max, val, step);
         this.slider.style.position = 'initial';
 
-        const tbUpdate = (self: TextBox, ev: MouseEvent) => {
-            this.slider.value = Number(this.textbox.text);
-            onChange(this.slider.value);
-        };
-
-        this.textbox.addEventListener('input', tbUpdate);
+        this.textbox.addEventListener('input',
+            (self: TextBox, ev: MouseEvent): void => {
+                this.slider.value = Number(this.textbox.text);
+                onChange(this.slider.value);
+            });
 
         this.slider.addEventListener('input', (self: Slider, ev: MouseEvent) => {
             this.textbox.text = self.value.toString();

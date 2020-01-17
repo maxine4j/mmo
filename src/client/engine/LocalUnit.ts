@@ -24,11 +24,11 @@ export default class LocalUnit {
         this.loadModel();
     }
 
-    public dispose() {
+    public dispose(): void {
         this.world.scene.remove(this.model.obj);
     }
 
-    private loadModel() {
+    private loadModel(): void {
         Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from data.model
             .then((model) => {
                 this.model = model;
@@ -56,7 +56,7 @@ export default class LocalUnit {
         return false;
     }
 
-    private updateAnimation() {
+    private updateAnimation(): void {
         if (this.animsLoaded()) {
             if (this.isMoving()) {
                 this.animStand.stop();
@@ -75,7 +75,7 @@ export default class LocalUnit {
         }
     }
 
-    public onTick(u: Unit) {
+    public onTick(u: Unit): void {
         this.data = u;
         if (!this.currentPosition) this.currentPosition = this.data.position;
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
@@ -93,7 +93,7 @@ export default class LocalUnit {
         return false;
     }
 
-    private updateModel() {
+    private updateModel(): void {
         if (this.model) {
             // set the model pos to the current tile position
             const current = this.world.chunkWorld.tileToWorld(this.currentPosition);
@@ -120,7 +120,7 @@ export default class LocalUnit {
         return current;
     }
 
-    private updateMovement(delta: number) {
+    private updateMovement(delta: number): void {
         this.moveTimer += (delta * this.movesThisTick) / this.world.tickRate;
         if (this.moveTimer >= 1 - delta) {
             if (this.targetPosition) {
@@ -131,7 +131,7 @@ export default class LocalUnit {
         }
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         if (this.model) {
             if (this.isMoving()) {
                 this.updateMovement(delta);

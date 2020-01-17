@@ -8,7 +8,7 @@ export default class Panel extends Frame {
         super(id, 'div', parent);
     }
 
-    public addBreak() {
+    public addBreak(): void {
         const br = document.createElement('br');
         this.element.appendChild(br);
     }

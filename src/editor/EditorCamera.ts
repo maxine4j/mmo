@@ -13,7 +13,7 @@ export default class EditorCamera extends Camera {
     }
 
 
-    public update() {
+    public update(): void {
         const lastMouse = this.lastMouse;
         super.update(); // this updates last mouse
 

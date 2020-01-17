@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { DoodadDef } from '../../common/Chunk';
 import Point from '../../common/Point';
 import Model from './graphics/Model';
@@ -13,9 +12,19 @@ export default class Doodad {
         this.def = def;
         this.model = model;
         this.chunk = chunk;
+        this.model.obj.name = 'doodad';
+        this.model.obj.userData = {
+            doodad: this,
+        };
         this.position();
         // add the doodad model to the scene
         chunk.world.scene.add(this.model.obj);
+        // add this as userdata to all children so we can access it via raycast
+        this.model.obj.traverse((obj) => {
+            obj.userData = {
+                doodad: this,
+            };
+        });
     }
 
     public static async load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
@@ -26,7 +35,7 @@ export default class Doodad {
         });
     }
 
-    public position() {
+    public position(): void {
         // scale the doodad model
         this.model.obj.scale.set(this.def.scale, this.def.scale, this.def.scale);
 

@@ -4,7 +4,7 @@ export default class SceneManager {
     private static scenes: Map<string, GameScene>;
     private static _current: GameScene;
 
-    public static init() {
+    public static init(): void {
         this.scenes = new Map();
     }
 
@@ -22,7 +22,7 @@ export default class SceneManager {
         });
     }
 
-    public static addScene(scene: GameScene) {
+    public static addScene(scene: GameScene): void {
         this.scenes.set(scene.id, scene);
         if (this.scenes.size === 1) {
             this.current = scene;
@@ -33,7 +33,7 @@ export default class SceneManager {
         return this.scenes.get(key);
     }
 
-    public static changeScene(key: string) {
+    public static changeScene(key: string): void {
         this.current = this.getScene(key);
     }
 }

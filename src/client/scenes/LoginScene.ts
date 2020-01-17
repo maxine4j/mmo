@@ -22,7 +22,7 @@ export default class LoginScene extends GameScene {
         super('login');
     }
 
-    public initGUI() {
+    public initGUI(): void {
         const panel = new Panel('panel-login', UIParent.get());
         panel.style.border = '1px solid white';
         panel.style.width = '300px';
@@ -83,7 +83,7 @@ export default class LoginScene extends GameScene {
         this.addGUI(btnLogin);
     }
 
-    public async init() {
+    public async init(): Promise<void> {
         this.initGUI();
 
         this.scene = new Scene();
@@ -99,17 +99,19 @@ export default class LoginScene extends GameScene {
 
         this.camera.position.set(5.095108853409366, -1.049448850028543, -2.400366781879153);
         this.camera.rotation.set(2.2974621772131085, 1.1874227779871385, -2.335010669610211);
+
+        super.init();
     }
 
-    public final() {
+    public final(): void {
         super.final();
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
 
     }
 
-    public draw() {
-        Graphics.render(this.scene, this.camera);
+    public draw(): void {
+        super.draw();
     }
 }

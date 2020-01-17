@@ -28,17 +28,17 @@ export default class SetTool extends Tool {
         this.heightSlider.value = height;
     }
 
-    public onSelected() {
+    public onSelected(): void {
         super.onSelected();
         this.brush.show();
     }
 
-    public onUnselected() {
+    public onUnselected(): void {
         super.onUnselected();
         this.brush.hide();
     }
 
-    public use(delta: number) {
+    public use(delta: number): void {
         this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
             this.props.chunk.setHeight(p, this.height);
         });
@@ -46,7 +46,7 @@ export default class SetTool extends Tool {
         this.props.chunk.updateDoodads();
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.brush.update();
         if (Input.isKeyDown(Key.Alt)) {
             this.height = this.props.world.getElevation(this.props.point.tile);

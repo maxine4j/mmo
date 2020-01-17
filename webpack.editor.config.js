@@ -19,6 +19,10 @@ module.exports = {
                 use: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
+                test: /\.glsl$/,
+                loader: 'ts-shader-loader',
+            },
+            {
                 test: /\.(png|jpe?g|gif|obj|mtl|dae|gltf|bin|glb|fbx)$/i,
                 use: [
                     {

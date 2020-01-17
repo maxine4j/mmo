@@ -37,7 +37,7 @@ export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacke
 }
 
 // log a user account out and make sure all of their characters are logged out too
-export async function handleAuthLogout(session: io.Socket) {
+export async function handleAuthLogout(session: io.Socket): Promise<void> {
     const account = await AccountEntity.findOne({ session: session.id });
     if (account) {
         console.log(`User ${account.temp_username} has logged out`);

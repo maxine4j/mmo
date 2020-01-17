@@ -14,7 +14,7 @@ class ContextMenuOption extends Frame {
         this.strata = FrameStrata.TOOLTIP;
     }
 
-    protected createElement() {
+    protected createElement(): void {
         this.element = document.createElement('button');
         this.element.textContent = this.value;
         this.element.value = this.key;
@@ -40,7 +40,7 @@ export default class ContextMenu extends Frame {
         this.element.appendChild(header);
     }
 
-    public open(x: number, y: number) {
+    public open(x: number, y: number): void {
         this.style.position = 'fixed';
         this.style.left = `${x - this.width / 2}px`;
         this.style.top = `${y - 10}px`;
@@ -48,11 +48,11 @@ export default class ContextMenu extends Frame {
         this.show();
     }
 
-    public close() {
+    public close(): void {
         this.hide();
     }
 
-    public addOption(text: string, listener: () => void) {
+    public addOption(text: string, listener: () => void): void {
         const opt = new ContextMenuOption(text, text, this);
         opt.addEventListener('click', (self: ContextMenuOption, ev: MouseEvent) => {
             listener();

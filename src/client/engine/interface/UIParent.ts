@@ -8,7 +8,7 @@ export default class UIParent extends Frame {
         super('uiparent', 'div', null);
     }
 
-    protected createElement() {
+    protected createElement(): void {
         this.element = document.getElementById(this.id);
         this.element.style.pointerEvents = 'none';
     }

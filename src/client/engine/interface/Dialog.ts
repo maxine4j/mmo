@@ -54,21 +54,21 @@ export default class Dialog extends Frame {
         }
     }
 
-    public show() {
+    public show(): void {
         super.show();
         this.element.style.display = 'block';
     }
 
-    public hide() {
+    public hide(): void {
         super.hide();
         this.element.style.display = 'none';
     }
 
-    public setText(text: string) {
+    public setText(text: string): void {
         this.lbl.text = text;
     }
 
-    protected createElement() {
+    protected createElement(): void {
         this.element = document.createElement('div');
         this.element.style.userSelect = 'none';
         this.element.style.position = 'fixed';

@@ -23,11 +23,11 @@ export default class Brush {
         this.mesh.name = 'brush';
     }
 
-    public hide() {
+    public hide(): void {
         this.props.scene.remove(this.mesh);
     }
 
-    public show() {
+    public show(): void {
         this.props.scene.add(this.mesh);
     }
 
@@ -62,12 +62,12 @@ export default class Brush {
         return points;
     }
 
-    private updatePoint() {
+    private updatePoint(): void {
         const p = this.props.world.tileToWorld(this.props.point.tile);
         this.mesh.position.copy(p);
     }
 
-    private updateSize() {
+    private updateSize(): void {
         // brush size
         if (Input.wasKeyPressed(']')) {
             this.size++;
@@ -77,7 +77,7 @@ export default class Brush {
         }
     }
 
-    public update() {
+    public update(): void {
         this.updateSize();
         this.updatePoint();
     }

@@ -18,7 +18,7 @@ export default class CharCreateScene extends GameScene {
         super('char-create');
     }
 
-    private characterCharacter() {
+    private characterCharacter(): void {
         const name = this.txtName.text;
         if (name.length >= 2 && name.length <= 12) {
             const character = <Character>{
@@ -37,7 +37,7 @@ export default class CharCreateScene extends GameScene {
         }
     }
 
-    private initGUI() {
+    private initGUI(): void {
         // build dialog
         this.dialog = new Dialog('dialog-char-create-err', UIParent.get(), '', false);
         this.addGUI(this.dialog);
@@ -84,18 +84,20 @@ export default class CharCreateScene extends GameScene {
         this.addGUI(btnBack);
     }
 
-    public async init() {
+    public async init(): Promise<void> {
         this.initGUI();
+        super.init();
     }
 
-    public final() {
+    public final(): void {
         super.final();
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
 
     }
 
-    public draw() {
+    public draw(): void {
+        super.draw();
     }
 }

@@ -43,7 +43,7 @@ export default class Chatbox extends Panel {
         }
     }
 
-    private onKeyUp(self: TextBox, ev: KeyboardEvent) {
+    private onKeyUp(self: TextBox, ev: KeyboardEvent): void {
         if (ev.key === Key.Enter) {
             if (this.onMessageSend) {
                 this.onMessageSend(this.editbox.text);
@@ -53,11 +53,11 @@ export default class Chatbox extends Panel {
         }
     }
 
-    public focus() {
+    public focus(): void {
         this.editbox.focus();
     }
 
-    public addRawMessage(msg: string) {
+    public addRawMessage(msg: string): void {
         const p = document.createElement('p');
         p.style.margin = '1px';
         p.textContent = msg;
@@ -67,7 +67,7 @@ export default class Chatbox extends Panel {
         }
     }
 
-    public addChatMessage(msg: ChatMsgPacket) {
+    public addChatMessage(msg: ChatMsgPacket): void {
         this.addRawMessage(`${msg.authorName}: ${msg.message}`);
     }
 }

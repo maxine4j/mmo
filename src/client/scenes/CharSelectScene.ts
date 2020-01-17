@@ -28,7 +28,7 @@ export default class CharSelectScene extends GameScene {
         super('char-select');
     }
 
-    public fetchCharacerList() {
+    public fetchCharacerList(): void {
         NetClient.sendRecv(PacketHeader.CHAR_MYLIST)
             .then((resp: CharacterListPacket) => {
                 this.characters = resp.characters;
@@ -39,7 +39,7 @@ export default class CharSelectScene extends GameScene {
             });
     }
 
-    private buildCharList() {
+    private buildCharList(): void {
         // add characters to the panel
         for (const char of this.characters) {
             const btnChar = new Button(`btn-char-${char.name}`, this.panelChars, char.name);
@@ -53,12 +53,12 @@ export default class CharSelectScene extends GameScene {
         }
     }
 
-    private enterWorld() {
+    private enterWorld(): void {
         NetClient.sendRecv(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket> this.selectedChar)
             .then(() => SceneManager.changeScene('world'));
     }
 
-    private initGUI() {
+    private initGUI(): void{
         // build enter world button
         const btnEnterWorld = new Button('btn-enter-world', UIParent.get(), 'Enter World');
         btnEnterWorld.style.bottom = '50px';
@@ -125,7 +125,7 @@ export default class CharSelectScene extends GameScene {
         this.addGUI(btnBack);
     }
 
-    public async init() {
+    public async init(): Promise<void> {
         this.initGUI();
         this.fetchCharacerList();
 
@@ -158,14 +158,16 @@ export default class CharSelectScene extends GameScene {
         this.selectedModel.obj.translateY(-2.25);
         this.selectedModel.obj.rotateY(Graphics.toRadians(-90));
         this.scene.add(this.selectedModel.obj);
+
+        super.init();
     }
 
-    public final() {
+    public final(): void {
         super.final();
         this.charSpinStartMouse = -1;
     }
 
-    private updateCharRotation(delta: number) {
+    private updateCharRotation(delta: number): void {
         // start rotation
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             this.charSpinStartMouse = Input.mousePos().x;
@@ -182,7 +184,7 @@ export default class CharSelectScene extends GameScene {
         }
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
@@ -190,7 +192,7 @@ export default class CharSelectScene extends GameScene {
         }
     }
 
-    public draw() {
-        Graphics.render(this.scene, this.camera);
+    public draw(): void {
+        super.draw();
     }
 }

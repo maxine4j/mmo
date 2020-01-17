@@ -5,7 +5,6 @@ import Graphics from '../client/engine/graphics/Graphics';
 import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
 import Label from '../client/engine/interface/Label';
-import WorldPoint from './WorldPoint';
 import EditorChunk from './EditorChunk';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import _chunkDefs from '../server/data/chunks.json';
@@ -19,6 +18,7 @@ import SmoothTool from './tools/SmoothTool';
 import EditorProps from './EditorProps';
 import PropsPanel from './PropsPanel';
 import CheckBoxProp from './panelprops/CheckboxProp';
+import DoodadSelectTool from './tools/DoodadSelectTool';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -47,7 +47,7 @@ export default class EditorScene extends GameScene {
         super('editor');
     }
 
-    private downloadChunk() {
+    private downloadChunk(): void {
         const data = JSON.stringify(this.props.chunk.chunk.def);
         const file = new Blob([data], { type: 'application/json' });
         const a = document.createElement('a');
@@ -56,7 +56,7 @@ export default class EditorScene extends GameScene {
         a.click();
     }
 
-    private initTools() {
+    private initTools(): void {
         this.toolPanel = new ToolPanel();
         this.addGUI(this.toolPanel);
 
@@ -64,9 +64,10 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new SubTool(this.props, this.toolPanel));
         this.toolPanel.add(new SetTool(this.props, this.toolPanel));
         this.toolPanel.add(new SmoothTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadSelectTool(this.props, this.toolPanel));
     }
 
-    private initWorldProps() {
+    private initWorldProps(): void {
         this.worldPropsPanel = new PropsPanel('panel-props', UIParent.get());
         this.worldPropsPanel.width = 200;
         this.worldPropsPanel.height = 600;
@@ -86,7 +87,7 @@ export default class EditorScene extends GameScene {
             }));
     }
 
-    private initCoordsGUI() {
+    private initCoordsGUI(): void {
         this.lblMouseWorld = new Label('lbl-mouse-world', UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
         this.lblMouseWorld.style.top = '15px';
@@ -106,7 +107,7 @@ export default class EditorScene extends GameScene {
         this.addGUI(this.lblMouseChunk);
     }
 
-    private initGUI() {
+    private initGUI(): void {
         this.initCoordsGUI();
 
         const btnDownload = new Button('btn-download', UIParent.get(), 'Download');
@@ -114,14 +115,14 @@ export default class EditorScene extends GameScene {
         btnDownload.addEventListener('click', this.downloadChunk.bind(this));
     }
 
-    public async init() {
-        this.props = new EditorProps();
-        this.props.point = new WorldPoint();
-        this.props.scene = new Scene();
+    public async init(): Promise<void> {
+        this.scene = new Scene();
 
-        this.props.camera = new EditorCamera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.props.camera.position.set(0, 10, 0);
-        this.props.camera.lookAt(0, 0, 0);
+        this.camera = new EditorCamera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera.position.set(0, 10, 0);
+        this.camera.lookAt(0, 0, 0);
+
+        this.props = new EditorProps(this.camera, this.scene);
 
         const light = new THREE.AmbientLight(0xffffff, 2);
         light.position.set(0, 1, 0).normalize();
@@ -134,13 +135,15 @@ export default class EditorScene extends GameScene {
         this.initTools();
         this.initWorldProps();
         this.initGUI();
+
+        super.init();
     }
 
-    public final() {
+    public final(): void {
         super.final();
     }
 
-    private updateMouseLabels() {
+    private updateMouseLabels(): void {
         if (this.props.point.world) {
             this.lblMouseWorld.text = `World: { ${this.props.point.world.x.toFixed(2)}, ${this.props.point.world.y.toFixed(2)}, ${this.props.point.world.z.toFixed(2)} }`;
         } else { this.lblMouseWorld.text = 'World: { ?, ?, ? }'; }
@@ -152,14 +155,14 @@ export default class EditorScene extends GameScene {
         } else { this.lblMouseChunk.text = 'Chunk: { ?, ? }'; }
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.props.camera.update();
         this.props.point.update(this.props.scene, this.props.camera, this.props.world);
         this.toolPanel.update(delta);
         this.updateMouseLabels();
     }
 
-    public draw() {
-        Graphics.render(this.props.scene, this.props.camera);
+    public draw(): void {
+        super.draw();
     }
 }

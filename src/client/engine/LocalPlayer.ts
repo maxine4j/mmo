@@ -4,7 +4,7 @@ import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 
 export default class Player extends LocalUnit {
-    public updatePlayer(mousePoint: THREE.Vector3) {
+    public updatePlayer(mousePoint: THREE.Vector3): void {
         // move the player
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             if (mousePoint) {

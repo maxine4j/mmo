@@ -19,7 +19,7 @@ export default class Point {
         return new Point(lhs.x + rhs.x, lhs.y + rhs.y);
     }
 
-    public static clone(other: Point) {
+    public static clone(other: Point): Point {
         return new Point(other.x, other.y);
     }
 

@@ -14,7 +14,7 @@ export default class UnitManager {
         this.data = data;
     }
 
-    private tickMovement() {
+    private tickMovement(): void {
         // update the units movement
         this.data.running = true;
         this.data.moveQueue = [];
@@ -29,11 +29,11 @@ export default class UnitManager {
         }
     }
 
-    public tick() {
+    public tick(): void {
         this.tickMovement();
     }
 
-    public moveTo(dest: Point) {
+    public moveTo(dest: Point): void {
         this.destionation = dest;
         const navmap = this.world.generateNavmap(this.data.position, this.destionation);
         const grid = new PF.Grid(navmap.matrix);

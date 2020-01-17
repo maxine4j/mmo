@@ -16,7 +16,7 @@ export default class Input {
     private static clickMarker: HTMLImageElement;
     private static clickMarkerDim: number = 16;
 
-    public static init(canvas: HTMLCanvasElement) {
+    public static init(canvas: HTMLCanvasElement): void {
         this.mousePosition = new Point(0, 0);
 
         window.addEventListener('keydown', (ev: KeyboardEvent) => {
@@ -45,7 +45,7 @@ export default class Input {
         this.clickMarker.style.pointerEvents = 'none';
     }
 
-    public static playClickMark(p: Point, color: string) {
+    public static playClickMark(p: Point, color: string): void {
         this.clickMarker.style.left = `${p.x - this.clickMarkerDim / 2}px`;
         this.clickMarker.style.top = `${p.y - this.clickMarkerDim / 2}px`;
         this.clickMarker.style.width = `${this.clickMarkerDim}px`;
@@ -58,16 +58,16 @@ export default class Input {
         this.clickMarker.src = this.clickMarker.src;
     }
 
-    public static afterUpdate() {
+    public static afterUpdate(): void {
         this.lastKeyStates = new Map(this.keyStates);
         this.lastMouseButtonStates = new Map(this.mouseButtonStates);
     }
 
-    private static setKeyState(ev: KeyboardEvent, down: boolean) {
+    private static setKeyState(ev: KeyboardEvent, down: boolean): void {
         this.keyStates.set(<Key>ev.key, down);
     }
 
-    private static setMouseState(ev: MouseEvent, down: boolean) {
+    private static setMouseState(ev: MouseEvent, down: boolean): void {
         this.mouseButtonStates.set(ev.button, down);
     }
 

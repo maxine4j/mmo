@@ -12,7 +12,7 @@ export default class Engine {
     private static lblFps: Label;
     private static _account: Account;
 
-    public static init(enableNetworking: boolean = true) {
+    public static init(enableNetworking: boolean = true): void {
         // initialise modules
         Graphics.init();
         Input.init(Graphics.renderer.domElement);
@@ -40,15 +40,15 @@ export default class Engine {
         this._account = account;
     }
 
-    public static start() {
+    public static start(): void {
         window.requestAnimationFrame(this.loop);
     }
 
-    public static addScene(scene: GameScene) {
+    public static addScene(scene: GameScene): void {
         SceneManager.addScene(scene);
     }
 
-    private static loop(timestamp: number) { // use Engine instead of this as requestAnimationFrame changes it
+    private static loop(timestamp: number): void { // use Engine instead of this as requestAnimationFrame changes it
         const delta: number = (timestamp - Engine.lastrender) / 1000;
 
         if (SceneManager.current) {

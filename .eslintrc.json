@@ -18,6 +18,18 @@
         }
     },
     "rules": {
+        "@typescript-eslint/explicit-function-return-type": [
+            "error",
+            {
+                "allowExpressions": true
+            }
+        ],
+        "dot-notation": [
+            "off"
+        ],
+        "import/no-extraneous-dependencies": [
+            "off"
+        ],
         "prefer-destructuring": [
             "off"
         ],

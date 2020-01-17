@@ -9,12 +9,12 @@ export default class NetClient {
     private static _client: SocketIOClient.Socket;
     private static accountRecvCallback: (resp: AccountPacket) => void;
 
-    public static init(url: string = 'http://localhost:3000') {
+    public static init(url: string = 'http://localhost:3000'): void {
         this._client = io.connect(url);
         this.initEvents();
     }
 
-    private static initEvents() {
+    private static initEvents(): void {
         this.client.on('disconnect', () => {
             this.accountRecvCallback = null;
             Engine.account = null;
@@ -26,7 +26,7 @@ export default class NetClient {
         });
     }
 
-    public static login(username: string, password: string, cb: (resp: AccountPacket) => void) {
+    public static login(username: string, password: string, cb: (resp: AccountPacket) => void): void {
         NetClient.send(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
             username,
             password,
@@ -34,13 +34,13 @@ export default class NetClient {
         this.accountRecvCallback = cb;
     }
 
-    public static logout() {
+    public static logout(): void {
         this.accountRecvCallback = null;
         Engine.account = null;
         this.send(PacketHeader.AUTH_LOGOUT, null);
     }
 
-    public static send(header: PacketHeader, packet?: Packet) {
+    public static send(header: PacketHeader, packet?: Packet): void {
         this.client.emit(header.toString(), packet);
     }
 
@@ -56,13 +56,13 @@ export default class NetClient {
         return this._client;
     }
 
-    public static on(header: PacketHeader, cb: (p: Packet) => void) {
+    public static on(header: PacketHeader, cb: (p: Packet) => void): void {
         this.client.on(header, cb);
     }
 
     public static onNext(header: PacketHeader): Promise<Packet> {
         return new Promise((resolve) => {
-            const fn = (p: ResponsePacket) => {
+            const fn = (p: ResponsePacket): void => {
                 this.client.off(header, fn);
                 resolve(p);
             };

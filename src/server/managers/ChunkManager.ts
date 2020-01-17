@@ -15,7 +15,7 @@ export default class ChunkManager {
         this.generateNavmap();
     }
 
-    private generateNavmap() {
+    private generateNavmap(): void {
         // init all to walkable
         this.navmap = [];
         for (let i = 0; i < CHUNK_SIZE; i++) {

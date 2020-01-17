@@ -34,7 +34,7 @@ export default class Chunk {
         });
     }
 
-    private loadDoodads() {
+    private loadDoodads(): void {
         for (const doodadDef of this.def.doodads) {
             Doodad.load(doodadDef, this).then((doodad) => {
                 this.doodads.push(doodad);
@@ -42,7 +42,7 @@ export default class Chunk {
         }
     }
 
-    public updateWireframe() {
+    public updateWireframe(): void {
         if (this.wireframe) this.terrain.remove(this.wireframe);
         const geo = new THREE.WireframeGeometry(this.terrain.geometry);
         const mat = new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 });
@@ -50,7 +50,7 @@ export default class Chunk {
         if (this.wireframeVisible) this.terrain.add(this.wireframe);
     }
 
-    public setWireframeVisibility(visible: boolean) {
+    public setWireframeVisibility(visible: boolean): void {
         this.wireframeVisible = visible;
         if (this.wireframeVisible) {
             this.updateWireframe();
@@ -60,7 +60,7 @@ export default class Chunk {
         }
     }
 
-    public positionInWorld() {
+    public positionInWorld(): void {
         this.terrain.position.set(this.def.x * this.def.size, 0, this.def.y * this.def.size);
     }
 

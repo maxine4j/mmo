@@ -41,7 +41,7 @@ export default class WorldManager {
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
 
-    private tick() {
+    private tick(): void {
         this.players.forEach((player) => {
             player.tick();
 
@@ -59,7 +59,7 @@ export default class WorldManager {
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
 
-    private loadChunk(id: number) {
+    private loadChunk(id: number): void {
         const cm = new ChunkManager(chunkDefs[id]);
         this.chunks.set(id, cm);
     }
@@ -90,7 +90,7 @@ export default class WorldManager {
         return inrange;
     }
 
-    public async handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket) {
+    public async handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): Promise<void> {
         // find an entity for this char
         CharacterEntity.findOne({ id: char.id }).then((ce) => {
             const p = new PlayerManager(this, ce.toNet(), session);
@@ -105,7 +105,7 @@ export default class WorldManager {
         });
     }
 
-    public handlePlayerLeaveWorld(session: io.Socket) {
+    public handlePlayerLeaveWorld(session: io.Socket): void {
         // remove the sessions player from the world if one exists
         const p = this.players.get(session.id);
         if (p) {
@@ -114,12 +114,12 @@ export default class WorldManager {
         }
     }
 
-    public handlePlayerUpdateSelf(session: io.Socket) {
+    public handlePlayerUpdateSelf(session: io.Socket): void {
         const { data } = this.players.get(session.id);
         session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
     }
 
-    public handleChatMessage(session: io.Socket, msg: ChatMsgPacket) {
+    public handleChatMessage(session: io.Socket, msg: ChatMsgPacket): void {
         const self = this.players.get(session.id);
         const out = <ChatMsgPacket>{
             authorId: self.data.id,
@@ -135,7 +135,7 @@ export default class WorldManager {
         });
     }
 
-    public handleChunkLoad(session: io.Socket) {
+    public handleChunkLoad(session: io.Socket): void {
         const player = this.players.get(session.id);
         for (const [_, chunk] of this.chunks) {
             if (chunk.containsPoint(player.data.position)) {
@@ -145,7 +145,7 @@ export default class WorldManager {
         }
     }
 
-    public handleMoveTo(session: io.Socket, packet: PointPacket) {
+    public handleMoveTo(session: io.Socket, packet: PointPacket): void {
         const player = this.players.get(session.id);
         player.moveTo(packet);
     }

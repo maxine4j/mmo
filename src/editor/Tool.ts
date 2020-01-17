@@ -38,26 +38,26 @@ export default class Tool {
         this.propsPanel = new PropsPanel(`tool-props-${this.name}`, this.panel);
     }
 
-    protected addBrushSizeProp(brush: Brush) {
+    protected addBrushSizeProp(brush: Brush): void {
         const propBrushSize = new SliderProp(this.propsPanel, 'Brush Size:', 1, 30, 1, brush.size + 1, (value) => {
             brush.size = value - 1;
         });
         brush.onSizeChange = (value) => { propBrushSize.value = value + 1; };
     }
 
-    public onSelected() {
+    public onSelected(): void {
         this.button.style.backgroundColor = selectedBg;
         this.propsPanel.show();
     }
 
-    public onUnselected() {
+    public onUnselected(): void {
         this.button.style.backgroundColor = unselectedBg;
         this.propsPanel.hide();
     }
 
-    public use(delta: number) {
+    public use(delta: number): void {
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
     }
 }

@@ -12,17 +12,17 @@ export default class SubTool extends Tool {
         this.addBrushSizeProp(this.brush);
     }
 
-    public onSelected() {
+    public onSelected(): void {
         super.onSelected();
         this.brush.show();
     }
 
-    public onUnselected() {
+    public onUnselected(): void {
         super.onUnselected();
         this.brush.hide();
     }
 
-    public use(delta: number) {
+    public use(delta: number): void {
         this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
             this.props.chunk.incHeight(p, -1 * delta);
         });
@@ -30,7 +30,7 @@ export default class SubTool extends Tool {
         this.props.chunk.updateDoodads();
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.brush.update();
     }
 }

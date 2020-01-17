@@ -25,12 +25,12 @@ export default class Camera extends THREE.PerspectiveCamera {
         this.onWindowResize();
     }
 
-    private onWindowResize() {
+    private onWindowResize(): void {
         this.aspect = Graphics.viewportWidth / Graphics.viewportHeight;
         this.updateProjectionMatrix();
     }
 
-    private onScroll(ev: WheelEvent) {
+    private onScroll(ev: WheelEvent): void {
         const scrollDir = Math.sign(ev.deltaY);
         this.zoomLevel += scrollDir;
         this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel));
@@ -40,11 +40,11 @@ export default class Camera extends THREE.PerspectiveCamera {
         return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
     }
 
-    public rcast(scene: Scene, p: Point): THREE.Intersection[] {
+    public rcast(scene: Scene, p: Point, recursive: boolean = false): THREE.Intersection[] {
         const dx = (p.x / Graphics.viewportWidth) * 2 - 1;
         const dy = -(p.y / Graphics.viewportHeight) * 2 + 1;
         this.raycaster.setFromCamera({ x: dx, y: dy }, this);
-        return this.raycaster.intersectObjects(scene.children);
+        return this.raycaster.intersectObjects(scene.children, recursive);
     }
 
     protected clamp(n: number, min: number, max: number): number {
@@ -60,11 +60,11 @@ export default class Camera extends THREE.PerspectiveCamera {
         );
     }
 
-    public setTarget(target: THREE.Vector3) {
+    public setTarget(target: THREE.Vector3): void {
         this.target = target;
     }
 
-    public update() {
+    public update(): void {
         // make a quaterion from camera up to world up and its inverse
         const localToWorld = new THREE.Quaternion().setFromUnitVectors(this.up, new THREE.Vector3(0, 1, 0));
         const worldToLocal = localToWorld.clone().inverse();

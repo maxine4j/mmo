@@ -24,12 +24,12 @@ export default class Model {
         this.initObj();
     }
 
-    private initObj() {
+    private initObj(): void {
         this.obj.receiveShadow = true;
         this.obj.castShadow = true;
     }
 
-    public lazyLoadAnims(nameSrc: [string, string][]) {
+    public lazyLoadAnims(nameSrc: [string, string][]): void {
         nameSrc.forEach((ns) => this.lazyLoadAnim(ns[0], ns[1]));
     }
 
@@ -37,7 +37,7 @@ export default class Model {
         return Promise.all(nameSrc.map((ns) => this.loadAnim(ns[0], ns[1])));
     }
 
-    public lazyLoadAnim(name: string, src: string) {
+    public lazyLoadAnim(name: string, src: string): void {
         this.lazyAnims.set(name, src);
     }
 
@@ -100,7 +100,7 @@ export default class Model {
         return this.gltf.scene;
     }
 
-    public update(delta: number) {
+    public update(delta: number): void {
         this.mixer.update(delta);
     }
 

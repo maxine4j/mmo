@@ -15,16 +15,16 @@ export default class EditorChunk {
         return this.chunk.def.heightmap[p.y * this.chunk.def.size + p.x];
     }
 
-    public setHeight(p: Point, h: number) {
+    public setHeight(p: Point, h: number): void {
         this.chunk.def.heightmap[p.y * this.chunk.def.size + p.x] = h;
     }
 
-    public incHeight(p: Point, amt: number) {
+    public incHeight(p: Point, amt: number): void {
         const curh = this.getHeight(p);
         this.setHeight(p, curh + amt);
     }
 
-    public smooth(p: Point, strength: number = 1) {
+    public smooth(p: Point, strength: number = 1): void {
         // get all neighbouring points
         const points: Point[] = [];
         points.push(new Point(p.x, p.y - 1)); // N
@@ -49,13 +49,13 @@ export default class EditorChunk {
         this.setHeight(p, curHeight + heightDelta);
     }
 
-    public updateDoodads() {
+    public updateDoodads(): void {
         for (const doodad of this.chunk.doodads) {
             doodad.position();
         }
     }
 
-    public updateMesh() {
+    public updateMesh(): void {
         // @ts-ignore
         const verts = this.chunk.terrain.geometry.attributes.position.array;
         const stride = 3;

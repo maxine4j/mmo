@@ -14,19 +14,21 @@ export default abstract class GameScene {
         this.gui = new Map();
     }
 
-    protected addGUI(frame: Frame) {
+    protected addGUI(frame: Frame): void {
         this.gui.set(frame.id, frame);
     }
 
-    public clearGUI() {
+    public clearGUI(): void {
         for (const [_, f] of this.gui) {
             f.destroy();
         }
     }
 
-    public abstract async init(): Promise<void>;
+    public async init(): Promise<void> {
+        Graphics.initScene(this.scene, this.camera);
+    }
 
-    public final() {
+    public final(): void {
         if (this.scene) {
             this.scene.clear();
         }
@@ -35,5 +37,7 @@ export default abstract class GameScene {
 
     public abstract update(delta: number): void;
 
-    public abstract draw(): void;
+    public draw(): void {
+        Graphics.render();
+    }
 }

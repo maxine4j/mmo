@@ -16,7 +16,7 @@ export default class PropsPanel extends Panel {
         this.element.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
     }
 
-    public addProp(prop: PanelProp) {
+    public addProp(prop: PanelProp): void {
         this.props.push(prop);
     }
 }

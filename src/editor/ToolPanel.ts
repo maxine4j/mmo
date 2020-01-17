@@ -20,14 +20,14 @@ export default class ToolPanel extends Panel {
         this.element.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
     }
 
-    public add(tool: Tool) {
+    public add(tool: Tool): void {
         this.tools.push(tool);
         if (this.tools.length === 1) {
             this.selectTool(tool);
         }
     }
 
-    public selectTool(selected: Tool) {
+    public selectTool(selected: Tool): void {
         if (this.selected) {
             this.selected.onUnselected();
         }
@@ -35,8 +35,8 @@ export default class ToolPanel extends Panel {
         this.selected.onSelected();
     }
 
-    public update(delta: number) {
-        if (this.selectTool) {
+    public update(delta: number): void {
+        if (this.selected) {
             this.selected.update(delta);
             if (Input.isMouseDown(MouseButton.LEFT)) {
                 this.selected.use(delta);
