@@ -11,14 +11,17 @@ import _chunkDefs from '../server/data/chunks.json';
 import ChunksDataDef from '../server/data/ChunksJsonDef';
 import EditorCamera from './EditorCamera';
 import ToolPanel from './ToolPanel';
-import AddTool from './tools/AddTool';
-import SubTool from './tools/SubTool';
-import SetTool from './tools/SetTool';
-import SmoothTool from './tools/SmoothTool';
+import AddTool from './tools/terrain/AddTool';
+import SubTool from './tools/terrain/SubTool';
+import SetTool from './tools/terrain/SetTool';
+import SmoothTool from './tools/terrain/SmoothTool';
 import EditorProps from './EditorProps';
 import PropsPanel from './PropsPanel';
 import CheckBoxProp from './panelprops/CheckboxProp';
-import DoodadSelectTool from './tools/DoodadSelectTool';
+import DoodadSelectTool from './tools/doodad/DoodadSelectTool';
+import DoodadMoveTool from './tools/doodad/DoodadMoveTool';
+import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
+import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -65,6 +68,9 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new SetTool(this.props, this.toolPanel));
         this.toolPanel.add(new SmoothTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadSelectTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadMoveTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadRotateTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadScaleTool(this.props, this.toolPanel));
     }
 
     private initWorldProps(): void {

@@ -51,7 +51,7 @@ export default class EditorChunk {
 
     public updateDoodads(): void {
         for (const doodad of this.chunk.doodads) {
-            doodad.position();
+            doodad.positionInWorld();
         }
     }
 

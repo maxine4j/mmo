@@ -1,7 +1,7 @@
-import Tool from '../Tool';
-import Brush from '../Brush';
-import EditorProps from '../EditorProps';
-import ToolPanel from '../ToolPanel';
+import Tool from '../../Tool';
+import Brush from '../../Brush';
+import EditorProps from '../../EditorProps';
+import ToolPanel from '../../ToolPanel';
 
 export default class SubTool extends Tool {
     private brush: Brush;

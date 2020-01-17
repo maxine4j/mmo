@@ -6,6 +6,8 @@ import { Pass } from 'three/examples/jsm/postprocessing/Pass';
 import Scene from './Scene';
 import Camera from './Camera';
 
+const TwoPI = Math.PI * 2;
+
 export default class Graphics {
     public static renderer: THREE.WebGLRenderer;
     private static composer: EffectComposer;
@@ -72,5 +74,32 @@ export default class Graphics {
 
     public static toRadians(degrees: number): number {
         return degrees * (Math.PI / 180);
+    }
+
+    public static normaliseRadians(theta: number): number {
+        // ensure rad is between 0 and 2Pi
+        let normTheta = theta;
+        while (normTheta > TwoPI) {
+            normTheta -= TwoPI;
+        }
+        while (normTheta < 0) {
+            normTheta += TwoPI;
+        }
+        return normTheta;
+    }
+
+    public static snapAngle(theta: number, steps: number): number {
+        const snapStep = (Math.PI * 2) / steps;
+        let closestTheta = 0;
+        let minDiff = Number.MAX_VALUE;
+        for (let i = 0; i < steps; i++) {
+            const snappedTheta = i * snapStep;
+            const snappedDiff = Math.abs(theta - snappedTheta);
+            if (snappedDiff < minDiff) {
+                minDiff = snappedDiff;
+                closestTheta = snappedTheta;
+            }
+        }
+        return closestTheta;
     }
 }

@@ -1,8 +1,8 @@
-import Tool from '../Tool';
-import Brush from '../Brush';
-import EditorProps from '../EditorProps';
-import ToolPanel from '../ToolPanel';
-import SliderProp from '../panelprops/SliderProp';
+import Tool from '../../Tool';
+import Brush from '../../Brush';
+import EditorProps from '../../EditorProps';
+import ToolPanel from '../../ToolPanel';
+import SliderProp from '../../panelprops/SliderProp';
 
 export default class SmoothTool extends Tool {
     private brush: Brush;

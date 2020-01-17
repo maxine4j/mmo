@@ -9,6 +9,7 @@ export interface DoodadDef {
     model: string,
     x: number;
     y: number;
+    elevation: number;
     hitboxes: Hitbox[];
     scale: number,
     rotation: number,

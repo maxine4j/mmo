@@ -23,7 +23,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/lamp.model.json",
@@ -39,7 +40,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/gate.model.json",
@@ -61,7 +63,8 @@
                 ],
                 "scale": 0.5,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/tree1.model.json",
@@ -77,7 +80,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/tree2.model.json",
@@ -93,7 +97,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/tree_snow.model.json",
@@ -109,7 +114,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/tree4.model.json",
@@ -125,7 +131,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -141,7 +148,8 @@
                 ],
                 "scale": 1,
                 "rotation": 1.5708,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -157,7 +165,8 @@
                 ],
                 "scale": 1,
                 "rotation": 1.5708,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -173,7 +182,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -189,7 +199,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -205,7 +216,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -221,7 +233,8 @@
                 ],
                 "scale": 1,
                 "rotation": 1.5708,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -237,7 +250,8 @@
                 ],
                 "scale": 1,
                 "rotation": 1.5708,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -253,7 +267,8 @@
                 ],
                 "scale": 1,
                 "rotation": 1.5708,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -269,7 +284,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -285,7 +301,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             },
             {
                 "model": "environment/wall.model.json",
@@ -301,7 +318,8 @@
                 ],
                 "scale": 1,
                 "rotation": 0,
-                "walkable": false
+                "walkable": false,
+                "elevation": 0
             }
         ]
     }

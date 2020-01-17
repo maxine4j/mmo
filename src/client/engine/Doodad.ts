@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { DoodadDef } from '../../common/Chunk';
 import Point from '../../common/Point';
 import Model from './graphics/Model';
@@ -16,7 +17,7 @@ export default class Doodad {
         this.model.obj.userData = {
             doodad: this,
         };
-        this.position();
+        this.positionInWorld();
         // add the doodad model to the scene
         chunk.world.scene.add(this.model.obj);
         // add this as userdata to all children so we can access it via raycast
@@ -35,7 +36,7 @@ export default class Doodad {
         });
     }
 
-    public position(): void {
+    public positionInWorld(): void {
         // scale the doodad model
         this.model.obj.scale.set(this.def.scale, this.def.scale, this.def.scale);
 
@@ -46,6 +47,7 @@ export default class Doodad {
         // position the doodad model
         const tilePos = this.chunk.world.chunkToTile(this.chunk, new Point(this.def.x, this.def.y));
         const worldPos = this.chunk.world.tileToWorld(tilePos);
+        worldPos.add(new THREE.Vector3(0, this.def.elevation, 0));
         this.model.obj.position.copy(worldPos);
     }
 }
