@@ -28,10 +28,7 @@ const chunkDefs = <ChunksDataDef>_chunkDefs;
 
 /*
 
-Doodad editing
-    Position
-    Rotate
-    Create Hitboxes
+Doodad add from library
 Texture painting
 
 */

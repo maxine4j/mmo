@@ -26,8 +26,6 @@ export default class World {
         this.chunkWorld = new ChunkWorld(this.scene);
         NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => {
-            console.log('got a chunk load packet', p);
-
             this.chunkWorld.loadChunk(p);
         });
         NetClient.send(PacketHeader.CHUNK_LOAD);

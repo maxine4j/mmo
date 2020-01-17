@@ -79,7 +79,6 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
     public onSelected(): void {
         super.onSelected();
         this.toolSelected = true;
-        console.log('the nav tool was selected! generating navblocks');
         this.generateNavblocks();
     }
 

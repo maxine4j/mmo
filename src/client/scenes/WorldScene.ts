@@ -39,8 +39,6 @@ export default class WorldScene extends GameScene {
         btnBack.style.bottom = '5px';
         btnBack.style.right = '0';
         btnBack.addEventListener('click', () => {
-            console.log('sending leave world');
-
             NetClient.send(PacketHeader.PLAYER_LEAVEWORLD);
             SceneManager.changeScene('char-select');
         });
