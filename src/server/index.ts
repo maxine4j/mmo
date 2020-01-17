@@ -2,7 +2,7 @@ import { createConnection } from 'typeorm';
 import NetServer from './NetServer';
 import AccountEntity from './entities/Account.entity';
 
-async function initDB() {
+async function initDB(): Promise<void> {
     const account1 = new AccountEntity();
     account1.id = 1;
     account1.name = 'Tim Ings';

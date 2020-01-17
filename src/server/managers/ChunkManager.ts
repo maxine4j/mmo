@@ -28,16 +28,10 @@ export default class ChunkManager {
         for (const doodad of this.def.doodads) {
             if (!doodad.walkable) {
                 // set the doodads hitboxes as not walkable
-                for (const hb of doodad.hitboxes) {
-                    const x = doodad.x + hb.x;
-                    const y = doodad.y + hb.y;
-                    const w = x + hb.w;
-                    const h = y + hb.h;
-                    for (let i = y; i < h; i++) {
-                        for (let j = x; j < w; j++) {
-                            this.navmap[i][j] = NOT_WALKABLE;
-                        }
-                    }
+                for (const nb of doodad.navblocks) {
+                    const i = doodad.y + nb.y;
+                    const j = doodad.x + nb.x;
+                    this.navmap[i][j] = NOT_WALKABLE;
                 }
             }
         }

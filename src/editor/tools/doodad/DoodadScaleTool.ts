@@ -1,12 +1,8 @@
-import { Key } from 'ts-key-enum';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Graphics from '../../../client/engine/graphics/Graphics';
 import Point from '../../../common/Point';
-import CheckBoxProp from '../../panelprops/CheckboxProp';
 import BaseDoodadTool from './BaseDoodadTool';
-import SliderProp from '../../panelprops/SliderProp';
 
 export default class DoodadScaleTool extends BaseDoodadTool {
     private mouseStart: Point;

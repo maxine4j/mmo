@@ -1,8 +1,6 @@
-export interface Hitbox {
+export interface NavblockDef {
     x: number,
     y: number,
-    w: number,
-    h: number,
 }
 
 export interface DoodadDef {
@@ -10,7 +8,7 @@ export interface DoodadDef {
     x: number;
     y: number;
     elevation: number;
-    hitboxes: Hitbox[];
+    navblocks: NavblockDef[];
     scale: number,
     rotation: number,
     walkable: boolean,

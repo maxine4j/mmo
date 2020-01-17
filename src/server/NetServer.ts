@@ -13,13 +13,13 @@ export default class NetServer {
     private static server: io.Server;
     private static world: WorldManager;
 
-    public static init(port: number = 3000) {
+    public static init(port: number = 3000): void {
         this.server = io().listen(port);
         this.world = new WorldManager(tickRate, this.server);
         this.server.on('connection', this.onConnection);
     }
 
-    private static onConnection(socket: io.Socket) {
+    private static onConnection(socket: io.Socket): void {
         // client authentication
         console.log(`Client connected: ${socket.id}`);
         socket.on('disconnect', async () => {

@@ -13,6 +13,7 @@ export default class EditorProps {
     public scene: Scene;
     public camera: Camera;
     private _selectedDoodad: Doodad;
+    public onSelectedDoodadChanged: ((doodad: Doodad) => void)[] = [];
 
     public constructor(camera: Camera, scene: Scene) {
         this.camera = camera;
@@ -24,5 +25,6 @@ export default class EditorProps {
     public set selectedDoodad(doodad: Doodad) {
         this._selectedDoodad = doodad;
         Graphics.setOutlines([this.selectedDoodad.model.obj]);
+        this.onSelectedDoodadChanged.forEach((cb) => cb(this.selectedDoodad));
     }
 }

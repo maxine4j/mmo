@@ -22,6 +22,7 @@ import DoodadSelectTool from './tools/doodad/DoodadSelectTool';
 import DoodadMoveTool from './tools/doodad/DoodadMoveTool';
 import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
 import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
+import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -71,6 +72,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new DoodadMoveTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadRotateTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadScaleTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadNavigationTool(this.props, this.toolPanel));
     }
 
     private initWorldProps(): void {
