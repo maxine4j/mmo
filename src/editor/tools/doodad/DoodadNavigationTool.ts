@@ -19,7 +19,7 @@ class Navblock {
         this.doodad = doodad;
         this.props = props;
 
-        const geometry = new THREE.BoxGeometry(1, 1, 1);
+        const geometry = new THREE.BoxGeometry(0.9, 0.1, 0.9);
         const material = new THREE.MeshPhongMaterial({
             color: 0xff0000,
             opacity: 0.5,
