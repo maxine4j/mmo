@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import GameScene from '../client/engine/scene/GameScene';
-import Button from '../client/engine/interface/Button';
 import Graphics from '../client/engine/graphics/Graphics';
 import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
