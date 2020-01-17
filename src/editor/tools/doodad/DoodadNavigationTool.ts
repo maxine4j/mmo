@@ -104,35 +104,64 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
         }
     }
 
-    private toggleNav(chunkPos: Point): void {
+    private getNavblockDefIdx(chunkPos: Point): number {
         if (this.props.selectedDoodad) {
-            // try removing existing pos from the DoodadDef
-            let itemRemoved = false;
             const doodadPos = new Point(chunkPos.x - this.props.selectedDoodad.def.x, chunkPos.y - this.props.selectedDoodad.def.y);
             for (let i = 0; i < this.props.selectedDoodad.def.navblocks.length; i++) {
                 const nb = this.props.selectedDoodad.def.navblocks[i];
                 if (nb.x === doodadPos.x && nb.y === doodadPos.y) {
-                    this.props.selectedDoodad.def.navblocks.splice(i, 1); // remove ith element
-                    itemRemoved = true;
-                    break;
+                    return i;
                 }
             }
-            // we didnt remove a pos so add a new one
-            if (!itemRemoved) {
-                this.props.selectedDoodad.def.navblocks.push({
-                    x: doodadPos.x,
-                    y: doodadPos.y,
-                });
+        }
+        return -1;
+    }
+
+    private removeNavblock(chunkPos: Point): boolean {
+        if (this.props.selectedDoodad) {
+            const idx = this.getNavblockDefIdx(chunkPos);
+            if (idx === -1) {
+                return false; // didnt find a navblock to remove
             }
-            // update the editor navblocks
+            this.props.selectedDoodad.def.navblocks.splice(idx, 1); // remove the block at idx
             this.generateNavblocks();
+            return true; // found a navblock and removed it
+        }
+        return false;
+    }
+
+    private addNavblock(chunkPos: Point): void {
+        if (this.props.selectedDoodad && this.getNavblockDefIdx(chunkPos) === -1) {
+            const doodadPos = new Point(chunkPos.x - this.props.selectedDoodad.def.x, chunkPos.y - this.props.selectedDoodad.def.y);
+            this.props.selectedDoodad.def.navblocks.push({
+                x: doodadPos.x,
+                y: doodadPos.y,
+            });
+            this.generateNavblocks();
+        }
+    }
+
+    private toggleNav(chunkPos: Point): void {
+        if (this.props.selectedDoodad) {
+            if (!this.removeNavblock(chunkPos)) {
+                this.addNavblock(chunkPos);
+            }
+        }
+    }
+
+    public doodadUse(delta: number): void {
+        if (Input.isKeyDown(Key.Shift)) {
+            this.addNavblock(this.props.point.chunk);
+        } else if (Input.isKeyDown(Key.Alt)) {
+            this.removeNavblock(this.props.point.chunk);
         }
     }
 
     public update(delta: number): void {
         super.update(delta);
 
-        if (Input.wasMousePressed(MouseButton.LEFT) && !Input.isKeyDown(Key.Control)) {
+        if (Input.wasMousePressed(MouseButton.LEFT) && !Input.isKeyDown(Key.Control)
+            && !Input.isKeyDown(Key.Alt) && !Input.isKeyDown(Key.Shift)) {
             this.toggleNav(this.props.point.chunk);
         }
     }
