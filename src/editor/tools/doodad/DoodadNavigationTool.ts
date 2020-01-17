@@ -60,7 +60,15 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
     private renderOnTop: boolean = false;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('doodad-navigation', 'assets/icons/doodad_navigation.png', props, panel);
+        super(
+            'doodad-navigation',
+            '- Left click to toggle a non-walkable tile for the selected doodad.\n'
+            + '- Shift + left click to paint non-walkable tiles.\n'
+            + '- Alt + left click to remove non-walkable tiles.\n'
+            + '- Control + left click to select a doodad.',
+            'assets/icons/doodad_navigation.png',
+            props, panel,
+        );
 
         const renderOnTopProp = new CheckBoxProp(this.propsPanel, 'Render On Top:',
             (val) => {

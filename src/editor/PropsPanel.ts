@@ -1,5 +1,5 @@
 import Panel from '../client/engine/interface/Panel';
-import { toolButtonSize } from './ToolPanel';
+import { toolButtonSize, panelBg } from './ToolPanel';
 import { Frame } from '../client/engine/interface/Frame';
 import PanelProp from './PanelProp';
 
@@ -13,7 +13,7 @@ export default class PropsPanel extends Panel {
         this.hide();
         this.element.style.top = '0';
         this.centreHorizontal();
-        this.element.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+        this.element.style.backgroundColor = panelBg;
     }
 
     public addProp(prop: PanelProp): void {

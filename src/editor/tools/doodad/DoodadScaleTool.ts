@@ -9,7 +9,13 @@ export default class DoodadScaleTool extends BaseDoodadTool {
     private initialScale: number;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('doodad-scale', 'assets/icons/doodad_scale.png', props, panel);
+        super(
+            'doodad-scale',
+            '- Left click to scale the selected doodad.\n'
+            + '- Control + left click to select a doodad.',
+            'assets/icons/doodad_scale.png',
+            props, panel,
+        );
     }
 
     public doodadUse(delta: number): void {

@@ -12,7 +12,13 @@ export default class SetTool extends Tool {
     private heightSlider: SliderProp;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('set', 'assets/icons/terrain_set.png', props, panel);
+        super(
+            'set',
+            '- Set height of height in the brush to a constant value.\n'
+            + '- Change this value with the property panel or hold alt to pick the height of the tile under the cursor.',
+            'assets/icons/terrain_set.png',
+            props, panel,
+        );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
         this.heightSlider = new SliderProp(this.propsPanel, 'Height: ', -5, 15, 0.01, this.height,

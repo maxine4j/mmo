@@ -10,7 +10,13 @@ export default class SmoothTool extends Tool {
     private strengthSlider: SliderProp;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('smooth', 'assets/icons/terrain_smooth.png', props, panel);
+        super(
+            'smooth',
+            '- Smooths terrain in the brush.\n'
+            + '- Change strength in the property panel to adjust the strength of smoothing.',
+            'assets/icons/terrain_smooth.png',
+            props, panel,
+        );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
         this.strengthSlider = new SliderProp(this.propsPanel, 'Strength: ', 0, 1, 0.01, this.strength,

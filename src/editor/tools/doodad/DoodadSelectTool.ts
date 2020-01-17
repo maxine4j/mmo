@@ -20,7 +20,15 @@ export default class DoodadSelectTool extends Tool {
     private initialElevation: number;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('doodad-select', 'assets/icons/doodad_select.png', props, panel);
+        super(
+            'doodad-select',
+            '- Select doodads with left click.\n'
+            + '- Control + left click to move the selected doodad.\n'
+            + '- Alt + left click to rotate the selected doodad (Alt+Shift for snapping).\n'
+            + '- Shift + left click to adjust the selected doodad\'s elevation.',
+            'assets/icons/doodad_select.png',
+            props, panel,
+        );
     }
 
     private usePosition(): void {

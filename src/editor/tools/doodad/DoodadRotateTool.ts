@@ -17,7 +17,13 @@ export default class DoodadRotateTool extends BaseDoodadTool {
     private snapCount: number = 8;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('doodad-rotate', 'assets/icons/doodad_rotate.png', props, panel);
+        super(
+            'doodad-rotate',
+            '- Left click to rotate the selected doodad.\n'
+            + '- Control + left click to select a doodad.',
+            'assets/icons/doodad_rotate.png',
+            props, panel,
+        );
 
         this.snappingProp = new CheckBoxProp(this.propsPanel, 'Snapping:',
             (value) => {

@@ -7,7 +7,12 @@ export default class SubTool extends Tool {
     private brush: Brush;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('sub', 'assets/icons/terrain_sub.png', props, panel);
+        super(
+            'sub',
+            '- Decrease height of terrain in the brush with left click.',
+            'assets/icons/terrain_sub.png',
+            props, panel,
+        );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
     }

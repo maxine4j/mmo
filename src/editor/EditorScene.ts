@@ -23,6 +23,7 @@ import DoodadMoveTool from './tools/doodad/DoodadMoveTool';
 import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
 import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
+import ButtonProp from './panelprops/ButtonProp';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -46,6 +47,18 @@ export default class EditorScene extends GameScene {
 
     public constructor() {
         super('editor');
+    }
+
+    private downloadWorld(): void {
+        const world = {
+            0: this.props.chunk.chunk.def,
+        };
+        const data = JSON.stringify(world);
+        const file = new Blob([data], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(file);
+        a.download = 'Chunks.json';
+        a.click();
     }
 
     private downloadChunk(): void {
@@ -75,20 +88,28 @@ export default class EditorScene extends GameScene {
     private initWorldProps(): void {
         this.worldPropsPanel = new PropsPanel('panel-props', UIParent.get());
         this.worldPropsPanel.width = 200;
-        this.worldPropsPanel.height = 600;
+        this.worldPropsPanel.height = 300;
+        this.worldPropsPanel.style.left = 'initial';
+        this.worldPropsPanel.style.margin = '0';
         this.worldPropsPanel.style.top = 'initial';
         this.worldPropsPanel.style.right = '0';
         this.worldPropsPanel.style.bottom = '0';
-        this.worldPropsPanel.style.left = 'initial';
-        this.worldPropsPanel.style.marginLeft = 'initial';
-
-        this.worldPropsPanel.centreVertical();
         this.worldPropsPanel.show();
         this.addGUI(this.worldPropsPanel);
 
         this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Terrain Wireframe',
             (value) => {
                 this.props.world.setWireframeVisibility(value);
+            }));
+
+        this.worldPropsPanel.addProp(new ButtonProp(this.worldPropsPanel, 'Download Chunk',
+            () => {
+                this.downloadChunk();
+            }));
+
+        this.worldPropsPanel.addProp(new ButtonProp(this.worldPropsPanel, 'Download World',
+            () => {
+                this.downloadWorld();
             }));
     }
 
@@ -114,10 +135,6 @@ export default class EditorScene extends GameScene {
 
     private initGUI(): void {
         this.initCoordsGUI();
-
-        const btnDownload = new Button('btn-download', UIParent.get(), 'Download');
-        btnDownload.style.right = '0';
-        btnDownload.addEventListener('click', this.downloadChunk.bind(this));
     }
 
     public async init(): Promise<void> {

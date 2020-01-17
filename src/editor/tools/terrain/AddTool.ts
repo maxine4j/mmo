@@ -7,7 +7,12 @@ export default class AddTool extends Tool {
     private brush: Brush;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('add', 'assets/icons/terrain_add.png', props, panel);
+        super(
+            'add',
+            '- Increase height of terrain in the brush with left click.',
+            'assets/icons/terrain_add.png',
+            props, panel,
+        );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
     }

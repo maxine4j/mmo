@@ -10,7 +10,13 @@ export default class DoodadMoveTool extends BaseDoodadTool {
     private initialElevation: number;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
-        super('doodad-move', 'assets/icons/doodad_move.png', props, panel);
+        super(
+            'doodad-move',
+            '- Left click to move the selected doodad.\n'
+            + '- Control + left click to select a doodad.',
+            'assets/icons/doodad_move.png',
+            props, panel,
+        );
     }
 
     public doodadUse(delta: number): void {
