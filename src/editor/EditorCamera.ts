@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import Graphics from '../client/engine/graphics/Graphics';
-import Point from '../common/Point';
 import Camera from '../client/engine/graphics/Camera';
 import Input, { MouseButton } from '../client/engine/Input';
 
@@ -19,7 +18,7 @@ export default class EditorCamera extends Camera {
 
         // update panning
         if (Input.isMouseDown(MouseButton.RIGHT)) {
-            const panDelta = Point.sub(Input.mousePos(), lastMouse);
+            const panDelta = Input.mousePos().sub(lastMouse);
 
             const offset = new THREE.Vector3()
                 .copy(this.position)

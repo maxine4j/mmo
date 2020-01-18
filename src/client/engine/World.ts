@@ -5,7 +5,6 @@ import NetClient from './NetClient';
 import { PacketHeader, ChunkPacket, TickPacket } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import Unit from '../../common/Unit';
-import Camera from './graphics/Camera';
 import ChunkWorld from './ChunkWorld';
 
 export default class World {
@@ -17,7 +16,6 @@ export default class World {
     private _tickTimer: number;
     private _tickRate: number;
     private currentTick: number;
-    private camera: Camera;
 
     public constructor(scene: Scene) {
         this.scene = scene;
@@ -29,10 +27,6 @@ export default class World {
             this.chunkWorld.loadChunk(p);
         });
         NetClient.send(PacketHeader.CHUNK_LOAD);
-    }
-
-    public attatchCamera(camera: Camera): void {
-        this.camera = camera;
     }
 
     public get player(): LocalPlayer { return this._player; }

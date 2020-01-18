@@ -37,14 +37,18 @@ export default class SmoothTool extends Tool {
     }
 
     public use(delta: number): void {
-        this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
-            this.props.chunk.smooth(p, this.strength);
-        });
-        this.props.chunk.updateMesh();
-        this.props.chunk.updateDoodads();
+        for (const tp of this.brush.pointsIn()) {
+            const cp = tp.toChunk();
+            if (cp) {
+                this.props.world.smooth(tp, this.strength);
+                this.props.world.updateMeshAtPoint(cp);
+            }
+        }
+        this.props.world.updateDoodads();
     }
 
     public update(delta: number): void {
+        super.update(delta);
         this.brush.update();
     }
 }

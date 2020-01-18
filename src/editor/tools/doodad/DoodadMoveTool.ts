@@ -2,7 +2,7 @@ import { Key } from 'ts-key-enum';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
 
 export default class DoodadMoveTool extends BaseDoodadTool {
@@ -21,11 +21,12 @@ export default class DoodadMoveTool extends BaseDoodadTool {
 
     public doodadUse(delta: number): void {
         if (Input.isKeyDown(Key.Shift)) {
-            const mouseDelta = Point.sub(Input.mousePos(), this.mouseStart);
+            const mouseDelta = Input.mousePos().sub(this.mouseStart);
             this.props.selectedDoodad.def.elevation = this.initialElevation - mouseDelta.y / 100;
         } else {
-            this.props.selectedDoodad.def.x = this.props.point.chunk.x;
-            this.props.selectedDoodad.def.y = this.props.point.chunk.y;
+            const chunkPoint = this.props.point.toChunk();
+            this.props.selectedDoodad.def.x = chunkPoint.x;
+            this.props.selectedDoodad.def.y = chunkPoint.y;
         }
     }
 

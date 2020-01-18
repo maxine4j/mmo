@@ -45,17 +45,21 @@ export default class SetTool extends Tool {
     }
 
     public use(delta: number): void {
-        this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
-            this.props.chunk.setHeight(p, this.height);
-        });
-        this.props.chunk.updateMesh();
-        this.props.chunk.updateDoodads();
+        for (const tp of this.brush.pointsIn()) {
+            const cp = tp.toChunk();
+            if (cp) {
+                cp.elevation = this.height;
+                this.props.world.updateMeshAtPoint(cp);
+            }
+        }
+        this.props.world.updateDoodads();
     }
 
     public update(delta: number): void {
+        super.update(delta);
         this.brush.update();
         if (Input.isKeyDown(Key.Alt)) {
-            this.height = this.props.world.getElevation(this.props.point.tile);
+            this.height = this.props.point.toTile().elevation;
         }
     }
 }

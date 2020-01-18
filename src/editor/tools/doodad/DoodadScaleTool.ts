@@ -1,7 +1,7 @@
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 import BaseDoodadTool from './BaseDoodadTool';
 
 export default class DoodadScaleTool extends BaseDoodadTool {
@@ -19,7 +19,7 @@ export default class DoodadScaleTool extends BaseDoodadTool {
     }
 
     public doodadUse(delta: number): void {
-        const mouseDelta = Point.sub(Input.mousePos(), this.mouseStart);
+        const mouseDelta = Input.mousePos().sub(this.mouseStart);
         this.props.selectedDoodad.def.scale = this.initialScale - mouseDelta.y / 100;
         if (this.props.selectedDoodad.def.scale < 0.0001) {
             this.props.selectedDoodad.def.scale = 0.0001;

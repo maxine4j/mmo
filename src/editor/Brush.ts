@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import Point from '../common/Point';
-import ChunkDef from '../common/Chunk';
+import { TilePoint } from '../common/Point';
 import Input from '../client/engine/Input';
 import EditorProps from './EditorProps';
 
@@ -8,6 +7,7 @@ export default class Brush {
     private mesh: THREE.Mesh;
     private _size: number = 1;
     private props: EditorProps;
+    public point: TilePoint;
 
     public onSizeChange: (size: number) => void;
 
@@ -40,20 +40,20 @@ export default class Brush {
         if (this.onSizeChange) this.onSizeChange(this._size);
     }
 
-    public pointsIn(def: ChunkDef): Point[] {
-        if (!this.props.point || !this.props.point.chunk) {
+    public pointsIn(): TilePoint[] {
+        if (!this.props.point) {
             return [];
         }
 
-        const imin = Math.max(0, this.props.point.chunk.y - this.size);
-        const imax = Math.min(imin + (this.size * 2) + 1, def.size);
-        const jmin = Math.max(0, this.props.point.chunk.x - this.size);
-        const jmax = Math.min(jmin + (this.size * 2) + 1, def.size);
-        const points: Point[] = [];
+        const imin = Math.max(this.props.world.minTileY, this.point.y - this.size);
+        const imax = Math.min(imin + (this.size * 2) + 1, this.props.world.maxTileY);
+        const jmin = Math.max(this.props.world.minTileX, this.point.x - this.size);
+        const jmax = Math.min(jmin + (this.size * 2) + 1, this.props.world.maxTileX);
+        const points: TilePoint[] = [];
         for (let i = imin; i < imax; i++) {
             for (let j = jmin; j < jmax; j++) {
-                const pij = new Point(j, i);
-                const dist = Point.dist(this.props.point.chunk, pij);
+                const pij = new TilePoint(j, i, this.props.world.world);
+                const dist = this.point.dist(pij);
                 if (dist - 0.75 <= this.size) {
                     points.push(pij);
                 }
@@ -63,8 +63,8 @@ export default class Brush {
     }
 
     private updatePoint(): void {
-        const p = this.props.world.tileToWorld(this.props.point.tile);
-        this.mesh.position.copy(p);
+        this.point = this.props.point.toTile();
+        this.mesh.position.copy(this.point.toWorld());
     }
 
     private updateSize(): void {

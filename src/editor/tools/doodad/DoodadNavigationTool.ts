@@ -3,7 +3,7 @@ import { Key } from 'ts-key-enum';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
-import Point from '../../../common/Point';
+import { Point, ChunkPoint } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Doodad from '../../../client/engine/Doodad';
 import CheckBoxProp from '../../panelprops/CheckboxProp';
@@ -35,14 +35,12 @@ class Navblock {
         this.positionInWorld();
     }
 
-    public get absolutePos(): Point { // position of the navblock in chunk space
-        return new Point(this.doodad.def.x + this.position.x, this.doodad.def.y + this.position.y);
+    public get chunkPoint(): ChunkPoint { // position of the navblock in chunk space
+        return new ChunkPoint(this.doodad.def.x + this.position.x, this.doodad.def.y + this.position.y, this.doodad.chunk);
     }
 
     public positionInWorld(): void {
-        const tilePos = this.props.world.chunkToTile(this.props.chunk.chunk, this.absolutePos);
-        const worldPos = this.props.world.tileToWorld(tilePos);
-        this.mesh.position.copy(worldPos);
+        this.mesh.position.copy(this.chunkPoint.toWorld());
     }
 
     public addToScene(): void {
@@ -111,9 +109,9 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
         }
     }
 
-    private getNavblockDefIdx(chunkPos: Point): number {
+    private getNavblockDefIdx(chunkPoint: ChunkPoint): number {
         if (this.props.selectedDoodad) {
-            const doodadPos = new Point(chunkPos.x - this.props.selectedDoodad.def.x, chunkPos.y - this.props.selectedDoodad.def.y);
+            const doodadPos = new Point(chunkPoint.x - this.props.selectedDoodad.def.x, chunkPoint.y - this.props.selectedDoodad.def.y);
             for (let i = 0; i < this.props.selectedDoodad.def.navblocks.length; i++) {
                 const nb = this.props.selectedDoodad.def.navblocks[i];
                 if (nb.x === doodadPos.x && nb.y === doodadPos.y) {
@@ -124,9 +122,9 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
         return -1;
     }
 
-    private removeNavblock(chunkPos: Point): boolean {
+    private removeNavblock(chunkPoint: ChunkPoint): boolean {
         if (this.props.selectedDoodad) {
-            const idx = this.getNavblockDefIdx(chunkPos);
+            const idx = this.getNavblockDefIdx(chunkPoint);
             if (idx === -1) {
                 return false; // didnt find a navblock to remove
             }
@@ -137,9 +135,9 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
         return false;
     }
 
-    private addNavblock(chunkPos: Point): void {
-        if (this.props.selectedDoodad && this.getNavblockDefIdx(chunkPos) === -1) {
-            const doodadPos = new Point(chunkPos.x - this.props.selectedDoodad.def.x, chunkPos.y - this.props.selectedDoodad.def.y);
+    private addNavblock(chunkPoint: ChunkPoint): void {
+        if (this.props.selectedDoodad && this.getNavblockDefIdx(chunkPoint) === -1) {
+            const doodadPos = new Point(chunkPoint.x - this.props.selectedDoodad.def.x, chunkPoint.y - this.props.selectedDoodad.def.y);
             this.props.selectedDoodad.def.navblocks.push({
                 x: doodadPos.x,
                 y: doodadPos.y,
@@ -148,7 +146,7 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
         }
     }
 
-    private toggleNav(chunkPos: Point): void {
+    private toggleNav(chunkPos: ChunkPoint): void {
         if (this.props.selectedDoodad) {
             if (!this.removeNavblock(chunkPos)) {
                 this.addNavblock(chunkPos);
@@ -158,9 +156,9 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
 
     public doodadUse(delta: number): void {
         if (Input.isKeyDown(Key.Shift)) {
-            this.addNavblock(this.props.point.chunk);
+            this.addNavblock(this.props.point.toChunk());
         } else if (Input.isKeyDown(Key.Alt)) {
-            this.removeNavblock(this.props.point.chunk);
+            this.removeNavblock(this.props.point.toChunk());
         }
     }
 
@@ -169,7 +167,7 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
 
         if (Input.wasMousePressed(MouseButton.LEFT) && !Input.isKeyDown(Key.Control)
             && !Input.isKeyDown(Key.Alt) && !Input.isKeyDown(Key.Shift)) {
-            this.toggleNav(this.props.point.chunk);
+            this.toggleNav(this.props.point.toChunk());
         }
     }
 }

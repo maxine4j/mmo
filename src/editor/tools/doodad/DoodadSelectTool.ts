@@ -4,7 +4,7 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 
 enum DoodadToolMode {
     SELECT,
@@ -32,12 +32,13 @@ export default class DoodadSelectTool extends Tool {
     }
 
     private usePosition(): void {
-        this.props.selectedDoodad.def.x = this.props.point.chunk.x;
-        this.props.selectedDoodad.def.y = this.props.point.chunk.y;
+        const chunkPoint = this.props.point.toChunk();
+        this.props.selectedDoodad.def.x = chunkPoint.x;
+        this.props.selectedDoodad.def.y = chunkPoint.y;
     }
 
     private useRotate(): void {
-        const mouseDelta = Point.sub(Input.mousePos(), this.mouseStart);
+        const mouseDelta = Input.mousePos().sub(this.mouseStart);
         this.props.selectedDoodad.def.rotation = Graphics.normaliseRadians(this.intialTheta + mouseDelta.x / 100);
         // snapping
         if (Input.isKeyDown(Key.Shift)) {
@@ -46,7 +47,7 @@ export default class DoodadSelectTool extends Tool {
     }
 
     private useElevation(): void {
-        const mouseDelta = Point.sub(Input.mousePos(), this.mouseStart);
+        const mouseDelta = Input.mousePos().sub(this.mouseStart);
         this.props.selectedDoodad.def.elevation = this.initialElevation - mouseDelta.y / 100;
     }
 

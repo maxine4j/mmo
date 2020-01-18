@@ -1,4 +1,4 @@
-import Point from './Point';
+import { Point } from './Point';
 
 export default class Rectangle {
     public x: number;
@@ -14,7 +14,7 @@ export default class Rectangle {
     }
 
     public contains(point: Point): boolean {
-        return point.x > this.x && point.x < (this.x + this.w)
-        && point.y > this.y && point.y < (this.y + this.h);
+        return point.x >= this.x && point.x < (this.x + this.w)
+        && point.y >= this.y && point.y < (this.y + this.h);
     }
 }

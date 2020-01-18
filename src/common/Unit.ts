@@ -1,4 +1,4 @@
-import Point from './Point';
+import { PointDef } from './Point';
 
 export default interface Unit {
     id: number;
@@ -6,6 +6,6 @@ export default interface Unit {
     level: number;
     model: string;
     running: boolean;
-    position: Point;
-    moveQueue: Point[];
+    position: PointDef;
+    moveQueue: PointDef[];
 }

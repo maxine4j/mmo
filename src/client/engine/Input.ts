@@ -1,5 +1,5 @@
 import { Key } from 'ts-key-enum';
-import Point from '../../common/Point';
+import { Point } from '../../common/Point';
 
 export enum MouseButton {
     LEFT = 0,
@@ -100,6 +100,6 @@ export default class Input {
     }
 
     public static mousePos(): Point {
-        return Point.clone(this.mousePosition);
+        return this.mousePosition.clone();
     }
 }

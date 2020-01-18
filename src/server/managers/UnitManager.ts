@@ -1,13 +1,13 @@
 import PF from 'pathfinding';
-import Point from '../../common/Point';
+import { Point, PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
 import Entity from '../../common/Unit';
 
 export default class UnitManager {
     private world: WorldManager;
     public data: Entity;
-    private destionation: Point;
-    private path: Array<Point>;
+    private destionation: PointDef;
+    private path: Array<PointDef>;
 
     public constructor(world: WorldManager, data: Entity) {
         this.world = world;
@@ -33,7 +33,7 @@ export default class UnitManager {
         this.tickMovement();
     }
 
-    public moveTo(dest: Point): void {
+    public moveTo(dest: PointDef): void {
         this.destionation = dest;
         const navmap = this.world.generateNavmap(this.data.position, this.destionation);
         const grid = new PF.Grid(navmap.matrix);

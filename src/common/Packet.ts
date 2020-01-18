@@ -1,6 +1,6 @@
 import Account from './Account';
 import Character from './Character';
-import Point from './Point';
+import { PointDef } from './Point';
 import ChunkDef from './Chunk';
 import Unit from './Unit';
 
@@ -56,7 +56,7 @@ export interface TickPacket extends Packet {
     tick: number;
 }
 
-export interface PointPacket extends Packet, Point { }
+export interface PointPacket extends Packet, PointDef { }
 
 export interface ChunkPacket extends Packet, ChunkDef { }
 

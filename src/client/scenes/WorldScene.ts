@@ -14,13 +14,14 @@ import NetClient from '../engine/NetClient';
 import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/ChatHoverMessage';
+import { WorldPoint } from '../../common/Point';
 
 export default class WorldScene extends GameScene {
     private world: World;
     private lblMouseTile: Label;
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
-    private mousePoint: THREE.Vector3;
+    private mousePoint: WorldPoint;
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
     private chatHoverMsgs: ChatHoverMessage[] = [];
@@ -100,7 +101,7 @@ export default class WorldScene extends GameScene {
     private updateMousePoint(): void {
         const intersects = this.camera.rcast(this.scene, Input.mousePos());
         if (intersects.length > 0) {
-            this.mousePoint = intersects[0].point;
+            this.mousePoint = new WorldPoint(intersects[0].point, this.world.chunkWorld);
         } else {
             this.mousePoint = null;
         }
@@ -108,15 +109,15 @@ export default class WorldScene extends GameScene {
 
     private updateMouseLabels(): void {
         if (this.mousePoint) {
-            const tileCoord = this.world.chunkWorld.worldToTile(this.mousePoint);
-            const chunkCoord = this.world.chunkWorld.tileToChunk(tileCoord);
+            const tileCoord = this.mousePoint.toTile();
+            const chunkCoord = tileCoord.toChunk();
             this.lblMouseWorld.text = `World: { ${this.mousePoint.x.toFixed(2)}, ${this.mousePoint.y.toFixed(2)}, ${this.mousePoint.z.toFixed(2)} }`;
-            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(this.world.chunkWorld.getElevation(tileCoord) || 0).toFixed(2)}`;
-            this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} }`;
+            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(tileCoord.elevation || 0).toFixed(2)}`;
+            this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} } elevation: ${(chunkCoord.elevation || 0).toFixed(2)}`;
         } else {
             this.lblMouseWorld.text = 'World: { ?, ?, ? }';
-            this.lblMouseTile.text = 'Tile: { ?, ? }';
-            this.lblMouseChunk.text = 'Chunk: { ?, ? }';
+            this.lblMouseTile.text = 'Tile: { ?, ? } elevation: ?';
+            this.lblMouseChunk.text = 'Chunk: { ?, ? } elevation: ?';
         }
     }
 

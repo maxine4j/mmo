@@ -1,6 +1,7 @@
-import Point from '../common/Point';
+import { Point } from '../common/Point';
 import Chunk from '../client/engine/Chunk';
 import Rectangle from '../common/Rectangle';
+import ChunkDef from '../common/Chunk';
 
 export default class EditorChunk {
     public chunk: Chunk;
@@ -9,6 +10,18 @@ export default class EditorChunk {
     public constructor(chunk: Chunk) {
         this.chunk = chunk;
         this.bounds = new Rectangle(0, 0, this.chunk.size, this.chunk.size);
+    }
+
+    public static newChunkDef(id: number, x: number, y: number, size: number): ChunkDef {
+        return <ChunkDef>{
+            id,
+            x,
+            y,
+            size,
+            heightmap: Array.from({ length: size * size }, () => 0),
+            doodads: [],
+            texture: `assets/chunks/${id}.png`,
+        };
     }
 
     public getHeight(p: Point): number {

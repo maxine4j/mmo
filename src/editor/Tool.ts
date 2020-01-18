@@ -4,6 +4,7 @@ import EditorProps from './EditorProps';
 import PropsPanel from './PropsPanel';
 import SliderProp from './panelprops/SliderProp';
 import Brush from './Brush';
+import Input, { MouseButton } from '../client/engine/Input';
 
 const selectedBg = 'rgba(84, 84, 84,0.8)';
 const unselectedBg = 'rgba(255,255,255,0.8)';
@@ -63,5 +64,8 @@ export default class Tool {
     }
 
     public update(delta: number): void {
+        if (Input.wasMousePressed(MouseButton.LEFT)) {
+            this.props.world.updateWireframe();
+        }
     }
 }

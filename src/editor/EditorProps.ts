@@ -1,15 +1,14 @@
-import WorldPoint from './WorldPoint';
-import ChunkWorld from '../client/engine/ChunkWorld';
-import EditorChunk from './EditorChunk';
 import Scene from '../client/engine/graphics/Scene';
 import Camera from '../client/engine/graphics/Camera';
 import Doodad from '../client/engine/Doodad';
 import Graphics from '../client/engine/graphics/Graphics';
+import { WorldPoint } from '../common/Point';
+import Input from '../client/engine/Input';
+import EditorChunkWorld from './EditorChunkWorld';
 
 export default class EditorProps {
     public point: WorldPoint;
-    public world: ChunkWorld;
-    public chunk: EditorChunk;
+    public world: EditorChunkWorld;
     public scene: Scene;
     public camera: Camera;
     private _selectedDoodad: Doodad;
@@ -18,7 +17,6 @@ export default class EditorProps {
     public constructor(camera: Camera, scene: Scene) {
         this.camera = camera;
         this.scene = scene;
-        this.point = new WorldPoint();
     }
 
     public get selectedDoodad(): Doodad { return this._selectedDoodad; }
@@ -26,5 +24,17 @@ export default class EditorProps {
         this._selectedDoodad = doodad;
         Graphics.setOutlines([this.selectedDoodad.model.obj]);
         this.onSelectedDoodadChanged.forEach((cb) => cb(this.selectedDoodad));
+    }
+
+    public update(delta: number): void {
+        const intersects = this.camera.rcast(this.scene, Input.mousePos());
+        let idx = 0;
+        while (idx < intersects.length) {
+            const int = intersects[idx++];
+            if (int.object.name !== 'brush') {
+                this.point = new WorldPoint(int.point, this.world.world);
+                break;
+            }
+        }
     }
 }

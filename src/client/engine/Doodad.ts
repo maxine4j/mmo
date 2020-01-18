@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { DoodadDef } from '../../common/Chunk';
-import Point from '../../common/Point';
 import Model from './graphics/Model';
 import Chunk from './Chunk';
+import { ChunkPoint } from '../../common/Point';
 
 export default class Doodad {
     public def: DoodadDef;
@@ -37,17 +37,11 @@ export default class Doodad {
     }
 
     public positionInWorld(): void {
-        // scale the doodad model
         this.model.obj.scale.set(this.def.scale, this.def.scale, this.def.scale);
-
-        // rotate the doodad model
-        // this.model.obj.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), this.def.rotation);
         this.model.obj.rotation.set(0, this.def.rotation, 0);
 
-        // position the doodad model
-        const tilePos = this.chunk.world.chunkToTile(this.chunk, new Point(this.def.x, this.def.y));
-        const worldPos = this.chunk.world.tileToWorld(tilePos);
-        worldPos.add(new THREE.Vector3(0, this.def.elevation, 0));
-        this.model.obj.position.copy(worldPos);
+        const worldPoint = new ChunkPoint(this.def.x, this.def.y, this.chunk).toWorld();
+        worldPoint.add(new THREE.Vector3(0, this.def.elevation, 0));
+        this.model.obj.position.copy(worldPoint);
     }
 }

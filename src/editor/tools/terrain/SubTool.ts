@@ -28,14 +28,18 @@ export default class SubTool extends Tool {
     }
 
     public use(delta: number): void {
-        this.brush.pointsIn(this.props.chunk.chunk.def).forEach((p) => {
-            this.props.chunk.incHeight(p, -1 * delta);
-        });
-        this.props.chunk.updateMesh();
-        this.props.chunk.updateDoodads();
+        for (const tp of this.brush.pointsIn()) {
+            const cp = tp.toChunk();
+            if (cp) {
+                cp.elevation -= 1 * delta;
+                this.props.world.updateMeshAtPoint(cp);
+            }
+        }
+        this.props.world.updateDoodads();
     }
 
     public update(delta: number): void {
+        super.update(delta);
         this.brush.update();
     }
 }

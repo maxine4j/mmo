@@ -1,10 +1,10 @@
 import ChunkDef from '../../common/Chunk';
-import Point from '../../common/Point';
+import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 
 const WALKABLE = 0;
 const NOT_WALKABLE = 1;
-const CHUNK_SIZE = 128; // TODO: increase to 128 after testing
+const CHUNK_SIZE = 128;
 
 export default class ChunkManager {
     public def: ChunkDef;
@@ -31,6 +31,8 @@ export default class ChunkManager {
                 for (const nb of doodad.navblocks) {
                     const i = doodad.y + nb.y;
                     const j = doodad.x + nb.x;
+                    if (i >= CHUNK_SIZE || i < 0) continue; // TODO: this ignores navblocks off the side of the chunk
+                    if (j >= CHUNK_SIZE || j < 0) continue;
                     this.navmap[i][j] = NOT_WALKABLE;
                 }
             }
@@ -47,9 +49,9 @@ export default class ChunkManager {
         return new Point(x, y);
     }
 
-    public containsPoint(point: Point): boolean {
+    public containsPoint(point: PointDef): boolean {
         const offset = this.worldOffset;
         const bounds = new Rectangle(offset.x, offset.y, CHUNK_SIZE, CHUNK_SIZE);
-        return bounds.contains(point);
+        return bounds.contains(Point.fromDef(point));
     }
 }

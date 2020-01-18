@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import Label from './Label';
 import Camera from '../graphics/Camera';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 import { ChatMsgPacket } from '../../../common/Packet';
 import World from '../World';
 import LocalUnit from '../LocalUnit';
 import UIParent from './UIParent';
+
+const chatHoverHeight = 1.5;
 
 export default class ChatHoverMessage {
     public label: Label;
@@ -32,7 +34,7 @@ export default class ChatHoverMessage {
 
     private getScreenPos(): Point {
         const wpos = this.unit.model.obj.position.clone();
-        wpos.add(new THREE.Vector3(0, 1.5, 0)); // TODO: get chat height
+        wpos.add(new THREE.Vector3(0, chatHoverHeight, 0));
         return this.camera.worldToScreen(wpos);
     }
 

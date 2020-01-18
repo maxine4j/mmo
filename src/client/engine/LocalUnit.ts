@@ -3,7 +3,7 @@ import { AnimationAction } from 'three/src/animation/AnimationAction';
 import Model from './graphics/Model';
 import World from './World';
 import Unit from '../../common/Unit';
-import Point from '../../common/Point';
+import { TilePoint, Point } from '../../common/Point';
 
 export default class LocalUnit {
     public data: Unit;
@@ -13,8 +13,8 @@ export default class LocalUnit {
     private animWalk: AnimationAction;
     private animRun: AnimationAction;
     private animStand: AnimationAction;
-    private currentPosition: Point;
-    private targetPosition: Point;
+    private currentPosition: TilePoint;
+    private targetPosition: TilePoint;
     private movesThisTick: number;
     private moveTimer: number;
 
@@ -29,7 +29,7 @@ export default class LocalUnit {
     }
 
     private loadModel(): void {
-        Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from data.model
+        Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from Unit data.model
             .then((model) => {
                 this.model = model;
                 this.model.obj.castShadow = true;
@@ -77,9 +77,9 @@ export default class LocalUnit {
 
     public onTick(u: Unit): void {
         this.data = u;
-        if (!this.currentPosition) this.currentPosition = this.data.position;
+        if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
-        if (this.movesThisTick > 0) this.targetPosition = this.data.moveQueue.shift();
+        if (this.movesThisTick > 0) this.targetPosition = Point.fromDef(this.data.moveQueue.shift()).toTile(this.world.chunkWorld);
         this.moveTimer = 0;
 
         this.updateModel();
@@ -96,14 +96,12 @@ export default class LocalUnit {
     private updateModel(): void {
         if (this.model) {
             // set the model pos to the current tile position
-            const current = this.world.chunkWorld.tileToWorld(this.currentPosition);
-            this.model.obj.position.copy(current);
+            this.model.obj.position.copy(this.currentPosition.toWorld());
             if (this.targetPosition) {
                 // lerp towards the target
-                const target = this.world.chunkWorld.tileToWorld(this.targetPosition);
-                this.model.obj.position.lerp(target, Math.min(this.moveTimer, 1));
+                this.model.obj.position.lerp(this.targetPosition.toWorld(), Math.min(this.moveTimer, 1));
                 // slerp towards the target
-                const diff = Point.sub(this.currentPosition, this.targetPosition);
+                const diff = this.currentPosition.sub(this.targetPosition);
                 const angle = Math.atan2(diff.y, -diff.x);
                 const targetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
                 this.model.obj.quaternion.slerp(targetRot, this.world.tickProgression);
@@ -112,12 +110,10 @@ export default class LocalUnit {
     }
 
     public getWorldPosition(): THREE.Vector3 {
-        const current = this.world.chunkWorld.tileToWorld(this.currentPosition);
         if (this.targetPosition) {
-            const target = this.world.chunkWorld.tileToWorld(this.targetPosition);
-            return current.lerp(target, Math.min(this.moveTimer, 1));
+            return this.currentPosition.toWorld().lerp(this.targetPosition.toWorld(), Math.min(this.moveTimer, 1));
         }
-        return current;
+        return this.currentPosition.toWorld();
     }
 
     private updateMovement(delta: number): void {
@@ -126,7 +122,12 @@ export default class LocalUnit {
             if (this.targetPosition) {
                 this.currentPosition = this.targetPosition; // update the current position
             }
-            this.targetPosition = this.data.moveQueue.shift(); // get a new target
+            const nextTarget = Point.fromDef(this.data.moveQueue.shift());
+            if (nextTarget) {
+                this.targetPosition = nextTarget.toTile(this.world.chunkWorld); // get a new target
+            } else {
+                this.targetPosition = null;
+            }
             this.moveTimer -= 1; // reset the move timer, keep fractional for smooth lerping
         }
     }

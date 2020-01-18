@@ -7,7 +7,7 @@ import PlayerManager from './PlayerManager';
 import _chunkDefs from '../data/chunks.json';
 import ChunksDataDef from '../data/ChunksJsonDef';
 import ChunkManager from './ChunkManager';
-import Point from '../../common/Point';
+import { Point, PointDef } from '../../common/Point';
 import Character from '../../common/Character';
 import UnitManager from './UnitManager';
 import Unit from '../../common/Unit';
@@ -64,7 +64,7 @@ export default class WorldManager {
         this.chunks.set(id, cm);
     }
 
-    private playersInRange(pos: Point, exclude?: PlayerManager): PlayerManager[] {
+    private playersInRange(pos: PointDef, exclude?: PlayerManager): PlayerManager[] {
         const inrange: PlayerManager[] = [];
         for (const [_, p] of this.players) {
             // check if players pos is withing view dist of the target x,y
@@ -150,7 +150,7 @@ export default class WorldManager {
         player.moveTo(packet);
     }
 
-    public generateNavmap(start: Point, end: Point): Navmap {
+    public generateNavmap(start: PointDef, end: PointDef): Navmap {
         const chunk = this.chunks.get(0);
         const offset = chunk.worldOffset;
         const relstart = new Point(start.x - offset.x, start.y - offset.y);

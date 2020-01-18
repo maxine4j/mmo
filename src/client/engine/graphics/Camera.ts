@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import Graphics from './Graphics';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 import Scene from './Scene';
 import Input, { MouseButton } from '../Input';
 
@@ -91,7 +91,7 @@ export default class Camera extends THREE.PerspectiveCamera {
 
         // update rotate delta
         if (Input.isMouseDown(MouseButton.MIDDLE)) {
-            this.rotateDelta = Point.sub(Input.mousePos(), this.lastMouse);
+            this.rotateDelta = Input.mousePos().sub(this.lastMouse);
             this.polar += 2 * Math.PI * -(this.rotateDelta.y / Graphics.viewportHeight);
             this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
             this.azimuth += 2 * Math.PI * -(this.rotateDelta.x / Graphics.viewportWidth);

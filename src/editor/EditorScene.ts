@@ -5,7 +5,6 @@ import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
 import Label from '../client/engine/interface/Label';
 import EditorChunk from './EditorChunk';
-import ChunkWorld from '../client/engine/ChunkWorld';
 import _chunkDefs from '../server/data/chunks.json';
 import ChunksDataDef from '../server/data/ChunksJsonDef';
 import EditorCamera from './EditorCamera';
@@ -23,12 +22,14 @@ import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
 import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
 import ButtonProp from './panelprops/ButtonProp';
+import EditorChunkWorld from './EditorChunkWorld';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
 /*
 
 Doodad add from library
+Doodad info panel, edit props
 Texture painting
 
 */
@@ -49,23 +50,15 @@ export default class EditorScene extends GameScene {
     }
 
     private downloadWorld(): void {
-        const world = {
-            0: this.props.chunk.chunk.def,
-        };
+        const world = <ChunksDataDef>{};
+        for (const [id, chunk] of this.props.world.world.chunks) {
+            world[id] = chunk.def;
+        }
         const data = JSON.stringify(world);
         const file = new Blob([data], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(file);
         a.download = 'Chunks.json';
-        a.click();
-    }
-
-    private downloadChunk(): void {
-        const data = JSON.stringify(this.props.chunk.chunk.def);
-        const file = new Blob([data], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(file);
-        a.download = 'Chunk.json';
         a.click();
     }
 
@@ -98,12 +91,7 @@ export default class EditorScene extends GameScene {
 
         this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Terrain Wireframe',
             (value) => {
-                this.props.world.setWireframeVisibility(value);
-            }));
-
-        this.worldPropsPanel.addProp(new ButtonProp(this.worldPropsPanel, 'Download Chunk',
-            () => {
-                this.downloadChunk();
+                this.props.world.world.setWireframeVisibility(value);
             }));
 
         this.worldPropsPanel.addProp(new ButtonProp(this.worldPropsPanel, 'Download World',
@@ -149,9 +137,26 @@ export default class EditorScene extends GameScene {
         light.position.set(0, 1, 0).normalize();
         this.props.scene.add(light);
 
-        this.props.world = new ChunkWorld(this.props.scene);
-        const def = chunkDefs[0];
-        this.props.chunk = new EditorChunk(await this.props.world.loadChunk(def));
+        this.props.world = new EditorChunkWorld(this.props.scene);
+        const defNorth = EditorChunk.newChunkDef(1, 0, -1, chunkDefs[0].size);
+        const defNorthEast = EditorChunk.newChunkDef(2, 1, -1, chunkDefs[0].size);
+        const defNorthWest = EditorChunk.newChunkDef(3, -1, -1, chunkDefs[0].size);
+        const defSouth = EditorChunk.newChunkDef(4, 0, 1, chunkDefs[0].size);
+        const defSouthEast = EditorChunk.newChunkDef(5, 1, 1, chunkDefs[0].size);
+        const defSouthWest = EditorChunk.newChunkDef(6, -1, 1, chunkDefs[0].size);
+        const defEast = EditorChunk.newChunkDef(7, 1, 0, chunkDefs[0].size);
+        const defWest = EditorChunk.newChunkDef(8, -1, 0, chunkDefs[0].size);
+        await Promise.all([
+            this.props.world.world.loadChunk(chunkDefs[0]),
+            this.props.world.world.loadChunk(defNorth),
+            this.props.world.world.loadChunk(defSouth),
+            this.props.world.world.loadChunk(defEast),
+            this.props.world.world.loadChunk(defWest),
+            this.props.world.world.loadChunk(defNorthEast),
+            this.props.world.world.loadChunk(defNorthWest),
+            this.props.world.world.loadChunk(defSouthEast),
+            this.props.world.world.loadChunk(defSouthWest),
+        ]);
 
         this.initTools();
         this.initWorldProps();
@@ -165,20 +170,22 @@ export default class EditorScene extends GameScene {
     }
 
     private updateMouseLabels(): void {
-        if (this.props.point.world) {
-            this.lblMouseWorld.text = `World: { ${this.props.point.world.x.toFixed(2)}, ${this.props.point.world.y.toFixed(2)}, ${this.props.point.world.z.toFixed(2)} }`;
-        } else { this.lblMouseWorld.text = 'World: { ?, ?, ? }'; }
-        if (this.props.point.tile) {
-            this.lblMouseTile.text = `Tile: { ${this.props.point.tile.x}, ${this.props.point.tile.y} } elevation: ${(this.props.point.elevation || 0).toFixed(2)}`;
-        } else { this.lblMouseTile.text = 'Tile: { ?, ? }'; }
-        if (this.props.point.chunk) {
-            this.lblMouseChunk.text = `Chunk: { ${this.props.point.chunk.x}, ${this.props.point.chunk.y} }`;
-        } else { this.lblMouseChunk.text = 'Chunk: { ?, ? }'; }
+        if (this.props.point) {
+            const tileCoord = this.props.point.toTile();
+            const chunkCoord = tileCoord.toChunk();
+            this.lblMouseWorld.text = `World: { ${this.props.point.x.toFixed(2)}, ${this.props.point.y.toFixed(2)}, ${this.props.point.z.toFixed(2)} }`;
+            if (tileCoord) this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(tileCoord.elevation || 0).toFixed(2)}`;
+            if (chunkCoord) this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} } elevation: ${(chunkCoord.elevation || 0).toFixed(2)}`;
+        } else {
+            this.lblMouseWorld.text = 'World: { ?, ?, ? }';
+            this.lblMouseTile.text = 'Tile: { ?, ? } elevation: ?';
+            this.lblMouseChunk.text = 'Chunk: { ?, ? } elevation: ?';
+        }
     }
 
     public update(delta: number): void {
         this.props.camera.update();
-        this.props.point.update(this.props.scene, this.props.camera, this.props.world);
+        this.props.update(delta);
         this.toolPanel.update(delta);
         this.updateMouseLabels();
     }

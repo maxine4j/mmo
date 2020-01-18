@@ -3,7 +3,7 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
-import Point from '../../../common/Point';
+import { Point } from '../../../common/Point';
 import CheckBoxProp from '../../panelprops/CheckboxProp';
 import BaseDoodadTool from './BaseDoodadTool';
 import SliderProp from '../../panelprops/SliderProp';
@@ -46,7 +46,7 @@ export default class DoodadRotateTool extends BaseDoodadTool {
     }
 
     public doodadUse(delta: number): void {
-        const mouseDelta = Point.sub(Input.mousePos(), this.mouseStart);
+        const mouseDelta = Input.mousePos().sub(this.mouseStart);
         this.props.selectedDoodad.def.rotation = Graphics.normaliseRadians(this.intialTheta + mouseDelta.x / 100);
         if (this.snapping) {
             this.props.selectedDoodad.def.rotation = Graphics.snapAngle(this.props.selectedDoodad.def.rotation, this.snapCount);
