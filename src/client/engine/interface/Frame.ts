@@ -41,6 +41,12 @@ export abstract class Frame {
         }
     }
 
+    public clear(): void {
+        for (const [_, child] of this.children) {
+            child.destroy();
+        }
+    }
+
     protected createElement(): void {
         this.element = document.createElement(this.tag);
         this.element.style.userSelect = 'none';

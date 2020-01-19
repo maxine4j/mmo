@@ -1,4 +1,5 @@
 import { Frame, FrameStrata } from './Frame';
+import { Point } from '../../../common/Point';
 
 
 class ContextMenuOption extends Frame {
@@ -40,10 +41,10 @@ export default class ContextMenu extends Frame {
         this.element.appendChild(header);
     }
 
-    public open(x: number, y: number): void {
+    public open(point: Point): void {
         this.style.position = 'fixed';
-        this.style.left = `${x - this.width / 2}px`;
-        this.style.top = `${y - 10}px`;
+        this.style.left = `${point.x - this.width / 2}px`;
+        this.style.top = `${point.y - 10}px`;
         this.style.zIndex = (<number> this.strata).toString();
         this.show();
     }

@@ -6,16 +6,9 @@ import Chunk from '../client/engine/Chunk';
 
 export default class EditorChunkWorld {
     private world: ChunkWorld;
-    private lastId = 0;
 
     public constructor(scene: Scene) {
         this.world = new ChunkWorld(scene);
-        // set up last id for adding new chunks
-        for (const [id, _] of this.world.chunks) {
-            if (this.lastId <= id) {
-                this.lastId = id + 1;
-            }
-        }
     }
 
     // expose underlying ChunkWorld props
@@ -28,16 +21,35 @@ export default class EditorChunkWorld {
     public positionDoodads(): void { this.world.positionDoodads(); }
     public stitchChunks(): void { this.world.stitchChunks(); }
 
-    public createNewChunk(x: number, y: number, size: number): ChunkDef {
-        return <ChunkDef>{
-            id: this.lastId++,
+    public async createNewChunk(x: number, y: number): Promise<void> {
+        const size = this.chunkSize + 1;
+        const def = <ChunkDef>{
+            id: this.chunks.size,
             x,
             y,
-            size,
+            size: this.chunkSize,
             heightmap: Array.from({ length: size * size }, () => 0),
             doodads: [],
             texture: 'assets/chunks/default.png', // TODO: terrain texture painting
         };
+        await this.loadChunk(def);
+        this.stitchChunks();
+    }
+
+    public deleteChunk(x: number, y: number): void {
+        const chunk = this.getChunkAt(x, y);
+        chunk.unload();
+        this.chunks.delete(chunk.def.id);
+        this.stitchChunks();
+    }
+
+    public getChunkAt(x: number, y: number): Chunk {
+        for (const [_, chunk] of this.chunks) {
+            if (chunk.def.x === x && chunk.def.y === y) {
+                return chunk;
+            }
+        }
+        return null;
     }
 
     public smooth(p: TilePoint, strength: number = 1): void {

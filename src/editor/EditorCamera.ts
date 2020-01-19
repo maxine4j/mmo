@@ -6,6 +6,7 @@ import EditorProps from './EditorProps';
 
 export default class EditorCamera extends Camera {
     public pointLight: THREE.PointLight;
+    public chunkOverviewMode: boolean = false;
     private props: EditorProps;
 
     public constructor(props: EditorProps, fov?: number, aspect?: number, near?: number, far?: number) {
@@ -28,6 +29,13 @@ export default class EditorCamera extends Camera {
     public update(): void {
         const lastMouse = this.lastMouse;
         super.update(); // this updates last mouse
+
+        if (this.chunkOverviewMode) {
+            this.zoomLevel = 600;
+            this.polar = Graphics.toRadians(-90);
+            this.azimuth = 0;
+            this.lookAt(this.target);
+        }
 
         // update panning
         if (Input.isMouseDown(MouseButton.RIGHT)) {

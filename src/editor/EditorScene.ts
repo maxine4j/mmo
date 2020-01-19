@@ -20,18 +20,17 @@ import DoodadMoveTool from './tools/doodad/DoodadMoveTool';
 import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
 import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
+import ChunkTool from './tools/ChunkTool';
 import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
 import Chunk from '../client/engine/Chunk';
 import SliderProp from './panelprops/SliderProp';
-import ChunkDef from '../common/ChunkDef';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
 /*
 
 TODO:
-    - Make chunk/tile coords sqaures on terrain so we can join them up properly
     - Make wireframe updating perform better
 
 TODO NEW FEATURES:
@@ -39,7 +38,6 @@ TODO NEW FEATURES:
     - Doodad info panel, edit props
     - Place lights, maybe as part of doodads
     - Texture painting
-    - Move doodads between chunks
 */
 
 export default class EditorScene extends GameScene {
@@ -55,21 +53,8 @@ export default class EditorScene extends GameScene {
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
 
-
     public constructor() {
         super('editor');
-    }
-
-    private newChunkDef(id: number, x: number, y: number): ChunkDef {
-        const heightMapSize = this.props.world.chunkSize + 1;
-        return <ChunkDef>{
-            id,
-            x,
-            y,
-            heightmap: Array.from({ length: heightMapSize * heightMapSize }, () => 0),
-            doodads: [],
-            texture: `assets/chunks/${id}.png`,
-        };
     }
 
     private downloadWorld(): void {
@@ -98,6 +83,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new DoodadRotateTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadScaleTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadNavigationTool(this.props, this.toolPanel));
+        this.toolPanel.add(new ChunkTool(this.props, this.toolPanel));
     }
 
     private initWorldProps(): void {

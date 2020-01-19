@@ -38,7 +38,10 @@ export default class Graphics {
         this.composer.addPass(pass);
     }
 
-    public static setOutlines(objs: THREE.Object3D[]): void {
+    public static setOutlines(objs: THREE.Object3D[], color: THREE.Color = new THREE.Color(0xFFFFFF), thickness: number = 1, strength: number = 3): void {
+        this.outlinePass.visibleEdgeColor = color;
+        this.outlinePass.edgeThickness = thickness;
+        this.outlinePass.edgeStrength = strength;
         this.outlinePass.selectedObjects = objs;
     }
 

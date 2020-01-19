@@ -43,6 +43,13 @@ export default class Chunk {
         }
     }
 
+    public unload(): void {
+        for (const [_, doodad] of this.doodads) {
+            doodad.unload();
+        }
+        this.world.scene.remove(this.terrain);
+    }
+
     public updateWireframe(): void {
         if (this.wireframe) this.terrain.remove(this.wireframe);
         const geo = new THREE.WireframeGeometry(this.terrain.geometry);

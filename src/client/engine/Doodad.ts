@@ -36,6 +36,10 @@ export default class Doodad {
         });
     }
 
+    public unload(): void {
+        this.chunk.world.scene.remove(this.model.obj);
+    }
+
     public positionInWorld(): void {
         this.model.obj.scale.set(this.def.scale, this.def.scale, this.def.scale);
         this.model.obj.rotation.set(0, this.def.rotation, 0);
