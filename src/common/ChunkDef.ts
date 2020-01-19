@@ -4,6 +4,7 @@ export interface NavblockDef {
 }
 
 export interface DoodadDef {
+    uuid: string;
     model: string,
     x: number;
     y: number;

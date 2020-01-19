@@ -5,6 +5,7 @@ import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
+import DoodadMoveTool from './DoodadMoveTool';
 
 enum DoodadToolMode {
     SELECT,
@@ -33,6 +34,14 @@ export default class DoodadSelectTool extends Tool {
 
     private usePosition(): void {
         const chunkPoint = this.props.point.toChunk();
+
+        // check if we need to transfer the doodad to another chunk
+        const oldChunk = this.props.selectedDoodad.chunk;
+        const newChunk = chunkPoint.chunk;
+        if (oldChunk.def.id !== newChunk.def.id) {
+            DoodadMoveTool.transferDoodad(this.props.selectedDoodad.def.uuid, oldChunk, newChunk);
+        }
+
         this.props.selectedDoodad.def.x = chunkPoint.x;
         this.props.selectedDoodad.def.y = chunkPoint.y;
     }

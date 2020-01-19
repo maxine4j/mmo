@@ -24,6 +24,7 @@ import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
 import Chunk from '../client/engine/Chunk';
 import SliderProp from './panelprops/SliderProp';
+import ChunkDef from '../common/ChunkDef';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -57,6 +58,18 @@ export default class EditorScene extends GameScene {
 
     public constructor() {
         super('editor');
+    }
+
+    private newChunkDef(id: number, x: number, y: number): ChunkDef {
+        const heightMapSize = this.props.world.chunkSize + 1;
+        return <ChunkDef>{
+            id,
+            x,
+            y,
+            heightmap: Array.from({ length: heightMapSize * heightMapSize }, () => 0),
+            doodads: [],
+            texture: `assets/chunks/${id}.png`,
+        };
     }
 
     private downloadWorld(): void {

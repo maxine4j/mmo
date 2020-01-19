@@ -5,7 +5,7 @@ import Doodad from './Doodad';
 
 export default class Chunk {
     public def: ChunkDef;
-    public doodads: Doodad[] = [];
+    public doodads: Map<string, Doodad> = new Map();
     public world: ChunkWorld;
     public terrain: THREE.Mesh;
     public wireframe: THREE.LineSegments;
@@ -38,7 +38,7 @@ export default class Chunk {
     private loadDoodads(): void {
         for (const doodadDef of this.def.doodads) {
             Doodad.load(doodadDef, this).then((doodad) => {
-                this.doodads.push(doodad);
+                this.doodads.set(doodad.def.uuid, doodad);
             });
         }
     }
@@ -66,7 +66,7 @@ export default class Chunk {
     }
 
     public positionDoodads(): void {
-        for (const doodad of this.doodads) {
+        for (const [_, doodad] of this.doodads) {
             doodad.positionInWorld();
         }
     }
