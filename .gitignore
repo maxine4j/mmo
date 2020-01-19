@@ -105,6 +105,5 @@ dist
 
 
 .DS_Store
-.vscode
 *.db
 FBX2glTF.exe

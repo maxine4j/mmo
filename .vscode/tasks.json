@@ -1,0 +1,9 @@
+{
+  "version": "2.0.0",
+  "command": "yarn validate",
+  "type": "shell",
+  "presentation": {
+      "reveal": "never"
+  },
+  "problemMatcher": "$tsc"
+}

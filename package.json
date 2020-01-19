@@ -14,7 +14,8 @@
     "test": "mocha -r ts-node/register src/**/*.spec.ts",
     "clean": "rm -rf dist/*",
     "build-client": "yarn webpack",
-    "editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js"
+    "editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js",
+    "validate": "tsc --noEmit"
   },
   "dependencies": {
     "@types/pathfinding": "^0.0.4",
