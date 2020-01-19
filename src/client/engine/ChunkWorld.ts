@@ -1,5 +1,5 @@
 import Chunk from './Chunk';
-import ChunkDef from '../../common/Chunk';
+import ChunkDef from '../../common/ChunkDef';
 import Scene from './graphics/Scene';
 
 export default class ChunkWorld {
@@ -21,6 +21,7 @@ export default class ChunkWorld {
                 this.scene.add(c.terrain);
                 c.positionInWorld();
                 c.setWireframeVisibility(this.wireframeVisibility);
+                c.stitch();
                 resolve(c);
             });
         });

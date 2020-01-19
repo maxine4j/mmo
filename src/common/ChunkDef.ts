@@ -18,7 +18,6 @@ export default interface ChunkDef {
     id: number;
     x: number;
     y: number;
-    size: number;
     texture: string;
     heightmap: number[];
     doodads: DoodadDef[];

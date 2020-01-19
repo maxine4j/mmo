@@ -10,6 +10,7 @@ export default class SliderProp extends PanelProp {
 
     public constructor(parent: PropsPanel, label: string, min: number, max: number, step: number, val: number, onChange: (value: number) => void) {
         super(parent);
+
         const lbl = new Label(this.nextId(), parent, label);
         lbl.style.position = 'initial';
 

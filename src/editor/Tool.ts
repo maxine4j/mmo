@@ -65,7 +65,7 @@ export default class Tool {
 
     public update(delta: number): void {
         if (Input.wasMousePressed(MouseButton.LEFT)) {
-            this.props.world.updateWireframe();
+            // this.props.world.updateWireframe();
         }
     }
 }

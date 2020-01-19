@@ -52,9 +52,9 @@ export default class Brush {
         const points: TilePoint[] = [];
         for (let i = imin; i < imax; i++) {
             for (let j = jmin; j < jmax; j++) {
-                const pij = new TilePoint(j, i, this.props.world.world);
+                const pij = new TilePoint(j, i, this.props.world.w);
                 const dist = this.point.dist(pij);
-                if (dist - 0.75 <= this.size) {
+                if (dist <= this.size) {
                     points.push(pij);
                 }
             }

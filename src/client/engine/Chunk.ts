@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import ChunkDef from '../../common/Chunk';
+import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 
@@ -15,11 +15,14 @@ export default class Chunk {
         this.def = def;
         this.world = world;
         const geometry = this.generateTerrain();
+        geometry.computeVertexNormals();
         let material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xffffff });
         if (texture) {
             material = new THREE.MeshLambertMaterial({ map: texture });
         }
         this.terrain = new THREE.Mesh(geometry, material);
+        this.terrain.receiveShadow = true;
+        this.terrain.castShadow = true;
         this.loadDoodads();
     }
 
@@ -38,6 +41,10 @@ export default class Chunk {
                 this.doodads.push(doodad);
             });
         }
+    }
+
+    public updateNormals(): void {
+        this.terrain.geometry.computeVertexNormals();
     }
 
     public updateWireframe(): void {
@@ -59,7 +66,7 @@ export default class Chunk {
     }
 
     public positionInWorld(): void {
-        this.terrain.position.set(this.def.x * this.def.size, 0, this.def.y * this.def.size);
+        this.terrain.position.set(this.def.x * this.world.chunkSize, 0, this.def.y * this.world.chunkSize);
     }
 
     public positionDoodads(): void {
@@ -68,37 +75,79 @@ export default class Chunk {
         }
     }
 
-    public get size(): number { return this.def.size; }
+    public get size(): number { return this.world.chunkSize; }
+
+    public stitch(): void {
+        // find the chunks west and south of this
+        let westChunk: Chunk = null;
+        let southChunk: Chunk = null;
+        for (const [_, c] of this.world.chunks) {
+            if (!westChunk && c.def.x === this.def.x + 1 && c.def.y === this.def.y) {
+                westChunk = c;
+            }
+            if (!southChunk && c.def.x === this.def.x && c.def.y === this.def.y + 1) {
+                southChunk = c;
+            }
+            if (westChunk && southChunk) {
+                break;
+            }
+        }
+
+        const stride = this.world.chunkSize + 1;
+        // @ts-ignore
+        const chunkVerts = this.terrain.geometry.attributes.position.array;
+        if (westChunk) {
+            // @ts-ignore
+            const westVerts = westChunk.terrain.geometry.attributes.position.array;
+            // set the west edge of this to the east edge of westChunk
+            for (let i = 0; i < stride; i++) {
+                const chunkIdx = i * stride + (stride - 1);
+                const westIdx = i * stride + 0;
+                chunkVerts[chunkIdx * 3 + 1] = westVerts[westIdx * 3 + 1];
+            }
+        }
+        if (southChunk) {
+            // @ts-ignore
+            const southVerts = southChunk.terrain.geometry.attributes.position.array;
+            // set the south edge of this to the north edge of southChunk
+            for (let j = 0; j < stride; j++) {
+                const chunkIdx = (stride - 1) * stride + j;
+                const westIdx = 0 * stride + j;
+                chunkVerts[chunkIdx * 3 + 1] = southVerts[westIdx * 3 + 1];
+            }
+        }
+    }
 
     private generateTerrain(): THREE.BufferGeometry {
         // buffers
         const indices: Array<number> = [];
         const vertices: Array<number> = [];
-        const normals: Array<number> = [];
         const uvs: Array<number> = [];
 
         const tileWidth = 1;
         const tileHeight = 1;
 
-        // generate vertices, normals and uvs
-        for (let iz = 0; iz < this.def.size; iz++) {
-            const z = iz * tileHeight - (this.def.size / 2);
-            for (let ix = 0; ix < this.def.size; ix++) {
-                const x = ix * tileWidth - (this.def.size / 2);
-                const y = this.def.heightmap[iz * this.def.size + ix];
+        const size = this.world.chunkSize + 1;
+
+        // generate vertices and uvs
+        for (let iz = 0; iz < size; iz++) {
+            const z = iz * tileHeight - (size / 2);
+            for (let ix = 0; ix < size; ix++) {
+                const x = ix * tileWidth - (size / 2);
+                const y = this.def.heightmap[iz * size + ix];
                 vertices.push(x, y, z);
-                uvs.push(ix / this.def.size);
-                uvs.push(1 - (iz / this.def.size));
+                uvs.push(ix / size);
+                uvs.push(1 - (iz / size));
             }
         }
 
         // indices
-        for (let iz = 0; iz < this.def.size - 1; iz++) {
-            for (let ix = 0; ix < this.def.size - 1; ix++) {
-                const a = ix + this.def.size * iz;
-                const b = ix + this.def.size * (iz + 1);
-                const c = (ix + 1) + this.def.size * (iz + 1);
-                const d = (ix + 1) + this.def.size * iz;
+        for (let iz = 0; iz < size - 1; iz++) {
+            for (let ix = 0; ix < size - 1; ix++) {
+                const a = ix + size * iz;
+                const b = ix + size * (iz + 1);
+                const c = (ix + 1) + size * (iz + 1);
+                const d = (ix + 1) + size * iz;
 
                 // faces
                 indices.push(a, b, d);
@@ -109,7 +158,6 @@ export default class Chunk {
         const geom = new THREE.BufferGeometry();
         geom.setIndex(indices);
         geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        geom.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3));
         geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
 
         return geom;

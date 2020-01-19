@@ -1,23 +1,18 @@
 import Scene from '../client/engine/graphics/Scene';
-import Camera from '../client/engine/graphics/Camera';
 import Doodad from '../client/engine/Doodad';
 import Graphics from '../client/engine/graphics/Graphics';
 import { WorldPoint } from '../common/Point';
 import Input from '../client/engine/Input';
 import EditorChunkWorld from './EditorChunkWorld';
+import EditorCamera from './EditorCamera';
 
 export default class EditorProps {
     public point: WorldPoint;
     public world: EditorChunkWorld;
     public scene: Scene;
-    public camera: Camera;
+    public camera: EditorCamera;
     private _selectedDoodad: Doodad;
     public onSelectedDoodadChanged: ((doodad: Doodad) => void)[] = [];
-
-    public constructor(camera: Camera, scene: Scene) {
-        this.camera = camera;
-        this.scene = scene;
-    }
 
     public get selectedDoodad(): Doodad { return this._selectedDoodad; }
     public set selectedDoodad(doodad: Doodad) {
@@ -32,7 +27,7 @@ export default class EditorProps {
         while (idx < intersects.length) {
             const int = intersects[idx++];
             if (int.object.name !== 'brush') {
-                this.point = new WorldPoint(int.point, this.world.world);
+                this.point = new WorldPoint(int.point, this.world.w);
                 break;
             }
         }

@@ -1,7 +1,7 @@
 import Account from './Account';
 import Character from './Character';
 import { PointDef } from './Point';
-import ChunkDef from './Chunk';
+import ChunkDef from './ChunkDef';
 import Unit from './Unit';
 
 export enum PacketHeader {

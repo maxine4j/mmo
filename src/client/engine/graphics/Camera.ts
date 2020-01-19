@@ -12,6 +12,7 @@ export default class Camera extends THREE.PerspectiveCamera {
     protected maxZoom: number = 20;
     protected minZoom: number = 5;
     protected zoomLevel: number = 10;
+    protected zoomRate: number = 1;
     protected rotateDelta: Point;
     protected polar: number = 0;
     protected azimuth: number = 0;
@@ -32,7 +33,7 @@ export default class Camera extends THREE.PerspectiveCamera {
 
     private onScroll(ev: WheelEvent): void {
         const scrollDir = Math.sign(ev.deltaY);
-        this.zoomLevel += scrollDir;
+        this.zoomLevel += scrollDir * this.zoomRate;
         this.zoomLevel = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel));
     }
 

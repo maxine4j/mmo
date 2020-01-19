@@ -1,7 +1,8 @@
 import { Point } from '../common/Point';
 import Chunk from '../client/engine/Chunk';
 import Rectangle from '../common/Rectangle';
-import ChunkDef from '../common/Chunk';
+import ChunkDef from '../common/ChunkDef';
+import ChunkWorld from '../client/engine/ChunkWorld';
 
 export default class EditorChunk {
     public chunk: Chunk;
@@ -12,24 +13,24 @@ export default class EditorChunk {
         this.bounds = new Rectangle(0, 0, this.chunk.size, this.chunk.size);
     }
 
-    public static newChunkDef(id: number, x: number, y: number, size: number): ChunkDef {
+    public static newChunkDef(id: number, x: number, y: number, world: ChunkWorld): ChunkDef {
+        const heightMapSize = world.chunkSize + 1;
         return <ChunkDef>{
             id,
             x,
             y,
-            size,
-            heightmap: Array.from({ length: size * size }, () => 0),
+            heightmap: Array.from({ length: heightMapSize * heightMapSize }, () => 0),
             doodads: [],
             texture: `assets/chunks/${id}.png`,
         };
     }
 
     public getHeight(p: Point): number {
-        return this.chunk.def.heightmap[p.y * this.chunk.def.size + p.x];
+        return this.chunk.def.heightmap[p.y * this.chunk.world.chunkSize + p.x];
     }
 
     public setHeight(p: Point, h: number): void {
-        this.chunk.def.heightmap[p.y * this.chunk.def.size + p.x] = h;
+        this.chunk.def.heightmap[p.y * this.chunk.world.chunkSize + p.x] = h;
     }
 
     public incHeight(p: Point, amt: number): void {
@@ -72,9 +73,9 @@ export default class EditorChunk {
         // @ts-ignore
         const verts = this.chunk.terrain.geometry.attributes.position.array;
         const stride = 3;
-        for (let i = 0; i < this.chunk.def.size; i++) {
-            for (let j = 0; j < this.chunk.def.size; j++) {
-                const idx = i * this.chunk.def.size + j;
+        for (let i = 0; i < this.chunk.world.chunkSize; i++) {
+            for (let j = 0; j < this.chunk.world.chunkSize; j++) {
+                const idx = i * this.chunk.world.chunkSize + j;
                 verts[idx * stride + 1] = this.chunk.def.heightmap[idx];
             }
         }

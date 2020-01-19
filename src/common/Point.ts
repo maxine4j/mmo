@@ -187,10 +187,10 @@ export class ChunkPoint implements IPoint<ChunkPoint> {
     }
 
     public get elevation(): number {
-        return this.chunk.def.heightmap[this.y * this.chunk.world.chunkSize + this.x];
+        return this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + this.x];
     }
     public set elevation(elev: number) {
-        this.chunk.def.heightmap[this.y * this.chunk.world.chunkSize + this.x] = elev;
+        this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + this.x] = elev;
     }
 
     public eq(other: ChunkPoint): boolean {

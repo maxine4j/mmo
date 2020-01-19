@@ -1,10 +1,11 @@
-import ChunkDef from '../common/Chunk';
+import ChunkDef from '../common/ChunkDef';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import { TilePoint, ChunkPoint } from '../common/Point';
 import Scene from '../client/engine/graphics/Scene';
+import Chunk from '../client/engine/Chunk';
 
 export default class EditorChunkWorld {
-    public world: ChunkWorld;
+    private world: ChunkWorld;
     private lastId = 0;
 
     public constructor(scene: Scene) {
@@ -17,7 +18,16 @@ export default class EditorChunkWorld {
         }
     }
 
-    public addNewChunk(x: number, y: number, size: number): ChunkDef {
+    // expose underlying ChunkWorld props
+    public get w(): ChunkWorld { return this.world; }
+    public get chunks(): Map<number, Chunk> { return this.world.chunks; }
+    public get scene(): Scene { return this.world.scene; }
+    public get chunkSize(): number { return this.world.chunkSize; }
+    public async loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
+    public setWireframeVisibility(visible: boolean): void { this.world.setWireframeVisibility(visible); }
+    public positionDoodads(): void { this.world.positionDoodads(); }
+
+    public createNewChunk(x: number, y: number, size: number): ChunkDef {
         return <ChunkDef>{
             id: this.lastId++,
             x,
@@ -50,7 +60,7 @@ export default class EditorChunkWorld {
 
         const newElev = (sum / count) || 0;
         const elevDelta = (newElev - p.elevation) * strength;
-        if (elevDelta !== 0) {
+        if (elevDelta !== null) {
             p.elevation += elevDelta;
         }
     }
@@ -67,12 +77,64 @@ export default class EditorChunkWorld {
         }
     }
 
+    // makes the verts of the far sides of a chunk match the starting edges of its neighbours
+    public stitchChunk(chunk: Chunk): void {
+        // find the chunks west and south of 'chunk'
+        let westChunk: Chunk = null;
+        let southChunk: Chunk = null;
+        for (const [_, c] of this.world.chunks) {
+            if (!westChunk && c.def.x === chunk.def.x + 1 && c.def.y === chunk.def.y) {
+                westChunk = c;
+            }
+            if (!southChunk && c.def.x === chunk.def.x && c.def.y === chunk.def.y + 1) {
+                southChunk = c;
+            }
+            if (westChunk && southChunk) {
+                break;
+            }
+        }
+
+        const stride = this.world.chunkSize + 1;
+        // @ts-ignore
+        const chunkVerts = chunk.terrain.geometry.attributes.position.array;
+        if (westChunk) {
+            // @ts-ignore
+            const westVerts = westChunk.terrain.geometry.attributes.position.array;
+            // set the west edge of chunk to the east edge of westChunk
+            for (let i = 0; i < stride; i++) {
+                const chunkIdx = i * stride + (stride - 1);
+                const westIdx = i * stride + 0;
+                chunkVerts[chunkIdx * 3 + 1] = westVerts[westIdx * 3 + 1];
+            }
+        }
+        if (southChunk) {
+            // @ts-ignore
+            const southVerts = southChunk.terrain.geometry.attributes.position.array;
+            // set the south edge of chunk to the north edge of southChunk
+            for (let j = 0; j < stride; j++) {
+                const chunkIdx = (stride - 1) * stride + j;
+                const westIdx = 0 * stride + j;
+                chunkVerts[chunkIdx * 3 + 1] = southVerts[westIdx * 3 + 1];
+            }
+        }
+    }
+
+    public stitchAllChunks(): void {
+        for (const [_, chunk] of this.world.chunks) {
+            this.stitchChunk(chunk);
+        }
+    }
+
     public updateMeshAtPoint(chunkPoint: ChunkPoint): void {
         // update terrain mesh
         // @ts-ignore
         const verts = chunkPoint.chunk.terrain.geometry.attributes.position.array;
-        const idx = chunkPoint.y * this.world.chunkSize + chunkPoint.x;
-        verts[idx * 3 + 1] = chunkPoint.chunk.def.heightmap[idx];
+        if (chunkPoint) {
+            const idx = chunkPoint.y * (chunkPoint.chunk.world.chunkSize + 1) + chunkPoint.x;
+            verts[idx * 3 + 1] = chunkPoint.elevation;
+        } else {
+            console.log('chunk point is null!');
+        }
         // @ts-ignore
         chunkPoint.chunk.terrain.geometry.attributes.position.needsUpdate = true;
     }

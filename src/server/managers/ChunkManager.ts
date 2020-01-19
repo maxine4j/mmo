@@ -1,4 +1,4 @@
-import ChunkDef from '../../common/Chunk';
+import ChunkDef from '../../common/ChunkDef';
 import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 

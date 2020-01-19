@@ -23,19 +23,29 @@ import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
 import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
+import Chunk from '../client/engine/Chunk';
+import SliderProp from './panelprops/SliderProp';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
 /*
 
-Doodad add from library
-Doodad info panel, edit props
-Texture painting
+TODO:
+    - Make chunk/tile coords sqaures on terrain so we can join them up properly
+    - Make wireframe updating perform better
+
+TODO NEW FEATURES:
+    - Doodad add from library
+    - Doodad info panel, edit props
+    - Texture painting
 
 */
 
 export default class EditorScene extends GameScene {
+    protected camera: EditorCamera;
     private props: EditorProps;
+
+    private hemisphereLight: THREE.HemisphereLight;
 
     private toolPanel: ToolPanel;
     private worldPropsPanel: PropsPanel;
@@ -51,7 +61,7 @@ export default class EditorScene extends GameScene {
 
     private downloadWorld(): void {
         const world = <ChunksDataDef>{};
-        for (const [id, chunk] of this.props.world.world.chunks) {
+        for (const [id, chunk] of this.props.world.chunks) {
             world[id] = chunk.def;
         }
         const data = JSON.stringify(world);
@@ -79,7 +89,7 @@ export default class EditorScene extends GameScene {
 
     private initWorldProps(): void {
         this.worldPropsPanel = new PropsPanel('panel-props', UIParent.get());
-        this.worldPropsPanel.width = 200;
+        this.worldPropsPanel.width = 400;
         this.worldPropsPanel.height = 300;
         this.worldPropsPanel.style.left = 'initial';
         this.worldPropsPanel.style.margin = '0';
@@ -91,13 +101,39 @@ export default class EditorScene extends GameScene {
 
         this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Terrain Wireframe',
             (value) => {
-                this.props.world.world.setWireframeVisibility(value);
+                this.props.world.setWireframeVisibility(value);
             }));
+        this.worldPropsPanel.addBreak();
+
+        this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Cursor Light',
+            (value) => {
+                if (value) this.scene.add(this.camera.pointLight);
+                else this.scene.remove(this.camera.pointLight);
+            },
+            false));
+        this.worldPropsPanel.addProp(new SliderProp(this.worldPropsPanel, '', 0, 5, 0.01, this.camera.pointLight.intensity,
+            (value) => {
+                this.camera.pointLight.intensity = value;
+            }));
+        this.worldPropsPanel.addBreak();
+
+        this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Ambient Light',
+            (value) => {
+                if (value) this.scene.add(this.hemisphereLight);
+                else this.scene.remove(this.hemisphereLight);
+            },
+            true));
+        this.worldPropsPanel.addProp(new SliderProp(this.worldPropsPanel, '', 0, 3, 0.01, this.hemisphereLight.intensity,
+            (value) => {
+                this.hemisphereLight.intensity = value;
+            }));
+        this.worldPropsPanel.addBreak();
 
         this.worldPropsPanel.addProp(new ButtonProp(this.worldPropsPanel, 'Download World',
             () => {
                 this.downloadWorld();
             }));
+        this.worldPropsPanel.addBreak();
     }
 
     private initCoordsGUI(): void {
@@ -126,37 +162,22 @@ export default class EditorScene extends GameScene {
 
     public async init(): Promise<void> {
         this.scene = new Scene();
+        this.props = new EditorProps();
+        this.props.scene = this.scene;
 
-        this.camera = new EditorCamera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera = new EditorCamera(this.props, 60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
         this.camera.position.set(0, 10, 0);
         this.camera.lookAt(0, 0, 0);
+        this.props.camera = this.camera;
 
-        this.props = new EditorProps(this.camera, this.scene);
-
-        const light = new THREE.AmbientLight(0xffffff, 2);
-        light.position.set(0, 1, 0).normalize();
-        this.props.scene.add(light);
+        this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
 
         this.props.world = new EditorChunkWorld(this.props.scene);
-        const defNorth = EditorChunk.newChunkDef(1, 0, -1, chunkDefs[0].size);
-        const defNorthEast = EditorChunk.newChunkDef(2, 1, -1, chunkDefs[0].size);
-        const defNorthWest = EditorChunk.newChunkDef(3, -1, -1, chunkDefs[0].size);
-        const defSouth = EditorChunk.newChunkDef(4, 0, 1, chunkDefs[0].size);
-        const defSouthEast = EditorChunk.newChunkDef(5, 1, 1, chunkDefs[0].size);
-        const defSouthWest = EditorChunk.newChunkDef(6, -1, 1, chunkDefs[0].size);
-        const defEast = EditorChunk.newChunkDef(7, 1, 0, chunkDefs[0].size);
-        const defWest = EditorChunk.newChunkDef(8, -1, 0, chunkDefs[0].size);
-        await Promise.all([
-            this.props.world.world.loadChunk(chunkDefs[0]),
-            this.props.world.world.loadChunk(defNorth),
-            this.props.world.world.loadChunk(defSouth),
-            this.props.world.world.loadChunk(defEast),
-            this.props.world.world.loadChunk(defWest),
-            this.props.world.world.loadChunk(defNorthEast),
-            this.props.world.world.loadChunk(defNorthWest),
-            this.props.world.world.loadChunk(defSouthEast),
-            this.props.world.world.loadChunk(defSouthWest),
-        ]);
+        const chunkLoads: Promise<Chunk>[] = [];
+        for (const key in chunkDefs) { chunkLoads.push(this.props.world.loadChunk(chunkDefs[key])); }
+        await Promise.all(chunkLoads);
+
+        this.props.world.stitchAllChunks();
 
         this.initTools();
         this.initWorldProps();

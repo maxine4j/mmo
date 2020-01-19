@@ -57,8 +57,6 @@ export default class ToolPanel extends Panel {
         }
         this.selected = selected;
         this.infoLabel.text = this.selected.description;
-        console.log('set desc to:', this.infoLabel.text);
-
         this.selected.onSelected();
     }
 

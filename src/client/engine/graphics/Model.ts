@@ -20,6 +20,8 @@ export default class Model {
 
     public constructor(gltf: GLTF) {
         this.gltf = gltf;
+        this.obj.receiveShadow = true;
+        this.obj.castShadow = true;
         this.mixer = new THREE.AnimationMixer(this.obj);
         this.initObj();
     }
@@ -56,9 +58,7 @@ export default class Model {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
             loader.load(src, (gltf) => {
-                const model = new Model(gltf);
-                model.gltf = gltf;
-                resolve(model);
+                resolve(new Model(gltf));
             });
         });
     }

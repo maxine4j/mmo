@@ -2,6 +2,7 @@ import Tool from '../../Tool';
 import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
+import Chunk from '../../../client/engine/Chunk';
 
 export default class SubTool extends Tool {
     private brush: Brush;
@@ -28,12 +29,18 @@ export default class SubTool extends Tool {
     }
 
     public use(delta: number): void {
+        const uniqueChunks: Set<Chunk> = new Set();
         for (const tp of this.brush.pointsIn()) {
             const cp = tp.toChunk();
             if (cp) {
                 cp.elevation -= 1 * delta;
                 this.props.world.updateMeshAtPoint(cp);
+                uniqueChunks.add(cp.chunk);
             }
+        }
+        for (const chunk of uniqueChunks) {
+            chunk.updateNormals();
+            this.props.world.stitchChunk(chunk);
         }
         this.props.world.updateDoodads();
     }
