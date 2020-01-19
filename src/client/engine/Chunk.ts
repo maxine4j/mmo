@@ -43,7 +43,7 @@ export default class Chunk {
         }
     }
 
-    public updateNormals(): void {
+    private updateNormals(): void {
         this.terrain.geometry.computeVertexNormals();
     }
 
@@ -78,11 +78,12 @@ export default class Chunk {
     public get size(): number { return this.world.chunkSize; }
 
     public updateTerrain(): void {
+        this.stitchVerts();
         this.updateNormals();
-        this.stitch();
+        this.stitchNormals();
     }
 
-    private stitch(): void {
+    private getSouthAndWest(): [Chunk, Chunk] {
         // find the chunks west and south of this
         let westChunk: Chunk = null;
         let southChunk: Chunk = null;
@@ -97,22 +98,22 @@ export default class Chunk {
                 break;
             }
         }
+        return [southChunk, westChunk];
+    }
+
+    private stitchNormals(): void {
+        const [southChunk, westChunk] = this.getSouthAndWest();
 
         const stride = this.world.chunkSize + 1;
         // @ts-ignore
-        const chunkVerts = this.terrain.geometry.attributes.position.array;
-        // @ts-ignore
         const chunkNormals = this.terrain.geometry.attributes.normal.array;
         if (westChunk) {
-            // @ts-ignore
-            const westVerts = westChunk.terrain.geometry.attributes.position.array;
             // @ts-ignore
             const westNormals = westChunk.terrain.geometry.attributes.normal.array;
             // set the west edge of chunk to the east edge of westChunk
             for (let i = 0; i < stride; i++) {
                 const chunkIdx = i * stride + (stride - 1);
                 const westIdx = i * stride + 0;
-                chunkVerts[chunkIdx * 3 + 1] = westVerts[westIdx * 3 + 1];
                 for (let nidx = 0; nidx < 3; nidx++) {
                     chunkNormals[chunkIdx * 3 + nidx] = westNormals[westIdx * 3 + nidx];
                 }
@@ -120,23 +121,48 @@ export default class Chunk {
         }
         if (southChunk) {
             // @ts-ignore
-            const southVerts = southChunk.terrain.geometry.attributes.position.array;
-            // set the south edge of chunk to the north edge of southChunk
-            // @ts-ignore
             const southNormals = southChunk.terrain.geometry.attributes.normal.array;
+            // set the south edge of chunk to the north edge of southChunk
             for (let j = 0; j < stride; j++) {
                 const chunkIdx = (stride - 1) * stride + j;
                 const westIdx = 0 * stride + j;
-                chunkVerts[chunkIdx * 3 + 1] = southVerts[westIdx * 3 + 1];
                 for (let nidx = 0; nidx < 3; nidx++) {
                     chunkNormals[chunkIdx * 3 + nidx] = southNormals[westIdx * 3 + nidx];
                 }
             }
         }
         // @ts-ignore
-        this.terrain.geometry.attributes.position.needsUpdate = true;
-        // @ts-ignore
         this.terrain.geometry.attributes.normal.needsUpdate = true;
+    }
+
+    private stitchVerts(): void {
+        const [southChunk, westChunk] = this.getSouthAndWest();
+
+        const stride = this.world.chunkSize + 1;
+        // @ts-ignore
+        const chunkVerts = this.terrain.geometry.attributes.position.array;
+        if (westChunk) {
+            // @ts-ignore
+            const westVerts = westChunk.terrain.geometry.attributes.position.array;
+            // set the west edge of chunk to the east edge of westChunk
+            for (let i = 0; i < stride; i++) {
+                const chunkIdx = i * stride + (stride - 1);
+                const westIdx = i * stride + 0;
+                chunkVerts[chunkIdx * 3 + 1] = westVerts[westIdx * 3 + 1];
+            }
+        }
+        if (southChunk) {
+            // @ts-ignore
+            const southVerts = southChunk.terrain.geometry.attributes.position.array;
+            // set the south edge of chunk to the north edge of southChunk
+            for (let j = 0; j < stride; j++) {
+                const chunkIdx = (stride - 1) * stride + j;
+                const westIdx = 0 * stride + j;
+                chunkVerts[chunkIdx * 3 + 1] = southVerts[westIdx * 3 + 1];
+            }
+        }
+        // @ts-ignore
+        this.terrain.geometry.attributes.position.needsUpdate = true;
     }
 
     private generateTerrain(): THREE.BufferGeometry {

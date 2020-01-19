@@ -4,7 +4,6 @@ import Graphics from '../client/engine/graphics/Graphics';
 import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
 import Label from '../client/engine/interface/Label';
-import EditorChunk from './EditorChunk';
 import _chunkDefs from '../server/data/chunks.json';
 import ChunksDataDef from '../server/data/ChunksJsonDef';
 import EditorCamera from './EditorCamera';
