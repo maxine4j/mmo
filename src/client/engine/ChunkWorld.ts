@@ -21,10 +21,15 @@ export default class ChunkWorld {
                 this.scene.add(c.terrain);
                 c.positionInWorld();
                 c.setWireframeVisibility(this.wireframeVisibility);
-                c.stitch();
                 resolve(c);
             });
         });
+    }
+
+    public updateChunkTerrain(): void {
+        for (const [_, chunk] of this.chunks) {
+            chunk.updateTerrain();
+        }
     }
 
     public setWireframeVisibility(visible: boolean): void {

@@ -35,10 +35,11 @@ TODO:
     - Make wireframe updating perform better
 
 TODO NEW FEATURES:
-    - Doodad add from library
+    - Doodad add from library (include invisible doodad)
     - Doodad info panel, edit props
+    - Place lights, maybe as part of doodads
     - Texture painting
-
+    - Move doodads between chunks
 */
 
 export default class EditorScene extends GameScene {
@@ -110,7 +111,7 @@ export default class EditorScene extends GameScene {
                 if (value) this.scene.add(this.camera.pointLight);
                 else this.scene.remove(this.camera.pointLight);
             },
-            false));
+            true));
         this.worldPropsPanel.addProp(new SliderProp(this.worldPropsPanel, '', 0, 5, 0.01, this.camera.pointLight.intensity,
             (value) => {
                 this.camera.pointLight.intensity = value;
@@ -175,9 +176,10 @@ export default class EditorScene extends GameScene {
         this.props.world = new EditorChunkWorld(this.props.scene);
         const chunkLoads: Promise<Chunk>[] = [];
         for (const key in chunkDefs) { chunkLoads.push(this.props.world.loadChunk(chunkDefs[key])); }
+        console.log(`Loading ${chunkLoads.length} chunks...`);
         await Promise.all(chunkLoads);
-
-        this.props.world.stitchAllChunks();
+        console.log(`Done: Loaded ${chunkLoads.length} chunks`);
+        this.props.world.updateChunkTerrain();
 
         this.initTools();
         this.initWorldProps();

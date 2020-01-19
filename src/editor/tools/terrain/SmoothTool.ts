@@ -47,10 +47,7 @@ export default class SmoothTool extends Tool {
                 uniqueChunks.add(cp.chunk);
             }
         }
-        for (const chunk of uniqueChunks) {
-            chunk.updateNormals();
-            this.props.world.stitchChunk(chunk);
-        }
+        for (const chunk of uniqueChunks) chunk.updateTerrain();
         this.props.world.updateDoodads();
     }
 
