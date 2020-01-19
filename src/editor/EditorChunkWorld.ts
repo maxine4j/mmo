@@ -26,7 +26,7 @@ export default class EditorChunkWorld {
     public async loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
     public setWireframeVisibility(visible: boolean): void { this.world.setWireframeVisibility(visible); }
     public positionDoodads(): void { this.world.positionDoodads(); }
-    public updateChunkTerrain(): void { this.world.updateChunkTerrain(); }
+    public stitchChunks(): void { this.world.stitchChunks(); }
 
     public createNewChunk(x: number, y: number, size: number): ChunkDef {
         return <ChunkDef>{

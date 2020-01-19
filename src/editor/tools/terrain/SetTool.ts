@@ -55,7 +55,7 @@ export default class SetTool extends Tool {
                 uniqueChunks.add(cp.chunk);
             }
         }
-        for (const chunk of uniqueChunks) chunk.updateTerrain();
+        for (const chunk of uniqueChunks) chunk.stitch();
         this.props.world.updateDoodads();
     }
 

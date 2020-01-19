@@ -26,9 +26,15 @@ export default class ChunkWorld {
         });
     }
 
-    public updateChunkTerrain(): void {
+    public stitchChunks(): void {
         for (const [_, chunk] of this.chunks) {
-            chunk.updateTerrain();
+            chunk.stitchVerts();
+        }
+        for (const [_, chunk] of this.chunks) {
+            chunk.terrain.geometry.computeVertexNormals();
+        }
+        for (const [_, chunk] of this.chunks) {
+            chunk.stitchNormals();
         }
     }
 

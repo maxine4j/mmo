@@ -178,7 +178,8 @@ export default class EditorScene extends GameScene {
         console.log(`Loading ${chunkLoads.length} chunks...`);
         await Promise.all(chunkLoads);
         console.log(`Done: Loaded ${chunkLoads.length} chunks`);
-        this.props.world.updateChunkTerrain();
+        this.props.world.stitchChunks();
+        this.props.world.stitchChunks(); // calling this twice on init allows us to have chunks be unordered
 
         this.initTools();
         this.initWorldProps();

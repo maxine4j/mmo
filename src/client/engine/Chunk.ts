@@ -43,10 +43,6 @@ export default class Chunk {
         }
     }
 
-    private updateNormals(): void {
-        this.terrain.geometry.computeVertexNormals();
-    }
-
     public updateWireframe(): void {
         if (this.wireframe) this.terrain.remove(this.wireframe);
         const geo = new THREE.WireframeGeometry(this.terrain.geometry);
@@ -77,9 +73,9 @@ export default class Chunk {
 
     public get size(): number { return this.world.chunkSize; }
 
-    public updateTerrain(): void {
+    public stitch(): void {
         this.stitchVerts();
-        this.updateNormals();
+        this.terrain.geometry.computeVertexNormals();
         this.stitchNormals();
     }
 
@@ -101,7 +97,7 @@ export default class Chunk {
         return [southChunk, westChunk];
     }
 
-    private stitchNormals(): void {
+    public stitchNormals(): void {
         const [southChunk, westChunk] = this.getSouthAndWest();
 
         const stride = this.world.chunkSize + 1;
@@ -135,7 +131,7 @@ export default class Chunk {
         this.terrain.geometry.attributes.normal.needsUpdate = true;
     }
 
-    private stitchVerts(): void {
+    public stitchVerts(): void {
         const [southChunk, westChunk] = this.getSouthAndWest();
 
         const stride = this.world.chunkSize + 1;
