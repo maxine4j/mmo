@@ -25,6 +25,7 @@ import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
 import Chunk from '../client/engine/Chunk';
 import SliderProp from './panelprops/SliderProp';
+import DoodadAddTool from './tools/doodad/DoodadAddTool';
 
 const chunkDefs = <ChunksDataDef>_chunkDefs;
 
@@ -38,6 +39,7 @@ TODO NEW FEATURES:
     - Doodad info panel, edit props
     - Place lights, maybe as part of doodads
     - Texture painting
+    - Skybox and amibent light for caves
 */
 
 export default class EditorScene extends GameScene {
@@ -79,6 +81,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new SetTool(this.props, this.toolPanel));
         this.toolPanel.add(new SmoothTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadSelectTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadAddTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadMoveTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadRotateTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadScaleTool(this.props, this.toolPanel));
