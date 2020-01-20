@@ -4,8 +4,8 @@ import Graphics from '../client/engine/graphics/Graphics';
 import Scene from '../client/engine/graphics/Scene';
 import UIParent from '../client/engine/interface/UIParent';
 import Label from '../client/engine/interface/Label';
-import _chunkDefs from '../server/data/chunks.json';
-import ChunksDataDef from '../server/data/ChunksJsonDef';
+import _overworldDef from '../server/data/overworld.json';
+import WorldJsonDef from '../server/data/WorldsJsonDef';
 import EditorCamera from './EditorCamera';
 import ToolPanel from './ToolPanel';
 import AddTool from './tools/terrain/AddTool';
@@ -27,7 +27,7 @@ import Chunk from '../client/engine/Chunk';
 import SliderProp from './panelprops/SliderProp';
 import DoodadAddTool from './tools/doodad/DoodadAddTool';
 
-const chunkDefs = <ChunksDataDef>_chunkDefs;
+const overworldDef = <WorldJsonDef>_overworldDef;
 
 /*
 
@@ -60,9 +60,13 @@ export default class EditorScene extends GameScene {
     }
 
     private downloadWorld(): void {
-        const world = <ChunksDataDef>{};
+        const world = <WorldJsonDef>{
+            id: overworldDef.id,
+            chunkSize: overworldDef.chunkSize,
+            chunks: {},
+        };
         for (const [id, chunk] of this.props.world.chunks) {
-            world[id] = chunk.def;
+            world.chunks[id] = chunk.def;
         }
         const data = JSON.stringify(world);
         const file = new Blob([data], { type: 'application/json' });
@@ -174,9 +178,9 @@ export default class EditorScene extends GameScene {
 
         this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
 
-        this.props.world = new EditorChunkWorld(this.props.scene);
+        this.props.world = new EditorChunkWorld(this.props.scene, overworldDef);
         const chunkLoads: Promise<Chunk>[] = [];
-        for (const key in chunkDefs) { chunkLoads.push(this.props.world.loadChunk(chunkDefs[key])); }
+        for (const key in overworldDef.chunks) { chunkLoads.push(this.props.world.loadChunk(overworldDef.chunks[key])); }
         console.log(`Loading ${chunkLoads.length} chunks...`);
         await Promise.all(chunkLoads);
         console.log(`Done: Loaded ${chunkLoads.length} chunks`);

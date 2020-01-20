@@ -1,8 +1,8 @@
-import Account from './Account';
-import Character from './Character';
+import AccountDef from './AccountDef';
+import CharacterDef from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
-import Unit from './Unit';
+import UnitDef from './UnitDef';
 
 export enum PacketHeader {
     AUTH_LOGIN = 'AUTH_LOGIN',
@@ -18,6 +18,7 @@ export enum PacketHeader {
     UNIT_UPDATE = 'UNIT_UPDATE',
     CHAT_EVENT = 'CHAT_EVENT',
     CHUNK_LOAD = 'CHUNK_LOAD',
+    WORLD_INFO = 'WORLD_INFO',
     WORLD_TICK = 'WORLD_TICK',
 }
 
@@ -40,25 +41,33 @@ export interface AuthLoginPacket extends Packet {
     password: string;
 }
 
-export interface AccountPacket extends Packet, ResponsePacket, Account { }
+export interface AccountPacket extends Packet, ResponsePacket, AccountDef { }
 
-export interface CharacterPacket extends Packet, Character { }
-export interface CharacterListPacket extends Packet, ResponsePacket {
-    characters: Character[];
+export interface WorldInfoPacket extends Packet {
+    tickRate: number;
+    chunkSize: number;
 }
 
-export interface UnitPacket extends Packet, Unit { }
+export interface CharacterPacket extends Packet, CharacterDef { }
+export interface CharacterListPacket extends Packet, ResponsePacket {
+    characters: CharacterDef[];
+}
+
+export interface UnitPacket extends Packet, UnitDef { }
 
 export interface TickPacket extends Packet {
-    self: Character;
-    units: Unit[];
-    players: Character[];
+    self: CharacterDef;
+    units: UnitDef[];
+    players: CharacterDef[];
     tick: number;
 }
 
 export interface PointPacket extends Packet, PointDef { }
 
 export interface ChunkPacket extends Packet, ChunkDef { }
+export interface ChunkListPacket extends Packet {
+    chunks: ChunkDef[]
+}
 
 export interface ChatMsgPacket extends Packet {
     authorId: number,

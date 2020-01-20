@@ -5,12 +5,12 @@ import SceneManager from './scene/SceneManager';
 import GameScene from './scene/GameScene';
 import Label from './interface/Label';
 import UIParent from './interface/UIParent';
-import Account from '../../common/Account';
+import AccountDef from '../../common/AccountDef';
 
 export default class Engine {
     private static lastrender: number = 0;
     private static lblFps: Label;
-    private static _account: Account;
+    private static _account: AccountDef;
 
     public static init(enableNetworking: boolean = true): void {
         // initialise modules
@@ -33,10 +33,10 @@ export default class Engine {
         });
     }
 
-    public static get account(): Account {
+    public static get account(): AccountDef {
         return this._account;
     }
-    public static set account(account: Account) {
+    public static set account(account: AccountDef) {
         this._account = account;
     }
 

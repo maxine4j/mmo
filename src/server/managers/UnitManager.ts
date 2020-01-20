@@ -1,15 +1,18 @@
 import PF from 'pathfinding';
 import { Point, PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
-import Entity from '../../common/Unit';
+import UnitDef from '../../common/UnitDef';
+
+const WALKABLE = 0;
+const NOT_WALKABLE = 1;
 
 export default class UnitManager {
     private world: WorldManager;
-    public data: Entity;
+    public data: UnitDef;
     private destionation: PointDef;
     private path: Array<PointDef>;
 
-    public constructor(world: WorldManager, data: Entity) {
+    public constructor(world: WorldManager, data: UnitDef) {
         this.world = world;
         this.data = data;
     }
@@ -21,7 +24,7 @@ export default class UnitManager {
         if (this.path && this.path.length > 0) {
             let nextPos = this.path.pop();
             this.data.moveQueue.push(nextPos);
-            if (this.data.running && this.path.length > 0) {
+            if (this.data.running && this.path.length > 0) { // this should be if instead of while for normal movement
                 nextPos = this.path.pop();
                 this.data.moveQueue.push(nextPos);
             }
@@ -37,6 +40,7 @@ export default class UnitManager {
         this.destionation = dest;
         const navmap = this.world.generateNavmap(this.data.position, this.destionation);
         const grid = new PF.Grid(navmap.matrix);
+
         const finder = new PF.AStarFinder({
             // @ts-ignore
             allowDiagonal: true,

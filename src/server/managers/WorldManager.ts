@@ -1,22 +1,24 @@
 import io from 'socket.io';
 import {
-    PacketHeader, PointPacket, ChunkPacket, CharacterPacket, TickPacket, ChatMsgPacket,
+    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
-import _chunkDefs from '../data/chunks.json';
-import ChunksDataDef from '../data/ChunksJsonDef';
+import _overworldDef from '../data/overworld.json';
+import WorldJsonDef from '../data/WorldsJsonDef';
 import ChunkManager from './ChunkManager';
 import { Point, PointDef } from '../../common/Point';
-import Character from '../../common/Character';
+import CharacterDef from '../../common/CharacterDef';
 import UnitManager from './UnitManager';
-import Unit from '../../common/Unit';
+import UnitDef from '../../common/UnitDef';
+import ChunkDef from '../../common/ChunkDef';
+import Rectangle from '../../common/Rectangle';
 
 // number of tiles away from the player that a player can see updates for in either direction
 const viewDistX = 50;
 const viewDistY = 50;
 
-const chunkDefs = <ChunksDataDef>_chunkDefs;
+const overworldDef = <WorldJsonDef>_overworldDef;
 
 export interface Navmap {
     offset: Point;
@@ -32,22 +34,23 @@ export default class WorldManager {
     public tickCounter: number = 0;
     public tickRate: number;
     public server: io.Server;
+    private worldDef: WorldJsonDef = overworldDef;
 
     public constructor(tickRate: number, server: io.Server) {
         this.tickRate = tickRate;
         this.server = server;
 
-        this.loadChunk(0); // TODO: dynamicaly load chunks as we need them
+        this.loadAllChunks(); // TODO: dynamicaly load chunks as we need them
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
+
+    public get chunkSize(): number { return this.worldDef.chunkSize; }
 
     private tick(): void {
         this.players.forEach((player) => {
             player.tick();
-
-            const players: Character[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
-            const units: Unit[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
-
+            const players: CharacterDef[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
+            const units: UnitDef[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
                 self: player.data,
                 units,
@@ -59,8 +62,14 @@ export default class WorldManager {
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
 
+    private loadAllChunks(): void {
+        for (const id in this.worldDef.chunks) {
+            this.loadChunk(Number(id));
+        }
+    }
+
     private loadChunk(id: number): void {
-        const cm = new ChunkManager(chunkDefs[id]);
+        const cm = new ChunkManager(this.worldDef.chunks[id], this);
         this.chunks.set(id, cm);
     }
 
@@ -88,6 +97,13 @@ export default class WorldManager {
             }
         }
         return inrange;
+    }
+
+    public async handleWorldInfo(session: io.Socket): Promise<void> {
+        session.emit(PacketHeader.WORLD_INFO, <WorldInfoPacket>{
+            tickRate: this.tickRate,
+            chunkSize: this.chunkSize,
+        });
     }
 
     public async handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): Promise<void> {
@@ -135,11 +151,28 @@ export default class WorldManager {
         });
     }
 
+    private getNeighbours(def: ChunkDef): ChunkManager[] {
+        const neighbours: ChunkManager[] = [];
+        const minX = def.x - 1;
+        const maxX = def.x + 1;
+        const minY = def.y - 1;
+        const maxY = def.y + 1;
+        for (const [_, c] of this.chunks) {
+            if (c.def.x >= minX && c.def.x <= maxX && c.def.y >= minY && c.def.y <= maxY) {
+                neighbours.push(c);
+            }
+        }
+        return neighbours;
+    }
+
     public handleChunkLoad(session: io.Socket): void {
         const player = this.players.get(session.id);
         for (const [_, chunk] of this.chunks) {
             if (chunk.containsPoint(player.data.position)) {
-                session.emit(PacketHeader.CHUNK_LOAD, <ChunkPacket> chunk.def);
+                const neighbours = this.getNeighbours(chunk.def).map((cm) => cm.def);
+                session.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
+                    chunks: neighbours,
+                });
                 break;
             }
         }
@@ -150,73 +183,107 @@ export default class WorldManager {
         player.moveTo(packet);
     }
 
-    public generateNavmap(start: PointDef, end: PointDef): Navmap {
-        const chunk = this.chunks.get(0);
-        const offset = chunk.worldOffset;
-        const relstart = new Point(start.x - offset.x, start.y - offset.y);
-        const relend = new Point(end.x - offset.x, end.y - offset.y);
+    private tileToChunk(tilePoint: Point): [Point, ChunkManager] {
+        for (const [_, chunk] of this.chunks) {
+            const p = new Point(
+                tilePoint.x - (chunk.def.x * this.chunkSize) + this.chunkSize / 2,
+                tilePoint.y - (chunk.def.y * this.chunkSize) + this.chunkSize / 2,
+            );
+            // console.log('Converted ', tilePoint, ' to', p);
+
+            // check if the chunk contains this point
+            if (new Rectangle(0, 0, this.chunkSize, this.chunkSize).contains(p)) {
+                return [p, chunk];
+            }
+        }
+        return null;
+    }
+
+    public generateNavmap(startDef: PointDef, endDef: PointDef): Navmap {
+        // generate a navmap that is chunkSize * chunkSize around the start point
+        const start = Point.fromDef(startDef);
+        const end = Point.fromDef(endDef);
+
+        const [startChunkPoint, startChunk] = this.tileToChunk(start);
+        console.log('Converted ', start, ' to', startChunkPoint);
+
+
+        console.log('Pathing from', start, 'to', end);
+
+        const navmapSizeX = this.chunkSize;
+        const navmapSizeY = this.chunkSize;
+
+        // initialise a navmap array
+        const navmap: number[][] = [];
+        for (let i = 0; i < navmapSizeY; i++) {
+            navmap[i] = [];
+            for (let j = 0; j < navmapSizeX; j++) {
+                navmap[i][j] = 0; // 0 -> walkable
+            }
+        }
+
+        const minY = start.y - navmapSizeY / 2;
+        const maxY = start.y + navmapSizeY / 2;
+        const minX = start.x - navmapSizeX / 2;
+        const maxX = start.x + navmapSizeX / 2;
+
+        // calculate all 4 corners of the nav map
+        const [topLeft, topLeftChunk] = this.tileToChunk(new Point(minX, minY));
+        const [_topRight, topRightChunk] = this.tileToChunk(new Point(maxX, minY));
+        const [_botLeft, botLeftChunk] = this.tileToChunk(new Point(minX, maxY));
+        const [_botRight, botRightChunk] = this.tileToChunk(new Point(maxX, maxY));
+
+        console.log('topLeft ->', topLeft);
+        console.log('botRight ->', _botRight);
+
+        // ensure end point is within the nav map
+        // if it isnt, then make it the nearest point
+        if (end.x > maxX) {
+            end.x = maxX - 1;
+        } else if (end.x < minY) {
+            end.x = minY + 1;
+        }
+        if (end.y > maxY) {
+            end.y = maxY - 1;
+        } else if (end.y < minY) {
+            end.y = minY + 1;
+        }
+
+        let chunkI = 0;
+        let chunkJ = 0;
+        for (let i = 0; i < navmapSizeY; i++) {
+            chunkI = topLeft.y + i; // calculate chunk i
+            let chunk = topLeftChunk; // start from top left
+            let iOverflowed = false;
+            if (chunkI >= navmapSizeY) { // we have overflowed on the y axis
+                chunk = botLeftChunk; // we are now in the bottom chunks, and left as we are at the start of a new row
+                chunkI -= navmapSizeY; // we overflowed so adjust chunkI
+                iOverflowed = true;
+            }
+
+            for (let j = 0; j < navmapSizeX; j++) {
+                chunkJ = topLeft.x + j; // calculate chunk j
+
+                if (chunkJ >= navmapSizeX) { // we have overflowed on hte x/j axis
+                    if (iOverflowed) chunk = botRightChunk; // we have overflowed from bottom left to bottom right
+                    else chunk = topRightChunk; // we have overflowed from top left to top right
+                    chunkJ -= navmapSizeX; // we overflowed so adjust chunkJ
+                }
+
+                // get the nav map from the appropriate chunk
+                navmap[i][j] = chunk.navmap[chunkI][chunkJ];
+            }
+        }
+
+        const offset = new Point(minX, minY);
+        const relstart = start.sub(offset);
+        const relend = end.sub(offset);
+
         return <Navmap>{
-            matrix: chunk.navmap,
+            matrix: navmap,
             offset,
             start: relstart,
             end: relend,
         };
-
-        // let minX = Number.MAX_VALUE;
-        // let maxX = Number.MIN_VALUE;
-        // let minY = Number.MAX_VALUE;
-        // let maxY = Number.MIN_VALUE;
-        // const navChunks: Set<ChunkManager> = new Set();
-
-        // // find the chunks these points belong to
-        // for (const [_, chunk] of this.chunks) {
-        //     for (const point of points) {
-        //         if (chunk.containsPoint(point)) {
-        //             navChunks.add(chunk);
-        //             // and find the min and max world offsets
-        //             const offset = chunk.worldOffset;
-        //             if (offset.x > maxX) maxX = offset.x;
-        //             else if (offset.x < minX) minX = offset.x;
-        //             if (offset.y > maxY) maxY = offset.y;
-        //             else if (offset.y < minY) minY = offset.y;
-        //             break;
-        //         }
-        //     }
-        // }
-
-        // // sort the chunks by x then y
-        // const navChunksArr = Array.from(navChunks);
-        // navChunksArr.sort((a, b) => {
-        //     const ao = a.worldOffset;
-        //     const bo = a.worldOffset;
-        //     // sort by x first
-        //     if (ao.x > bo.x) return 1;
-        //     if (ao.x < bo.x) return -1;
-        //     if (ao.x === bo.x) { // then by y
-        //         if (ao.y > bo.y) return 1;
-        //         if (ao.y < bo.y) return -1;
-        //     }
-        //     return 0;
-        // });
-
-        // const xrange = maxX - minX;
-        // const yrange = maxY - minY;
-        // const finalNav: number[][] = [];
-        // // build a combined number[][] from the chunks
-        // for (let i = 0; i < yrange; i++) {
-        //     if (!finalNav[i]) finalNav[i] = [];
-
-        //     for (let j = 0; j < xrange; j++) {
-        //         const finalPoint = new Point(j, i);
-
-        //         // find the chunk this offset belongs to
-        //         for (const chunk of navChunksArr) {
-        //             const offset = chunk.worldOffset;
-        //             if (offset.eq(finalPoint)) {
-        //                 j += offset.x; // skip past this chunks points
-        //             }
-        //         }
-        //     }
-        // }
     }
 }

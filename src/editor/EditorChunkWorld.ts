@@ -1,3 +1,5 @@
+import uuid from 'uuid/v4';
+import WorldJsonDef from '../server/data/WorldsJsonDef';
 import ChunkDef from '../common/ChunkDef';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import { TilePoint, ChunkPoint } from '../common/Point';
@@ -5,15 +7,17 @@ import Scene from '../client/engine/graphics/Scene';
 import Chunk from '../client/engine/Chunk';
 
 export default class EditorChunkWorld {
+    private def: WorldJsonDef;
     private world: ChunkWorld;
 
-    public constructor(scene: Scene) {
-        this.world = new ChunkWorld(scene);
+    public constructor(scene: Scene, worldDef: WorldJsonDef) {
+        this.world = new ChunkWorld(scene, worldDef.chunkSize);
+        this.def = worldDef;
     }
 
     // expose underlying ChunkWorld props
     public get w(): ChunkWorld { return this.world; }
-    public get chunks(): Map<number, Chunk> { return this.world.chunks; }
+    public get chunks(): Map<string, Chunk> { return this.world.chunks; }
     public get scene(): Scene { return this.world.scene; }
     public get chunkSize(): number { return this.world.chunkSize; }
     public async loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
@@ -24,7 +28,7 @@ export default class EditorChunkWorld {
     public async createNewChunk(x: number, y: number): Promise<void> {
         const size = this.chunkSize + 1;
         const def = <ChunkDef>{
-            id: this.chunks.size,
+            id: uuid(),
             x,
             y,
             size: this.chunkSize,

@@ -2,7 +2,7 @@ import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import Character, { Race } from '../../common/Character';
+import CharacterDef, { Race } from '../../common/CharacterDef';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
@@ -21,7 +21,7 @@ export default class CharCreateScene extends GameScene {
     private characterCharacter(): void {
         const name = this.txtName.text;
         if (name.length >= 2 && name.length <= 12) {
-            const character = <Character>{
+            const character = <CharacterDef>{
                 name: this.txtName.text,
                 race: Race.HUMAN,
             };

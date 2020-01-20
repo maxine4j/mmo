@@ -11,7 +11,7 @@ import World from '../engine/World';
 import Input from '../engine/Input';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
-import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
+import { PacketHeader, ChatMsgPacket, WorldInfoPacket } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/ChatHoverMessage';
 import { WorldPoint } from '../../common/Point';
@@ -89,7 +89,8 @@ export default class WorldScene extends GameScene {
         light.position.set(0, 1, 0).normalize();
         this.scene.add(light);
 
-        this.world = new World(this.scene);
+        const info = <WorldInfoPacket> await NetClient.sendRecv(PacketHeader.WORLD_INFO);
+        this.world = new World(this.scene, info);
 
         super.init();
     }
@@ -106,14 +107,13 @@ export default class WorldScene extends GameScene {
             this.mousePoint = null;
         }
     }
-
     private updateMouseLabels(): void {
         if (this.mousePoint) {
             const tileCoord = this.mousePoint.toTile();
             const chunkCoord = tileCoord.toChunk();
             this.lblMouseWorld.text = `World: { ${this.mousePoint.x.toFixed(2)}, ${this.mousePoint.y.toFixed(2)}, ${this.mousePoint.z.toFixed(2)} }`;
-            this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(tileCoord.elevation || 0).toFixed(2)}`;
-            this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} } elevation: ${(chunkCoord.elevation || 0).toFixed(2)}`;
+            if (tileCoord) this.lblMouseTile.text = `Tile: { ${tileCoord.x}, ${tileCoord.y} } elevation: ${(tileCoord.elevation || 0).toFixed(2)}`;
+            if (chunkCoord) this.lblMouseChunk.text = `Chunk: { ${chunkCoord.x}, ${chunkCoord.y} } elevation: ${(chunkCoord.elevation || 0).toFixed(2)}`;
         } else {
             this.lblMouseWorld.text = 'World: { ?, ?, ? }';
             this.lblMouseTile.text = 'Tile: { ?, ? } elevation: ?';

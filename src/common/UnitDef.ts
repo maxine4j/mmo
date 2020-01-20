@@ -1,6 +1,6 @@
 import { PointDef } from './Point';
 
-export default interface Unit {
+export default interface UnitDef {
     id: number;
     name: string;
     level: number;

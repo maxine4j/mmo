@@ -2,11 +2,11 @@ import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
 import Model from './graphics/Model';
 import World from './World';
-import Unit from '../../common/Unit';
+import UnitDef from '../../common/UnitDef';
 import { TilePoint, Point } from '../../common/Point';
 
 export default class LocalUnit {
-    public data: Unit;
+    public data: UnitDef;
     public world: World;
     public model: Model;
     public lastTickUpdated: number;
@@ -18,7 +18,7 @@ export default class LocalUnit {
     private movesThisTick: number;
     private moveTimer: number;
 
-    public constructor(world: World, data: Unit) {
+    public constructor(world: World, data: UnitDef) {
         this.world = world;
         this.data = data;
         this.loadModel();
@@ -75,13 +75,12 @@ export default class LocalUnit {
         }
     }
 
-    public onTick(u: Unit): void {
+    public onTick(u: UnitDef): void {
         this.data = u;
         if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
         if (this.movesThisTick > 0) this.targetPosition = Point.fromDef(this.data.moveQueue.shift()).toTile(this.world.chunkWorld);
         this.moveTimer = 0;
-
         this.updateModel();
         this.updateAnimation();
     }

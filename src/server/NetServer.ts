@@ -42,6 +42,11 @@ export default class NetServer {
             socket.emit(PacketHeader.CHAR_CREATE, await handleCreate(socket.id, packet));
         });
 
+        // world info
+        socket.on(PacketHeader.WORLD_INFO, async () => {
+            socket.emit(PacketHeader.WORLD_INFO, NetServer.world.handleWorldInfo(socket));
+        });
+
         // player
         socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
             NetServer.world.handlePlayerEnterWorld(socket, packet);

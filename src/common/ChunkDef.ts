@@ -16,7 +16,7 @@ export interface DoodadDef {
 }
 
 export default interface ChunkDef {
-    id: number;
+    id: string;
     x: number;
     y: number;
     texture: string;

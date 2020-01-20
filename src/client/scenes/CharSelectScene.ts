@@ -3,12 +3,14 @@ import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/Button';
 import UIParent from '../engine/interface/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import Character from '../../common/Character';
+import CharacterDef from '../../common/CharacterDef';
 import Panel from '../engine/interface/Panel';
 import Label from '../engine/interface/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
-import { PacketHeader, CharacterListPacket, CharacterPacket } from '../../common/Packet';
+import {
+    PacketHeader, CharacterListPacket, CharacterPacket,
+} from '../../common/Packet';
 import Model from '../engine/graphics/Model';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
@@ -16,8 +18,8 @@ import Sprite from '../engine/graphics/Sprite';
 import Input, { MouseButton } from '../engine/Input';
 
 export default class CharSelectScene extends GameScene {
-    private characters: Character[];
-    private selectedChar: Character;
+    private characters: CharacterDef[];
+    private selectedChar: CharacterDef;
     private panelChars: Panel;
     private selectedModel: Model;
     private background: Sprite;

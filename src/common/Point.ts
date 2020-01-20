@@ -38,6 +38,13 @@ export class Point {
         return null;
     }
 
+    public static toDef(point: Point): PointDef {
+        if (point) {
+            return <PointDef>{ x: point.x, y: point.y };
+        }
+        return null;
+    }
+
     // public toWorld(world: ChunkWorld): WorldPoint {
     //     return this.toTile(world).toWorld();
     // }

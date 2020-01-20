@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne,
 } from 'typeorm';
-import Character, { Race } from '../../common/Character';
+import CharacterDef, { Race } from '../../common/CharacterDef';
 import AccountEntity from './Account.entity';
 
 @Entity()
@@ -31,8 +31,8 @@ export default class CharacterEntity extends BaseEntity {
     public level: number;
 
     // converts a db entity to a network character
-    public toNet(): Character {
-        const char = <Character>{
+    public toNet(): CharacterDef {
+        const char = <CharacterDef>{
             id: this.id,
             name: this.name,
             level: this.level,
@@ -46,7 +46,7 @@ export default class CharacterEntity extends BaseEntity {
     }
 
     // converts a network character to a db entity
-    public static async fromNet(c: Character): Promise<CharacterEntity> {
+    public static async fromNet(c: CharacterDef): Promise<CharacterEntity> {
         return new Promise((resolve) => {
             this.findOne({ id: c.id }).then((ce) => {
                 ce.level = c.level;

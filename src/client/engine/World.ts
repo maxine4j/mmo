@@ -2,10 +2,13 @@ import * as THREE from 'three';
 import Scene from './graphics/Scene';
 import LocalPlayer from './LocalPlayer';
 import NetClient from './NetClient';
-import { PacketHeader, ChunkPacket, TickPacket } from '../../common/Packet';
+import {
+    PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket,
+} from '../../common/Packet';
 import LocalUnit from './LocalUnit';
-import Unit from '../../common/Unit';
+import UnitDef from '../../common/UnitDef';
 import ChunkWorld from './ChunkWorld';
+import Chunk from './Chunk';
 
 export default class World {
     public scene: Scene;
@@ -17,14 +20,22 @@ export default class World {
     private _tickRate: number;
     private currentTick: number;
 
-    public constructor(scene: Scene) {
+    public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
         this._player = new LocalPlayer(this, null);
-        this._tickRate = 0.6; // TODO: get from server
-        this.chunkWorld = new ChunkWorld(this.scene);
-        NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => { this.onTick(p); });
-        NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkPacket) => {
-            this.chunkWorld.loadChunk(p);
+        this._tickRate = info.tickRate;
+        this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize);
+        NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => {
+            this.onTick(p);
+        });
+        NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkListPacket) => {
+            const chunkLoads: Promise<Chunk>[] = [];
+            for (const def of p.chunks) {
+                chunkLoads.push(this.chunkWorld.loadChunk(def));
+            }
+            Promise.all(chunkLoads).then(() => {
+                this.chunkWorld.stitchChunks();
+            });
         });
         NetClient.send(PacketHeader.CHUNK_LOAD);
     }
@@ -34,7 +45,7 @@ export default class World {
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
-    private tickUnits(tick: number, units: Unit[], localUnits: Map<number, LocalUnit>): void {
+    private tickUnits(tick: number, units: UnitDef[], localUnits: Map<number, LocalUnit>): void {
         for (const u of units) {
             let loc = localUnits.get(u.id);
             if (!loc) {

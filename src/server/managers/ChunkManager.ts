@@ -1,26 +1,28 @@
 import ChunkDef from '../../common/ChunkDef';
 import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
+import WorldManager from './WorldManager';
 
 const WALKABLE = 0;
 const NOT_WALKABLE = 1;
-const CHUNK_SIZE = 128;
 
 export default class ChunkManager {
+    public world: WorldManager;
     public def: ChunkDef;
-    public navmap: Array<Array<number>>;
+    public navmap: number[][];
 
-    public constructor(def: ChunkDef) {
+    public constructor(def: ChunkDef, world: WorldManager) {
         this.def = def;
+        this.world = world;
         this.generateNavmap();
     }
 
     private generateNavmap(): void {
         // init all to walkable
         this.navmap = [];
-        for (let i = 0; i < CHUNK_SIZE; i++) {
+        for (let i = 0; i < this.world.chunkSize; i++) {
             this.navmap[i] = [];
-            for (let j = 0; j < CHUNK_SIZE; j++) {
+            for (let j = 0; j < this.world.chunkSize; j++) {
                 this.navmap[i][j] = WALKABLE;
             }
         }
@@ -31,27 +33,24 @@ export default class ChunkManager {
                 for (const nb of doodad.navblocks) {
                     const i = doodad.y + nb.y;
                     const j = doodad.x + nb.x;
-                    if (i >= CHUNK_SIZE || i < 0) continue; // TODO: this ignores navblocks off the side of the chunk
-                    if (j >= CHUNK_SIZE || j < 0) continue;
+                    if (i >= this.world.chunkSize || i < 0) continue; // TODO: this ignores navblocks off the side of the chunk
+                    if (j >= this.world.chunkSize || j < 0) continue;
                     this.navmap[i][j] = NOT_WALKABLE;
                 }
             }
         }
     }
 
-    public static get chunkSize(): number {
-        return CHUNK_SIZE;
-    }
-
     public get worldOffset(): Point {
-        const x = this.def.x - CHUNK_SIZE / 2;
-        const y = this.def.y - CHUNK_SIZE / 2;
-        return new Point(x, y);
+        return new Point(
+            (this.def.x * this.world.chunkSize) - this.world.chunkSize / 2,
+            (this.def.y * this.world.chunkSize) - this.world.chunkSize / 2,
+        );
     }
 
     public containsPoint(point: PointDef): boolean {
         const offset = this.worldOffset;
-        const bounds = new Rectangle(offset.x, offset.y, CHUNK_SIZE, CHUNK_SIZE);
+        const bounds = new Rectangle(offset.x, offset.y, this.world.chunkSize, this.world.chunkSize);
         return bounds.contains(Point.fromDef(point));
     }
 }

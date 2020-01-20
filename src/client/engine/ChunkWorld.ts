@@ -3,16 +3,15 @@ import ChunkDef from '../../common/ChunkDef';
 import Scene from './graphics/Scene';
 
 export default class ChunkWorld {
-    public chunks: Map<number, Chunk> = new Map();
+    public chunks: Map<string, Chunk> = new Map();
     public scene: Scene;
+    public chunkSize: number;
     private wireframeVisibility: boolean;
-    private _chunkSize: number = 128;
 
-    public constructor(scene: Scene) {
+    public constructor(scene: Scene, chunkSize: number) {
         this.scene = scene;
+        this.chunkSize = chunkSize;
     }
-
-    public get chunkSize(): number { return this._chunkSize; }
 
     public async loadChunk(def: ChunkDef): Promise<Chunk> {
         return new Promise((resolve) => {
