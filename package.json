@@ -7,14 +7,23 @@
   "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "scripts": {
-    "watch-ts-server": "tsc -w --p tsconfig.server.json -outDir dist/",
-    "watch-webpack-client": "yarn webpack-dev-server --watch",
-    "watch-node-server": "nodemon dist/server/index.js",
-    "watch": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch-ts-server\" \"yarn watch-webpack-client\" \"yarn watch-node-server\"",
-    "test": "mocha -r ts-node/register src/**/*.spec.ts",
+    "watch:server:ts": "tsc -w -p tsconfig.server.json -outDir dist/",
+    "watch:server:node": "nodemon dist/server/index.js",
+    "watch:client": "yarn webpack-dev-server --watch --config ./webpack.client.config.js",
+    "watch:server": "concurrently -k -p \"[{name}]\" -n \"TS,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch:server:ts\" \"yarn watch:server:node\"",
+    
+    "watch:game": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch:server:ts\" \"yarn watch:client\" \"yarn watch:server:node\"",
+    "watch:editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js",
+    
     "clean": "rm -rf dist/*",
-    "build-client": "yarn webpack",
-    "editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js",
+    "clean:client": "rm -rf dist/client/*",
+    "clean:server": "rm -rf dist/server/*",
+    "clean:editor": "rm -rf dist/editor/*",
+
+    "build:client": "yarn webpack --config ./webpack.client.config.js",
+    "build:server": "tsc -p tsconfig.server.json -outDir dist/",
+    "build:editor": "yarn webpack --config ./webpack.editor.config.js",
+
     "validate": "tsc --noEmit"
   },
   "dependencies": {
