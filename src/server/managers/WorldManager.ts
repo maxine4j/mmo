@@ -241,8 +241,8 @@ export default class WorldManager {
         // if it isnt, then make it the nearest point
         if (end.x > maxX) {
             end.x = maxX - 1;
-        } else if (end.x < minY) {
-            end.x = minY + 1;
+        } else if (end.x < minX) {
+            end.x = minX + 1;
         }
         if (end.y > maxY) {
             end.y = maxY - 1;
