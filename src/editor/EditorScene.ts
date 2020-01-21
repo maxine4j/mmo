@@ -65,8 +65,8 @@ export default class EditorScene extends GameScene {
             chunkSize: overworldDef.chunkSize,
             chunks: {},
         };
-        for (const [id, chunk] of this.props.world.chunks) {
-            world.chunks[id] = chunk.def;
+        for (const [_x, _y, chunk] of this.props.world.chunks) {
+            world.chunks[chunk.def.id] = chunk.def;
         }
         const data = JSON.stringify(world);
         const file = new Blob([data], { type: 'application/json' });

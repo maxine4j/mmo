@@ -5,6 +5,7 @@ import ChunkWorld from '../client/engine/ChunkWorld';
 import { TilePoint, ChunkPoint } from '../common/Point';
 import Scene from '../client/engine/graphics/Scene';
 import Chunk from '../client/engine/Chunk';
+import Map2D from '../common/Map2D';
 
 export default class EditorChunkWorld {
     private def: WorldJsonDef;
@@ -17,7 +18,7 @@ export default class EditorChunkWorld {
 
     // expose underlying ChunkWorld props
     public get w(): ChunkWorld { return this.world; }
-    public get chunks(): Map<string, Chunk> { return this.world.chunks; }
+    public get chunks(): Map2D<number, number, Chunk> { return this.world.chunks; }
     public get scene(): Scene { return this.world.scene; }
     public get chunkSize(): number { return this.world.chunkSize; }
     public async loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
@@ -41,19 +42,9 @@ export default class EditorChunkWorld {
     }
 
     public deleteChunk(x: number, y: number): void {
-        const chunk = this.getChunkAt(x, y);
-        chunk.unload();
-        this.chunks.delete(chunk.def.id);
+        this.chunks.get(x, y).unload();
+        this.chunks.delete(x, y);
         this.stitchChunks();
-    }
-
-    public getChunkAt(x: number, y: number): Chunk {
-        for (const [_, chunk] of this.chunks) {
-            if (chunk.def.x === x && chunk.def.y === y) {
-                return chunk;
-            }
-        }
-        return null;
     }
 
     public smooth(p: TilePoint, strength: number = 1): void {
@@ -83,13 +74,13 @@ export default class EditorChunkWorld {
     }
 
     public updateDoodads(): void {
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             chunk.positionDoodads();
         }
     }
 
     public updateWireframe(): void {
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             chunk.updateWireframe();
         }
     }
@@ -106,27 +97,10 @@ export default class EditorChunkWorld {
         chunkPoint.chunk.terrain.geometry.attributes.position.needsUpdate = true;
     }
 
-    // public updateMesh(): void {
-    //     const stride = 3;
-    //     for (const [_, chunk] of this.world.chunks) {
-    //         // @ts-ignore
-    //         const verts = chunk.terrain.geometry.attributes.position.array;
-    //         for (let i = 0; i < chunk.def.size; i++) {
-    //             for (let j = 0; j < chunk.def.size; j++) {
-    //                 const idx = i * chunk.def.size + j;
-    //                 verts[idx * stride + 1] = chunk.def.heightmap[idx];
-    //             }
-    //         }
-    //         // @ts-ignore
-    //         chunk.terrain.geometry.attributes.position.needsUpdate = true;
-    //         chunk.updateWireframe();
-    //     }
-    // }
-
-    public get minTileX(): number {
+    public get minTileX(): number { // FIXME: change for map2d
         // find the min x value of all chunks
         let min = Number.MAX_VALUE;
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             if (chunk.def.x < min) {
                 min = chunk.def.x;
             }
@@ -135,10 +109,10 @@ export default class EditorChunkWorld {
         return (min * this.world.chunkSize) - (this.world.chunkSize / 2);
     }
 
-    public get maxTileX(): number {
+    public get maxTileX(): number { // FIXME: change for map2d
         // find the max x value of all chunks
         let max = -Number.MAX_VALUE;
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             if (chunk.def.x > max) {
                 max = chunk.def.x;
             }
@@ -147,10 +121,10 @@ export default class EditorChunkWorld {
         return (max * this.world.chunkSize) + (this.world.chunkSize / 2);
     }
 
-    public get minTileY(): number {
+    public get minTileY(): number { // FIXME: change for map2d
         // find the min y value of all chunks
         let min = Number.MAX_VALUE;
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             if (chunk.def.y < min) {
                 min = chunk.def.y;
             }
@@ -159,10 +133,10 @@ export default class EditorChunkWorld {
         return (min * this.world.chunkSize) - (this.world.chunkSize / 2);
     }
 
-    public get maxTileY(): number {
+    public get maxTileY(): number { // FIXME: change for map2d
         // find the max y value of all chunks
         let max = -Number.MAX_VALUE;
-        for (const [_, chunk] of this.world.chunks) {
+        for (const [_x, _y, chunk] of this.world.chunks) {
             if (chunk.def.y > max) {
                 max = chunk.def.y;
             }

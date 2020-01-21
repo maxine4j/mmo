@@ -80,7 +80,7 @@ export default class ChunkTool extends Tool {
         let maxX = -Number.MAX_VALUE;
         let minY = Number.MAX_VALUE;
         let maxY = -Number.MAX_VALUE;
-        for (const [_, chunk] of this.props.world.chunks) {
+        for (const [_x, _y, chunk] of this.props.world.chunks) {
             if (chunk.def.x < minX) minX = chunk.def.x;
             if (chunk.def.x > maxX) maxX = chunk.def.x;
             if (chunk.def.y < minY) minY = chunk.def.y;
@@ -96,7 +96,7 @@ export default class ChunkTool extends Tool {
                         new THREE.BoxGeometry(this.props.world.chunkSize, this.props.world.chunkSize, this.props.world.chunkSize),
                         new THREE.MeshPhongMaterial({ color: 0xFFFFFF, opacity: 0.5, transparent: true }),
                     ),
-                    exisiting: this.props.world.getChunkAt(x, y),
+                    exisiting: this.props.world.chunks.get(x, y),
                 };
                 phantom.mesh.position.set(x * this.props.world.chunkSize, 0, y * this.props.world.chunkSize);
                 phantom.mesh.name = 'phantom';

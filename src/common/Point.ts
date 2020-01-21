@@ -2,7 +2,6 @@
 import * as THREE from 'three';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import Chunk from '../client/engine/Chunk';
-import Rectangle from './Rectangle';
 
 interface IPoint<T> {
     x: number;
@@ -120,17 +119,23 @@ export class TilePoint implements IPoint<TilePoint> {
         return this;
     }
 
+    public static getChunkCoord(tileX: number, tileY: number, chunkSize: number): [ number, number ] {
+        const halfCS = chunkSize / 2;
+        return [
+            Math.floor((tileX + halfCS) / chunkSize),
+            Math.floor((tileY + halfCS) / chunkSize),
+        ];
+    }
+
     public toChunk(): ChunkPoint {
-        for (const [_, chunk] of this.world.chunks) {
-            const p = new ChunkPoint(
-                this.x - (chunk.def.x * chunk.size) + chunk.size / 2,
-                this.y - (chunk.def.y * chunk.size) + chunk.size / 2,
-                chunk,
-            );
-            // check if the chunk contains this point
-            if (new Rectangle(0, 0, chunk.size, chunk.size).contains(p)) return p;
-        }
-        return null;
+        const [ccx, ccy] = TilePoint.getChunkCoord(this.x, this.y, this.world.chunkSize);
+        const chunk = this.world.chunks.get(ccx, ccy);
+        if (!chunk) return null;
+        return new ChunkPoint(
+            this.x - (ccx * this.world.chunkSize) + this.world.chunkSize / 2,
+            this.y - (ccy * this.world.chunkSize) + this.world.chunkSize / 2,
+            chunk,
+        );
     }
 
     public get elevation(): number {

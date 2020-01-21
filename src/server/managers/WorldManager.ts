@@ -1,4 +1,5 @@
 import io from 'socket.io';
+import Map2D from '../../common/Map2D';
 import {
     PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket,
 } from '../../common/Packet';
@@ -7,12 +8,11 @@ import PlayerManager from './PlayerManager';
 import _overworldDef from '../data/overworld.json';
 import WorldJsonDef from '../data/WorldsJsonDef';
 import ChunkManager from './ChunkManager';
-import { Point, PointDef } from '../../common/Point';
+import { Point, PointDef, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 import UnitManager from './UnitManager';
 import UnitDef from '../../common/UnitDef';
 import ChunkDef from '../../common/ChunkDef';
-import Rectangle from '../../common/Rectangle';
 
 // number of tiles away from the player that a player can see updates for in either direction
 const viewDistX = 50;
@@ -30,7 +30,7 @@ export interface Navmap {
 export default class WorldManager {
     public players: Map<string, PlayerManager> = new Map();;
     public units: Map<string, UnitManager> = new Map();;
-    public chunks: Map<number, ChunkManager> = new Map();;
+    public chunks: Map2D<number, number, ChunkManager> = new Map2D();;
     public tickCounter: number = 0;
     public tickRate: number;
     public server: io.Server;
@@ -64,13 +64,13 @@ export default class WorldManager {
 
     private loadAllChunks(): void {
         for (const id in this.worldDef.chunks) {
-            this.loadChunk(Number(id));
+            this.loadChunk(id);
         }
     }
 
-    private loadChunk(id: number): void {
+    private loadChunk(id: string): void {
         const cm = new ChunkManager(this.worldDef.chunks[id], this);
-        this.chunks.set(id, cm);
+        this.chunks.set(cm.def.x, cm.def.y, cm);
     }
 
     private playersInRange(pos: PointDef, exclude?: PlayerManager): PlayerManager[] {
@@ -157,9 +157,9 @@ export default class WorldManager {
         const maxX = def.x + 1;
         const minY = def.y - 1;
         const maxY = def.y + 1;
-        for (const [_, c] of this.chunks) {
-            if (c.def.x >= minX && c.def.x <= maxX && c.def.y >= minY && c.def.y <= maxY) {
-                neighbours.push(c);
+        for (let x = minX; x <= maxX; x++) {
+            for (let y = minY; y <= maxY; y++) {
+                neighbours.push(this.chunks.get(x, y));
             }
         }
         return neighbours;
@@ -167,15 +167,12 @@ export default class WorldManager {
 
     public handleChunkLoad(session: io.Socket): void {
         const player = this.players.get(session.id);
-        for (const [_, chunk] of this.chunks) {
-            if (chunk.containsPoint(player.data.position)) {
-                const neighbours = this.getNeighbours(chunk.def).map((cm) => cm.def);
-                session.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
-                    chunks: neighbours,
-                });
-                break;
-            }
-        }
+        const [ccx, ccy] = TilePoint.getChunkCoord(player.data.position.x, player.data.position.y, this.chunkSize);
+        const chunk = this.chunks.get(ccx, ccy);
+        const neighbours = this.getNeighbours(chunk.def).map((cm) => cm.def);
+        session.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
+            chunks: neighbours,
+        });
     }
 
     public handleMoveTo(session: io.Socket, packet: PointPacket): void {
@@ -184,31 +181,20 @@ export default class WorldManager {
     }
 
     private tileToChunk(tilePoint: Point): [Point, ChunkManager] {
-        for (const [_, chunk] of this.chunks) {
-            const p = new Point(
-                tilePoint.x - (chunk.def.x * this.chunkSize) + this.chunkSize / 2,
-                tilePoint.y - (chunk.def.y * this.chunkSize) + this.chunkSize / 2,
-            );
-            // console.log('Converted ', tilePoint, ' to', p);
-
-            // check if the chunk contains this point
-            if (new Rectangle(0, 0, this.chunkSize, this.chunkSize).contains(p)) {
-                return [p, chunk];
-            }
-        }
-        return null;
+        const [ccx, ccy] = TilePoint.getChunkCoord(tilePoint.x, tilePoint.y, this.chunkSize);
+        const chunk = this.chunks.get(ccx, ccy);
+        if (!chunk) return null;
+        const point = new Point(
+            tilePoint.x - (ccx * this.chunkSize) + this.chunkSize / 2,
+            tilePoint.y - (ccy * this.chunkSize) + this.chunkSize / 2,
+        );
+        return [point, chunk];
     }
 
     public generateNavmap(startDef: PointDef, endDef: PointDef): Navmap {
         // generate a navmap that is chunkSize * chunkSize around the start point
         const start = Point.fromDef(startDef);
         const end = Point.fromDef(endDef);
-
-        const [startChunkPoint, startChunk] = this.tileToChunk(start);
-        console.log('Converted ', start, ' to', startChunkPoint);
-
-
-        console.log('Pathing from', start, 'to', end);
 
         const navmapSizeX = this.chunkSize;
         const navmapSizeY = this.chunkSize;
@@ -232,9 +218,6 @@ export default class WorldManager {
         const [_topRight, topRightChunk] = this.tileToChunk(new Point(maxX, minY));
         const [_botLeft, botLeftChunk] = this.tileToChunk(new Point(minX, maxY));
         const [_botRight, botRightChunk] = this.tileToChunk(new Point(maxX, maxY));
-
-        console.log('topLeft ->', topLeft);
-        console.log('botRight ->', _botRight);
 
         // ensure end point is within the nav map
         // if it isnt, then make it the nearest point

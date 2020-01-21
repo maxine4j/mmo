@@ -86,26 +86,9 @@ export default class Chunk {
         this.stitchNormals();
     }
 
-    private getSouthAndWest(): [Chunk, Chunk] {
-        // find the chunks west and south of this
-        let westChunk: Chunk = null;
-        let southChunk: Chunk = null;
-        for (const [_, c] of this.world.chunks) {
-            if (!westChunk && c.def.x === this.def.x + 1 && c.def.y === this.def.y) {
-                westChunk = c;
-            }
-            if (!southChunk && c.def.x === this.def.x && c.def.y === this.def.y + 1) {
-                southChunk = c;
-            }
-            if (westChunk && southChunk) {
-                break;
-            }
-        }
-        return [southChunk, westChunk];
-    }
-
     public stitchNormals(): void {
-        const [southChunk, westChunk] = this.getSouthAndWest();
+        const westChunk: Chunk = this.world.chunks.get(this.def.x + 1, this.def.y);
+        const southChunk: Chunk = this.world.chunks.get(this.def.x, this.def.y + 1);
 
         const stride = this.world.chunkSize + 1;
         // @ts-ignore
@@ -139,7 +122,8 @@ export default class Chunk {
     }
 
     public stitchVerts(): void {
-        const [southChunk, westChunk] = this.getSouthAndWest();
+        const westChunk: Chunk = this.world.chunks.get(this.def.x + 1, this.def.y);
+        const southChunk: Chunk = this.world.chunks.get(this.def.x, this.def.y + 1);
 
         const stride = this.world.chunkSize + 1;
         // @ts-ignore
