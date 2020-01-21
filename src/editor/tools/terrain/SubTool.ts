@@ -38,8 +38,10 @@ export default class SubTool extends Tool {
                 uniqueChunks.add(cp.chunk);
             }
         }
-        for (const chunk of uniqueChunks) chunk.stitch();
-        this.props.world.updateDoodads();
+        for (const chunk of uniqueChunks) {
+            chunk.stitch();
+            chunk.positionDoodads();
+        }
     }
 
     public update(delta: number): void {

@@ -40,6 +40,8 @@ TODO NEW FEATURES:
     - Place lights, maybe as part of doodads
     - Texture painting
     - Skybox and amibent light for caves
+    - Multiple world support, maybe have WorldListJsonDef or something, ability to switch between worlds
+    - Interactables like ladders/caves between worlds
 */
 
 export default class EditorScene extends GameScene {
