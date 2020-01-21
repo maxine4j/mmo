@@ -7,7 +7,7 @@ import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
 import _overworldDef from '../data/overworld.json';
 import WorldJsonDef from '../data/WorldsJsonDef';
-import ChunkManager from './ChunkManager';
+import ChunkManager, { NOT_WALKABLE } from './ChunkManager';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 import UnitManager from './UnitManager';
@@ -100,7 +100,7 @@ export default class WorldManager {
         return inrange;
     }
 
-    public async handleWorldInfo(session: io.Socket): Promise<void> {
+    public handleWorldInfo(session: io.Socket): void {
         session.emit(PacketHeader.WORLD_INFO, <WorldInfoPacket>{
             tickRate: this.tickRate,
             chunkSize: this.chunkSize,
@@ -108,7 +108,7 @@ export default class WorldManager {
         });
     }
 
-    public async handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): Promise<void> {
+    public handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): void {
         // find an entity for this char
         CharacterEntity.findOne({ id: char.id }).then((ce) => {
             const p = new PlayerManager(this, ce.toNet(), session);
@@ -178,18 +178,18 @@ export default class WorldManager {
     public sendSurroundingChunks(player: PlayerManager): void {
         const [ccx, ccy] = TilePoint.getChunkCoord(player.data.position.x, player.data.position.y, this.chunkSize);
         const chunk = this.chunks.get(ccx, ccy);
-        const surrounding: ChunkDef[] = [];
+        const chunks: ChunkDef[] = [];
         for (const nbc of this.getNeighbours(chunk.def)) {
             // only send the player chunks they do not have loaded
             if (!player.loadedChunks.contains(nbc.def.x, nbc.def.y)) {
-                surrounding.push(nbc.def);
+                chunks.push(nbc.def);
                 player.loadedChunks.set(nbc.def.x, nbc.def.y, nbc); // mark as loaded
             }
         }
         player.pruneLoadedChunks(); // prune the chunks the player will unload
         player.socket.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
             center: player.data.position,
-            chunks: surrounding,
+            chunks,
         });
     }
 
@@ -201,11 +201,11 @@ export default class WorldManager {
     private tileToChunk(tilePoint: Point): [Point, ChunkManager] {
         const [ccx, ccy] = TilePoint.getChunkCoord(tilePoint.x, tilePoint.y, this.chunkSize);
         const chunk = this.chunks.get(ccx, ccy);
-        if (!chunk) return null;
         const point = new Point(
             tilePoint.x - (ccx * this.chunkSize) + this.chunkSize / 2,
             tilePoint.y - (ccy * this.chunkSize) + this.chunkSize / 2,
         );
+        if (!chunk) return [point, null];
         return [point, chunk];
     }
 
@@ -271,8 +271,11 @@ export default class WorldManager {
                     chunkJ -= navmapSizeX; // we overflowed so adjust chunkJ
                 }
 
-                // get the nav map from the appropriate chunk
-                navmap[i][j] = chunk.navmap[chunkI][chunkJ];
+                if (chunk) { // get the nav map from the appropriate chunk
+                    navmap[i][j] = chunk.navmap[chunkI][chunkJ];
+                } else { // if the chunk doesnt exist then the tile is not walkable
+                    navmap[i][j] = NOT_WALKABLE;
+                }
             }
         }
 

@@ -81,16 +81,19 @@ export default class WorldScene extends GameScene {
         this.initGUI();
 
         this.scene = new Scene();
-        this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.set(0, 10, 0);
-        this.camera.lookAt(0, 0, 0);
 
-        const light = new THREE.AmbientLight(0xffffff, 2);
-        light.position.set(0, 1, 0).normalize();
+        // TODO: lights in world/chunk def
+        const light = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
         this.scene.add(light);
 
         const info = <WorldInfoPacket> await NetClient.sendRecv(PacketHeader.WORLD_INFO);
         this.world = new World(this.scene, info);
+
+        const viewDist = info.chunkViewDist * info.chunkSize;
+        this.camera = new Camera(60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, viewDist);
+        this.camera.position.set(0, 10, 0);
+        this.camera.lookAt(0, 0, 0);
+        this.scene.fog = new THREE.Fog(Graphics.clearColor, viewDist - 20, viewDist);
 
         super.init();
     }
@@ -107,6 +110,7 @@ export default class WorldScene extends GameScene {
             this.mousePoint = null;
         }
     }
+
     private updateMouseLabels(): void {
         if (this.mousePoint) {
             const tileCoord = this.mousePoint.toTile();

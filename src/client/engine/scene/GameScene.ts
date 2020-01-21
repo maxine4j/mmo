@@ -24,6 +24,7 @@ export default abstract class GameScene {
         }
     }
 
+    // eslint-disable-next-line require-await
     public async init(): Promise<void> {
         Graphics.initScene(this.scene, this.camera);
     }

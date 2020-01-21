@@ -23,10 +23,11 @@ export default class Chunk {
         this.terrain = new THREE.Mesh(geometry, material);
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
+        this.terrain.name = `terrain[${def.x},${def.y}]`;
         this.loadDoodads();
     }
 
-    public static async load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
+    public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve) => {
             const loader = new THREE.TextureLoader();
             loader.load(def.texture, (texture) => { // load the texture

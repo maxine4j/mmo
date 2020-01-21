@@ -43,29 +43,29 @@ export default class NetServer {
         });
 
         // world info
-        socket.on(PacketHeader.WORLD_INFO, async () => {
+        socket.on(PacketHeader.WORLD_INFO, () => {
             socket.emit(PacketHeader.WORLD_INFO, NetServer.world.handleWorldInfo(socket));
         });
 
         // player
-        socket.on(PacketHeader.PLAYER_ENTERWORLD, async (packet: CharacterPacket) => {
+        socket.on(PacketHeader.PLAYER_ENTERWORLD, (packet: CharacterPacket) => {
             NetServer.world.handlePlayerEnterWorld(socket, packet);
         });
-        socket.on(PacketHeader.PLAYER_LEAVEWORLD, async () => {
+        socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => {
             NetServer.world.handlePlayerLeaveWorld(socket);
         });
-        socket.on(PacketHeader.PLAYER_UPDATE_SELF, async () => {
+        socket.on(PacketHeader.PLAYER_UPDATE_SELF, () => {
             NetServer.world.handlePlayerUpdateSelf(socket);
         });
-        socket.on(PacketHeader.CHUNK_LOAD, async () => {
+        socket.on(PacketHeader.CHUNK_LOAD, () => {
             NetServer.world.handleChunkLoad(socket);
         });
-        socket.on(PacketHeader.PLAYER_MOVETO, async (packet: PointPacket) => {
+        socket.on(PacketHeader.PLAYER_MOVETO, (packet: PointPacket) => {
             NetServer.world.handleMoveTo(socket, packet);
         });
 
         // chat
-        socket.on(PacketHeader.CHAT_EVENT, async (packet: ChatMsgPacket) => {
+        socket.on(PacketHeader.CHAT_EVENT, (packet: ChatMsgPacket) => {
             NetServer.world.handleChatMessage(socket, packet);
         });
     }

@@ -3,8 +3,8 @@ import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 import WorldManager from './WorldManager';
 
-const WALKABLE = 0;
-const NOT_WALKABLE = 1;
+export const WALKABLE = 0;
+export const NOT_WALKABLE = 1;
 
 export default class ChunkManager {
     public world: WorldManager;

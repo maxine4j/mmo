@@ -17,7 +17,7 @@ export default class ChunkWorld {
         this.chunkViewDist = chunkViewDist;
     }
 
-    public async loadChunk(def: ChunkDef): Promise<Chunk> {
+    public loadChunk(def: ChunkDef): Promise<Chunk> {
         return new Promise((resolve) => {
             Chunk.load(def, this).then((c: Chunk) => {
                 this.chunks.set(def.x, def.y, c);

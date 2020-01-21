@@ -18,6 +18,9 @@
         }
     },
     "rules": {
+        "require-await": [
+            "warn"
+        ],
         "@typescript-eslint/explicit-function-return-type": [
             "error",
             {

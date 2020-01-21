@@ -13,10 +13,11 @@ export default class Graphics {
     private static composer: EffectComposer;
     private static renderPass: RenderPass;
     private static outlinePass: OutlinePass;
+    private static _clearColor: number = 0xccccff;
 
     public static init(): void {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setClearColor(0xccccff);
+        this.renderer.setClearColor(this.clearColor);
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);
 
@@ -51,6 +52,8 @@ export default class Graphics {
             this.composer.setSize(Graphics.viewportWidth, Graphics.viewportHeight);
         }
     }
+
+    public static get clearColor(): number { return this._clearColor; }
 
     public static get viewportWidth(): number {
         return window.innerWidth;
