@@ -34,6 +34,7 @@ export default class WorldManager {
     public tickCounter: number = 0;
     public tickRate: number;
     public server: io.Server;
+    public chunkViewDist: number = 1;
     private worldDef: WorldJsonDef = overworldDef;
 
     public constructor(tickRate: number, server: io.Server) {
@@ -103,6 +104,7 @@ export default class WorldManager {
         session.emit(PacketHeader.WORLD_INFO, <WorldInfoPacket>{
             tickRate: this.tickRate,
             chunkSize: this.chunkSize,
+            chunkViewDist: this.chunkViewDist,
         });
     }
 
@@ -159,7 +161,10 @@ export default class WorldManager {
         const maxY = def.y + 1;
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
-                neighbours.push(this.chunks.get(x, y));
+                const chunk = this.chunks.get(x, y);
+                if (chunk) {
+                    neighbours.push(chunk);
+                }
             }
         }
         return neighbours;
@@ -167,11 +172,24 @@ export default class WorldManager {
 
     public handleChunkLoad(session: io.Socket): void {
         const player = this.players.get(session.id);
+        this.sendSurroundingChunks(player);
+    }
+
+    public sendSurroundingChunks(player: PlayerManager): void {
         const [ccx, ccy] = TilePoint.getChunkCoord(player.data.position.x, player.data.position.y, this.chunkSize);
         const chunk = this.chunks.get(ccx, ccy);
-        const neighbours = this.getNeighbours(chunk.def).map((cm) => cm.def);
-        session.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
-            chunks: neighbours,
+        const surrounding: ChunkDef[] = [];
+        for (const nbc of this.getNeighbours(chunk.def)) {
+            // only send the player chunks they do not have loaded
+            if (!player.loadedChunks.contains(nbc.def.x, nbc.def.y)) {
+                surrounding.push(nbc.def);
+                player.loadedChunks.set(nbc.def.x, nbc.def.y, nbc); // mark as loaded
+            }
+        }
+        player.pruneLoadedChunks(); // prune the chunks the player will unload
+        player.socket.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
+            center: player.data.position,
+            chunks: surrounding,
         });
     }
 

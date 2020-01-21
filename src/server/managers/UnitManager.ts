@@ -3,11 +3,8 @@ import { Point, PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
 import UnitDef from '../../common/UnitDef';
 
-const WALKABLE = 0;
-const NOT_WALKABLE = 1;
-
 export default class UnitManager {
-    private world: WorldManager;
+    protected world: WorldManager;
     public data: UnitDef;
     private destionation: PointDef;
     private path: Array<PointDef>;

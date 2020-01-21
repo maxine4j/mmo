@@ -9,6 +9,7 @@ import LocalUnit from './LocalUnit';
 import UnitDef from '../../common/UnitDef';
 import ChunkWorld from './ChunkWorld';
 import Chunk from './Chunk';
+import { TilePoint } from '../../common/Point';
 
 export default class World {
     public scene: Scene;
@@ -19,12 +20,14 @@ export default class World {
     private _tickTimer: number;
     private _tickRate: number;
     private currentTick: number;
+    private chunkViewDist: number;
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
         this._player = new LocalPlayer(this, null);
         this._tickRate = info.tickRate;
-        this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize);
+        this.chunkViewDist = info.chunkViewDist;
+        this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);
         NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => {
             this.onTick(p);
         });
@@ -33,7 +36,9 @@ export default class World {
             for (const def of p.chunks) {
                 chunkLoads.push(this.chunkWorld.loadChunk(def));
             }
+            console.log(`Loading ${chunkLoads.length} chunks`);
             Promise.all(chunkLoads).then(() => {
+                this.chunkWorld.pruneChunks(new TilePoint(p.center.x, p.center.y, this.chunkWorld));
                 this.chunkWorld.stitchChunks();
             });
         });

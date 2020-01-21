@@ -69,6 +69,10 @@ export default class Map2D<K1, K2, V> implements Iterable<[K1, K2, V]> {
         return false;
     }
 
+    public contains(x: K1, y: K2): boolean {
+        return this.get(x, y) != null;
+    }
+
     public clear(): void {
         for (const [_, row] of this.data) {
             row.clear();

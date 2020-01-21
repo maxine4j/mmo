@@ -28,6 +28,8 @@ export default class LocalUnit {
         this.world.scene.remove(this.model.obj);
     }
 
+    public get position(): TilePoint { return this.currentPosition; }
+
     private loadModel(): void {
         Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from Unit data.model
             .then((model) => {

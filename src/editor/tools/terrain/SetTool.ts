@@ -50,7 +50,7 @@ export default class SetTool extends Tool {
         for (const tp of this.brush.pointsIn()) {
             const cp = tp.toChunk();
             if (cp) {
-                cp.elevation = this.height;
+                cp.singlePointElevation = this.height;
                 this.props.world.updateMeshAtPoint(cp);
                 uniqueChunks.add(cp.chunk);
             }

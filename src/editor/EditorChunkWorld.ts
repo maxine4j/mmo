@@ -12,7 +12,7 @@ export default class EditorChunkWorld {
     private world: ChunkWorld;
 
     public constructor(scene: Scene, worldDef: WorldJsonDef) {
-        this.world = new ChunkWorld(scene, worldDef.chunkSize);
+        this.world = new ChunkWorld(scene, worldDef.chunkSize, 3);
         this.def = worldDef;
     }
 
@@ -59,17 +59,20 @@ export default class EditorChunkWorld {
         let sum = 0;
         let count = 0;
         for (const point of points) {
-            const elev = point.elevation;
-            if (elev !== null) { // elev is null if the point doesnt exist in a chunk
-                sum += elev;
+            const chunkPoint = point.toChunk();
+            if (chunkPoint !== null) {
+                sum += chunkPoint.singlePointElevation;
                 count++;
             }
         }
 
         const newElev = (sum / count) || 0;
-        const elevDelta = (newElev - p.elevation) * strength;
-        if (elevDelta !== null) {
-            p.elevation += elevDelta;
+        const pChunk = p.toChunk();
+        if (pChunk) {
+            const elevDelta = (newElev - pChunk.singlePointElevation) * strength;
+            if (elevDelta !== null) {
+                pChunk.singlePointElevation += elevDelta;
+            }
         }
     }
 
@@ -91,7 +94,7 @@ export default class EditorChunkWorld {
         const verts = chunkPoint.chunk.terrain.geometry.attributes.position.array;
         if (chunkPoint) {
             const idx = chunkPoint.y * (chunkPoint.chunk.world.chunkSize + 1) + chunkPoint.x;
-            verts[idx * 3 + 1] = chunkPoint.elevation;
+            verts[idx * 3 + 1] = chunkPoint.singlePointElevation;
         }
         // @ts-ignore
         chunkPoint.chunk.terrain.geometry.attributes.position.needsUpdate = true;

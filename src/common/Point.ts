@@ -143,10 +143,6 @@ export class TilePoint implements IPoint<TilePoint> {
         if (chunkPoint) return chunkPoint.elevation;
         return null;
     }
-    public set elevation(elev: number) {
-        const chunkPoint = this.toChunk();
-        if (chunkPoint) chunkPoint.elevation = elev;
-    }
 
     public eq(other: TilePoint): boolean {
         return this.x === other.x && this.y === other.y;
@@ -198,11 +194,27 @@ export class ChunkPoint implements IPoint<ChunkPoint> {
         return this;
     }
 
-    public get elevation(): number {
+    public get singlePointElevation(): number { // used in editor as average is not good for terrain editing
         return this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + this.x];
     }
-    public set elevation(elev: number) {
+    public set singlePointElevation(elev: number) { // used in editor as average is not good for terrain editing
         this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + this.x] = elev;
+    }
+
+    public get elevation(): number { // avg of all points around this tile
+        const nw = this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + this.x]; // base point
+        const ne = this.chunk.def.heightmap[this.y * (this.chunk.world.chunkSize + 1) + (this.x + 1)];
+        const sw = this.chunk.def.heightmap[(this.y + 1) * (this.chunk.world.chunkSize + 1) + this.x];
+        const se = this.chunk.def.heightmap[(this.y + 1) * (this.chunk.world.chunkSize + 1) + (this.x + 1)];
+
+        if (this.x === this.chunk.size - 1 && this.y === this.chunk.size - 1) {
+            return nw; // exclude eastern and southern points at far corner
+        } if (this.x === this.chunk.size - 1) {
+            return (nw + sw) / 2; // exlude eastern points at far east edge
+        } if (this.y === this.chunk.size - 1) {
+            return (ne + nw) / 2; // exlude southern points at far south edge
+        }
+        return (ne + nw + se + sw) / 4;
     }
 
     public eq(other: ChunkPoint): boolean {

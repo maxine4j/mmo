@@ -33,7 +33,7 @@ export default class SubTool extends Tool {
         for (const tp of this.brush.pointsIn()) {
             const cp = tp.toChunk();
             if (cp) {
-                cp.elevation -= 1 * delta;
+                cp.singlePointElevation -= 1 * delta;
                 this.props.world.updateMeshAtPoint(cp);
                 uniqueChunks.add(cp.chunk);
             }

@@ -46,6 +46,7 @@ export interface AccountPacket extends Packet, ResponsePacket, AccountDef { }
 export interface WorldInfoPacket extends Packet {
     tickRate: number;
     chunkSize: number;
+    chunkViewDist: number;
 }
 
 export interface CharacterPacket extends Packet, CharacterDef { }
@@ -66,7 +67,8 @@ export interface PointPacket extends Packet, PointDef { }
 
 export interface ChunkPacket extends Packet, ChunkDef { }
 export interface ChunkListPacket extends Packet {
-    chunks: ChunkDef[]
+    center: PointDef;
+    chunks: ChunkDef[];
 }
 
 export interface ChatMsgPacket extends Packet {
