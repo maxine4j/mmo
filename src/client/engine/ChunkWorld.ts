@@ -19,13 +19,20 @@ export default class ChunkWorld {
 
     public loadChunk(def: ChunkDef): Promise<Chunk> {
         return new Promise((resolve) => {
-            Chunk.load(def, this).then((c: Chunk) => {
-                this.chunks.set(def.x, def.y, c);
-                this.scene.add(c.terrain);
-                c.positionInWorld();
-                c.setWireframeVisibility(this.wireframeVisibility);
-                resolve(c);
-            });
+            const existing = this.chunks.get(def.x, def.y);
+            if (existing) {
+                console.log(`Chunk ${def.id} previously loaded. Adding to scene`);
+                existing.load();
+                resolve(existing);
+            } else {
+                console.log(`Loading chunk ${def.id} from definition`);
+                Chunk.load(def, this).then((c: Chunk) => {
+                    this.chunks.set(def.x, def.y, c); // save chunk to the worlds map2d
+                    c.setWireframeVisibility(this.wireframeVisibility);
+                    c.load();
+                    resolve(c);
+                });
+            }
         });
     }
 
@@ -39,7 +46,6 @@ export default class ChunkWorld {
             for (const [x, y, c] of this.chunks) {
                 if (x < minX || x > maxX || y < minY || y > maxY) {
                     c.unload();
-                    this.chunks.delete(x, y);
                 }
             }
         }
@@ -47,13 +53,19 @@ export default class ChunkWorld {
 
     public stitchChunks(): void {
         for (const [_x, _y, chunk] of this.chunks) {
-            chunk.stitchVerts();
+            if (chunk.isLoaded) {
+                chunk.stitchVerts();
+            }
         }
         for (const [_x, _y, chunk] of this.chunks) {
-            chunk.terrain.geometry.computeVertexNormals();
+            if (chunk.isLoaded) {
+                chunk.terrain.geometry.computeVertexNormals();
+            }
         }
         for (const [_x, _y, chunk] of this.chunks) {
-            chunk.stitchNormals();
+            if (chunk.isLoaded) {
+                chunk.stitchNormals();
+            }
         }
     }
 

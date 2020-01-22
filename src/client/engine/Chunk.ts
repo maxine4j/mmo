@@ -10,21 +10,36 @@ export default class Chunk {
     public terrain: THREE.Mesh;
     public wireframe: THREE.LineSegments;
     private wireframeVisible: boolean;
+    private _isLoaded: boolean;
 
     public constructor(def: ChunkDef, world: ChunkWorld, texture?: THREE.Texture) {
         this.def = def;
         this.world = world;
+        this._isLoaded = false;
         const geometry = this.generateTerrain();
         geometry.computeVertexNormals();
-        let material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xffffff });
-        if (texture) {
-            material = new THREE.MeshLambertMaterial({ map: texture });
-        }
+        let material;
+        if (texture) material = new THREE.MeshLambertMaterial({ map: texture });
+        else material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xffffff });
         this.terrain = new THREE.Mesh(geometry, material);
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
         this.terrain.name = `terrain[${def.x},${def.y}]`;
         this.loadDoodads();
+        this.positionInWorld();
+        this.positionDoodads();
+    }
+
+    public get isLoaded(): boolean {
+        return this._isLoaded;
+    }
+    public set isLoaded(val: boolean) {
+        if (val && !this._isLoaded) {
+            this.load(); // load the chunk if val is true and chunk is not currently loaded
+        } else if (!val && this._isLoaded) {
+            this.unload(); // unload the chunk if val is false and chunk is currently loaded
+        }
+        this._isLoaded = val;
     }
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
@@ -44,11 +59,20 @@ export default class Chunk {
         }
     }
 
+    public load(): void {
+        this.world.scene.add(this.terrain);
+        for (const [_, dd] of this.doodads) {
+            dd.load();
+        }
+        this._isLoaded = true;
+    }
+
     public unload(): void {
         for (const [_, doodad] of this.doodads) {
             doodad.unload();
         }
         this.world.scene.remove(this.terrain);
+        this._isLoaded = false;
     }
 
     public updateWireframe(): void {

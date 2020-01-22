@@ -21,6 +21,7 @@ export default class WorldScene extends GameScene {
     private lblMouseTile: Label;
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
+    private lblSceneCount: Label;
     private mousePoint: WorldPoint;
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
@@ -63,6 +64,12 @@ export default class WorldScene extends GameScene {
         this.lblMouseChunk.style.left = '0';
         this.addGUI(this.lblMouseChunk);
 
+        this.lblSceneCount = new Label('lbl-scene-count', UIParent.get(), 'Scene Count: ?');
+        this.lblSceneCount.style.position = 'fixed';
+        this.lblSceneCount.style.top = '60px';
+        this.lblSceneCount.style.left = '0';
+        this.addGUI(this.lblSceneCount);
+
         this.chatbox = new Chatbox('chatbox-main', UIParent.get(), 400, 200);
         this.chatbox.style.left = '0';
         this.chatbox.style.bottom = '0';
@@ -85,6 +92,9 @@ export default class WorldScene extends GameScene {
         // TODO: lights in world/chunk def
         const light = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
         this.scene.add(light);
+
+        const plight = new THREE.PointLight(0xFFFFFF, 1);
+        this.scene.add(plight);
 
         const info = <WorldInfoPacket> await NetClient.sendRecv(PacketHeader.WORLD_INFO);
         this.world = new World(this.scene, info);
@@ -111,7 +121,7 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private updateMouseLabels(): void {
+    private updateTopLeftLabels(): void {
         if (this.mousePoint) {
             const tileCoord = this.mousePoint.toTile();
             const chunkCoord = tileCoord.toChunk();
@@ -123,6 +133,7 @@ export default class WorldScene extends GameScene {
             this.lblMouseTile.text = 'Tile: { ?, ? } elevation: ?';
             this.lblMouseChunk.text = 'Chunk: { ?, ? } elevation: ?';
         }
+        this.lblSceneCount.text = `Scene Count: ${this.scene.children.length}`;
     }
 
     private updateWireframesToggle(): void {
@@ -141,7 +152,7 @@ export default class WorldScene extends GameScene {
 
     public update(delta: number): void {
         this.updateMousePoint();
-        this.updateMouseLabels();
+        this.updateTopLeftLabels();
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
 

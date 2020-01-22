@@ -28,12 +28,16 @@ export default class Doodad {
         });
     }
 
-    public static async load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
+    public static load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
         return new Promise((resolve) => {
             Model.loadDef(`assets/models/${def.model}`).then((model) => {
                 resolve(new Doodad(def, model, chunk));
             });
         });
+    }
+
+    public load(): void {
+        this.chunk.world.scene.add(this.model.obj);
     }
 
     public unload(): void {

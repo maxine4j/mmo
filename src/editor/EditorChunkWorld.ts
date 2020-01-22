@@ -21,7 +21,7 @@ export default class EditorChunkWorld {
     public get chunks(): Map2D<number, number, Chunk> { return this.world.chunks; }
     public get scene(): Scene { return this.world.scene; }
     public get chunkSize(): number { return this.world.chunkSize; }
-    public async loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
+    public loadChunk(def: ChunkDef): Promise<Chunk> { return this.world.loadChunk(def); }
     public setWireframeVisibility(visible: boolean): void { this.world.setWireframeVisibility(visible); }
     public positionDoodads(): void { this.world.positionDoodads(); }
     public stitchChunks(): void { this.world.stitchChunks(); }
