@@ -14,6 +14,7 @@ export default class PlayerManager extends UnitManager {
     public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket) {
         super(world, data);
         this.socket = socket;
+        this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
     }
 
     public pruneLoadedChunks(): void {

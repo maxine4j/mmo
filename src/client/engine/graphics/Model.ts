@@ -22,6 +22,12 @@ export default class Model {
         this.gltf = gltf;
         this.obj.receiveShadow = true;
         this.obj.castShadow = true;
+        this.obj.traverse((o) => { // make fbx converted models look normal
+            if (o.type === 'SkinnedMesh') {
+                // @ts-ignore
+                o.material.metalness = 0;
+            }
+        });
         this.mixer = new THREE.AnimationMixer(this.obj);
         this.initObj();
     }
@@ -35,7 +41,7 @@ export default class Model {
         nameSrc.forEach((ns) => this.lazyLoadAnim(ns[0], ns[1]));
     }
 
-    public async loadAnims(nameSrc: [string, string][]): Promise<AnimationAction[]> {
+    public loadAnims(nameSrc: [string, string][]): Promise<AnimationAction[]> {
         return Promise.all(nameSrc.map((ns) => this.loadAnim(ns[0], ns[1])));
     }
 
@@ -43,7 +49,7 @@ export default class Model {
         this.lazyAnims.set(name, src);
     }
 
-    public async loadAnim(name: string, src: string): Promise<AnimationAction> {
+    public loadAnim(name: string, src: string): Promise<AnimationAction> {
         return new Promise((resolve) => {
             const loader = new GLTFLoader();
             loader.load(src, (gltf) => {
@@ -54,7 +60,7 @@ export default class Model {
         });
     }
 
-    public static async load(src: string): Promise<Model> {
+    public static load(src: string): Promise<Model> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
             loader.load(src, (gltf) => {
@@ -63,7 +69,7 @@ export default class Model {
         });
     }
 
-    public static async loadDef(src: string, lazy: boolean = true): Promise<Model> {
+    public static loadDef(src: string, lazy: boolean = true): Promise<Model> {
         return new Promise((resolve, reject) => {
             fetch(src).then((resp) => { // fetch the json def file
                 resp.json().then((data: ModelDef) => { // parse it

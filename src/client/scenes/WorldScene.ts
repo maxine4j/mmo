@@ -91,10 +91,8 @@ export default class WorldScene extends GameScene {
 
         // TODO: lights in world/chunk def
         const light = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
+        light.position.set(0, 50, 0);
         this.scene.add(light);
-
-        const plight = new THREE.PointLight(0xFFFFFF, 1);
-        this.scene.add(plight);
 
         const info = <WorldInfoPacket> await NetClient.sendRecv(PacketHeader.WORLD_INFO);
         this.world = new World(this.scene, info);

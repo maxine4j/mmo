@@ -23,7 +23,6 @@ export default class UnitManager {
 
     private tickMovement(): void {
         // update the units movement
-        this.data.running = true;
         this.data.moveQueue = [];
         if (this.path && this.path.length > 0) {
             let nextPos = this.path.pop();

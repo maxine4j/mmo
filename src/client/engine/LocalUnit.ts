@@ -31,24 +31,26 @@ export default class LocalUnit {
     public get position(): TilePoint { return this.currentPosition; }
 
     private loadModel(): void {
-        Model.loadDef('assets/models/units/human/human.model.json') // TODO: get from Unit data.model
-            .then((model) => {
-                this.model = model;
-                this.model.obj.castShadow = true;
-                this.model.obj.receiveShadow = true;
+        if (this.data) {
+            Model.loadDef(this.data.model)
+                .then((model) => {
+                    this.model = model;
+                    this.model.obj.castShadow = true;
+                    this.model.obj.receiveShadow = true;
 
-                this.model.getAnim('Walk').then((a) => {
-                    this.animWalk = a;
+                    this.model.getAnim('Walk').then((a) => {
+                        this.animWalk = a;
+                    });
+                    this.model.getAnim('Run').then((a) => {
+                        this.animRun = a;
+                    });
+                    this.model.getAnim('Stand').then((a) => {
+                        this.animStand = a;
+                        this.animStand.play();
+                    });
+                    this.world.scene.add(this.model.obj);
                 });
-                this.model.getAnim('Run').then((a) => {
-                    this.animRun = a;
-                });
-                this.model.getAnim('Stand').then((a) => {
-                    this.animStand = a;
-                    this.animStand.play();
-                });
-                this.world.scene.add(this.model.obj);
-            });
+        }
     }
 
     private isMoving(): boolean {
@@ -78,6 +80,10 @@ export default class LocalUnit {
     }
 
     public onTick(u: UnitDef): void {
+        if (!this.data) {
+            this.data = u;
+            this.loadModel();
+        }
         this.data = u;
         if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;

@@ -85,14 +85,14 @@ export default class WorldManager {
 
     private createUnitSpawnDefs(): void {
         this.unitSpawnDefs = {
-            'test-group': {
-                id: 'test-group',
+            'chicken-group': {
+                id: 'chicken-group',
                 unit: {
-                    id: 'wolf',
-                    maxHealth: 10,
-                    name: 'Wolf',
-                    level: 5,
-                    model: 'wolf',
+                    id: 'chicken',
+                    maxHealth: 3,
+                    name: 'Chicken',
+                    level: 1,
+                    model: 'assets/models/units/chicken/chicken.model.json',
                 },
                 center: { x: 0, y: 0 },
                 spawnRadius: { x: 5, y: 5 },

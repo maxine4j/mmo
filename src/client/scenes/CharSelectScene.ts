@@ -135,8 +135,7 @@ export default class CharSelectScene extends GameScene {
         this.camera = new Camera(45, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
         this.camera.position.z = 10;
 
-        const light = new AmbientLight(0xffffff, 3);
-        light.position.set(0, 0, 1).normalize();
+        const light = new AmbientLight(0xffffff, 1.5);
         this.scene.add(light);
 
         // this.background = await Model.load('assets/models/ui/charselect/charselect.glb');
