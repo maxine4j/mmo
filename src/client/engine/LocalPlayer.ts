@@ -3,8 +3,11 @@ import { PacketHeader, PointPacket } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 import { WorldPoint } from '../../common/Point';
+import CharacterDef from '../../common/CharacterDef';
 
 export default class Player extends LocalUnit {
+    public data: CharacterDef;
+
     public updatePlayer(mousePoint: THREE.Vector3): void {
         // move the player
         if (Input.mouseStartDown(MouseButton.LEFT)) {

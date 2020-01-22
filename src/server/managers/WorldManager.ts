@@ -13,6 +13,8 @@ import CharacterDef from '../../common/CharacterDef';
 import UnitManager from './UnitManager';
 import UnitDef from '../../common/UnitDef';
 import ChunkDef from '../../common/ChunkDef';
+import UnitSpawnsDef from '../data/UnitSpawnsDef';
+import SpawnManager from './SpawnManager';
 
 // number of tiles away from the player that a player can see updates for in either direction
 const viewDistX = 50;
@@ -30,26 +32,39 @@ export interface Navmap {
 export default class WorldManager {
     public players: Map<string, PlayerManager> = new Map();;
     public units: Map<string, UnitManager> = new Map();;
+    public spawns: Map<string, SpawnManager> = new Map();;
     public chunks: Map2D<number, number, ChunkManager> = new Map2D();;
     public tickCounter: number = 0;
     public tickRate: number;
     public server: io.Server;
     public chunkViewDist: number = 1;
     private worldDef: WorldJsonDef = overworldDef;
+    private unitSpawnDefs: UnitSpawnsDef;
 
     public constructor(tickRate: number, server: io.Server) {
         this.tickRate = tickRate;
         this.server = server;
 
+        this.createUnitSpawnDefs(); // TODO: temp, should load from world def
         this.loadAllChunks(); // TODO: dynamicaly load chunks as we need them
+        this.loadAllUnitSpawns();
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
     }
 
     public get chunkSize(): number { return this.worldDef.chunkSize; }
 
-    private tick(): void {
-        this.players.forEach((player) => {
-            player.tick();
+    private tickSpawns(): void {
+        // tick all spawn managers
+        // tick all unit managers
+        for (const [_, sm] of this.spawns) {
+            sm.tick();
+        }
+    }
+
+    private tickPlayers(): void {
+        for (const [_, player] of this.players) {
+            player.tick(); // tick the playermanager
+            // send players and units in range
             const players: CharacterDef[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
             const units: UnitDef[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
@@ -58,9 +73,48 @@ export default class WorldManager {
                 players,
                 tick: this.tickCounter,
             });
-        });
+        }
+    }
+
+    private tick(): void {
+        this.tickPlayers();
+        this.tickSpawns();
         this.tickCounter++;
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
+    }
+
+    private createUnitSpawnDefs(): void {
+        this.unitSpawnDefs = {
+            'test-group': {
+                id: 'test-group',
+                unit: {
+                    id: 'wolf',
+                    maxHealth: 10,
+                    name: 'Wolf',
+                    level: 5,
+                    model: 'wolf',
+                },
+                center: { x: 0, y: 0 },
+                spawnRadius: { x: 5, y: 5 },
+                wanderRadius: { x: 10, y: 10 },
+                leashRadius: { x: 15, y: 15 },
+                wanderRate: 20,
+                minAlive: 1,
+                maxAlive: 5,
+                spawnRate: 10,
+            },
+        };
+    }
+
+    private loadAllUnitSpawns(): void {
+        for (const id in this.unitSpawnDefs) {
+            this.loadUnitSpawn(id);
+        }
+    }
+
+    private loadUnitSpawn(id: string): void {
+        const sm = new SpawnManager(this.unitSpawnDefs[id], this);
+        this.spawns.set(id, sm);
     }
 
     private loadAllChunks(): void {
@@ -110,7 +164,7 @@ export default class WorldManager {
 
     public handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): void {
         // find an entity for this char
-        CharacterEntity.findOne({ id: char.id }).then((ce) => {
+        CharacterEntity.findOne({ id: char.charID }).then((ce) => {
             const p = new PlayerManager(this, ce.toNet(), session);
 
             // notify all players in range
@@ -140,7 +194,7 @@ export default class WorldManager {
     public handleChatMessage(session: io.Socket, msg: ChatMsgPacket): void {
         const self = this.players.get(session.id);
         const out = <ChatMsgPacket>{
-            authorId: self.data.id,
+            authorId: self.data.charID,
             authorName: self.data.name,
             timestamp: Date.now(),
             message: msg.message,

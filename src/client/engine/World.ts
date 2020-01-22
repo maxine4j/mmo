@@ -10,11 +10,12 @@ import UnitDef from '../../common/UnitDef';
 import ChunkWorld from './ChunkWorld';
 import Chunk from './Chunk';
 import { TilePoint } from '../../common/Point';
+import CharacterDef from '../../common/CharacterDef';
 
 export default class World {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
-    public units: Map<number, LocalUnit> = new Map();
+    public units: Map<string, LocalUnit> = new Map();
     public players: Map<number, LocalPlayer> = new Map();
     private _player: LocalPlayer;
     private _tickTimer: number;
@@ -36,7 +37,6 @@ export default class World {
             for (const def of p.chunks) {
                 chunkLoads.push(this.chunkWorld.loadChunk(def));
             }
-            console.log(`Loading ${chunkLoads.length} chunks`);
             Promise.all(chunkLoads).then(() => {
                 this.chunkWorld.pruneChunks(new TilePoint(p.center.x, p.center.y, this.chunkWorld));
                 this.chunkWorld.stitchChunks();
@@ -50,23 +50,44 @@ export default class World {
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
-    private tickUnits(tick: number, units: UnitDef[], localUnits: Map<number, LocalUnit>): void {
-        for (const u of units) {
-            let loc = localUnits.get(u.id);
-            if (!loc) {
-                loc = new LocalUnit(this, u);
-                localUnits.set(u.id, loc);
+    private tickUnits(tick: number, unitDefs: UnitDef[]): void {
+        for (const def of unitDefs) {
+            let unit = this.units.get(def.id);
+            if (!unit) {
+                unit = new LocalUnit(this, def);
+                this.units.set(def.id, unit);
             }
-            loc.onTick(u);
-            loc.lastTickUpdated = tick;
+            unit.onTick(def);
+            unit.lastTickUpdated = tick;
         }
     }
 
-    private removeStaleUnits(units: Map<number, LocalUnit>): void {
-        for (const [id, u] of units) {
+    private tickPlayers(tick: number, playerDefs: CharacterDef[]): void {
+        for (const def of playerDefs) {
+            let player = this.players.get(def.charID);
+            if (!player) {
+                player = new LocalPlayer(this, def);
+                this.players.set(def.charID, player);
+            }
+            player.onTick(def);
+            player.lastTickUpdated = tick;
+        }
+    }
+
+    private removeStaleUnits(): void {
+        for (const [id, u] of this.units) {
             if (u.lastTickUpdated !== this.currentTick) {
                 u.dispose();
-                units.delete(id);
+                this.units.delete(id);
+            }
+        }
+    }
+
+    private removeStalePlayers(): void {
+        for (const [id, p] of this.players) {
+            if (p.lastTickUpdated !== this.currentTick) {
+                p.dispose();
+                this.players.delete(id);
             }
         }
     }
@@ -76,10 +97,10 @@ export default class World {
         this.currentTick = packet.tick; // update the current tick
 
         this.player.onTick(packet.self);
-        this.tickUnits(packet.tick, packet.units, this.units);
-        this.tickUnits(packet.tick, packet.players, this.players);
-        this.removeStaleUnits(this.units);
-        this.removeStaleUnits(this.players);
+        this.tickUnits(packet.tick, packet.units);
+        this.tickPlayers(packet.tick, packet.players);
+        this.removeStaleUnits();
+        this.removeStalePlayers();
     }
 
     private updateUnits(delta: number): void {

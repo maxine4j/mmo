@@ -21,11 +21,9 @@ export default class ChunkWorld {
         return new Promise((resolve) => {
             const existing = this.chunks.get(def.x, def.y);
             if (existing) {
-                console.log(`Chunk ${def.id} previously loaded. Adding to scene`);
                 existing.load();
                 resolve(existing);
             } else {
-                console.log(`Loading chunk ${def.id} from definition`);
                 Chunk.load(def, this).then((c: Chunk) => {
                     this.chunks.set(def.x, def.y, c); // save chunk to the worlds map2d
                     c.setWireframeVisibility(this.wireframeVisibility);

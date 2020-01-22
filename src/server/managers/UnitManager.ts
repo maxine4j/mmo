@@ -8,10 +8,17 @@ export default class UnitManager {
     public data: UnitDef;
     private destionation: PointDef;
     private path: Array<PointDef>;
+    public health: number;
+    public maxHealth: number;
+    public lastWanderTick: number = 0;
 
     public constructor(world: WorldManager, data: UnitDef) {
         this.world = world;
         this.data = data;
+    }
+
+    public get dead(): boolean {
+        return this.health <= 0;
     }
 
     private tickMovement(): void {

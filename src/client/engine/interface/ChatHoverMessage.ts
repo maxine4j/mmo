@@ -39,7 +39,7 @@ export default class ChatHoverMessage {
     }
 
     private findUnit(): void {
-        if (this.world.player.data.id === this.packet.authorId) {
+        if (this.world.player.data.charID === this.packet.authorId) {
             this.unit = this.world.player;
         } else {
             for (const [id, unit] of this.world.players) {

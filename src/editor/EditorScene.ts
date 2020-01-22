@@ -20,7 +20,7 @@ import DoodadMoveTool from './tools/doodad/DoodadMoveTool';
 import DoodadRotateTool from './tools/doodad/DoodadRotateTool';
 import DoodadScaleTool from './tools/doodad/DoodadScaleTool';
 import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
-import ChunkTool from './tools/ChunkTool';
+import ChunkTool from './tools/chunk/ChunkTool';
 import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
 import Chunk from '../client/engine/Chunk';
