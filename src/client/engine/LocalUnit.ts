@@ -37,6 +37,11 @@ export default class LocalUnit {
                     this.model = model;
                     this.model.obj.castShadow = true;
                     this.model.obj.receiveShadow = true;
+                    this.model.obj.traverse((o) => {
+                        o.userData = {
+                            unit: this,
+                        };
+                    });
 
                     this.model.getAnim('Walk').then((a) => {
                         this.animWalk = a;

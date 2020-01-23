@@ -1,20 +1,21 @@
 import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
 import GameScene from '../engine/scene/GameScene';
-import Button from '../engine/interface/Button';
+import Button from '../engine/interface/components/Button';
 import SceneManager from '../engine/scene/SceneManager';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
-import UIParent from '../engine/interface/UIParent';
+import UIParent from '../engine/interface/components/UIParent';
 import World from '../engine/World';
-import Input from '../engine/Input';
-import Label from '../engine/interface/Label';
+import Input, { MouseButton } from '../engine/Input';
+import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import { PacketHeader, ChatMsgPacket, WorldInfoPacket } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
-import ChatHoverMessage from '../engine/interface/ChatHoverMessage';
+import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
 import { WorldPoint } from '../../common/Point';
+import LocalUnit from '../engine/LocalUnit';
 
 export default class WorldScene extends GameScene {
     private world: World;
@@ -23,6 +24,7 @@ export default class WorldScene extends GameScene {
     private lblMouseChunk: Label;
     private lblSceneCount: Label;
     private mousePoint: WorldPoint;
+    private intersects: THREE.Intersection[] = [];
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
     private chatHoverMsgs: ChatHoverMessage[] = [];
@@ -111,11 +113,13 @@ export default class WorldScene extends GameScene {
     }
 
     private updateMousePoint(): void {
-        const intersects = this.camera.rcast(this.scene, Input.mousePos());
+        const intersects = this.camera.rcast(this.scene, Input.mousePos(), true);
         if (intersects.length > 0) {
             this.mousePoint = new WorldPoint(intersects[0].point, this.world.chunkWorld);
+            this.intersects = intersects;
         } else {
             this.mousePoint = null;
+            this.intersects = [];
         }
     }
 
@@ -158,7 +162,7 @@ export default class WorldScene extends GameScene {
             this.camera.setTarget(this.world.player.getWorldPosition());
         }
         this.camera.update();
-        this.world.update(delta, this.mousePoint);
+        this.world.update(delta, this.mousePoint, this.intersects);
     }
 
     public draw(): void {

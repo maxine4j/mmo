@@ -1,14 +1,14 @@
 import GameScene from '../engine/scene/GameScene';
-import Button from '../engine/interface/Button';
-import UIParent from '../engine/interface/UIParent';
+import Button from '../engine/interface/components/Button';
+import UIParent from '../engine/interface/components/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import CharacterDef, { Race } from '../../common/CharacterDef';
-import Panel from '../engine/interface/Panel';
-import Label from '../engine/interface/Label';
+import Panel from '../engine/interface/components/Panel';
+import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import { PacketHeader, CharacterPacket, ResponsePacket } from '../../common/Packet';
-import TextBox from '../engine/interface/TextBox';
-import Dialog from '../engine/interface/Dialog';
+import TextBox from '../engine/interface/components/TextBox';
+import Dialog from '../engine/interface/components/Dialog';
 
 export default class CharCreateScene extends GameScene {
     private txtName: TextBox;

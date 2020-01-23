@@ -1,4 +1,4 @@
-import './styles/default';
+import '../styles/default';
 
 export enum FrameStrata {
     WORLD = 0,

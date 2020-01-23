@@ -1,14 +1,14 @@
 /* eslint-disable no-restricted-globals */
 /* eslint-disable no-alert */
 import * as THREE from 'three';
-import UIParent from '../../../client/engine/interface/UIParent';
+import UIParent from '../../../client/engine/interface/components/UIParent';
 import Tool from '../../Tool';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Chunk from '../../../client/engine/Chunk';
 import Graphics from '../../../client/engine/graphics/Graphics';
-import ContextMenu from '../../../client/engine/interface/ContextMenu';
+import ContextMenu from '../../../client/engine/interface/components/ContextMenu';
 import ButtonProp from '../../panelprops/ButtonProp';
 
 const outlineThickness = 8;

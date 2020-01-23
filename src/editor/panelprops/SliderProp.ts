@@ -1,6 +1,6 @@
-import TextBox from '../../client/engine/interface/TextBox';
-import Slider from '../../client/engine/interface/Slider';
-import Label from '../../client/engine/interface/Label';
+import TextBox from '../../client/engine/interface/components/TextBox';
+import Slider from '../../client/engine/interface/components/Slider';
+import Label from '../../client/engine/interface/components/Label';
 import PanelProp from '../PanelProp';
 import PropsPanel from '../PropsPanel';
 

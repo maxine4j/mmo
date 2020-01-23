@@ -1,7 +1,7 @@
 import { Key } from 'ts-key-enum';
-import { Frame } from './Frame';
-import TextBox from './TextBox';
-import Panel from './Panel';
+import { Frame } from './components/Frame';
+import TextBox from './components/TextBox';
+import Panel from './components/Panel';
 import { ChatMsgPacket } from '../../../common/Packet';
 
 

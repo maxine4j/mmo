@@ -28,6 +28,7 @@ export default class SpawnManager {
         const id = uuid();
         const unit = new UnitManager(this.world, {
             id,
+            target: null,
             animation: 'stand',
             health: this.data.unit.maxHealth,
             maxHealth: this.data.unit.maxHealth,

@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import Label from './components/Label';
-import Camera from '../graphics/Camera';
-import { Point } from '../../../common/Point';
-import { ChatMsgPacket } from '../../../common/Packet';
-import World from '../World';
-import LocalUnit from '../LocalUnit';
-import UIParent from './components/UIParent';
+import Label from './Label';
+import Camera from '../../graphics/Camera';
+import { Point } from '../../../../common/Point';
+import { ChatMsgPacket } from '../../../../common/Packet';
+import World from '../../World';
+import LocalUnit from '../../LocalUnit';
+import UIParent from './UIParent';
 
 const chatHoverHeight = 1.5;
 

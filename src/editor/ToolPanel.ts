@@ -1,8 +1,8 @@
-import Panel from '../client/engine/interface/Panel';
-import UIParent from '../client/engine/interface/UIParent';
+import Panel from '../client/engine/interface/components/Panel';
+import UIParent from '../client/engine/interface/components/UIParent';
 import Tool from './Tool';
 import Input, { MouseButton } from '../client/engine/Input';
-import Label from '../client/engine/interface/Label';
+import Label from '../client/engine/interface/components/Label';
 
 export const toolButtonSize = 32;
 

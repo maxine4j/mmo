@@ -1,11 +1,11 @@
 import { AmbientLight } from 'three';
 import GameScene from '../engine/scene/GameScene';
-import Button from '../engine/interface/Button';
-import UIParent from '../engine/interface/UIParent';
+import Button from '../engine/interface/components/Button';
+import UIParent from '../engine/interface/components/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
 import CharacterDef from '../../common/CharacterDef';
-import Panel from '../engine/interface/Panel';
-import Label from '../engine/interface/Label';
+import Panel from '../engine/interface/components/Panel';
+import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import Graphics from '../engine/graphics/Graphics';
 import {

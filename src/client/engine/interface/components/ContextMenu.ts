@@ -1,5 +1,5 @@
 import { Frame, FrameStrata } from './Frame';
-import { Point } from '../../../common/Point';
+import { Point } from '../../../../common/Point';
 
 
 class ContextMenuOption extends Frame {

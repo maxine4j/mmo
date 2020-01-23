@@ -9,7 +9,7 @@ import LocalUnit from './LocalUnit';
 import UnitDef from '../../common/UnitDef';
 import ChunkWorld from './ChunkWorld';
 import Chunk from './Chunk';
-import { TilePoint } from '../../common/Point';
+import { TilePoint, WorldPoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 
 export default class World {
@@ -115,9 +115,9 @@ export default class World {
         }
     }
 
-    public update(delta: number, mousePoint: THREE.Vector3): void {
+    public update(delta: number, mousePoint: WorldPoint, intersects: THREE.Intersection[]): void {
         this.player.update(delta);
-        this.player.updatePlayer(mousePoint);
+        this.player.updateClientPlayer(mousePoint, intersects);
         this.updateUnits(delta);
         this.updatePlayers(delta);
 

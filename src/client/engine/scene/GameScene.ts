@@ -1,4 +1,4 @@
-import { Frame } from '../interface/Frame';
+import { Frame } from '../interface/components/Frame';
 import Scene from '../graphics/Scene';
 import Camera from '../graphics/Camera';
 import Graphics from '../graphics/Graphics';

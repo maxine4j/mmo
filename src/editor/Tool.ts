@@ -1,4 +1,4 @@
-import Button from '../client/engine/interface/Button';
+import Button from '../client/engine/interface/components/Button';
 import ToolPanel, { toolButtonSize } from './ToolPanel';
 import EditorProps from './EditorProps';
 import PropsPanel from './PropsPanel';

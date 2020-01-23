@@ -1,6 +1,6 @@
-import Panel from '../client/engine/interface/Panel';
+import Panel from '../client/engine/interface/components/Panel';
 import { toolButtonSize, panelBg } from './ToolPanel';
-import { Frame } from '../client/engine/interface/Frame';
+import { Frame } from '../client/engine/interface/components/Frame';
 import PanelProp from './PanelProp';
 
 export default class PropsPanel extends Panel {

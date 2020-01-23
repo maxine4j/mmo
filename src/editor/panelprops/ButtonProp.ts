@@ -1,4 +1,4 @@
-import Button from '../../client/engine/interface/Button';
+import Button from '../../client/engine/interface/components/Button';
 import PanelProp from '../PanelProp';
 import PropsPanel from '../PropsPanel';
 

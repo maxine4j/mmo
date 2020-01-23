@@ -1,5 +1,5 @@
-import CheckBox from '../../client/engine/interface/CheckBox';
-import Label from '../../client/engine/interface/Label';
+import CheckBox from '../../client/engine/interface/components/CheckBox';
+import Label from '../../client/engine/interface/components/Label';
 import PanelProp from '../PanelProp';
 import PropsPanel from '../PropsPanel';
 

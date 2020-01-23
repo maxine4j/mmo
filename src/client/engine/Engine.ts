@@ -3,8 +3,8 @@ import Graphics from './graphics/Graphics';
 import NetClient from './NetClient';
 import SceneManager from './scene/SceneManager';
 import GameScene from './scene/GameScene';
-import Label from './interface/Label';
-import UIParent from './interface/UIParent';
+import Label from './interface/components/Label';
+import UIParent from './interface/components/UIParent';
 import AccountDef from '../../common/AccountDef';
 
 export default class Engine {
