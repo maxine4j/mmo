@@ -217,20 +217,31 @@ export default class WorldManager {
         session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
     }
 
+    private parseChatCommand(session: io.Socket, msg: ChatMsgPacket): void {
+        const argv = msg.message.split(' ');
+        if (argv[0] === '/run') {
+            this.players.get(session.id).data.running = (argv[1] === 'true');
+        }
+    }
+
     public handleChatMessage(session: io.Socket, msg: ChatMsgPacket): void {
-        const self = this.players.get(session.id);
-        const out = <ChatMsgPacket>{
-            authorId: self.data.id,
-            authorName: self.data.name,
-            timestamp: Date.now(),
-            message: msg.message,
-        };
-        self.socket.emit(PacketHeader.CHAT_EVENT, out);
-        this.playersInRange(self.data.position, self).forEach((pm) => {
-            // TODO: better chat processing here
-            // channels, commands, etc
-            pm.socket.emit(PacketHeader.CHAT_EVENT, out);
-        });
+        if (msg.message.startsWith('/')) {
+            this.parseChatCommand(session, msg);
+        } else {
+            const self = this.players.get(session.id);
+            const out = <ChatMsgPacket>{
+                authorId: self.data.id,
+                authorName: self.data.name,
+                timestamp: Date.now(),
+                message: msg.message,
+            };
+            self.socket.emit(PacketHeader.CHAT_EVENT, out);
+            this.playersInRange(self.data.position, self).forEach((pm) => {
+                // TODO: better chat processing here
+                // channels, commands, etc
+                pm.socket.emit(PacketHeader.CHAT_EVENT, out);
+            });
+        }
     }
 
     private getNeighbours(def: ChunkDef): ChunkManager[] {
