@@ -3,6 +3,7 @@ import { PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import UnitManager from './UnitManager';
+import { UnitAnimState } from '../../common/UnitDef';
 
 export default class SpawnManager {
     private world: WorldManager;
@@ -29,7 +30,7 @@ export default class SpawnManager {
         const unit = new UnitManager(this.world, {
             id,
             target: null,
-            animation: 'stand',
+            state: UnitAnimState.IDLE,
             health: this.data.unit.maxHealth,
             maxHealth: this.data.unit.maxHealth,
             name: this.data.unit.name,
@@ -60,9 +61,10 @@ export default class SpawnManager {
     }
 
     private wanderUnit(unit: UnitManager): void {
-        const target = this.getRandomPoint(this.data.center, this.data.wanderRadius);
-        unit.moveTo(target);
-        unit.lastWanderTick = this.world.tickCounter;
+        if (!unit.data.target) {
+            unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
+            unit.lastWanderTick = this.world.tickCounter;
+        }
     }
 
     private tickWander(unit: UnitManager): void {
@@ -72,13 +74,7 @@ export default class SpawnManager {
     }
 
     private tickUnits(): void {
-        for (const [id, unit] of this.units) {
-            if (unit.dead) {
-                // remove the unit from the world
-                // TODO: should drop items here?
-                this.world.units.delete(id);
-                this.units.delete(id);
-            }
+        for (const [_, unit] of this.units) {
             unit.tick();
             this.tickWander(unit);
         }

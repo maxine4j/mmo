@@ -25,6 +25,11 @@ class ContextMenuOption extends Frame {
     }
 }
 
+export interface ContextOptionDef {
+    text: string;
+    listener: () => void;
+}
+
 export default class ContextMenu extends Frame {
     protected element: HTMLSpanElement;
 

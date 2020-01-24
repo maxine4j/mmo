@@ -8,14 +8,18 @@ import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/components/UIParent';
 import World from '../engine/World';
-import Input, { MouseButton } from '../engine/Input';
+import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
-import { PacketHeader, ChatMsgPacket, WorldInfoPacket } from '../../common/Packet';
+import {
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket,
+} from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
 import { WorldPoint } from '../../common/Point';
 import LocalUnit from '../engine/LocalUnit';
+import UnitNameplate from '../engine/interface/UnitNameplate';
+import HitSplat from '../engine/interface/HitSplat';
 
 export default class WorldScene extends GameScene {
     private world: World;
@@ -28,6 +32,7 @@ export default class WorldScene extends GameScene {
     private wireframesVisible: boolean = false;
     private chatbox: Chatbox;
     private chatHoverMsgs: ChatHoverMessage[] = [];
+    private nameplates: Map<string, UnitNameplate> = new Map();
 
     public constructor() {
         super('world');
@@ -86,6 +91,16 @@ export default class WorldScene extends GameScene {
         this.addGUI(this.chatbox);
     }
 
+    private initNameplates(): void {
+        this.world.on('unit_added', (unit: LocalUnit) => {
+            this.nameplates.set(unit.data.id, new UnitNameplate(this.world, this.camera, unit));
+        });
+        this.world.on('unit_removed', (unit: LocalUnit) => {
+            this.nameplates.get(unit.data.id).dispose();
+            this.nameplates.delete(unit.data.id);
+        });
+    }
+
     public async init(): Promise<void> {
         this.initGUI();
 
@@ -104,6 +119,18 @@ export default class WorldScene extends GameScene {
         this.camera.position.set(0, 10, 0);
         this.camera.lookAt(0, 0, 0);
         this.scene.fog = new THREE.Fog(Graphics.clearColor, viewDist - 20, viewDist);
+
+        this.initNameplates();
+
+        this.world.on('unit_damaged', (dmg: DamagePacket) => {
+            let unit;
+            if (dmg.isPlayer) {
+                unit = this.world.players.get(Number(dmg.unitid));
+            } else {
+                unit = this.world.units.get(dmg.unitid);
+            }
+            this.addGUI(new HitSplat(this.world, this.camera, unit, dmg.damage));
+        });
 
         super.init();
     }
@@ -139,7 +166,7 @@ export default class WorldScene extends GameScene {
     }
 
     private updateWireframesToggle(): void {
-        if (Input.wasKeyPressed('1')) {
+        if (Input.wasKeyPressed(Key.Insert)) {
             this.wireframesVisible = !this.wireframesVisible;
             this.world.chunkWorld.setWireframeVisibility(this.wireframesVisible);
         }
@@ -152,11 +179,18 @@ export default class WorldScene extends GameScene {
         this.chatHoverMsgs = this.chatHoverMsgs.filter((msg: ChatHoverMessage) => !msg.update());
     }
 
+    private updateNameplates(): void {
+        for (const [_, np] of this.nameplates) {
+            np.update();
+        }
+    }
+
     public update(delta: number): void {
         this.updateMousePoint();
         this.updateTopLeftLabels();
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
+        this.updateNameplates();
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition());

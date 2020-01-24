@@ -1,5 +1,6 @@
 import { Key } from 'ts-key-enum';
 import { Point } from '../../common/Point';
+import ContextMenu, { ContextOptionDef } from './interface/components/ContextMenu';
 
 export enum MouseButton {
     LEFT = 0,
@@ -15,6 +16,7 @@ export default class Input {
     private static mousePosition: Point;
     private static clickMarker: HTMLImageElement;
     private static clickMarkerDim: number = 16;
+    private static contextMenu: ContextMenu;
 
     public static init(canvas: HTMLCanvasElement): void {
         this.mousePosition = new Point(0, 0);
@@ -45,6 +47,14 @@ export default class Input {
         this.clickMarker.style.pointerEvents = 'none';
     }
 
+    public static openContextMenu(options: ContextOptionDef[]): void {
+        this.contextMenu.clear();
+        for (const opt of options) {
+            this.contextMenu.addOption(opt.text, opt.listener);
+        }
+        this.contextMenu.open(this.mousePos());
+    }
+
     public static playClickMark(p: Point, color: string): void {
         this.clickMarker.style.left = `${p.x - this.clickMarkerDim / 2}px`;
         this.clickMarker.style.top = `${p.y - this.clickMarkerDim / 2}px`;
@@ -54,6 +64,7 @@ export default class Input {
         this.clickMarker.style.display = 'initial';
         this.clickMarker.style.filter = `opacity(.5) drop-shadow(0 0 0 ${color})`;
         this.clickMarker.style.webkitFilter = `opacity(.5) drop-shadow(0 0 0 ${color})`;
+        this.clickMarker.style.zIndex = '9999';
         // eslint-disable-next-line no-self-assign
         this.clickMarker.src = this.clickMarker.src;
     }

@@ -1,0 +1,14 @@
+.hpbar {
+    appearance: none;
+    -webkit-appearance: none;
+  
+    &::-webkit-progress-bar {
+      background-color: red;
+      border-radius: 2px;
+    }
+  
+    &::-webkit-progress-value {
+      background-color: #00e01e;
+    }
+  }
+  

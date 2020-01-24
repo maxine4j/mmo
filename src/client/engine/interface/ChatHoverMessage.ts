@@ -27,7 +27,7 @@ export default class ChatHoverMessage {
         this.update();
         // destroy label after timeout
         setTimeout(() => {
-            this.label.destroy();
+            this.label.dispose();
             this.destroyed = true;
         }, lifetime);
     }

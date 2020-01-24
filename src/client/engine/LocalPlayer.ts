@@ -1,9 +1,11 @@
+import * as THREE from 'three';
 import NetClient from './NetClient';
 import { PacketHeader, PointPacket } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 import { WorldPoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
+import Graphics from './graphics/Graphics';
 
 export default class LocalPlayer extends LocalUnit {
     public data: CharacterDef;
@@ -17,9 +19,11 @@ export default class LocalPlayer extends LocalUnit {
                     // but dont target ourselves
                     if (clickedUnit.data.id !== this.world.player.data.id) {
                         this.world.player.data.target = clickedUnit.data.id;
+                        Graphics.setOutlines([clickedUnit.model.obj], new THREE.Color(0xFF0000));
                         Input.playClickMark(Input.mousePos(), 'red');
+                        NetClient.send(PacketHeader.PLAYER_TARGET, { string: this.world.player.data.target });
+                        return true;
                     }
-                    return true;
                 }
             }
         }

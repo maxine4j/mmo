@@ -20,7 +20,7 @@ export default abstract class GameScene {
 
     public clearGUI(): void {
         for (const [_, f] of this.gui) {
-            f.destroy();
+            f.dispose();
         }
     }
 

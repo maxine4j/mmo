@@ -22,7 +22,7 @@ export default class EditorProps {
     }
 
     public update(delta: number): void {
-        const intersects = this.camera.rcast(this.scene, Input.mousePos());
+        const intersects = this.camera.rcast(this.scene, Input.mousePos(), true);
         let idx = 0;
         while (idx < intersects.length) {
             const int = intersects[idx++];

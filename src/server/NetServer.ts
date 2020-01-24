@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket,
 } from '../common/Packet';
 import {
     handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
@@ -62,6 +62,9 @@ export default class NetServer {
         });
         socket.on(PacketHeader.PLAYER_MOVETO, (packet: PointPacket) => {
             NetServer.world.handleMoveTo(socket, packet);
+        });
+        socket.on(PacketHeader.PLAYER_TARGET, (packet: TargetPacket) => {
+            NetServer.world.handlePlayerTarget(socket, packet);
         });
 
         // chat

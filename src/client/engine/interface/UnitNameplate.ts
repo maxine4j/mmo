@@ -6,34 +6,70 @@ import World from '../World';
 import LocalUnit from '../LocalUnit';
 import UIParent from './components/UIParent';
 import Panel from './components/Panel';
+import ProgressBar from './components/ProgressBar';
+import './styles/healthbar';
+import Graphics from '../graphics/Graphics';
 
-const chatHoverHeight = 1.5;
+const nameplatHeight = 1.5;
 
-export default class UnitNameplate {
+export default class UnitNameplate extends Panel {
     public world: World;
     public camera: Camera;
     public unit: LocalUnit;
 
-    private panel: Panel;
+    private label: Label;
+    private healthbar: ProgressBar;
 
     public constructor(world: World, camera: Camera, unit: LocalUnit) {
+        super(`nameplate-${unit.data.id}`, UIParent.get());
         this.world = world;
         this.camera = camera;
         this.unit = unit;
-        // create label at unit pos
-        this.panel = new Panel(`nameplate-${unit.data.id}`, UIParent.get());
+        this.width = 100;
+        this.height = 30;
+        this.disablePointerEvents();
+
+        this.label = new Label(`${this.id}-lbl`, this, '');
+        this.updateLabelText();
+        this.label.style.position = 'initial';
+        this.label.style.textAlign = 'center';
+        this.label.disablePointerEvents();
+
+        this.healthbar = new ProgressBar(`${this.id}-bar`, this, 0, unit.data.maxHealth, unit.data.health / 2); // TODO: temp
+        this.healthbar.style.position = 'initial';
+        this.healthbar.width = this.width;
+        this.healthbar.height = 10;
+        this.healthbar.classList.add('hpbar');
+        this.healthbar.disablePointerEvents();
+
         this.update();
     }
 
-    private getScreenPos(): Point {
+    private updateLabelText(): void {
+        this.label.text = `${this.unit.data.name} (${this.unit.data.level})`;
+    }
+
+    private updateHealthbar(): void {
+        this.healthbar.max = this.unit.data.maxHealth;
+        this.healthbar.value = this.unit.data.health;
+    }
+
+    private updatePosition(): void {
         const wpos = this.unit.model.obj.position.clone();
-        wpos.add(new THREE.Vector3(0, chatHoverHeight, 0));
-        return this.camera.worldToScreen(wpos);
+        wpos.add(new THREE.Vector3(0, nameplatHeight, 0));
+        const pos = this.camera.worldToScreen(wpos);
+        this.style.bottom = `${Graphics.viewportHeight - pos.y}px`;
+        this.style.left = `${pos.x - this.width / 2}px`;
     }
 
     public update(): void {
-        const pos = this.getScreenPos();
-        this.panel.style.top = `${pos.y}px`;
-        this.panel.style.left = `${pos.x - this.panel.width / 2}px`;
+        if (this.unit.model) {
+            this.visible = true;
+            this.updateLabelText();
+            this.updateHealthbar();
+            this.updatePosition();
+        } else {
+            this.visible = false;
+        }
     }
 }

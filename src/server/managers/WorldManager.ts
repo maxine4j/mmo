@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import Map2D from '../../common/Map2D';
 import {
-    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket,
+    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -30,10 +30,10 @@ export interface Navmap {
 }
 
 export default class WorldManager {
-    public players: Map<string, PlayerManager> = new Map();;
-    public units: Map<string, UnitManager> = new Map();;
-    public spawns: Map<string, SpawnManager> = new Map();;
-    public chunks: Map2D<number, number, ChunkManager> = new Map2D();;
+    public players: Map<string, PlayerManager> = new Map();
+    public units: Map<string, UnitManager> = new Map();
+    public spawns: Map<string, SpawnManager> = new Map();
+    public chunks: Map2D<number, number, ChunkManager> = new Map2D();
     public tickCounter: number = 0;
     public tickRate: number;
     public server: io.Server;
@@ -54,8 +54,6 @@ export default class WorldManager {
     public get chunkSize(): number { return this.worldDef.chunkSize; }
 
     private tickSpawns(): void {
-        // tick all spawn managers
-        // tick all unit managers
         for (const [_, sm] of this.spawns) {
             sm.tick();
         }
@@ -89,10 +87,10 @@ export default class WorldManager {
                 id: 'skeleton-group',
                 unit: {
                     id: 'skeleton',
-                    maxHealth: 3,
+                    maxHealth: 5,
                     name: 'Skeleton',
                     level: 1,
-                    model: 'assets/models/units/skeleton/skeleton.model.json',
+                    model: 'assets/models/units/human/human.model.json',
                 },
                 center: { x: 0, y: 0 },
                 spawnRadius: { x: 5, y: 5 },
@@ -249,7 +247,14 @@ export default class WorldManager {
 
     public handleMoveTo(session: io.Socket, packet: PointPacket): void {
         const player = this.players.get(session.id);
+        player.data.target = '';
         player.moveTo(packet);
+    }
+
+    public handlePlayerTarget(session: io.Socket, packet: TargetPacket): void {
+        const player = this.players.get(session.id);
+        player.data.target = packet.target;
+        console.log('set a player target');
     }
 
     private tileToChunk(tilePoint: Point): [Point, ChunkManager] {

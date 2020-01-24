@@ -11,19 +11,15 @@
     "watch:server:node": "nodemon dist/server/index.js",
     "watch:client": "yarn webpack-dev-server --watch --config ./webpack.client.config.js",
     "watch:server": "concurrently -k -p \"[{name}]\" -n \"TS,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch:server:ts\" \"yarn watch:server:node\"",
-    
     "watch:game": "concurrently -k -p \"[{name}]\" -n \"TS Server,WP Client,Node\" -c \"yello.bold, cyan.bold\" \"yarn watch:server:ts\" \"yarn watch:client\" \"yarn watch:server:node\"",
     "watch:editor": "yarn webpack-dev-server --watch --config ./webpack.editor.config.js",
-    
     "clean": "rm -rf dist/*",
     "clean:client": "rm -rf dist/client/*",
     "clean:server": "rm -rf dist/server/*",
     "clean:editor": "rm -rf dist/editor/*",
-
     "build:client": "yarn webpack --config ./webpack.client.config.js",
     "build:server": "tsc -p tsconfig.server.json -outDir dist/",
     "build:editor": "yarn webpack --config ./webpack.editor.config.js",
-
     "validate": "tsc --noEmit"
   },
   "dependencies": {
@@ -32,6 +28,7 @@
     "@types/uuid": "^3.4.6",
     "concurrently": "^5.0.2",
     "copy-webpack-plugin": "^5.1.1",
+    "events": "^3.1.0",
     "express": "^4.17.1",
     "file-loader": "^5.0.2",
     "fs": "^0.0.1-security",

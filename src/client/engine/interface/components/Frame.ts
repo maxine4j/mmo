@@ -35,7 +35,7 @@ export abstract class Frame {
         }
     }
 
-    public destroy(): void {
+    public dispose(): void {
         if (this.element != null) {
             this.element.remove();
         }
@@ -43,7 +43,7 @@ export abstract class Frame {
 
     public clear(): void {
         for (const [_, child] of this.children) {
-            child.destroy();
+            child.dispose();
         }
     }
 
@@ -150,6 +150,10 @@ export abstract class Frame {
         this.element.style.marginTop = `${-0.5 * this.height}px`;
     }
 
+    public disablePointerEvents(): void {
+        this.element.style.pointerEvents = 'none';
+    }
+
     public addEventListener<K extends keyof HTMLElementEventMap>(type: K,
         listener: (self: Frame, ev: HTMLElementEventMap[K]) => any,
         options?: boolean | AddEventListenerOptions): void {
@@ -159,4 +163,6 @@ export abstract class Frame {
         },
         options);
     }
+
+    public get classList(): DOMTokenList { return this.element.classList; }
 }
