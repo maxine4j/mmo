@@ -30,8 +30,9 @@ export interface Navmap {
 }
 
 export default class WorldManager {
-    private players: Map<string, PlayerManager> = new Map();
-    private units: Map<string, UnitManager> = new Map();
+    private players: Map<string, PlayerManager> = new Map(); // key is socket.id, players only
+    private units: Map<string, UnitManager> = new Map(); // key is data.id, units only
+    private allUnits: Map<string, UnitManager> = new Map(); // key is data.id, both units and players
     private spawns: Map<string, SpawnManager> = new Map();
     public chunks: Map2D<number, number, ChunkManager> = new Map2D();
     public tickCounter: number = 0;
@@ -54,19 +55,31 @@ export default class WorldManager {
     public get chunkSize(): number { return this.worldDef.chunkSize; }
 
     public getUnit(id: string): UnitManager {
-        const unit = this.units.get(id);
-        if (unit) return unit;
-        return this.players.get(id);
+        return this.allUnits.get(id);
+    }
+
+    public addPlayer(player: PlayerManager, session: io.Socket): void {
+        this.players.set(session.id, player);
+        this.allUnits.set(player.data.id, player);
+        player.on('damage', (dmg: number, attacker: UnitManager) => {
+            for (const p of this.playersInRange(player.position)) {
+                p.socket.emit(PacketHeader.UNIT_DAMAGE, <DamagePacket>{
+                    damage: dmg,
+                    defender: player.data.id,
+                    attacker: attacker.data.id,
+                });
+            }
+        });
+        player.on('death', () => {
+            player.data.position = { x: 0, y: 0 };
+        });
     }
 
     public addUnit(unit: UnitManager): void {
         this.units.set(unit.data.id, unit);
+        this.allUnits.set(unit.data.id, unit);
         unit.on('damage', (dmg: number, attacker: UnitManager) => {
-            console.log(`got a dmamge event in world manager, checking for players in range: ${this.playersInRange(unit.position).length}`);
-
             for (const player of this.playersInRange(unit.position)) {
-                console.log(`Emitting dmg to ${player.data.name}`);
-
                 player.socket.emit(PacketHeader.UNIT_DAMAGE, <DamagePacket>{
                     damage: dmg,
                     defender: unit.data.id,
@@ -74,7 +87,8 @@ export default class WorldManager {
                 });
             }
         });
-        unit.on('death', () => {
+        unit.on('death', (dmg: number, attacker: UnitManager) => {
+            attacker.stopAttack();
             unit.dispose();
             this.units.delete(unit.data.id); // TODO: send death animation trigger to client
         });
@@ -198,7 +212,7 @@ export default class WorldManager {
                 pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.data);
             });
             // add the char to the logged in players list
-            this.players.set(session.id, p);
+            this.addPlayer(p, session);
             session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.data);
         });
     }

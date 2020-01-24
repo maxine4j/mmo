@@ -52,9 +52,11 @@ export default class UnitManager {
         // mitigate dmg here, could also reflect to attacker
         this.data.health -= dmg;
         this.attackUnit(attacker);
+        console.log(`${attacker.data.name} hit ${this.data.name} for ${dmg} damage`);
+
         this.emit('damage', dmg, attacker);
         if (this.dead) {
-            this.emit('death');
+            this.emit('death', dmg, attacker);
         }
     }
 
@@ -128,6 +130,11 @@ export default class UnitManager {
 
     public distance(other: UnitManager): number {
         return this.position.dist(other.position);
+    }
+
+    public stopAttack(): void {
+        this.data.target = '';
+        this.state = UnitState.IDLE;
     }
 
     public attackUnit(target: UnitManager): void {

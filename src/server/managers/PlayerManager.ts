@@ -13,6 +13,8 @@ export default class PlayerManager extends UnitManager {
 
     public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket) {
         super(world, data);
+        this.data.maxHealth = 10;
+        this.data.health = 10; // TODO: temp
         this.socket = socket;
         this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
     }

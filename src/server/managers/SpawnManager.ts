@@ -40,8 +40,10 @@ export default class SpawnManager {
             moveQueue: [],
         });
         unit.on('damage', (dmg: number, attacker: UnitManager) => {
-            console.log(`Spawned unit ${unit.data.name} got hit for ${dmg} from ${attacker.data.name}`);
-            unit.attackUnit(attacker);
+            // TODO: better way to attack next tick so units look like they take turns
+            setTimeout(() => {
+                unit.attackUnit(attacker);
+            }, this.world.tickRate * 0.8);
         });
         unit.on('death', () => {
             this.units.delete(unit.data.id);

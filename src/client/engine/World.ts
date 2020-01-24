@@ -97,6 +97,7 @@ export default class World {
                 player = new LocalPlayer(this, def);
                 this.players.set(def.id, player);
                 this.emit('player_added', player);
+                console.log('got a new player', player.data.name);
             }
             player.onTick(def);
             player.lastTickUpdated = tick;
