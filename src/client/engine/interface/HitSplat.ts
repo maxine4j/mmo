@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import uuid from 'uuid/v4';
 import Label from './components/Label';
 import Camera from '../graphics/Camera';
 import World from '../World';
@@ -7,7 +8,6 @@ import UIParent from './components/UIParent';
 import Panel from './components/Panel';
 
 const splatHeight = 1;
-const splatDuration = 1000;
 
 export default class HitSplat extends Panel {
     public world: World;
@@ -17,25 +17,30 @@ export default class HitSplat extends Panel {
     private label: Label;
 
     public constructor(world: World, camera: Camera, unit: LocalUnit, dmg: number) {
-        super(`hitsplat-${unit.data.id}`, UIParent.get());
+        super(`hitsplat-${uuid()}`, UIParent.get());
         this.world = world;
         this.camera = camera;
         this.unit = unit;
         this.width = 32;
         this.height = 32;
+        this.style.backgroundSize = '100%';
+        if (dmg <= 0) {
+            this.style.backgroundImage = 'url("assets/imgs/splats/blue.png")';
+            // this.style.backgroundColor = 'blue';
+        } else {
+            this.style.backgroundImage = 'url("assets/imgs/splats/red.png")';
+            // this.style.backgroundColor = 'red';
+        }
+
         this.disablePointerEvents();
 
         this.label = new Label(`${this.id}-lbl`, this, dmg.toString());
         this.label.style.position = 'initial';
         this.label.style.textAlign = 'center';
-        this.label.style.color = 'red';
+        this.label.style.color = 'white';
         this.label.disablePointerEvents();
 
         this.update();
-
-        setTimeout(() => {
-            this.dispose();
-        }, splatDuration);
     }
 
     private updatePosition(): void {

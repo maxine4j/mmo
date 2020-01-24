@@ -10,6 +10,5 @@ export enum Race {
 }
 
 export default interface CharacterDef extends UnitDef {
-    charID: number;
     race: Race;
 }

@@ -1,31 +1,78 @@
 import PF from 'pathfinding';
+import { EventEmitter } from 'events';
 import { Point, PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
-import UnitDef, { UnitAnimState } from '../../common/UnitDef';
+import UnitDef, { UnitTickAction } from '../../common/UnitDef';
+
+type UnitManagerEvent = 'damage' | 'death' | 'move' | 'wandered';
+
+export enum UnitState {
+    IDLE,
+    FOLLOWING,
+    ATTACKING,
+}
 
 export default class UnitManager {
+    private eventEmitter: EventEmitter = new EventEmitter();
     protected world: WorldManager;
     public data: UnitDef;
-    private destionation: PointDef;
     private path: Array<PointDef>;
     public lastWanderTick: number = 0;
+    public state: UnitState;
+    private attackRate: number = 2;
+    private lastAttackTick: number = 2;
 
     public constructor(world: WorldManager, data: UnitDef) {
         this.world = world;
         this.data = data;
+        this.state = UnitState.IDLE;
     }
 
-    public get dead(): boolean {
-        return this.data.health <= 0;
+    public dispose(): void {
+        this.eventEmitter.removeAllListeners();
+    }
+    public on(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+    public off(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+    private emit(event: UnitManagerEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
     }
 
-    private tickMovement(): void {
-        // update the units movement
+    public get dead(): boolean { return this.data.health <= 0; }
+    public get position(): Point { return Point.fromDef(this.data.position); }
+    public get target(): UnitManager {
+        return this.world.getUnit(this.data.target);
+    }
+    public set target(unit: UnitManager) { this.data.target = unit.data.id; }
+
+    private takeHit(dmg: number, attacker: UnitManager): void {
+        // mitigate dmg here, could also reflect to attacker
+        this.data.health -= dmg;
+        this.attackUnit(attacker);
+        // this.data.tickAction = UnitTickAction.FLINCH;
+        this.emit('damage', dmg, attacker);
+        if (this.dead) {
+            this.emit('death');
+        }
+    }
+
+    private inMeleeRange(other: UnitManager): boolean {
+        return this.distance(other) < 1.5;
+    }
+
+    private calculateMeleeDamage(): number {
+        return Math.round(Math.random());
+    }
+
+    private tickPath(): void {
         this.data.moveQueue = [];
         if (this.path && this.path.length > 0) {
             let nextPos = this.path.pop();
             this.data.moveQueue.push(nextPos);
-            if (this.data.running && this.path.length > 0) { // this should be if instead of while for normal movement
+            if (this.data.running && this.path.length > 0) {
                 nextPos = this.path.pop();
                 this.data.moveQueue.push(nextPos);
             }
@@ -33,60 +80,74 @@ export default class UnitManager {
         }
     }
 
-    public get position(): Point { return Point.fromDef(this.data.position); }
-
-    public get target(): UnitManager {
-        return this.world.units.get(this.data.target);
-    }
-
-    private takeHit(dmg: number, attacker: UnitManager): void {
-        // mitigate dmg here, could also reflect to attacker
-        this.data.health -= dmg;
-        this.data.state = UnitAnimState.DEFEND;
-        this.data.target = attacker.data.id;
-        if (this.dead) {
-            console.log(`Unit ${this.data.name} died to ${attacker.data.name}`);
-            // should send 0 hp unit to the client to play death animation or something
-            this.data.state = UnitAnimState.DYING;
-            this.world.units.delete(this.data.id);
+    private tickFollowing(): void {
+        // keep following the target unit
+        if (this.inMeleeRange(this.target)) {
+            this.path = this.findPath(this.target.data.position);
+            this.path.shift();
         }
     }
 
-    private calculateMeleeDamage(): number {
-        return Math.round(Math.random());
+    private checkRate(rate: number, lastTick: number): boolean {
+        return (lastTick + rate) < this.world.tickCounter;
     }
 
-    private attackUnit(target: UnitManager): void {
-        const dist = this.position.dist(target.position);
-        const minRange = 0.9;
-        const maxRange = 1.5;
-        if (dist <= maxRange && dist >= minRange) {
-            this.data.state = UnitAnimState.ATTACK_MELEE;
-            target.takeHit(this.calculateMeleeDamage(), this);
+    private tickAttacking(): void {
+        if (this.target) {
+            // this.data.tickAction = UnitTickAction.COMABT_IDLE;
+            // either attack the target or follow to get in range
+            if (this.inMeleeRange(this.target) && this.checkRate(this.attackRate, this.lastAttackTick)) {
+                this.target.takeHit(this.calculateMeleeDamage(), this);
+                // this.data.tickAction = UnitTickAction.MELEE;
+                this.lastAttackTick = this.world.tickCounter;
+            } else {
+                this.path = this.findPath(this.target.data.position);
+                this.path.shift();
+            }
+        } else {
+            this.state = UnitState.IDLE;
         }
     }
 
     public tick(): void {
-        this.tickMovement();
-        const target = this.target;
-        if (this.data.name === 'Arwic') { console.log(`ticked a unit ${this.data.name} which has target ${target}`); }
-
-        if (target) {
-            this.followUnit(target);
-            this.attackUnit(target);
+        this.tickPath();
+        switch (this.state) {
+        case UnitState.ATTACKING: {
+            this.tickAttacking();
+            break;
+        }
+        case UnitState.FOLLOWING: {
+            this.tickFollowing();
+            break;
+        }
+        case UnitState.IDLE: {
+            break;
+        }
+        default: break;
         }
     }
 
-    private followUnit(target: UnitManager): void {
-        // get the target
-        this.moveTo(target.data.position);
-        this.path.pop(); // remove the target location so we stop 1 tile away
-        console.log(`${this.data.name} is following ${target.data.name}`);
+    public distance(other: UnitManager): number {
+        return this.position.dist(other.position);
+    }
+
+    public attackUnit(target: UnitManager): void {
+        this.state = UnitState.ATTACKING;
+        this.target = target;
+    }
+
+    public followUnit(target: UnitManager): void {
+        this.state = UnitState.FOLLOWING;
+        this.target = target;
     }
 
     public moveTo(dest: PointDef): void {
-        this.destionation = dest;
-        const navmap = this.world.generateNavmap(this.data.position, this.destionation);
+        this.state = UnitState.IDLE;
+        this.path = this.findPath(dest);
+    }
+
+    private findPath(dest: PointDef): PointDef[] {
+        const navmap = this.world.generateNavmap(this.data.position, dest);
         const grid = new PF.Grid(navmap.matrix);
 
         const finder = new PF.AStarFinder({
@@ -97,9 +158,10 @@ export default class UnitManager {
         });
 
         // transform the path to world coords
-        this.path = finder.findPath(navmap.start.x, navmap.start.y, navmap.end.x, navmap.end.y, grid)
+        const path = finder.findPath(navmap.start.x, navmap.start.y, navmap.end.x, navmap.end.y, grid)
             .map(([x, y]: number[]) => new Point(x + navmap.offset.x, y + navmap.offset.y))
             .reverse(); // reverse so we can use array.pop()
-        this.path.pop(); // remove the players current position
+        path.pop(); // remove the players current position
+        return path;
     }
 }

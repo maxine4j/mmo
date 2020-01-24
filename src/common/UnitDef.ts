@@ -1,11 +1,10 @@
 import { PointDef } from './Point';
 
-
-export enum UnitAnimState {
+export enum UnitTickAction {
     IDLE,
-    ATTACK_MELEE,
-    DEFEND,
-    DYING
+    COMABT_IDLE,
+    MELEE,
+    FLINCH
 }
 
 export default interface UnitDef {
@@ -14,10 +13,9 @@ export default interface UnitDef {
     level: number;
     model: string;
 
-    state: UnitAnimState;
-
     health: number;
     maxHealth: number;
+    // tickAction: UnitTickAction,
 
     running: boolean;
     position: PointDef;

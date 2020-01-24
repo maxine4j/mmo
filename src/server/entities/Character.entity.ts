@@ -34,7 +34,6 @@ export default class CharacterEntity extends BaseEntity {
     public toNet(): CharacterDef {
         const char = <CharacterDef>{
             id: this.id.toString(),
-            charID: this.id,
             name: this.name,
             level: this.level,
             race: this.race,
@@ -49,7 +48,7 @@ export default class CharacterEntity extends BaseEntity {
     // converts a network character to a db entity
     public static fromNet(c: CharacterDef): Promise<CharacterEntity> {
         return new Promise((resolve) => {
-            this.findOne({ id: c.charID }).then((ce) => {
+            this.findOne({ id: Number(c.id) }).then((ce) => {
                 ce.level = c.level;
                 ce.posX = c.position.x;
                 ce.posY = c.position.y;

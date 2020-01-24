@@ -1,9 +1,9 @@
 import uuid from 'uuid/v4';
+import { UnitTickAction } from '../../common/UnitDef';
 import { PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
-import UnitManager from './UnitManager';
-import { UnitAnimState } from '../../common/UnitDef';
+import UnitManager, { UnitState } from './UnitManager';
 
 export default class SpawnManager {
     private world: WorldManager;
@@ -29,8 +29,8 @@ export default class SpawnManager {
         const id = uuid();
         const unit = new UnitManager(this.world, {
             id,
-            target: null,
-            state: UnitAnimState.IDLE,
+            target: '',
+            // tickAction: UnitTickAction.IDLE,
             health: this.data.unit.maxHealth,
             maxHealth: this.data.unit.maxHealth,
             name: this.data.unit.name,
@@ -40,9 +40,13 @@ export default class SpawnManager {
             position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
             moveQueue: [],
         });
+        unit.on('damage', (dmg: number, attacker: UnitManager) => {
+            console.log(`Spawned unit ${unit.data.name} got hit for ${dmg} from ${attacker.data.name}`);
+            unit.attackUnit(attacker);
+        });
         // save the new unit to the world and also keep track of it here
         this.units.set(unit.data.id, unit);
-        this.world.units.set(unit.data.id, unit);
+        this.world.addUnit(unit);
         this.lastSpawnTick = this.world.tickCounter; // update the last spawn tick
     }
 
@@ -61,7 +65,7 @@ export default class SpawnManager {
     }
 
     private wanderUnit(unit: UnitManager): void {
-        if (!unit.data.target) {
+        if (unit.state === UnitState.IDLE) {
             unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
             unit.lastWanderTick = this.world.tickCounter;
         }

@@ -121,4 +121,17 @@ export default class Model {
             }
         });
     }
+
+    public playActionNow(action: AnimationAction): void {
+        this.mixer.stopAllAction();
+        action.reset();
+        action.play();
+    }
+
+    public playAnim(name: string): void {
+        this.mixer.stopAllAction();
+        this.getAnim(name).then((a) => {
+            a.play();
+        });
+    }
 }

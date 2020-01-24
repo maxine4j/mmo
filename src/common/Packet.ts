@@ -74,7 +74,7 @@ export interface ChunkListPacket extends Packet {
 }
 
 export interface ChatMsgPacket extends Packet {
-    authorId: number,
+    authorId: string,
     authorName: string,
     timestamp: number,
     message: string
@@ -85,7 +85,7 @@ export interface TargetPacket extends Packet {
 }
 
 export interface DamagePacket extends Packet {
-    isPlayer: boolean;
-    unitid: string;
+    attacker: string;
+    defender: string;
     damage: number; // could add type here for poision etc
 }

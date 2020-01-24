@@ -22,7 +22,7 @@ export default class World {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
     public units: Map<string, LocalUnit> = new Map();
-    public players: Map<number, LocalPlayer> = new Map();
+    public players: Map<string, LocalPlayer> = new Map();
     private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
@@ -51,16 +51,7 @@ export default class World {
             });
         });
         NetClient.send(PacketHeader.CHUNK_LOAD);
-
-        NetClient.on(PacketHeader.UNIT_DAMAGE, (packet: DamagePacket) => {
-            this.emit('unit_damaged', packet);
-        });
     }
-
-    public get player(): LocalPlayer { return this._player; }
-    public get tickTimer(): number { return this._tickTimer; }
-    public get tickRate(): number { return this._tickRate; }
-    public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
     public on(event: WorldEvent, listener: (...args: any[]) => void): void {
         this.eventEmitter.on(event, listener);
@@ -72,6 +63,18 @@ export default class World {
 
     private emit(event: WorldEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
+    }
+
+    public get player(): LocalPlayer { return this._player; }
+    public get tickTimer(): number { return this._tickTimer; }
+    public get tickRate(): number { return this._tickRate; }
+    public get tickProgression(): number { return this._tickTimer / this._tickRate; }
+
+    public getUnit(id: string): LocalUnit {
+        const unit = this.units.get(id);
+        if (unit) return unit;
+        if (id === this.player.data.id) return this.player;
+        return this.players.get(id);
     }
 
     private tickUnits(tick: number, unitDefs: UnitDef[]): void {
@@ -89,10 +92,10 @@ export default class World {
 
     private tickPlayers(tick: number, playerDefs: CharacterDef[]): void {
         for (const def of playerDefs) {
-            let player = this.players.get(def.charID);
+            let player = this.players.get(def.id);
             if (!player) {
                 player = new LocalPlayer(this, def);
-                this.players.set(def.charID, player);
+                this.players.set(def.id, player);
                 this.emit('player_added', player);
             }
             player.onTick(def);

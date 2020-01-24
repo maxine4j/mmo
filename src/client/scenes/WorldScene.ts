@@ -17,7 +17,7 @@ import {
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
 import { WorldPoint } from '../../common/Point';
-import LocalUnit from '../engine/LocalUnit';
+import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
 
@@ -33,6 +33,7 @@ export default class WorldScene extends GameScene {
     private chatbox: Chatbox;
     private chatHoverMsgs: ChatHoverMessage[] = [];
     private nameplates: Map<string, UnitNameplate> = new Map();
+    private hitsplats: Map<string, HitSplat> = new Map();
 
     public constructor() {
         super('world');
@@ -122,14 +123,17 @@ export default class WorldScene extends GameScene {
 
         this.initNameplates();
 
-        this.world.on('unit_damaged', (dmg: DamagePacket) => {
-            let unit;
-            if (dmg.isPlayer) {
-                unit = this.world.players.get(Number(dmg.unitid));
-            } else {
-                unit = this.world.units.get(dmg.unitid);
-            }
-            this.addGUI(new HitSplat(this.world, this.camera, unit, dmg.damage));
+        NetClient.on(PacketHeader.UNIT_DAMAGE, (packet: DamagePacket) => {
+            const defender = this.world.getUnit(packet.defender);
+            const attacker = this.world.getUnit(packet.attacker);
+            defender.animPlayOnce(UnitAnimation.FLINCH);
+            attacker.animPlayOnce(UnitAnimation.PUNCH);
+            const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
+            this.hitsplats.set(splat.id, splat);
+            setTimeout(() => {
+                this.hitsplats.delete(splat.id);
+                splat.dispose();
+            }, this.world.tickRate * 1000);
         });
 
         super.init();
@@ -185,12 +189,19 @@ export default class WorldScene extends GameScene {
         }
     }
 
+    private updateHitSplats(): void {
+        for (const [_, splat] of this.hitsplats) {
+            splat.update();
+        }
+    }
+
     public update(delta: number): void {
         this.updateMousePoint();
         this.updateTopLeftLabels();
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
         this.updateNameplates();
+        this.updateHitSplats();
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition());

@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import Map2D from '../../common/Map2D';
 import {
-    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket,
+    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket, DamagePacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -30,13 +30,13 @@ export interface Navmap {
 }
 
 export default class WorldManager {
-    public players: Map<string, PlayerManager> = new Map();
-    public units: Map<string, UnitManager> = new Map();
-    public spawns: Map<string, SpawnManager> = new Map();
+    private players: Map<string, PlayerManager> = new Map();
+    private units: Map<string, UnitManager> = new Map();
+    private spawns: Map<string, SpawnManager> = new Map();
     public chunks: Map2D<number, number, ChunkManager> = new Map2D();
     public tickCounter: number = 0;
     public tickRate: number;
-    public server: io.Server;
+    private server: io.Server;
     public chunkViewDist: number = 1;
     private worldDef: WorldJsonDef = overworldDef;
     private unitSpawnDefs: UnitSpawnsDef;
@@ -53,6 +53,33 @@ export default class WorldManager {
 
     public get chunkSize(): number { return this.worldDef.chunkSize; }
 
+    public getUnit(id: string): UnitManager {
+        const unit = this.units.get(id);
+        if (unit) return unit;
+        return this.players.get(id);
+    }
+
+    public addUnit(unit: UnitManager): void {
+        this.units.set(unit.data.id, unit);
+        unit.on('damage', (dmg: number, attacker: UnitManager) => {
+            console.log(`got a dmamge event in world manager, checking for players in range: ${this.playersInRange(unit.position).length}`);
+
+            for (const player of this.playersInRange(unit.position)) {
+                console.log(`Emitting dmg to ${player.data.name}`);
+
+                player.socket.emit(PacketHeader.UNIT_DAMAGE, <DamagePacket>{
+                    damage: dmg,
+                    defender: unit.data.id,
+                    attacker: attacker.data.id,
+                });
+            }
+        });
+        unit.on('death', () => {
+            unit.dispose();
+            this.units.delete(unit.data.id); // TODO: send death animation trigger to client
+        });
+    }
+
     private tickSpawns(): void {
         for (const [_, sm] of this.spawns) {
             sm.tick();
@@ -64,7 +91,7 @@ export default class WorldManager {
             player.tick(); // tick the playermanager
             // send players and units in range
             const players: CharacterDef[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
-            const units: UnitDef[] = this.unitsInRange(player.data.position.x, player.data.position.y).map((um) => um.data);
+            const units: UnitDef[] = this.unitsInRange(player.data.position).map((um) => um.data);
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
                 self: player.data,
                 units,
@@ -132,20 +159,21 @@ export default class WorldManager {
             // check if players pos is withing view dist of the target x,y
             if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
                 && pos.y + viewDistY > p.data.position.y && pos.y - viewDistY < p.data.position.y) {
-                if (exclude && exclude.socket.id !== p.socket.id) {
-                    inrange.push(p);
+                if (exclude && exclude.socket.id === p.socket.id) {
+                    continue;
                 }
+                inrange.push(p);
             }
         }
         return inrange;
     }
 
-    private unitsInRange(x: number, y: number): UnitManager[] {
+    private unitsInRange(pos: PointDef): UnitManager[] {
         const inrange: UnitManager[] = [];
         for (const [_, u] of this.units) {
             // check if units pos is withing view dist of the target x,y
-            if (x + viewDistX > u.data.position.x && x - viewDistX < u.data.position.x
-                && y + viewDistY > u.data.position.y && y - viewDistY < u.data.position.y) {
+            if (pos.x + viewDistX > u.data.position.x && pos.x - viewDistX < u.data.position.x
+                && pos.y + viewDistY > u.data.position.y && pos.y - viewDistY < u.data.position.y) {
                 inrange.push(u);
             }
         }
@@ -162,7 +190,7 @@ export default class WorldManager {
 
     public handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): void {
         // find an entity for this char
-        CharacterEntity.findOne({ id: char.charID }).then((ce) => {
+        CharacterEntity.findOne({ id: Number(char.id) }).then((ce) => {
             const p = new PlayerManager(this, ce.toNet(), session);
 
             // notify all players in range
@@ -192,7 +220,7 @@ export default class WorldManager {
     public handleChatMessage(session: io.Socket, msg: ChatMsgPacket): void {
         const self = this.players.get(session.id);
         const out = <ChatMsgPacket>{
-            authorId: self.data.charID,
+            authorId: self.data.id,
             authorName: self.data.name,
             timestamp: Date.now(),
             message: msg.message,
@@ -253,8 +281,10 @@ export default class WorldManager {
 
     public handlePlayerTarget(session: io.Socket, packet: TargetPacket): void {
         const player = this.players.get(session.id);
-        player.data.target = packet.target;
-        console.log('set a player target');
+        const tar = this.getUnit(packet.target);
+        if (tar) {
+            player.attackUnit(tar);
+        }
     }
 
     private tileToChunk(tilePoint: Point): [Point, ChunkManager] {
