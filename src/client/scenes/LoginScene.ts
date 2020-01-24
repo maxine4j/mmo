@@ -23,8 +23,6 @@ export default class LoginScene extends GameScene {
     }
 
     public initGUI(): void {
-        UIParent.get().clear();
-
         const panel = new Panel('panel-login', UIParent.get());
         panel.style.border = '1px solid white';
         panel.style.width = '300px';

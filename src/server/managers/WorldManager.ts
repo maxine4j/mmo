@@ -117,7 +117,7 @@ export default class WorldManager {
                     maxHealth: 5,
                     name: 'Skeleton',
                     level: 1,
-                    model: 'assets/models/units/human/human.model.json',
+                    model: 'assets/models/units/skeleton/skeleton.model.json',
                 },
                 center: { x: 0, y: 0 },
                 spawnRadius: { x: 5, y: 5 },

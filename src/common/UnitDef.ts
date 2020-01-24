@@ -1,12 +1,5 @@
 import { PointDef } from './Point';
 
-export enum UnitTickAction {
-    IDLE,
-    COMABT_IDLE,
-    MELEE,
-    FLINCH
-}
-
 export default interface UnitDef {
     id: string;
     name: string;
@@ -15,7 +8,6 @@ export default interface UnitDef {
 
     health: number;
     maxHealth: number;
-    // tickAction: UnitTickAction,
 
     running: boolean;
     position: PointDef;

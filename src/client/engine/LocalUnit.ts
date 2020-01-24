@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
 import Model from './graphics/Model';
 import World from './World';
-import UnitDef, { UnitTickAction } from '../../common/UnitDef';
+import UnitDef from '../../common/UnitDef';
 import { TilePoint, Point } from '../../common/Point';
 
 export enum UnitAnimation {
@@ -31,6 +31,7 @@ export default class LocalUnit {
     private targetPosition: TilePoint;
     private movesThisTick: number;
     private moveTimer: number;
+    private targetAngle: number = null;
 
     public constructor(world: World, data: UnitDef) {
         this.world = world;
@@ -57,7 +58,7 @@ export default class LocalUnit {
                         };
                     });
 
-                    this.model.mixer.addEventListener('finished', (e: THREE.Event) => { this.onMixerFinished(e); });
+                    this.model.mixer.addEventListener('finished', this.onMixerFinished.bind(this));
 
                     this.model.getAnim('Walk').then((a) => {
                         a.loop = THREE.LoopRepeat;
@@ -120,8 +121,16 @@ export default class LocalUnit {
         return false;
     }
 
+    public lookAt(other: LocalUnit): void {
+        const diff = this.currentPosition.sub(other.position);
+        this.targetAngle = Math.atan2(diff.y, -diff.x);
+        // const angle = Math.atan2(diff.y, -diff.x);
+        // this.model.obj.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle));
+    }
+
     private onMixerFinished(ev: THREE.Event): void {
         this.animations.get(this.currentLoop).play(); // restart the looped anim after a play once
+        this.targetAngle = null;
     }
 
     public animPlayOnce(anim: UnitAnimation): void {
@@ -153,13 +162,6 @@ export default class LocalUnit {
                 this.animations.get(UnitAnimation.RUN).stop();
                 this.currentLoop = UnitAnimation.STAND;
             }
-
-            // if we have a target, be combat idling
-            // if (this.data.target) {
-            //     this.animations.get(UnitAnimation.COMBAT_IDLE).play();
-            // } else {
-            //     this.animations.get(UnitAnimation.COMBAT_IDLE).stop();
-            // }
         }
     }
 
@@ -183,6 +185,13 @@ export default class LocalUnit {
             return true;
         }
         return false;
+    }
+
+    private updateLookAt(): void {
+        if (this.targetAngle !== null && !this.isMoving()) {
+            const targetRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.targetAngle);
+            this.model.obj.quaternion.slerp(targetRot, this.world.tickProgression);
+        }
     }
 
     private updateModel(): void {
@@ -230,6 +239,7 @@ export default class LocalUnit {
                 this.updateMovement(delta);
                 this.updateModel();
             }
+            this.updateLookAt();
             this.model.update(delta);
         }
     }

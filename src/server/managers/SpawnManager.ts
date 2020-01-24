@@ -1,5 +1,4 @@
 import uuid from 'uuid/v4';
-import { UnitTickAction } from '../../common/UnitDef';
 import { PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
@@ -43,6 +42,9 @@ export default class SpawnManager {
         unit.on('damage', (dmg: number, attacker: UnitManager) => {
             console.log(`Spawned unit ${unit.data.name} got hit for ${dmg} from ${attacker.data.name}`);
             unit.attackUnit(attacker);
+        });
+        unit.on('death', () => {
+            this.units.delete(unit.data.id);
         });
         // save the new unit to the world and also keep track of it here
         this.units.set(unit.data.id, unit);

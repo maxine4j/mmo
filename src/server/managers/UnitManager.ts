@@ -2,7 +2,7 @@ import PF from 'pathfinding';
 import { EventEmitter } from 'events';
 import { Point, PointDef } from '../../common/Point';
 import WorldManager from './WorldManager';
-import UnitDef, { UnitTickAction } from '../../common/UnitDef';
+import UnitDef from '../../common/UnitDef';
 
 type UnitManagerEvent = 'damage' | 'death' | 'move' | 'wandered';
 
@@ -52,7 +52,6 @@ export default class UnitManager {
         // mitigate dmg here, could also reflect to attacker
         this.data.health -= dmg;
         this.attackUnit(attacker);
-        // this.data.tickAction = UnitTickAction.FLINCH;
         this.emit('damage', dmg, attacker);
         if (this.dead) {
             this.emit('death');

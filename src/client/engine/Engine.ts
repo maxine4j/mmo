@@ -24,6 +24,7 @@ export default class Engine {
         // add warning leaving page
         // window.onbeforeunload = () => 'Are you sure you want to quit?';
 
+        UIParent.get().clear();
         this.lblFps = new Label('lbl-fps', UIParent.get(), '');
 
         // prevent default context menu

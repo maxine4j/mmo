@@ -19,7 +19,7 @@ export default class LocalPlayer extends LocalUnit {
                     // but dont target ourselves
                     if (clickedUnit.data.id !== this.world.player.data.id) {
                         this.world.player.data.target = clickedUnit.data.id;
-                        Graphics.setOutlines([clickedUnit.model.obj], new THREE.Color(0xFF0000));
+                        // Graphics.setOutlines([clickedUnit.model.obj], new THREE.Color(0xFF0000));
                         Input.playClickMark(Input.mousePos(), 'red');
                         NetClient.send(PacketHeader.PLAYER_TARGET, <TargetPacket>{ target: this.world.player.data.target });
                         return true;

@@ -7,7 +7,7 @@ import LocalUnit from '../LocalUnit';
 import UIParent from './components/UIParent';
 import Panel from './components/Panel';
 
-const splatHeight = 1;
+const splatHeight = 0.75;
 
 export default class HitSplat extends Panel {
     public world: World;
@@ -26,18 +26,19 @@ export default class HitSplat extends Panel {
         this.style.backgroundSize = '100%';
         if (dmg <= 0) {
             this.style.backgroundImage = 'url("assets/imgs/splats/blue.png")';
-            // this.style.backgroundColor = 'blue';
         } else {
             this.style.backgroundImage = 'url("assets/imgs/splats/red.png")';
-            // this.style.backgroundColor = 'red';
         }
 
         this.disablePointerEvents();
 
         this.label = new Label(`${this.id}-lbl`, this, dmg.toString());
         this.label.style.position = 'initial';
+        this.label.style.position = 'initial';
         this.label.style.textAlign = 'center';
         this.label.style.color = 'white';
+        this.label.style.margin = '10px';
+        this.label.style.lineHeight = '170%';
         this.label.disablePointerEvents();
 
         this.update();
