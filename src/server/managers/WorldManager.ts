@@ -71,9 +71,15 @@ export default class WorldManager {
             }
         });
         player.on('death', () => {
-            // TODO: call player.respawn() or something
             player.respawn();
         });
+    }
+
+    public onNextTick(action: () => void): void {
+        // TODO: find better way
+        setTimeout(() => {
+            action();
+        }, this.tickRate * 1000);
     }
 
     public removeUnit(unit: UnitManager): void {
@@ -94,7 +100,9 @@ export default class WorldManager {
             }
         });
         unit.on('death', (dmg: number, attacker: UnitManager) => {
-            this.removeUnit(unit);
+            this.onNextTick(() => {
+                this.removeUnit(unit);
+            });
         });
     }
 

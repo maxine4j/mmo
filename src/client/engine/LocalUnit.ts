@@ -36,6 +36,8 @@ export default class LocalUnit {
     private moveTimer: number;
     private targetAngle: number = null;
     private eventEmitter: EventEmitter = new EventEmitter();
+    private killed: boolean = false;
+    public stale: boolean = false;
 
     public constructor(world: World, data: UnitDef) {
         this.world = world;
@@ -132,6 +134,13 @@ export default class LocalUnit {
         }
     }
 
+    public kill(): void {
+        if (!this.killed) {
+            this.killed = true;
+            this.animPlayOnce(UnitAnimation.DEATH, true);
+        }
+    }
+
     private isMoving(): boolean {
         if (this.movesThisTick > 0) {
             return true;
@@ -147,11 +156,14 @@ export default class LocalUnit {
     private onMixerFinished(ev: THREE.Event): void {
         this.animations.get(this.currentLoop).play(); // restart the looped anim after a play once
         this.targetAngle = null;
+        if (this.killed) { // only mark as stale after death animation has played
+            this.stale = true;
+        }
     }
 
-    public animPlayOnce(anim: UnitAnimation): void {
+    public animPlayOnce(anim: UnitAnimation, clamp: boolean = false): void {
         const a = this.animations.get(anim);
-        a.clampWhenFinished = false;
+        a.clampWhenFinished = clamp;
         a.weight = 1;
         a.reset();
         this.model.mixer.stopAllAction();

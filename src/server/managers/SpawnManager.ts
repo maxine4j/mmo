@@ -70,7 +70,7 @@ export default class SpawnManager {
             unit.stopAttacking();
             unit.lastWanderTick = 0;
             this.wanderUnit(unit);
-            unit.data.health = unit.data.maxHealth; // TODO: should unit heal to full?
+            unit.data.health = unit.data.maxHealth;
         }
     }
 

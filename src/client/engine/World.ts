@@ -4,7 +4,7 @@ import Scene from './graphics/Scene';
 import LocalPlayer from './LocalPlayer';
 import NetClient from './NetClient';
 import {
-    PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket, DamagePacket,
+    PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket,
 } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import UnitDef from '../../common/UnitDef';
@@ -111,9 +111,13 @@ export default class World {
     private removeStaleUnits(): void {
         for (const [id, u] of this.units) {
             if (u.lastTickUpdated !== this.currentTick) {
-                this.emit('unit_removed', u);
-                u.dispose();
-                this.units.delete(id);
+                if (u.data.health <= 0 && !u.stale) {
+                    u.kill();
+                } else {
+                    this.emit('unit_removed', u);
+                    u.dispose();
+                    this.units.delete(id);
+                }
             }
         }
     }
@@ -121,9 +125,13 @@ export default class World {
     private removeStalePlayers(): void {
         for (const [id, p] of this.players) {
             if (p.lastTickUpdated !== this.currentTick) {
-                this.emit('player_removed', p);
-                p.dispose();
-                this.players.delete(id);
+                if (p.data.health <= 0 && !p.stale) {
+                    p.kill();
+                } else {
+                    this.emit('player_removed', p);
+                    p.dispose();
+                    this.players.delete(id);
+                }
             }
         }
     }
