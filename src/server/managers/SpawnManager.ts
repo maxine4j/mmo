@@ -1,5 +1,5 @@
 import uuid from 'uuid/v4';
-import { PointDef } from '../../common/Point';
+import { PointDef, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import UnitManager, { UnitState } from './UnitManager';
@@ -9,6 +9,8 @@ export default class SpawnManager {
     public data: UnitSpawnGroup;
     private units: Map<string, UnitManager> = new Map();
     private lastSpawnTick: number = 0;
+
+    public get center(): Point { return Point.fromDef(this.data.center); }
 
     public constructor(def: UnitSpawnGroup, world: WorldManager) {
         this.world = world;
@@ -62,6 +64,16 @@ export default class SpawnManager {
         }
     }
 
+    private tickLeash(unit: UnitManager): void {
+        const diff = unit.position.sub(this.center);
+        if (Math.abs(diff.x) > this.data.leashRadius.x || Math.abs(diff.y) > this.data.leashRadius.y) {
+            unit.stopAttacking();
+            unit.lastWanderTick = 0;
+            this.wanderUnit(unit);
+            unit.data.health = unit.data.maxHealth; // TODO: should unit heal to full?
+        }
+    }
+
     private wanderUnit(unit: UnitManager): void {
         if (unit.state === UnitState.IDLE) {
             unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
@@ -79,6 +91,7 @@ export default class SpawnManager {
         for (const [_, unit] of this.units) {
             unit.tick();
             this.tickWander(unit);
+            this.tickLeash(unit);
         }
     }
 
