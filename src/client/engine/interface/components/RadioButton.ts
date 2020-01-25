@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class RadioButton extends Frame {
     protected element: HTMLInputElement;
 
-    public constructor(id: string, parent: Frame, value: string, group: string) {
-        super(id, 'input', parent);
+    public constructor(parent: Frame, value: string, group: string) {
+        super('input', parent);
         this.element.type = 'radio';
         this.element.name = group;
         this.element.value = value;

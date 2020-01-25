@@ -23,7 +23,7 @@ export default class LoginScene extends GameScene {
     }
 
     public initGUI(): void {
-        const panel = new Panel('panel-login', UIParent.get());
+        const panel = new Panel(UIParent.get());
         panel.style.border = '1px solid white';
         panel.style.width = '300px';
         panel.style.height = '200px';
@@ -33,38 +33,38 @@ export default class LoginScene extends GameScene {
         panel.centreVertical();
         this.addGUI(panel);
 
-        const lblUsername = new Label('lbl-username', panel, 'Account Name');
+        const lblUsername = new Label(panel, 'Account Name');
         lblUsername.style.position = 'initial';
         lblUsername.style.width = '100%';
         lblUsername.style.color = '#e6cc80';
         lblUsername.style.fontSize = '130%';
         this.addGUI(lblUsername);
 
-        const txtUsername = new TextBox('txt-username', panel);
+        const txtUsername = new TextBox(panel);
         txtUsername.style.position = 'initial';
         txtUsername.style.width = '100%';
         txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
         txtUsername.text = 'arwic';
         this.addGUI(txtUsername);
 
-        const lblPassword = new Label('lbl-username', panel, 'Account Password');
+        const lblPassword = new Label(panel, 'Account Password');
         lblPassword.style.position = 'initial';
         lblPassword.style.width = '100%';
         lblPassword.style.color = '#e6cc80';
         lblPassword.style.fontSize = '130%';
         this.addGUI(lblPassword);
 
-        const txtPassword = new TextBox('txt-password', panel, 'password');
+        const txtPassword = new TextBox(panel, 'password');
         txtPassword.style.position = 'initial';
         txtPassword.style.width = '100%';
         txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
         txtPassword.text = 'asd';
         this.addGUI(txtPassword);
 
-        const dialog = new Dialog('dialog-login-err', UIParent.get(), '', false);
+        const dialog = new Dialog(UIParent.get(), '', false);
         this.addGUI(dialog);
 
-        const btnLogin = new Button('btn-login', panel, 'Login');
+        const btnLogin = new Button(panel, 'Login');
         btnLogin.style.width = '150px';
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';

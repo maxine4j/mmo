@@ -7,7 +7,7 @@ class DropdownOption extends Frame {
     protected element: HTMLOptionElement;
 
     public constructor(key: string, value: string, parent: Dropdown) {
-        super(parent.id + key, 'option', parent, false);
+        super('option', parent, false);
         this.key = key;
         this.value = value;
         this.createElement();
@@ -24,7 +24,7 @@ export default class Dropdown extends Frame {
     protected element: HTMLInputElement;
 
     public constructor(id: string, parent: Frame) {
-        super(id, 'select', parent);
+        super('select', parent);
     }
 
     public get selected(): string {

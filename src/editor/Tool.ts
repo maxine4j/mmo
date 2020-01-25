@@ -25,7 +25,7 @@ export default class Tool {
         this.icon = icon;
         this.props = props;
         this.panel = panel;
-        this.button = new Button(`tool-btn-${this.name}`, this.panel, '');
+        this.button = new Button(this.panel, '');
 
         this.button.width = toolButtonSize;
         this.button.height = toolButtonSize;
@@ -38,7 +38,7 @@ export default class Tool {
             this.panel.selectTool(this);
         });
 
-        this.propsPanel = new PropsPanel(`tool-props-${this.name}`, this.panel);
+        this.propsPanel = new PropsPanel(this.panel);
     }
 
     public get description(): string { return this._description; }

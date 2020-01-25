@@ -6,8 +6,8 @@ export default class ProgressBar extends Frame {
     private _min: number;
     private _value: number;
 
-    public constructor(id: string, parent: Frame, min: number = 0, max: number = 1, val: number = 0) {
-        super(id, 'progress', parent);
+    public constructor(parent: Frame, min: number = 0, max: number = 1, val: number = 0) {
+        super('progress', parent);
         this.element.max = 1;
 
         this._min = min;

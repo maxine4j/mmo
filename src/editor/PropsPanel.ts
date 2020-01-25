@@ -6,8 +6,8 @@ import PanelProp from './PanelProp';
 export default class PropsPanel extends Panel {
     private props: PanelProp[] = [];
 
-    public constructor(id: string, parent: Frame) {
-        super(id, parent);
+    public constructor(parent: Frame) {
+        super(parent);
         this.width = 600;
         this.height = toolButtonSize * 2 + 5;
         this.hide();

@@ -36,7 +36,7 @@ export default class ChunkTool extends Tool {
             'assets/icons/chunk_overview.png',
             props, panel,
         );
-        this.menu = new ContextMenu('cm-menu', UIParent.get());
+        this.menu = new ContextMenu(UIParent.get());
     }
 
     private updatePropsPanel(): void {

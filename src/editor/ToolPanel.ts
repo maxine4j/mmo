@@ -15,7 +15,7 @@ export default class ToolPanel extends Panel {
     private infoLabel: Label;
 
     public constructor() {
-        super('panel-tools', UIParent.get());
+        super(UIParent.get());
         this.tools = [];
 
         this.width = toolButtonSize * 2 + 5;
@@ -25,21 +25,21 @@ export default class ToolPanel extends Panel {
         // this.element.style.top = '100px';
         this.element.style.backgroundColor = panelBg;
 
-        this.infoPanel = new Panel('panel-tools-info-panel', UIParent.get());
+        this.infoPanel = new Panel(UIParent.get());
         this.infoPanel.width = 300;
         this.infoPanel.height = 200;
         this.infoPanel.style.left = '0';
         this.infoPanel.style.bottom = '0';
         this.infoPanel.style.backgroundColor = panelBg;
 
-        const lblHeader = new Label('panel-tools-info-panel-header', this.infoPanel, 'Tool Description:');
+        const lblHeader = new Label(this.infoPanel, 'Tool Description:');
         lblHeader.style.position = 'initial';
         lblHeader.style.fontSize = '120%';
 
         this.infoPanel.addBreak();
         this.infoPanel.addBreak();
 
-        this.infoLabel = new Label('panel-tools-info-panel-label', this.infoPanel, '');
+        this.infoLabel = new Label(this.infoPanel, '');
         this.infoLabel.style.position = 'initial';
         this.infoLabel.style.whiteSpace = 'pre-wrap';
     }

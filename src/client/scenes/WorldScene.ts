@@ -20,7 +20,7 @@ import { WorldPoint } from '../../common/Point';
 import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
-import LocalPlayer from '../engine/LocalPlayer';
+import Inventory from '../engine/interface/Inventory';
 
 export default class WorldScene extends GameScene {
     private world: World;
@@ -42,7 +42,7 @@ export default class WorldScene extends GameScene {
 
     private initGUI(): void {
         // build back button
-        const btnBack = new Button('btn-back', UIParent.get(), 'Back');
+        const btnBack = new Button(UIParent.get(), 'Back');
         btnBack.style.position = 'fixed';
         btnBack.style.margin = '5px 10px';
         btnBack.style.display = 'block';
@@ -55,31 +55,31 @@ export default class WorldScene extends GameScene {
         });
         this.addGUI(btnBack);
 
-        this.lblMouseWorld = new Label('lbl-mouse-world', UIParent.get(), 'World: { X, Y, Z }');
+        this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
         this.lblMouseWorld.style.top = '15px';
         this.lblMouseWorld.style.left = '0';
         this.addGUI(this.lblMouseWorld);
 
-        this.lblMouseTile = new Label('lbl-mouse-tile', UIParent.get(), 'Tile: { X, Y }');
+        this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
         this.lblMouseTile.style.top = '30px';
         this.lblMouseTile.style.left = '0';
         this.addGUI(this.lblMouseTile);
 
-        this.lblMouseChunk = new Label('lbl-mouse-chunk', UIParent.get(), 'Chunk: { X, Y }');
+        this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
         this.lblMouseChunk.style.top = '45px';
         this.lblMouseChunk.style.left = '0';
         this.addGUI(this.lblMouseChunk);
 
-        this.lblSceneCount = new Label('lbl-scene-count', UIParent.get(), 'Scene Count: ?');
+        this.lblSceneCount = new Label(UIParent.get(), 'Scene Count: ?');
         this.lblSceneCount.style.position = 'fixed';
         this.lblSceneCount.style.top = '60px';
         this.lblSceneCount.style.left = '0';
         this.addGUI(this.lblSceneCount);
 
-        this.chatbox = new Chatbox('chatbox-main', UIParent.get(), 400, 200);
+        this.chatbox = new Chatbox(UIParent.get(), 400, 200);
         this.chatbox.style.left = '0';
         this.chatbox.style.bottom = '0';
         this.chatbox.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
@@ -91,6 +91,9 @@ export default class WorldScene extends GameScene {
             this.chatHoverMsgs.push(new ChatHoverMessage(this.world, this.camera, p));
         });
         this.addGUI(this.chatbox);
+
+        const inventory = new Inventory();
+        this.addGUI(inventory);
     }
 
     private initNameplates(): void {

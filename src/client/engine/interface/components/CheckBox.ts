@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class CheckBox extends Frame {
     protected element: HTMLInputElement;
 
-    public constructor(id: string, parent: Frame) {
-        super(id, 'input', parent);
+    public constructor(parent: Frame) {
+        super('input', parent);
         this.element.type = 'checkbox';
     }
 

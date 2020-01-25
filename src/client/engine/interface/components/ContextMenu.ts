@@ -8,7 +8,7 @@ class ContextMenuOption extends Frame {
     protected element: HTMLButtonElement;
 
     public constructor(key: string, value: string, parent: ContextMenu) {
-        super(parent.id + key, 'button', parent, false);
+        super('button', parent, false);
         this.key = key;
         this.value = value;
         this.createElement();
@@ -33,8 +33,8 @@ export interface ContextOptionDef {
 export default class ContextMenu extends Frame {
     protected element: HTMLSpanElement;
 
-    public constructor(id: string, parent: Frame) {
-        super(id, 'div', parent);
+    public constructor(parent: Frame) {
+        super('div', parent);
         this.visible = false;
         this.width = 120;
         this.element.classList.add('context-menu');

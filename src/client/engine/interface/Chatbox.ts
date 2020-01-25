@@ -12,15 +12,15 @@ export default class Chatbox extends Panel {
     private autoScrollResetDelay: number = 30_000;
     private autoScrollTimeout: number;
 
-    public constructor(id: string, parent: Frame, width: number, height: number) {
-        super(id, parent);
+    public constructor(parent: Frame, width: number, height: number) {
+        super(parent);
         this.style.width = `${width}px`;
         this.style.height = `${height}px`;
         this.style.overflowY = 'scroll';
         this.style.overflowX = 'hidden';
         this.style.wordBreak = 'break-word';
         this.element.classList.add('hide-scrollbar');
-        this.editbox = new TextBox(`${id}-editbox`, this);
+        this.editbox = new TextBox(this);
         this.editbox.style.bottom = '0';
         this.editbox.style.width = `${width - 5}px`;
         this.editbox.addEventListener('keyup', (self: TextBox, ev: KeyboardEvent) => this.onKeyUp(self, ev));

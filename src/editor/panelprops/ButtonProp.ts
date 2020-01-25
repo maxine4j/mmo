@@ -7,7 +7,7 @@ export default class ButtonProp extends PanelProp {
 
     public constructor(parent: PropsPanel, text: string, onClick: (self: Button, ev: MouseEvent) => void) {
         super(parent);
-        this.button = new Button(this.nextId(), parent, text);
+        this.button = new Button(parent, text);
         this.button.style.position = 'initial';
         this.button.style.margin = '5px 15px';
         this.button.style.fontSize = 'initial';

@@ -44,7 +44,7 @@ export default class CharSelectScene extends GameScene {
     private buildCharList(): void {
         // add characters to the panel
         for (const char of this.characters) {
-            const btnChar = new Button(`btn-char-${char.name}`, this.panelChars, char.name);
+            const btnChar = new Button(this.panelChars, char.name);
             btnChar.style.position = 'initial';
             btnChar.style.marginTop = '10px';
             btnChar.style.width = '100%';
@@ -62,14 +62,14 @@ export default class CharSelectScene extends GameScene {
 
     private initGUI(): void{
         // build enter world button
-        const btnEnterWorld = new Button('btn-enter-world', UIParent.get(), 'Enter World');
+        const btnEnterWorld = new Button(UIParent.get(), 'Enter World');
         btnEnterWorld.style.bottom = '50px';
         btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
         btnEnterWorld.addEventListener('click', () => this.enterWorld());
         this.addGUI(btnEnterWorld);
         // build character list
-        this.panelChars = new Panel('panel-characters', UIParent.get());
+        this.panelChars = new Panel(UIParent.get());
         this.panelChars.style.display = 'block';
         this.panelChars.style.margin = '10px 10px 60px 10px';
         this.panelChars.style.right = '0';
@@ -82,7 +82,7 @@ export default class CharSelectScene extends GameScene {
         this.panelChars.style.padding = '10px';
         this.addGUI(this.panelChars);
         // realm label
-        const charListLabel = new Label('lbl-characters', this.panelChars, 'Characters');
+        const charListLabel = new Label(this.panelChars, 'Characters');
         charListLabel.style.position = 'initial';
         charListLabel.style.display = 'block';
         charListLabel.style.fontSize = '180%';
@@ -90,7 +90,7 @@ export default class CharSelectScene extends GameScene {
         this.addGUI(charListLabel);
 
         // build new character button
-        const btnCreateCharacter = new Button('btn-create-character', this.panelChars, 'Create Character');
+        const btnCreateCharacter = new Button(this.panelChars, 'Create Character');
         btnCreateCharacter.style.position = 'fixed';
         btnCreateCharacter.style.display = 'block';
         btnCreateCharacter.style.width = '250px';
@@ -100,7 +100,7 @@ export default class CharSelectScene extends GameScene {
         btnCreateCharacter.addEventListener('click', () => SceneManager.changeScene('char-create'));
         this.addGUI(btnCreateCharacter);
         // build delete character button
-        const btnDeleteChar = new Button('btn-delete-character', this.panelChars, 'Delete Character');
+        const btnDeleteChar = new Button(this.panelChars, 'Delete Character');
         btnDeleteChar.style.position = 'fixed';
         btnDeleteChar.style.margin = '5px 10px';
         btnDeleteChar.style.display = 'block';
@@ -113,7 +113,7 @@ export default class CharSelectScene extends GameScene {
         });
         this.addGUI(btnDeleteChar);
         // build back button
-        const btnBack = new Button('btn-back', this.panelChars, 'Back');
+        const btnBack = new Button(this.panelChars, 'Back');
         btnBack.style.position = 'fixed';
         btnBack.style.margin = '5px 10px';
         btnBack.style.display = 'block';

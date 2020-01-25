@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class Label extends Frame {
     protected element: HTMLLabelElement;
 
-    public constructor(id: string, parent: Frame, text: string) {
-        super(id, 'label', parent);
+    public constructor(parent: Frame, text: string) {
+        super('label', parent);
         this.text = text;
     }
 

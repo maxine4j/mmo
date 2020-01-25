@@ -6,8 +6,4 @@ export default class PanelProp {
     public constructor(parent: PropsPanel) {
         this.parent = parent;
     }
-
-    public nextId(): string {
-        return `${this.parent.id}-${this.parent.children.size}`;
-    }
 }

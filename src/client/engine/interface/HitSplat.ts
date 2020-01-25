@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import uuid from 'uuid/v4';
 import Label from './components/Label';
 import Camera from '../graphics/Camera';
 import World from '../World';
@@ -17,7 +16,7 @@ export default class HitSplat extends Panel {
     private label: Label;
 
     public constructor(world: World, camera: Camera, unit: LocalUnit, dmg: number) {
-        super(`hitsplat-${uuid()}`, UIParent.get());
+        super(UIParent.get());
         this.world = world;
         this.camera = camera;
         this.unit = unit;
@@ -32,7 +31,7 @@ export default class HitSplat extends Panel {
 
         this.disablePointerEvents();
 
-        this.label = new Label(`${this.id}-lbl`, this, dmg.toString());
+        this.label = new Label(this, dmg.toString());
         this.label.style.position = 'initial';
         this.label.style.position = 'initial';
         this.label.style.textAlign = 'center';

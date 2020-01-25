@@ -8,11 +8,11 @@ type DialogButtonCallback = (self: Button, ev: MouseEvent, inputText?: string) =
 export default class Dialog extends Frame {
     private lbl: Label;
 
-    public constructor(id: string, parent: Frame, text: string, showInput?: boolean, buttons?: string[], callbacks?: DialogButtonCallback[]) {
-        super(id, 'div', parent);
+    public constructor(parent: Frame, text: string, showInput?: boolean, buttons?: string[], callbacks?: DialogButtonCallback[]) {
+        super('div', parent);
         this.createElement();
 
-        this.lbl = new Label(`${id}-label`, this, text);
+        this.lbl = new Label(this, text);
         this.lbl.style.position = 'initial';
         this.lbl.style.margin = 'auto';
         this.lbl.style.fontSize = '120%';
@@ -24,11 +24,11 @@ export default class Dialog extends Frame {
 
         let inp: TextBox = null;
         if (showInput) {
-            inp = new TextBox(`${id}-textbox`, this);
+            inp = new TextBox(this);
         }
         if (buttons) {
             for (let i = 0; i < buttons.length; i++) {
-                const btn = new Button(`${id}-button-${i}`, this, buttons[i]);
+                const btn = new Button(this, buttons[i]);
                 if (callbacks) {
                     btn.addEventListener('click', (self: Button, ev: MouseEvent) => {
                         const cb = callbacks[i];
@@ -43,7 +43,7 @@ export default class Dialog extends Frame {
                 }
             }
         } else {
-            const btn = new Button(`${id}-button`, this, 'Okay');
+            const btn = new Button(this, 'Okay');
             btn.style.position = 'initial';
             btn.style.margin = 'auto';
             btn.style.display = 'block';

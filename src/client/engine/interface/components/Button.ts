@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class Button extends Frame {
     protected element: HTMLButtonElement;
 
-    public constructor(id: string, parent: Frame, text: string) {
-        super(id, 'button', parent);
+    public constructor(parent: Frame, text: string) {
+        super('button', parent);
         this.text = text;
     }
 

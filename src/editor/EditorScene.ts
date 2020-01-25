@@ -96,7 +96,7 @@ export default class EditorScene extends GameScene {
     }
 
     private initWorldProps(): void {
-        this.worldPropsPanel = new PropsPanel('panel-props', UIParent.get());
+        this.worldPropsPanel = new PropsPanel(UIParent.get());
         this.worldPropsPanel.width = 400;
         this.worldPropsPanel.height = 300;
         this.worldPropsPanel.style.left = 'initial';
@@ -145,19 +145,19 @@ export default class EditorScene extends GameScene {
     }
 
     private initCoordsGUI(): void {
-        this.lblMouseWorld = new Label('lbl-mouse-world', UIParent.get(), 'World: { X, Y, Z }');
+        this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
         this.lblMouseWorld.style.top = '15px';
         this.lblMouseWorld.style.left = '0';
         this.addGUI(this.lblMouseWorld);
 
-        this.lblMouseTile = new Label('lbl-mouse-tile', UIParent.get(), 'Tile: { X, Y }');
+        this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
         this.lblMouseTile.style.top = '30px';
         this.lblMouseTile.style.left = '0';
         this.addGUI(this.lblMouseTile);
 
-        this.lblMouseChunk = new Label('lbl-mouse-chunk', UIParent.get(), 'Chunk: { X, Y }');
+        this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
         this.lblMouseChunk.style.top = '45px';
         this.lblMouseChunk.style.left = '0';

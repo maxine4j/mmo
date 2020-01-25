@@ -11,16 +11,16 @@ export default class SliderProp extends PanelProp {
     public constructor(parent: PropsPanel, label: string, min: number, max: number, step: number, val: number, onChange: (value: number) => void) {
         super(parent);
 
-        const lbl = new Label(this.nextId(), parent, label);
+        const lbl = new Label(parent, label);
         lbl.style.position = 'initial';
 
-        this.textbox = new TextBox(this.nextId(), parent, 'number');
+        this.textbox = new TextBox(parent, 'number');
         this.textbox.step = step;
         this.textbox.style.position = 'initial';
         this.textbox.text = val.toString();
         this.textbox.width = 60;
 
-        this.slider = new Slider(this.nextId(), parent, min, max, val, step);
+        this.slider = new Slider(parent, min, max, val, step);
         this.slider.style.position = 'initial';
 
         this.textbox.addEventListener('input',

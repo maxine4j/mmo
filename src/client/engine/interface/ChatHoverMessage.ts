@@ -23,7 +23,7 @@ export default class ChatHoverMessage {
         this.camera = camera;
         // create label at unit pos
         this.findUnit();
-        this.label = new Label(`lbl-msg-${packet.authorId}${packet.timestamp}`, UIParent.get(), packet.message);
+        this.label = new Label(UIParent.get(), packet.message);
         this.update();
         // destroy label after timeout
         setTimeout(() => {

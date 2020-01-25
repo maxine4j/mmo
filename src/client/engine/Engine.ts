@@ -25,7 +25,7 @@ export default class Engine {
         // window.onbeforeunload = () => 'Are you sure you want to quit?';
 
         UIParent.get().clear();
-        this.lblFps = new Label('lbl-fps', UIParent.get(), '');
+        this.lblFps = new Label(UIParent.get(), '');
 
         // prevent default context menu
         const body = document.getElementById('body');

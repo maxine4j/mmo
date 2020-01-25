@@ -1,4 +1,5 @@
 import '../styles/default';
+import uuid from 'uuid/v4';
 
 export enum FrameStrata {
     WORLD = 0,
@@ -22,8 +23,8 @@ export abstract class Frame {
     protected element: HTMLElement;
     private _strata: FrameStrata;
 
-    public constructor(id: string, tag: string, parent: Frame, createElement: boolean = true) {
-        this.id = id;
+    public constructor(tag: string, parent: Frame, createElement: boolean = true) {
+        this.id = uuid();
         this.tag = tag;
         this.clickThrough = false;
         this._visible = true;
@@ -49,6 +50,7 @@ export abstract class Frame {
 
     protected createElement(): void {
         this.element = document.createElement(this.tag);
+        this.element.id = this.id;
         this.element.style.userSelect = 'none';
         this.element.style.position = 'fixed';
         this.element.style.pointerEvents = 'initial';

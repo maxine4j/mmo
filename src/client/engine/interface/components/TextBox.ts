@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class TextBox extends Frame {
     protected element: HTMLInputElement;
 
-    public constructor(id: string, parent: Frame, type: string = 'text') {
-        super(id, 'input', parent);
+    public constructor(parent: Frame, type: string = 'text') {
+        super('input', parent);
         this.element.type = type;
     }
 

@@ -39,17 +39,17 @@ export default class CharCreateScene extends GameScene {
 
     private initGUI(): void {
         // build dialog
-        this.dialog = new Dialog('dialog-char-create-err', UIParent.get(), '', false);
+        this.dialog = new Dialog(UIParent.get(), '', false);
         this.addGUI(this.dialog);
 
         // build bottom middle panel
-        const panelMid = new Panel('panel-mid', UIParent.get());
+        const panelMid = new Panel(UIParent.get());
         panelMid.style.width = '600px';
         panelMid.style.bottom = '10px';
         panelMid.centreHorizontal();
         this.addGUI(panelMid);
         // build create button
-        const btnCreate = new Button('btn-create', panelMid, 'Create');
+        const btnCreate = new Button(panelMid, 'Create');
         btnCreate.style.position = 'initial';
         btnCreate.style.display = 'float';
         btnCreate.style.float = 'right';
@@ -59,21 +59,21 @@ export default class CharCreateScene extends GameScene {
         });
         this.addGUI(btnCreate);
         // build name label
-        const lblName = new Label('lbl-name', panelMid, 'Name');
+        const lblName = new Label(panelMid, 'Name');
         lblName.style.height = '30px';
         lblName.style.bottom = '80px';
         lblName.style.textShadow = '2px 2px 4px #000000';
         lblName.style.fontSize = '140%';
         lblName.centreHorizontal();
         // build name textbox
-        this.txtName = new TextBox('txt-name', panelMid);
+        this.txtName = new TextBox(panelMid);
         this.txtName.style.width = '200px';
         this.txtName.style.height = '30px';
         this.txtName.style.bottom = '50px';
         this.txtName.centreHorizontal();
         this.addGUI(this.txtName);
         // build back button
-        const btnBack = new Button('btn-back', panelMid, 'Back');
+        const btnBack = new Button(panelMid, 'Back');
         btnBack.style.position = 'initial';
         btnBack.style.display = 'float';
         btnBack.style.float = 'left';
@@ -84,6 +84,7 @@ export default class CharCreateScene extends GameScene {
         this.addGUI(btnBack);
     }
 
+    // eslint-disable-next-line require-await
     public async init(): Promise<void> {
         this.initGUI();
         super.init();

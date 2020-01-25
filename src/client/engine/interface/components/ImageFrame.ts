@@ -1,11 +1,11 @@
 import { Frame } from './Frame';
 
 
-export default class Image extends Frame {
+export default class ImageFrame extends Frame {
     protected element: HTMLImageElement;
 
-    public constructor(id: string, parent: Frame, src: string) {
-        super(id, 'img', parent);
+    public constructor(parent: Frame, src: string) {
+        super('img', parent);
         this.element.src = src;
         this.element.draggable = false;
     }

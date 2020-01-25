@@ -5,11 +5,11 @@ export default class UIParent extends Frame {
     private static instance: UIParent;
 
     private constructor() {
-        super('uiparent', 'div', null);
+        super('div', null);
     }
 
     protected createElement(): void {
-        this.element = document.getElementById(this.id);
+        this.element = document.getElementById('uiparent');
         this.element.style.pointerEvents = 'none';
     }
 

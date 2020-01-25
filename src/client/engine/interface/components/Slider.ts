@@ -4,8 +4,8 @@ import { Frame } from './Frame';
 export default class Slider extends Frame {
     protected element: HTMLInputElement;
 
-    public constructor(id: string, parent: Frame, min: number, max: number, val: number, step: number = 1) {
-        super(id, 'input', parent);
+    public constructor(parent: Frame, min: number, max: number, val: number, step: number = 1) {
+        super('input', parent);
         this.element.type = 'range';
         this.element.min = min.toString();
         this.element.max = max.toString();

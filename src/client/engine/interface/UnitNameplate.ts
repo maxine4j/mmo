@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import Label from './components/Label';
 import Camera from '../graphics/Camera';
-import { Point } from '../../../common/Point';
 import World from '../World';
 import LocalUnit from '../LocalUnit';
 import UIParent from './components/UIParent';
@@ -21,7 +20,7 @@ export default class UnitNameplate extends Panel {
     private healthbar: ProgressBar;
 
     public constructor(world: World, camera: Camera, unit: LocalUnit) {
-        super(`nameplate-${unit.data.id}`, UIParent.get());
+        super(UIParent.get());
         this.world = world;
         this.camera = camera;
         this.unit = unit;
@@ -29,13 +28,13 @@ export default class UnitNameplate extends Panel {
         this.height = 30;
         this.disablePointerEvents();
 
-        this.label = new Label(`${this.id}-lbl`, this, '');
+        this.label = new Label(this, '');
         this.updateLabelText();
         this.label.style.position = 'initial';
         this.label.style.textAlign = 'center';
         this.label.disablePointerEvents();
 
-        this.healthbar = new ProgressBar(`${this.id}-bar`, this, 0, unit.data.maxHealth, unit.data.health);
+        this.healthbar = new ProgressBar(this, 0, unit.data.maxHealth, unit.data.health);
         this.healthbar.style.position = 'initial';
         this.healthbar.width = this.width;
         this.healthbar.height = 10;
