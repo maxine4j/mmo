@@ -21,6 +21,7 @@ export default class UnitManager {
     public state: UnitState;
     private attackRate: number = 2;
     private lastAttackTick: number = 2;
+    private retaliateTarget: UnitManager;
 
     public constructor(world: WorldManager, data: UnitDef) {
         this.world = world;
@@ -41,6 +42,7 @@ export default class UnitManager {
         this.eventEmitter.emit(event, ...args);
     }
 
+    public setDead(): void { this.data.health = -1; }
     public get dead(): boolean { return this.data.health <= 0; }
     public get position(): Point { return Point.fromDef(this.data.position); }
     public get target(): UnitManager {
@@ -48,15 +50,28 @@ export default class UnitManager {
     }
     public set target(unit: UnitManager) { this.data.target = unit.data.id; }
 
+    public stopAttacking(): void {
+        this.data.target = '';
+        this.state = UnitState.IDLE;
+    }
+
+    private retaliate(target: UnitManager): void {
+        this.retaliateTarget = target;
+        this.state = UnitState.ATTACKING;
+    }
+
     private takeHit(dmg: number, attacker: UnitManager): void {
         // mitigate dmg here, could also reflect to attacker
         this.data.health -= dmg;
-        this.attackUnit(attacker);
+        if (this.data.autoRetaliate) {
+            this.retaliate(attacker);
+        }
         console.log(`${attacker.data.name} hit ${this.data.name} for ${dmg} damage`);
 
         this.emit('damage', dmg, attacker);
         if (this.dead) {
             this.emit('death', dmg, attacker);
+            attacker.stopAttacking();
         }
     }
 
@@ -105,6 +120,9 @@ export default class UnitManager {
                 this.path = this.findPath(this.target.data.position);
                 this.path.shift();
             }
+        } else if (this.retaliateTarget) { // this delays retaliation by 1 tick so we get nice turn based combat
+            this.attackUnit(this.retaliateTarget);
+            this.retaliateTarget = null;
         } else {
             this.state = UnitState.IDLE;
         }
@@ -130,11 +148,6 @@ export default class UnitManager {
 
     public distance(other: UnitManager): number {
         return this.position.dist(other.position);
-    }
-
-    public stopAttack(): void {
-        this.data.target = '';
-        this.state = UnitState.IDLE;
     }
 
     public attackUnit(target: UnitManager): void {

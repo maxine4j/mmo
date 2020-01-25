@@ -8,6 +8,7 @@ export default interface UnitDef {
 
     health: number;
     maxHealth: number;
+    autoRetaliate: boolean;
 
     running: boolean;
     position: PointDef;

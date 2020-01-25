@@ -189,7 +189,7 @@ export default class CharSelectScene extends GameScene {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
-            this.selectedModel.getAnim('EmoteTrain').then((a) => a.play());
+            this.selectedModel.getAnim('AttackUnarmed').then((a) => a.play());
         }
     }
 

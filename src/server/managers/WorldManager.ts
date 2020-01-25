@@ -71,8 +71,14 @@ export default class WorldManager {
             }
         });
         player.on('death', () => {
+            // TODO: call player.respawn() or something
             player.data.position = { x: 0, y: 0 };
         });
+    }
+
+    public removeUnit(unit: UnitManager): void {
+        unit.dispose();
+        this.units.delete(unit.data.id);
     }
 
     public addUnit(unit: UnitManager): void {
@@ -88,9 +94,7 @@ export default class WorldManager {
             }
         });
         unit.on('death', (dmg: number, attacker: UnitManager) => {
-            attacker.stopAttack();
-            unit.dispose();
-            this.units.delete(unit.data.id); // TODO: send death animation trigger to client
+            this.removeUnit(unit);
         });
     }
 

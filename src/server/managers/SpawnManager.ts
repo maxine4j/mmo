@@ -29,7 +29,7 @@ export default class SpawnManager {
         const unit = new UnitManager(this.world, {
             id,
             target: '',
-            // tickAction: UnitTickAction.IDLE,
+            autoRetaliate: true,
             health: this.data.unit.maxHealth,
             maxHealth: this.data.unit.maxHealth,
             name: this.data.unit.name,
@@ -38,12 +38,6 @@ export default class SpawnManager {
             running: false,
             position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
             moveQueue: [],
-        });
-        unit.on('damage', (dmg: number, attacker: UnitManager) => {
-            // TODO: better way to attack next tick so units look like they take turns
-            setTimeout(() => {
-                unit.attackUnit(attacker);
-            }, this.world.tickRate * 0.8);
         });
         unit.on('death', () => {
             this.units.delete(unit.data.id);
