@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import CharacterDef from '../../common/CharacterDef';
 import WorldManager from './WorldManager';
-import UnitManager from './UnitManager';
+import UnitManager, { UnitState } from './UnitManager';
 import { TilePoint } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import ChunkManager from './ChunkManager';
@@ -18,6 +18,20 @@ export default class PlayerManager extends UnitManager {
         this.data.autoRetaliate = true;
         this.socket = socket;
         this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
+    }
+
+    public respawn(): void {
+        // could get new spawn points here, maybe unlock them
+        // different per instance/map
+        // graveyards?
+        // drop inventory?
+        // TODO: need teleport functionality instead of lerping
+        this.data.position = { x: 0, y: 0 };
+        this.data.health = this.data.maxHealth;
+        this.data.moveQueue = [];
+        this.data.target = '';
+        this.state = UnitState.IDLE;
+        this.stopAttacking();
     }
 
     public pruneLoadedChunks(): void {

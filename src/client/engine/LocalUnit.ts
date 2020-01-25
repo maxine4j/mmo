@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
+import { EventEmitter } from 'events';
 import Model from './graphics/Model';
 import World from './World';
 import UnitDef from '../../common/UnitDef';
@@ -20,6 +21,8 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
+type LocalUnitEvent = 'loaded' | 'death';
+
 export default class LocalUnit {
     public data: UnitDef;
     public world: World;
@@ -32,6 +35,7 @@ export default class LocalUnit {
     private movesThisTick: number;
     private moveTimer: number;
     private targetAngle: number = null;
+    private eventEmitter: EventEmitter = new EventEmitter();
 
     public constructor(world: World, data: UnitDef) {
         this.world = world;
@@ -41,6 +45,18 @@ export default class LocalUnit {
 
     public dispose(): void {
         this.world.scene.remove(this.model.obj);
+    }
+
+    public on(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    private emit(event: LocalUnitEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
     }
 
     public get position(): TilePoint { return this.currentPosition; }
@@ -110,6 +126,8 @@ export default class LocalUnit {
                         this.animations.set(UnitAnimation.LOOT, a);
                     });
                     this.world.scene.add(this.model.obj);
+
+                    this.emit('loaded', this);
                 });
         }
     }
@@ -124,8 +142,6 @@ export default class LocalUnit {
     public lookAt(other: LocalUnit): void {
         const diff = this.currentPosition.sub(other.position);
         this.targetAngle = Math.atan2(diff.y, -diff.x);
-        // const angle = Math.atan2(diff.y, -diff.x);
-        // this.model.obj.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle));
     }
 
     private onMixerFinished(ev: THREE.Event): void {

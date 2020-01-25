@@ -33,6 +33,7 @@ export default class World {
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
         this._player = new LocalPlayer(this, null);
+        this._player.on('loaded', (p: LocalPlayer) => { this.emit('player_added', p); });
         this._tickRate = info.tickRate;
         this.chunkViewDist = info.chunkViewDist;
         this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);
@@ -83,7 +84,9 @@ export default class World {
             if (!unit) {
                 unit = new LocalUnit(this, def);
                 this.units.set(def.id, unit);
-                this.emit('unit_added', unit);
+                unit.on('loaded', () => {
+                    this.emit('unit_added', unit);
+                });
             }
             unit.onTick(def);
             unit.lastTickUpdated = tick;
@@ -96,8 +99,9 @@ export default class World {
             if (!player) {
                 player = new LocalPlayer(this, def);
                 this.players.set(def.id, player);
-                this.emit('player_added', player);
-                console.log('got a new player', player.data.name);
+                player.on('loaded', () => {
+                    this.emit('player_added', player);
+                });
             }
             player.onTick(def);
             player.lastTickUpdated = tick;

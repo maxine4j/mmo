@@ -35,7 +35,7 @@ export default class UnitNameplate extends Panel {
         this.label.style.textAlign = 'center';
         this.label.disablePointerEvents();
 
-        this.healthbar = new ProgressBar(`${this.id}-bar`, this, 0, unit.data.maxHealth, unit.data.health / 2); // TODO: temp
+        this.healthbar = new ProgressBar(`${this.id}-bar`, this, 0, unit.data.maxHealth, unit.data.health);
         this.healthbar.style.position = 'initial';
         this.healthbar.width = this.width;
         this.healthbar.height = 10;

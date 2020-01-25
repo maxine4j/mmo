@@ -20,6 +20,7 @@ import { WorldPoint } from '../../common/Point';
 import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
+import LocalPlayer from '../engine/LocalPlayer';
 
 export default class WorldScene extends GameScene {
     private world: World;
@@ -93,39 +94,41 @@ export default class WorldScene extends GameScene {
     }
 
     private initNameplates(): void {
-        // TODO: change from timeout to when world recieves player with events
-        setTimeout(() => {
-            const mynp = new UnitNameplate(this.world, this.camera, this.world.player);
-            this.nameplates.set(this.world.player.data.id, mynp);
-            this.addGUI(mynp);
-        }, 1000);
-
-        this.world.on('unit_added', (unit: LocalUnit) => {
+        const createNameplate = (unit: LocalUnit): void => {
             const np = new UnitNameplate(this.world, this.camera, unit);
             this.nameplates.set(unit.data.id, np);
             this.addGUI(np);
-        });
-        this.world.on('unit_removed', (unit: LocalUnit) => {
+        };
+        const disposeNameplate = (unit: LocalUnit): void => {
             this.nameplates.get(unit.data.id).dispose();
             this.nameplates.delete(unit.data.id);
-        });
+        };
+
+        this.world.on('player_added', createNameplate.bind(this));
+        this.world.on('unit_added', createNameplate.bind(this));
+        this.world.on('unit_removed', disposeNameplate.bind(this));
+        this.world.on('player_removed', disposeNameplate.bind(this));
     }
 
     private initSplats(): void {
         NetClient.on(PacketHeader.UNIT_DAMAGE, (packet: DamagePacket) => {
             const defender = this.world.getUnit(packet.defender);
             const attacker = this.world.getUnit(packet.attacker);
-            defender.animPlayOnce(UnitAnimation.FLINCH);
-            attacker.animPlayOnce(UnitAnimation.PUNCH);
-            attacker.lookAt(defender);
-            defender.lookAt(attacker);
-            const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
-            this.addGUI(splat);
-            this.hitsplats.set(splat.id, splat);
-            setTimeout(() => {
-                this.hitsplats.delete(splat.id);
-                splat.dispose();
-            }, this.world.tickRate * 1000);
+            if (attacker) {
+                attacker.animPlayOnce(UnitAnimation.PUNCH);
+                attacker.lookAt(defender);
+            }
+            if (defender) {
+                defender.animPlayOnce(UnitAnimation.FLINCH);
+                defender.lookAt(attacker);
+                const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
+                this.addGUI(splat);
+                this.hitsplats.set(splat.id, splat);
+                setTimeout(() => {
+                    this.hitsplats.delete(splat.id);
+                    splat.dispose();
+                }, this.world.tickRate * 1000);
+            }
         });
     }
 

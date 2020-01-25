@@ -72,7 +72,7 @@ export default class WorldManager {
         });
         player.on('death', () => {
             // TODO: call player.respawn() or something
-            player.data.position = { x: 0, y: 0 };
+            player.respawn();
         });
     }
 

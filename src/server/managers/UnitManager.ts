@@ -42,7 +42,6 @@ export default class UnitManager {
         this.eventEmitter.emit(event, ...args);
     }
 
-    public setDead(): void { this.data.health = -1; }
     public get dead(): boolean { return this.data.health <= 0; }
     public get position(): Point { return Point.fromDef(this.data.position); }
     public get target(): UnitManager {
