@@ -5,19 +5,40 @@ import UnitManager, { UnitState } from './UnitManager';
 import { TilePoint } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import ChunkManager from './ChunkManager';
+import InventoryManager from './InventoryManager';
+import InventoryDef from '../../common/InventoryDef';
+import CharacterEntity from '../entities/Character.entity';
 
 export default class PlayerManager extends UnitManager {
     public socket: io.Socket;
     public data: CharacterDef;
+    public bags: InventoryManager;
+    public bank: InventoryManager;
     public loadedChunks: Map2D<number, number, ChunkManager> = new Map2D();
 
-    public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket) {
+    public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket, bagsData: InventoryDef, bankData: InventoryDef) {
         super(world, data);
         this.data.maxHealth = 10;
         this.data.health = 10; // TODO: temp
         this.data.autoRetaliate = true;
         this.socket = socket;
         this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
+        this.bags = new InventoryManager(bagsData);
+        this.bank = new InventoryManager(bankData);
+    }
+
+    public async saveToDB(): Promise<void> {
+        await this.bags.saveToDB();
+        await this.bank.saveToDB();
+        await CharacterEntity.createQueryBuilder()
+            .update()
+            .set({
+                level: this.data.level,
+                posX: this.data.position.x,
+                posY: this.data.position.y,
+            })
+            .where('id = :id', { id: Number(this.data.id) })
+            .execute();
     }
 
     public respawn(): void {

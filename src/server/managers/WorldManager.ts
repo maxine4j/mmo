@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import Map2D from '../../common/Map2D';
 import {
-    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket, DamagePacket,
+    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket, DamagePacket, InventorySwapPacket, ResponsePacket, InventoryPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -216,8 +216,14 @@ export default class WorldManager {
 
     public handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): void {
         // find an entity for this char
-        CharacterEntity.findOne({ id: Number(char.id) }).then((ce) => {
-            const p = new PlayerManager(this, ce.toNet(), session);
+        CharacterEntity.findOne({
+            where: {
+                id: Number(char.id),
+            },
+        }).then((ce) => {
+            const bagData = ce.bags.toNet();
+            const bankData = ce.bank.toNet();
+            const p = new PlayerManager(this, ce.toNet(), session, bagData, bankData);
 
             // notify all players in range
             this.playersInRange(p.data.position).forEach((pir) => {
@@ -226,14 +232,15 @@ export default class WorldManager {
             // add the char to the logged in players list
             this.addPlayer(p, session);
             session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.data);
+            session.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>p.bags.data);
         });
     }
 
-    public handlePlayerLeaveWorld(session: io.Socket): void {
+    public async handlePlayerLeaveWorld(session: io.Socket): Promise<void> {
         // remove the sessions player from the world if one exists
         const p = this.players.get(session.id);
         if (p) {
-            CharacterEntity.fromNet(p.data);
+            await p.saveToDB();
             this.players.delete(session.id);
         }
     }
@@ -241,6 +248,15 @@ export default class WorldManager {
     public handlePlayerUpdateSelf(session: io.Socket): void {
         const { data } = this.players.get(session.id);
         session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
+    }
+
+    public handleInventorySwap(session: io.Socket, packet: InventorySwapPacket): ResponsePacket {
+        const player = this.players.get(session.id);
+        player.bags.swap(packet.slotA, packet.slotB);
+        return <ResponsePacket>{
+            success: true,
+            message: '',
+        };
     }
 
     private parseChatCommand(session: io.Socket, msg: ChatMsgPacket): void {

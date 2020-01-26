@@ -1,15 +1,16 @@
 import {
-    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne,
+    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn,
 } from 'typeorm';
 import CharacterDef, { Race } from '../../common/CharacterDef';
 import AccountEntity from './Account.entity';
+import InventoryEntity from './Inventory.entity';
 
 @Entity()
 export default class CharacterEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @ManyToOne((type) => AccountEntity, (account) => account.characters)
+    @ManyToOne((type) => AccountEntity, (account) => account.characters, { onDelete: 'CASCADE' })
     public account: AccountEntity;
 
     @Column()
@@ -30,6 +31,14 @@ export default class CharacterEntity extends BaseEntity {
     @Column()
     public level: number;
 
+    @OneToOne((type) => InventoryEntity, { eager: true, cascade: true })
+    @JoinColumn()
+    public bags: InventoryEntity;
+
+    @OneToOne((type) => InventoryEntity, { eager: true, cascade: true })
+    @JoinColumn()
+    public bank: InventoryEntity;
+
     // converts a db entity to a network character
     public toNet(): CharacterDef {
         const char = <CharacterDef>{
@@ -43,18 +52,5 @@ export default class CharacterEntity extends BaseEntity {
             },
         };
         return char;
-    }
-
-    // converts a network character to a db entity
-    public static fromNet(c: CharacterDef): Promise<CharacterEntity> {
-        return new Promise((resolve) => {
-            this.findOne({ id: Number(c.id) }).then((ce) => {
-                ce.level = c.level;
-                ce.posX = c.position.x;
-                ce.posY = c.position.y;
-                ce.save();
-                resolve(ce);
-            });
-        });
     }
 }

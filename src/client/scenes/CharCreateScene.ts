@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
@@ -9,6 +10,9 @@ import NetClient from '../engine/NetClient';
 import { PacketHeader, CharacterPacket, ResponsePacket } from '../../common/Packet';
 import TextBox from '../engine/interface/components/TextBox';
 import Dialog from '../engine/interface/components/Dialog';
+import Camera from '../engine/graphics/Camera';
+import Scene from '../engine/graphics/Scene';
+import Graphics from '../engine/graphics/Graphics';
 
 export default class CharCreateScene extends GameScene {
     private txtName: TextBox;
@@ -86,6 +90,13 @@ export default class CharCreateScene extends GameScene {
 
     // eslint-disable-next-line require-await
     public async init(): Promise<void> {
+        this.scene = new Scene();
+        this.camera = new Camera(45, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
+        this.camera.position.z = 10;
+
+        const light = new THREE.AmbientLight(0xffffff, 1.5);
+        this.scene.add(light);
+
         this.initGUI();
         super.init();
     }

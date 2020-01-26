@@ -1,5 +1,4 @@
 import UnitDef from './UnitDef';
-import ItemDef from './ItemDef';
 
 export enum Race {
     HUMAN,
@@ -12,6 +11,4 @@ export enum Race {
 
 export default interface CharacterDef extends UnitDef {
     race: Race;
-
-    inventory: ItemDef[];
 }

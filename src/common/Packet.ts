@@ -3,23 +3,35 @@ import CharacterDef from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';
+import ItemDef from './ItemDef';
+import InventoryDef, { InventoryType } from './InventoryDef';
 
 export enum PacketHeader {
     AUTH_LOGIN = 'AUTH_LOGIN',
     AUTH_LOGOUT = 'AUTH_LOGOUT',
+
     CHAR_MYLIST = 'CHAR_MYLIST',
     CHAR_CREATE = 'CHAR_CREATE',
     CHAR_GET = 'CHAR_GET',
+
     PLAYER_ENTERWORLD = 'PLAYER_ENTERWORLD',
     PLAYER_LEAVEWORLD = 'PLAYER_LEAVEWORLD',
     PLAYER_MOVETO = 'PLAYER_MOVETO',
     PLAYER_UPDATE_SELF = 'PLAYER_UPDATE_SELF',
     PLAYER_UPDATE = 'PLAYER_UPDATE',
     PLAYER_TARGET = 'PLAYER_TARGET',
+
+    INVENTORY_SWAP = 'INVENTORY_SWAP',
+    INVENTORY_FULL = 'INVENTORY_FULL',
+    INVENTORY_ITEM = 'INVENTORY_ITEM',
+
     UNIT_UPDATE = 'UNIT_UPDATE',
     UNIT_DAMAGE = 'UNIT_DAMAGE',
+
     CHAT_EVENT = 'CHAT_EVENT',
+
     CHUNK_LOAD = 'CHUNK_LOAD',
+
     WORLD_INFO = 'WORLD_INFO',
     WORLD_TICK = 'WORLD_TICK',
 }
@@ -89,3 +101,14 @@ export interface DamagePacket extends Packet {
     defender: string;
     damage: number; // could add type here for poision etc
 }
+
+export interface InventorySwapPacket extends Packet {
+    slotA: number;
+    slotB: number;
+}
+
+export interface ItemPacket extends Packet, ItemDef {
+    invType: InventoryType;
+}
+
+export interface InventoryPacket extends Packet, InventoryDef { }

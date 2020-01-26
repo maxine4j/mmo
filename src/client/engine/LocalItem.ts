@@ -1,6 +1,6 @@
 import ItemDef from '../../common/ItemDef';
 
-export default class Item {
+export default class LocalItem {
     public data: ItemDef;
 
     public constructor(def: ItemDef) {

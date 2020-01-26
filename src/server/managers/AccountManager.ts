@@ -4,6 +4,10 @@ import {
 } from '../../common/Packet';
 import AccountEntity from '../entities/Account.entity';
 import CharacterEntity from '../entities/Character.entity';
+import InventoryEntity from '../entities/Inventory.entity';
+import { InventoryType } from '../../common/InventoryDef';
+import ItemInstanceEntity from '../entities/ItemInstance.entity';
+import ItemEntity from '../entities/Item.entity';
 
 // log a user in with plaintext password (TEMP)
 export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
@@ -109,6 +113,29 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.posX = 0; // TODO: set this to starting zone based on race
     char.posY = 0;
     char.positionMapID = 0;
+
+    char.bags = new InventoryEntity();
+    char.bags.type = InventoryType.BAGS;
+    char.bags.items = [];
+    // TODO: temp
+    for (let i = 0; i < 28; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        const itemEntity = await ItemEntity.findOne({ id: i });
+        if (!itemEntity) break;
+        const item = new ItemInstanceEntity();
+        item.slot = i;
+        item.def = itemEntity;
+        char.bags.items[i] = item;
+        // eslint-disable-next-line no-await-in-loop
+        await item.save();
+    }
+    await char.bags.save();
+
+    char.bank = new InventoryEntity();
+    char.bank.items = [];
+    char.bank.type = InventoryType.BAGS;
+    await char.bank.save();
+
     await char.save();
     // send success response
     return <ResponsePacket>{

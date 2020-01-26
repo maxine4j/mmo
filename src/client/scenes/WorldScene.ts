@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
+import { InventoryType } from '../../common/InventoryDef';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import SceneManager from '../engine/scene/SceneManager';
@@ -12,7 +13,7 @@ import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket,
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -20,7 +21,7 @@ import { WorldPoint } from '../../common/Point';
 import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
-import Inventory from '../engine/interface/Inventory';
+import Inventory, { InventorySlot } from '../engine/interface/Inventory';
 
 export default class WorldScene extends GameScene {
     private world: World;
@@ -35,6 +36,7 @@ export default class WorldScene extends GameScene {
     private chatHoverMsgs: ChatHoverMessage[] = [];
     private nameplates: Map<string, UnitNameplate> = new Map();
     private hitsplats: Map<string, HitSplat> = new Map();
+    private bags: Inventory;
 
     public constructor() {
         super('world');
@@ -92,8 +94,19 @@ export default class WorldScene extends GameScene {
         });
         this.addGUI(this.chatbox);
 
-        const inventory = new Inventory();
-        this.addGUI(inventory);
+        this.bags = new Inventory();
+        this.bags.on('swap', (slotA: InventorySlot, slotB: InventorySlot) => {
+            NetClient.send(PacketHeader.INVENTORY_SWAP, <InventorySwapPacket>{
+                slotA: slotA.slot,
+                slotB: slotB.slot,
+            });
+        });
+        NetClient.on(PacketHeader.INVENTORY_FULL, (packet: InventoryPacket) => {
+            if (packet.type === InventoryType.BAGS) {
+                this.bags.loadDef(packet);
+            }
+        });
+        this.addGUI(this.bags);
     }
 
     private initNameplates(): void {
