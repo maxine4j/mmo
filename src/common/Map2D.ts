@@ -52,8 +52,8 @@ export default class Map2D<K1, K2, V> implements Iterable<[K1, K2, V]> {
             row = new Map();
             this.data.set(x, row);
         }
+        if (!this.contains(x, y)) this._size++;
         row.set(y, v);
-        this._size++;
     }
 
     public delete(x: K1, y: K2): boolean {
