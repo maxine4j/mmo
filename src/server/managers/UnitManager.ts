@@ -1,8 +1,9 @@
 import PF from 'pathfinding';
 import { EventEmitter } from 'events';
-import { Point, PointDef } from '../../common/Point';
+import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from './WorldManager';
 import UnitDef from '../../common/UnitDef';
+import ChunkManager from './ChunkManager';
 
 type UnitManagerEvent = 'damage' | 'death' | 'move' | 'wandered';
 
@@ -22,6 +23,7 @@ export default class UnitManager {
     private attackRate: number = 2;
     private lastAttackTick: number = 2;
     private retaliateTarget: UnitManager;
+    protected currentChunk: ChunkManager;
 
     public constructor(world: WorldManager, data: UnitDef) {
         this.world = world;
@@ -30,6 +32,7 @@ export default class UnitManager {
     }
 
     public dispose(): void {
+        this.currentChunk.units.delete(this.data.id);
         this.eventEmitter.removeAllListeners();
     }
     public on(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
@@ -82,6 +85,30 @@ export default class UnitManager {
         return Math.round(Math.random());
     }
 
+    // used to update the units chunk
+    protected addToNewChunk(chunk: ChunkManager): void {
+        chunk.units.set(this.data.id, this);
+        chunk.allUnits.set(this.data.id, this);
+        this.currentChunk = chunk;
+    }
+
+    // used to update the units chunk
+    protected removeFromOldChunk(): void {
+        this.currentChunk.units.delete(this.data.id);
+        this.currentChunk.allUnits.delete(this.data.id);
+    }
+
+    private updateChunk(): void {
+        const [ccx, ccy] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
+        const newChunk = this.world.chunks.get(ccx, ccy);
+        if (!this.currentChunk) {
+            this.addToNewChunk(newChunk);
+        } else if (newChunk.def.id !== this.currentChunk.def.id) { // if we have changed chunk
+            this.removeFromOldChunk();
+            this.addToNewChunk(newChunk);
+        }
+    }
+
     private tickPath(): void {
         this.data.moveQueue = [];
         if (this.path && this.path.length > 0) {
@@ -92,6 +119,7 @@ export default class UnitManager {
                 this.data.moveQueue.push(nextPos);
             }
             this.data.position = nextPos;
+            this.updateChunk();
         }
     }
 

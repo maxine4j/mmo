@@ -2,6 +2,8 @@ import ChunkDef from '../../common/ChunkDef';
 import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 import WorldManager from './WorldManager';
+import UnitManager from './UnitManager';
+import PlayerManager from './PlayerManager';
 
 export const WALKABLE = 0;
 export const NOT_WALKABLE = 1;
@@ -10,6 +12,9 @@ export default class ChunkManager {
     public world: WorldManager;
     public def: ChunkDef;
     public navmap: number[][];
+    public allUnits: Map<string, UnitManager> = new Map();
+    public units: Map<string, UnitManager> = new Map();
+    public players: Map<string, PlayerManager> = new Map();
 
     public constructor(def: ChunkDef, world: WorldManager) {
         this.def = def;

@@ -145,7 +145,7 @@ export default class WorldManager {
                     level: 1,
                     model: 'assets/models/units/skeleton/skeleton.model.json',
                 },
-                center: { x: 0, y: 0 },
+                center: { x: -60, y: -60 },
                 spawnRadius: { x: 5, y: 5 },
                 wanderRadius: { x: 10, y: 10 },
                 leashRadius: { x: 15, y: 15 },
@@ -181,14 +181,18 @@ export default class WorldManager {
 
     private playersInRange(pos: PointDef, exclude?: PlayerManager): PlayerManager[] {
         const inrange: PlayerManager[] = [];
-        for (const [_, p] of this.players) {
-            // check if players pos is withing view dist of the target x,y
-            if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
-                && pos.y + viewDistY > p.data.position.y && pos.y - viewDistY < p.data.position.y) {
-                if (exclude && exclude.socket.id === p.socket.id) {
-                    continue;
+        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.chunkSize);
+        const neighbours = this.getNeighbours(this.chunks.get(ccx, ccy).def);
+        for (const chunk of neighbours) {
+            for (const [_, p] of chunk.players) {
+                // check if players pos is withing view dist of the target x,y
+                if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
+                    && pos.y + viewDistY > p.data.position.y && pos.y - viewDistY < p.data.position.y) {
+                    if (exclude && exclude.socket.id === p.socket.id) {
+                        continue;
+                    }
+                    inrange.push(p);
                 }
-                inrange.push(p);
             }
         }
         return inrange;
@@ -196,11 +200,15 @@ export default class WorldManager {
 
     private unitsInRange(pos: PointDef): UnitManager[] {
         const inrange: UnitManager[] = [];
-        for (const [_, u] of this.units) {
+        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.chunkSize);
+        const neighbours = this.getNeighbours(this.chunks.get(ccx, ccy).def);
+        for (const chunk of neighbours) {
+            for (const [_, u] of chunk.units) {
             // check if units pos is withing view dist of the target x,y
-            if (pos.x + viewDistX > u.data.position.x && pos.x - viewDistX < u.data.position.x
+                if (pos.x + viewDistX > u.data.position.x && pos.x - viewDistX < u.data.position.x
                 && pos.y + viewDistY > u.data.position.y && pos.y - viewDistY < u.data.position.y) {
-                inrange.push(u);
+                    inrange.push(u);
+                }
             }
         }
         return inrange;

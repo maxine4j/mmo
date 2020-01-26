@@ -27,6 +27,11 @@ export default class PlayerManager extends UnitManager {
         this.bank = new InventoryManager(bankData);
     }
 
+    public dispose(): void {
+        super.dispose();
+        this.currentChunk.players.delete(this.data.id);
+    }
+
     public async saveToDB(): Promise<void> {
         await this.bags.saveToDB();
         await this.bank.saveToDB();
@@ -39,6 +44,19 @@ export default class PlayerManager extends UnitManager {
             })
             .where('id = :id', { id: Number(this.data.id) })
             .execute();
+    }
+
+    // used to update the units chunk
+    protected addToNewChunk(chunk: ChunkManager): void {
+        chunk.players.set(this.data.id, this);
+        chunk.allUnits.set(this.data.id, this);
+        this.currentChunk = chunk;
+    }
+
+    // used to update the units chunk
+    protected removeFromOldChunk(): void {
+        this.currentChunk.players.delete(this.data.id);
+        this.currentChunk.allUnits.delete(this.data.id);
     }
 
     public respawn(): void {
