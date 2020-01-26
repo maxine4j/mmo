@@ -179,11 +179,29 @@ export default class WorldManager {
         this.chunks.set(cm.def.x, cm.def.y, cm);
     }
 
+    private getChunksInViewDist(pos: PointDef): Set<ChunkManager> {
+        // get extreme points based on viewDist
+        const minViewX = pos.x - viewDistX;
+        const maxViewX = pos.x + viewDistX;
+        const minViewY = pos.y - viewDistY;
+        const maxViewY = pos.y + viewDistY;
+        // get the chunk coords of these extreme points
+        const [tlX, tlY] = TilePoint.getChunkCoord(minViewX, minViewY, this.chunkSize);
+        const [trX, trY] = TilePoint.getChunkCoord(maxViewX, minViewY, this.chunkSize);
+        const [blX, blY] = TilePoint.getChunkCoord(minViewX, maxViewY, this.chunkSize);
+        const [brX, brY] = TilePoint.getChunkCoord(maxViewX, maxViewY, this.chunkSize);
+        // save the chunks to a set so we only get unique chunks
+        const chunks: Set<ChunkManager> = new Set();
+        chunks.add(this.chunks.get(tlX, tlY));
+        chunks.add(this.chunks.get(trX, trY));
+        chunks.add(this.chunks.get(blX, blY));
+        chunks.add(this.chunks.get(brX, brY));
+        return chunks;
+    }
+
     private playersInRange(pos: PointDef, exclude?: PlayerManager): PlayerManager[] {
         const inrange: PlayerManager[] = [];
-        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.chunkSize);
-        const neighbours = this.getNeighbours(this.chunks.get(ccx, ccy).def);
-        for (const chunk of neighbours) {
+        for (const chunk of this.getChunksInViewDist(pos)) {
             for (const [_, p] of chunk.players) {
                 // check if players pos is withing view dist of the target x,y
                 if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
@@ -200,9 +218,7 @@ export default class WorldManager {
 
     private unitsInRange(pos: PointDef): UnitManager[] {
         const inrange: UnitManager[] = [];
-        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.chunkSize);
-        const neighbours = this.getNeighbours(this.chunks.get(ccx, ccy).def);
-        for (const chunk of neighbours) {
+        for (const chunk of this.getChunksInViewDist(pos)) {
             for (const [_, u] of chunk.units) {
             // check if units pos is withing view dist of the target x,y
                 if (pos.x + viewDistX > u.data.position.x && pos.x - viewDistX < u.data.position.x
