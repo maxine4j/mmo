@@ -6,7 +6,7 @@ import { TilePoint } from '../../common/Point';
 export default class LocalGroundItem {
     public def: GroundItemDef;
     private world: World;
-    private model: Model;
+    public model: Model;
     private _position: TilePoint;
     public get position(): TilePoint { return this._position; }
     public lastTickUpdated: number;
@@ -17,10 +17,12 @@ export default class LocalGroundItem {
         this._position = new TilePoint(def.position.x, def.position.y, world.chunkWorld);
         Model.loadDef('assets/models/environment/sack.model.json').then((model) => {
             this.model = model;
-            this.model.obj.name = 'groundItem';
-            this.model.obj.userData = {
-                groundItem: this,
-            };
+            this.model.obj.traverse((o) => {
+                o.name = 'groundItem';
+                o.userData = {
+                    groundItem: this,
+                };
+            });
             this.model.obj.position.copy(this.position.toWorld());
             this.world.scene.add(this.model.obj);
         });

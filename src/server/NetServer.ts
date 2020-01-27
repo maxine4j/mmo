@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket, InventorySwapPacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket, InventorySwapPacket, LootPacket,
 } from '../common/Packet';
 import {
     handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
@@ -62,6 +62,9 @@ export default class NetServer {
         });
         socket.on(PacketHeader.PLAYER_TARGET, (packet: TargetPacket) => {
             NetServer.world.handlePlayerTarget(socket, packet);
+        });
+        socket.on(PacketHeader.PLAYER_LOOT, (packet: LootPacket) => {
+            NetServer.world.handlePlayerLoot(socket, packet);
         });
 
         // chat

@@ -15,11 +15,15 @@ export default class InventoryEntity extends BaseEntity {
     @Column()
     public type: InventoryType;
 
+    @Column()
+    public capacity: number;
+
     // converts a db entity to a network def
     public toNet(): InventoryDef {
         return <InventoryDef>{
             id: this.id,
             type: this.type,
+            capacity: this.capacity,
             items: this.items.map((inst) => inst.toNet()),
         };
     }

@@ -2,13 +2,14 @@ import io from 'socket.io';
 import CharacterDef from '../../common/CharacterDef';
 import WorldManager from './WorldManager';
 import UnitManager, { UnitState, UnitManagerEvent } from './UnitManager';
-import { TilePoint } from '../../common/Point';
+import { TilePoint, Point } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import ChunkManager from './ChunkManager';
 import InventoryManager from './InventoryManager';
 import InventoryDef from '../../common/InventoryDef';
 import CharacterEntity from '../entities/Character.entity';
 import { GroundItemDef } from '../../common/ItemDef';
+import { PacketHeader, InventoryPacket } from '../../common/Packet';
 
 type PlayerManagerEvent = UnitManagerEvent | 'saved';
 
@@ -19,6 +20,7 @@ export default class PlayerManager extends UnitManager {
     public bank: InventoryManager;
     public loadedChunks: Map2D<number, number, ChunkManager> = new Map2D();
     public visibleGroundItems: Map<string, GroundItemDef> = new Map();
+    private lootTarget: GroundItemDef;
 
     public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket, bagsData: InventoryDef, bankData: InventoryDef) {
         super(world, data);
@@ -88,6 +90,12 @@ export default class PlayerManager extends UnitManager {
         this.emit('updated', this);
     }
 
+    public pickUpItem(gi: GroundItemDef): void {
+        this.state = UnitState.LOOTING;
+        this.lootTarget = gi;
+        this.path = this.findPath(gi.position);
+    }
+
     public pruneLoadedChunks(): void {
         const [ccx, ccy] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
         const minX = ccx - this.world.chunkViewDist;
@@ -101,6 +109,20 @@ export default class PlayerManager extends UnitManager {
         }
     }
 
+    private tickLooting(): void {
+        // check if we are on top of the item
+        if (this.position.eq(Point.fromDef(this.lootTarget.position))) {
+            // check if the item still exists on the ground
+            if (this.world.groundItemExists(this.lootTarget)) {
+                if (this.bags.tryAddItem(this.lootTarget.item)) {
+                    this.world.removeGroundItem(this.lootTarget); // potential race condition, item duplication?
+                    this.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket> this.bags.data);
+                }
+            }
+            this.state = UnitState.IDLE;
+        }
+    }
+
     public tick(): void {
         // cache last point
         const [ccxLast, ccyLast] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
@@ -111,9 +133,15 @@ export default class PlayerManager extends UnitManager {
             this.world.sendSurroundingChunks(this); // ask the world to send new chunks
         }
 
+        // TODO: personal loot for X ticks so other players cant steal immediately
+        this.visibleGroundItems.clear();
         for (const gi of this.world.groundItemsInRange(this.data.position)) {
             this.visibleGroundItems.set(gi.item.uuid, gi);
-            // TODO: remove stale items
+        }
+
+        switch (this.state) {
+        case UnitState.LOOTING: this.tickLooting(); break;
+        default: break;
         }
     }
 }

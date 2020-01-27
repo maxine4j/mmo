@@ -1,7 +1,8 @@
 import io from 'socket.io';
 import Map2D from '../../common/Map2D';
 import {
-    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket, TargetPacket, DamagePacket, InventorySwapPacket, ResponsePacket, InventoryPacket,
+    PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket,
+    TargetPacket, DamagePacket, InventorySwapPacket, ResponsePacket, InventoryPacket, LootPacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -116,7 +117,17 @@ export default class WorldManager {
         const [ccx, ccy] = TilePoint.getChunkCoord(gi.position.x, gi.position.y, this.chunkSize);
         const chunk = this.chunks.get(ccx, ccy);
         chunk.groundItems.set(gi.item.uuid, gi);
-        console.log(`Added a ground item ${gi.item.name} at pos ${gi.position.x}, ${gi.position.y}`);
+    }
+
+    public removeGroundItem(gi: GroundItemDef): void {
+        const [ccx, ccy] = TilePoint.getChunkCoord(gi.position.x, gi.position.y, this.chunkSize);
+        const chunk = this.chunks.get(ccx, ccy);
+        chunk.groundItems.delete(gi.item.uuid);
+        this.groundItems.delete(gi.item.uuid);
+    }
+
+    public groundItemExists(gi: GroundItemDef): boolean {
+        return this.groundItems.has(gi.item.uuid);
     }
 
     private tickSpawns(): void {
@@ -155,7 +166,7 @@ export default class WorldManager {
                 id: 'skeleton-group',
                 unit: {
                     id: 'skeleton',
-                    maxHealth: 5,
+                    maxHealth: 2,
                     name: 'Skeleton',
                     level: 1,
                     model: 'assets/models/units/skeleton/skeleton.model.json',
@@ -384,6 +395,14 @@ export default class WorldManager {
         const tar = this.getUnit(packet.target);
         if (tar) {
             player.attackUnit(tar);
+        }
+    }
+
+    public handlePlayerLoot(session: io.Socket, packet: LootPacket): void {
+        const player = this.players.get(session.id);
+        const gi = this.groundItems.get(packet.uuid);
+        if (gi) {
+            player.pickUpItem(gi);
         }
     }
 

@@ -12,13 +12,14 @@ export enum UnitState {
     IDLE,
     FOLLOWING,
     ATTACKING,
+    LOOTING,
 }
 
 export default class UnitManager {
     protected eventEmitter: EventEmitter = new EventEmitter();
     protected world: WorldManager;
     public data: UnitDef;
-    private path: PointDef[];
+    protected path: PointDef[];
     public lastWanderTick: number = 0;
     public state: UnitState;
     private attackRate: number = 2;
@@ -74,10 +75,11 @@ export default class UnitManager {
         this.emit('damaged', this, dmg, attacker);
         if (this.dead) {
             this.emit('death', this, dmg, attacker);
+            // TODO: drop tables
             this.world.addGroundItem({
                 item: {
                     uuid: uuid(),
-                    itemid: 1,
+                    itemid: 0,
                     icon: 81,
                     name: 'Iron Sword',
                     slot: null,
@@ -203,7 +205,7 @@ export default class UnitManager {
         this.path = this.findPath(dest);
     }
 
-    private findPath(dest: PointDef): PointDef[] {
+    protected findPath(dest: PointDef): PointDef[] {
         const navmap = this.world.generateNavmap(this.data.position, dest);
         const grid = new PF.Grid(navmap.matrix);
 

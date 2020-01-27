@@ -49,7 +49,7 @@ export default class WorldScene extends GameScene {
         btnBack.style.margin = '5px 10px';
         btnBack.style.display = 'block';
         btnBack.style.width = '120px';
-        btnBack.style.bottom = '5px';
+        btnBack.style.top = '5px';
         btnBack.style.right = '0';
         btnBack.addEventListener('click', () => {
             NetClient.send(PacketHeader.PLAYER_LEAVEWORLD);

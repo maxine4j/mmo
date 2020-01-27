@@ -1,4 +1,4 @@
-import { AmbientLight } from 'three';
+import * as THREE from 'three';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
@@ -135,7 +135,7 @@ export default class CharSelectScene extends GameScene {
         this.camera = new Camera(45, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
         this.camera.position.z = 10;
 
-        const light = new AmbientLight(0xffffff, 1.5);
+        const light = new THREE.AmbientLight(0xffffff, 1.5);
         this.scene.add(light);
 
         // this.background = await Model.load('assets/models/ui/charselect/charselect.glb');
@@ -189,7 +189,12 @@ export default class CharSelectScene extends GameScene {
         this.selectedModel.update(delta);
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
-            this.selectedModel.getAnim('AttackUnarmed').then((a) => a.play());
+            this.selectedModel.getAnim('Stand').then((a) => a.stop());
+            this.selectedModel.getAnim('Loot').then((a) => {
+                a.clampWhenFinished = true;
+                a.loop = THREE.LoopOnce;
+                a.play();
+            });
         }
     }
 

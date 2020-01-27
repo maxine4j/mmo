@@ -19,6 +19,7 @@ export enum PacketHeader {
     PLAYER_MOVETO = 'PLAYER_MOVETO',
     PLAYER_UPDATE = 'PLAYER_UPDATE',
     PLAYER_TARGET = 'PLAYER_TARGET',
+    PLAYER_LOOT = 'PLAYER_LOOT',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_FULL = 'INVENTORY_FULL',
@@ -112,3 +113,7 @@ export interface ItemPacket extends Packet, ItemDef {
 }
 
 export interface InventoryPacket extends Packet, InventoryDef { }
+
+export interface LootPacket extends Packet {
+    uuid: string,
+}

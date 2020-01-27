@@ -118,9 +118,10 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.bags = new InventoryEntity();
     char.bags.type = InventoryType.BAGS;
     char.bags.items = [];
+    char.bags.capacity = 28;
 
     // TODO: temp starting inventory
-    for (let i = 0; i < 28; i++) {
+    for (let i = 1; i < 28; i++) {
         // eslint-disable-next-line no-await-in-loop
         const itemEntity = await ItemEntity.findOne({ id: i });
         if (!itemEntity) break;
@@ -137,6 +138,7 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.bank = new InventoryEntity();
     char.bank.items = [];
     char.bank.type = InventoryType.BAGS;
+    char.bank.capacity = 1000;
     await char.bank.save();
 
     await char.save();

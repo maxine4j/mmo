@@ -1,13 +1,32 @@
 import * as THREE from 'three';
 import NetClient from './NetClient';
-import { PacketHeader, PointPacket, TargetPacket } from '../../common/Packet';
+import {
+    PacketHeader, PointPacket, TargetPacket, LootPacket,
+} from '../../common/Packet';
 import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 import { WorldPoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
+import LocalGroundItem from './LocalGroundItem';
+import Graphics from './graphics/Graphics';
 
 export default class LocalPlayer extends LocalUnit {
     public data: CharacterDef;
+
+    private tryPickUp(intersects: THREE.Intersection[]): boolean {
+        if (Input.mouseStartDown(MouseButton.LEFT)) {
+            for (const int of intersects) {
+                if ('groundItem' in int.object.userData) {
+                    const clickedItem = <LocalGroundItem>int.object.userData.groundItem;
+                    Graphics.setOutlines([clickedItem.model.obj], new THREE.Color(0xFF0000));
+                    Input.playClickMark(Input.mousePos(), 'red');
+                    NetClient.send(PacketHeader.PLAYER_LOOT, <LootPacket>{ uuid: clickedItem.def.item.uuid });
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private tryTarget(intersects: THREE.Intersection[]): boolean {
         // select a target if the mosue is clicked
@@ -44,6 +63,7 @@ export default class LocalPlayer extends LocalUnit {
     public updateClientPlayer(mousePoint: WorldPoint, intersects: THREE.Intersection[]): void {
         if (this.data) {
             if (this.tryTarget(intersects)) return;
+            if (this.tryPickUp(intersects)) return;
             if (this.tryMove(mousePoint)) return;
         }
     }
