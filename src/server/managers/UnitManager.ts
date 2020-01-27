@@ -1,11 +1,12 @@
 import PF from 'pathfinding';
 import { EventEmitter } from 'events';
+import uuid from 'uuid/v4';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from './WorldManager';
 import UnitDef from '../../common/UnitDef';
 import ChunkManager from './ChunkManager';
 
-type UnitManagerEvent = 'damage' | 'death' | 'move' | 'wandered';
+export type UnitManagerEvent = 'damaged' | 'death' | 'updated' | 'pathUpdated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'ticked';
 
 export enum UnitState {
     IDLE,
@@ -14,10 +15,10 @@ export enum UnitState {
 }
 
 export default class UnitManager {
-    private eventEmitter: EventEmitter = new EventEmitter();
+    protected eventEmitter: EventEmitter = new EventEmitter();
     protected world: WorldManager;
     public data: UnitDef;
-    private path: Array<PointDef>;
+    private path: PointDef[];
     public lastWanderTick: number = 0;
     public state: UnitState;
     private attackRate: number = 2;
@@ -41,7 +42,7 @@ export default class UnitManager {
     public off(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
         this.eventEmitter.off(event, listener);
     }
-    private emit(event: UnitManagerEvent, ...args: any[]): void {
+    protected emit(event: UnitManagerEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
     }
 
@@ -68,11 +69,21 @@ export default class UnitManager {
         if (this.data.autoRetaliate) {
             this.retaliate(attacker);
         }
-        console.log(`${attacker.data.name} hit ${this.data.name} for ${dmg} damage`);
+        // console.log(`${attacker.data.name} hit ${this.data.name} for ${dmg} damage`);
 
-        this.emit('damage', dmg, attacker);
+        this.emit('damaged', this, dmg, attacker);
         if (this.dead) {
-            this.emit('death', dmg, attacker);
+            this.emit('death', this, dmg, attacker);
+            this.world.addGroundItem({
+                item: {
+                    uuid: uuid(),
+                    itemid: 1,
+                    icon: 81,
+                    name: 'Iron Sword',
+                    slot: null,
+                },
+                position: this.data.position,
+            });
             attacker.stopAttacking();
         }
     }
@@ -98,7 +109,7 @@ export default class UnitManager {
         this.currentChunk.allUnits.delete(this.data.id);
     }
 
-    private updateChunk(): void {
+    public updateChunk(): void {
         const [ccx, ccy] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
         const newChunk = this.world.chunks.get(ccx, ccy);
         if (!this.currentChunk) {
@@ -119,6 +130,7 @@ export default class UnitManager {
                 this.data.moveQueue.push(nextPos);
             }
             this.data.position = nextPos;
+            this.emit('updated', this);
             this.updateChunk();
         }
     }
@@ -137,11 +149,9 @@ export default class UnitManager {
 
     private tickAttacking(): void {
         if (this.target) {
-            // this.data.tickAction = UnitTickAction.COMABT_IDLE;
             // either attack the target or follow to get in range
             if (this.inMeleeRange(this.target) && this.checkRate(this.attackRate, this.lastAttackTick)) {
                 this.target.takeHit(this.calculateMeleeDamage(), this);
-                // this.data.tickAction = UnitTickAction.MELEE;
                 this.lastAttackTick = this.world.tickCounter;
             } else {
                 this.path = this.findPath(this.target.data.position);
@@ -171,6 +181,7 @@ export default class UnitManager {
         }
         default: break;
         }
+        this.emit('ticked', this);
     }
 
     public distance(other: UnitManager): number {

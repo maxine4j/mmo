@@ -15,6 +15,8 @@ import UnitDef from '../../common/UnitDef';
 import ChunkDef from '../../common/ChunkDef';
 import UnitSpawnsDef from '../data/UnitSpawnsDef';
 import SpawnManager from './SpawnManager';
+import { GroundItemDef } from '../../common/ItemDef';
+import Rectangle from '../../common/Rectangle';
 
 // number of tiles away from the player that a player can see updates for in either direction
 const viewDistX = 50;
@@ -41,6 +43,7 @@ export default class WorldManager {
     public chunkViewDist: number = 1;
     private worldDef: WorldJsonDef = overworldDef;
     private unitSpawnDefs: UnitSpawnsDef;
+    private groundItems: Map<string, GroundItemDef> = new Map();
 
     public constructor(tickRate: number, server: io.Server) {
         this.tickRate = tickRate;
@@ -61,11 +64,12 @@ export default class WorldManager {
     public addPlayer(player: PlayerManager, session: io.Socket): void {
         this.players.set(session.id, player);
         this.allUnits.set(player.data.id, player);
-        player.on('damage', (dmg: number, attacker: UnitManager) => {
+        player.updateChunk();
+        player.on('damaged', (defender: UnitManager, dmg: number, attacker: UnitManager) => {
             for (const p of this.playersInRange(player.position)) {
-                p.socket.emit(PacketHeader.UNIT_DAMAGE, <DamagePacket>{
+                p.socket.emit(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
                     damage: dmg,
-                    defender: player.data.id,
+                    defender: defender.data.id,
                     attacker: attacker.data.id,
                 });
             }
@@ -90,11 +94,12 @@ export default class WorldManager {
     public addUnit(unit: UnitManager): void {
         this.units.set(unit.data.id, unit);
         this.allUnits.set(unit.data.id, unit);
-        unit.on('damage', (dmg: number, attacker: UnitManager) => {
+        unit.updateChunk();
+        unit.on('damaged', (defender: UnitManager, dmg: number, attacker: UnitManager) => {
             for (const player of this.playersInRange(unit.position)) {
-                player.socket.emit(PacketHeader.UNIT_DAMAGE, <DamagePacket>{
+                player.socket.emit(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
                     damage: dmg,
-                    defender: unit.data.id,
+                    defender: defender.data.id,
                     attacker: attacker.data.id,
                 });
             }
@@ -104,6 +109,14 @@ export default class WorldManager {
                 this.removeUnit(unit);
             });
         });
+    }
+
+    public addGroundItem(gi: GroundItemDef): void {
+        this.groundItems.set(gi.item.uuid, gi);
+        const [ccx, ccy] = TilePoint.getChunkCoord(gi.position.x, gi.position.y, this.chunkSize);
+        const chunk = this.chunks.get(ccx, ccy);
+        chunk.groundItems.set(gi.item.uuid, gi);
+        console.log(`Added a ground item ${gi.item.name} at pos ${gi.position.x}, ${gi.position.y}`);
     }
 
     private tickSpawns(): void {
@@ -118,10 +131,12 @@ export default class WorldManager {
             // send players and units in range
             const players: CharacterDef[] = this.playersInRange(player.data.position, player).map((pm) => pm.data);
             const units: UnitDef[] = this.unitsInRange(player.data.position).map((um) => um.data);
+            const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi);
             player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
                 self: player.data,
                 units,
                 players,
+                groundItems,
                 tick: this.tickCounter,
             });
         }
@@ -204,8 +219,7 @@ export default class WorldManager {
         for (const chunk of this.getChunksInViewDist(pos)) {
             for (const [_, p] of chunk.players) {
                 // check if players pos is withing view dist of the target x,y
-                if (pos.x + viewDistX > p.data.position.x && pos.x - viewDistX < p.data.position.x
-                    && pos.y + viewDistY > p.data.position.y && pos.y - viewDistY < p.data.position.y) {
+                if (new Rectangle(p.position.x - viewDistX, p.position.y - viewDistY, viewDistX * 2, viewDistY * 2).contains(Point.fromDef(p.position))) {
                     if (exclude && exclude.socket.id === p.socket.id) {
                         continue;
                     }
@@ -220,10 +234,22 @@ export default class WorldManager {
         const inrange: UnitManager[] = [];
         for (const chunk of this.getChunksInViewDist(pos)) {
             for (const [_, u] of chunk.units) {
-            // check if units pos is withing view dist of the target x,y
-                if (pos.x + viewDistX > u.data.position.x && pos.x - viewDistX < u.data.position.x
-                && pos.y + viewDistY > u.data.position.y && pos.y - viewDistY < u.data.position.y) {
+                // check if units pos is withing view dist of the target x,y
+                if (new Rectangle(u.position.x - viewDistX, u.position.y - viewDistY, viewDistX * 2, viewDistY * 2).contains(Point.fromDef(u.position))) {
                     inrange.push(u);
+                }
+            }
+        }
+        return inrange;
+    }
+
+    public groundItemsInRange(pos: PointDef): GroundItemDef[] {
+        const inrange: GroundItemDef[] = [];
+        for (const chunk of this.getChunksInViewDist(pos)) {
+            for (const [_, gi] of chunk.groundItems) {
+                // check if units pos is withing view dist of the target x,y
+                if (new Rectangle(gi.position.x - viewDistX, gi.position.y - viewDistY, viewDistX * 2, viewDistY * 2).contains(Point.fromDef(gi.position))) {
+                    inrange.push(gi);
                 }
             }
         }
@@ -239,25 +265,27 @@ export default class WorldManager {
     }
 
     public handlePlayerEnterWorld(session: io.Socket, char: CharacterPacket): void {
-        // find an entity for this char
-        CharacterEntity.findOne({
-            where: {
-                id: Number(char.id),
-            },
-        }).then((ce) => {
-            const bagData = ce.bags.toNet();
-            const bankData = ce.bank.toNet();
-            const p = new PlayerManager(this, ce.toNet(), session, bagData, bankData);
+        if (char) {
+            // find an entity for this char
+            CharacterEntity.findOne({
+                where: {
+                    id: Number(char.id),
+                },
+            }).then((ce) => {
+                const bagData = ce.bags.toNet();
+                const bankData = ce.bank.toNet();
+                const p = new PlayerManager(this, ce.toNet(), session, bagData, bankData);
 
-            // notify all players in range
-            this.playersInRange(p.data.position).forEach((pir) => {
-                pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.data);
+                // notify all players in range
+                this.playersInRange(p.data.position).forEach((pir) => {
+                    pir.socket.emit(PacketHeader.PLAYER_ENTERWORLD, p.data);
+                });
+                // add the char to the logged in players list
+                this.addPlayer(p, session);
+                session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.data);
+                session.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>p.bags.data);
             });
-            // add the char to the logged in players list
-            this.addPlayer(p, session);
-            session.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>p.data);
-            session.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>p.bags.data);
-        });
+        }
     }
 
     public async handlePlayerLeaveWorld(session: io.Socket): Promise<void> {
@@ -267,11 +295,6 @@ export default class WorldManager {
             await p.saveToDB();
             this.players.delete(session.id);
         }
-    }
-
-    public handlePlayerUpdateSelf(session: io.Socket): void {
-        const { data } = this.players.get(session.id);
-        session.emit(PacketHeader.PLAYER_UPDATE_SELF, <CharacterPacket>data);
     }
 
     public handleInventorySwap(session: io.Socket, packet: InventorySwapPacket): ResponsePacket {

@@ -22,9 +22,10 @@ export default class Chunk {
         if (texture) material = new THREE.MeshLambertMaterial({ map: texture });
         else material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xffffff });
         this.terrain = new THREE.Mesh(geometry, material);
+        this.terrain.name = 'terrain';
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
-        this.terrain.name = `terrain[${def.x},${def.y}]`;
+        // this.terrain.name = `terrain[${def.x},${def.y}]`;
         this.loadDoodads();
         this.positionInWorld();
         this.positionDoodads();

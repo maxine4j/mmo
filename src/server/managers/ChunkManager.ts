@@ -4,6 +4,7 @@ import Rectangle from '../../common/Rectangle';
 import WorldManager from './WorldManager';
 import UnitManager from './UnitManager';
 import PlayerManager from './PlayerManager';
+import { GroundItemDef } from '../../common/ItemDef';
 
 export const WALKABLE = 0;
 export const NOT_WALKABLE = 1;
@@ -15,6 +16,7 @@ export default class ChunkManager {
     public allUnits: Map<string, UnitManager> = new Map();
     public units: Map<string, UnitManager> = new Map();
     public players: Map<string, PlayerManager> = new Map();
+    public groundItems: Map<string, GroundItemDef> = new Map();
 
     public constructor(def: ChunkDef, world: WorldManager) {
         this.def = def;

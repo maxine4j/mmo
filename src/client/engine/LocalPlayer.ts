@@ -5,7 +5,6 @@ import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 import { WorldPoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
-import Graphics from './graphics/Graphics';
 
 export default class LocalPlayer extends LocalUnit {
     public data: CharacterDef;

@@ -1,13 +1,16 @@
 import io from 'socket.io';
 import CharacterDef from '../../common/CharacterDef';
 import WorldManager from './WorldManager';
-import UnitManager, { UnitState } from './UnitManager';
+import UnitManager, { UnitState, UnitManagerEvent } from './UnitManager';
 import { TilePoint } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import ChunkManager from './ChunkManager';
 import InventoryManager from './InventoryManager';
 import InventoryDef from '../../common/InventoryDef';
 import CharacterEntity from '../entities/Character.entity';
+import { GroundItemDef } from '../../common/ItemDef';
+
+type PlayerManagerEvent = UnitManagerEvent | 'saved';
 
 export default class PlayerManager extends UnitManager {
     public socket: io.Socket;
@@ -15,6 +18,7 @@ export default class PlayerManager extends UnitManager {
     public bags: InventoryManager;
     public bank: InventoryManager;
     public loadedChunks: Map2D<number, number, ChunkManager> = new Map2D();
+    public visibleGroundItems: Map<string, GroundItemDef> = new Map();
 
     public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket, bagsData: InventoryDef, bankData: InventoryDef) {
         super(world, data);
@@ -23,6 +27,7 @@ export default class PlayerManager extends UnitManager {
         this.data.autoRetaliate = true;
         this.socket = socket;
         this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
+        this.data.running = true;
         this.bags = new InventoryManager(bagsData);
         this.bank = new InventoryManager(bankData);
     }
@@ -30,6 +35,15 @@ export default class PlayerManager extends UnitManager {
     public dispose(): void {
         super.dispose();
         this.currentChunk.players.delete(this.data.id);
+    }
+    public on(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+    public off(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+    protected emit(event: PlayerManagerEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
     }
 
     public async saveToDB(): Promise<void> {
@@ -71,6 +85,7 @@ export default class PlayerManager extends UnitManager {
         this.data.target = '';
         this.state = UnitState.IDLE;
         this.stopAttacking();
+        this.emit('updated', this);
     }
 
     public pruneLoadedChunks(): void {
@@ -94,6 +109,11 @@ export default class PlayerManager extends UnitManager {
         const [ccxCurrent, ccyCurrent] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
         if (ccxLast !== ccxCurrent || ccyLast !== ccyCurrent) {
             this.world.sendSurroundingChunks(this); // ask the world to send new chunks
+        }
+
+        for (const gi of this.world.groundItemsInRange(this.data.position)) {
+            this.visibleGroundItems.set(gi.item.uuid, gi);
+            // TODO: remove stale items
         }
     }
 }

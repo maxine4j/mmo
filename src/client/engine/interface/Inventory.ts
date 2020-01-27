@@ -143,8 +143,6 @@ export default class Inventory extends Panel {
 
     public loadDef(def: InventoryDef): void {
         for (const idef of def.items) {
-            console.log(`Setting ${idef.name} to slot ${idef.slot}`);
-
             this.setSlot(idef.slot, new LocalItem(idef));
         }
     }

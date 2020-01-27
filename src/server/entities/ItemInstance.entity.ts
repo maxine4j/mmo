@@ -1,5 +1,5 @@
 import {
-    Entity, PrimaryGeneratedColumn, BaseEntity, ManyToOne, Column,
+    Entity, BaseEntity, ManyToOne, Column, PrimaryColumn,
 } from 'typeorm';
 import ItemDef from '../../common/ItemDef';
 import ItemEntity from './Item.entity';
@@ -9,8 +9,8 @@ import InventoryEntity from './Inventory.entity';
 
 @Entity()
 export default class ItemInstanceEntity extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    public id: number;
+    @PrimaryColumn()
+    public uuid: string;
 
     @ManyToOne((type) => ItemEntity, { eager: true, onDelete: 'CASCADE' })
     public def: ItemEntity;
@@ -24,7 +24,7 @@ export default class ItemInstanceEntity extends BaseEntity {
     // converts a db entity to a network def
     public toNet(): ItemDef {
         const item = <ItemDef>{
-            id: this.id,
+            uuid: this.uuid,
             icon: this.def.icon,
             itemid: this.def.id,
             name: this.def.name,
@@ -36,7 +36,7 @@ export default class ItemInstanceEntity extends BaseEntity {
     // converts a network def to a db entity
     public static fromNet(def: ItemDef): Promise<ItemInstanceEntity> {
         return new Promise((resolve) => {
-            this.findOne({ id: def.id }).then((item) => {
+            this.findOne({ uuid: def.uuid }).then((item) => {
                 item.slot = def.slot;
                 item.save();
                 resolve(item);

@@ -30,7 +30,7 @@ export default class InventoryManager {
                     .set({
                         slot: item.slot,
                     })
-                    .where('id = :id', { id: item.id })
+                    .where('uuid = :uuid', { uuid: item.uuid })
                     .execute(),
             );
         }

@@ -54,9 +54,6 @@ export default class NetServer {
         socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => {
             NetServer.world.handlePlayerLeaveWorld(socket);
         });
-        socket.on(PacketHeader.PLAYER_UPDATE_SELF, () => {
-            NetServer.world.handlePlayerUpdateSelf(socket);
-        });
         socket.on(PacketHeader.CHUNK_LOAD, () => {
             NetServer.world.handleChunkLoad(socket);
         });

@@ -1,4 +1,5 @@
 import io from 'socket.io';
+import uuid from 'uuid/v4';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../../common/Packet';
@@ -117,12 +118,14 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.bags = new InventoryEntity();
     char.bags.type = InventoryType.BAGS;
     char.bags.items = [];
-    // TODO: temp
+
+    // TODO: temp starting inventory
     for (let i = 0; i < 28; i++) {
         // eslint-disable-next-line no-await-in-loop
         const itemEntity = await ItemEntity.findOne({ id: i });
         if (!itemEntity) break;
         const item = new ItemInstanceEntity();
+        item.uuid = uuid();
         item.slot = i;
         item.def = itemEntity;
         char.bags.items[i] = item;

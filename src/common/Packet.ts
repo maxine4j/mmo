@@ -3,7 +3,7 @@ import CharacterDef from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';
-import ItemDef from './ItemDef';
+import ItemDef, { GroundItemDef } from './ItemDef';
 import InventoryDef, { InventoryType } from './InventoryDef';
 
 export enum PacketHeader {
@@ -17,7 +17,6 @@ export enum PacketHeader {
     PLAYER_ENTERWORLD = 'PLAYER_ENTERWORLD',
     PLAYER_LEAVEWORLD = 'PLAYER_LEAVEWORLD',
     PLAYER_MOVETO = 'PLAYER_MOVETO',
-    PLAYER_UPDATE_SELF = 'PLAYER_UPDATE_SELF',
     PLAYER_UPDATE = 'PLAYER_UPDATE',
     PLAYER_TARGET = 'PLAYER_TARGET',
 
@@ -26,7 +25,7 @@ export enum PacketHeader {
     INVENTORY_ITEM = 'INVENTORY_ITEM',
 
     UNIT_UPDATE = 'UNIT_UPDATE',
-    UNIT_DAMAGE = 'UNIT_DAMAGE',
+    UNIT_DAMAGED = 'UNIT_DAMAGED',
 
     CHAT_EVENT = 'CHAT_EVENT',
 
@@ -74,6 +73,7 @@ export interface TickPacket extends Packet {
     self: CharacterDef;
     units: UnitDef[];
     players: CharacterDef[];
+    groundItems: GroundItemDef[];
     tick: number;
 }
 

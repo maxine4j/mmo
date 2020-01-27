@@ -12,9 +12,10 @@ import ChunkWorld from './ChunkWorld';
 import Chunk from './Chunk';
 import { TilePoint, WorldPoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
+import { GroundItemDef } from '../../common/ItemDef';
+import LocalGroundItem from './LocalGroundItem';
 
-type WorldEvent = 'unit_added' | 'unit_removed' |
-                   'player_added' | 'player_removed' |
+type WorldEvent = 'unitAdded' | 'unitRemoved' |
                    'chunk_loaded' | 'chunk_unloaded' |
                    'tick' | 'unit_damaged';
 
@@ -23,6 +24,7 @@ export default class World {
     public chunkWorld: ChunkWorld;
     public units: Map<string, LocalUnit> = new Map();
     public players: Map<string, LocalPlayer> = new Map();
+    public groundItems: Map<string, LocalGroundItem> = new Map();
     private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
@@ -33,7 +35,7 @@ export default class World {
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
         this._player = new LocalPlayer(this, null);
-        this._player.on('loaded', (p: LocalPlayer) => { this.emit('player_added', p); });
+        this._player.on('loaded', (p: LocalPlayer) => { this.emit('unitAdded', p); });
         this._tickRate = info.tickRate;
         this.chunkViewDist = info.chunkViewDist;
         this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);
@@ -85,7 +87,7 @@ export default class World {
                 unit = new LocalUnit(this, def);
                 this.units.set(def.id, unit);
                 unit.on('loaded', () => {
-                    this.emit('unit_added', unit);
+                    this.emit('unitAdded', unit);
                 });
             }
             unit.onTick(def);
@@ -100,11 +102,22 @@ export default class World {
                 player = new LocalPlayer(this, def);
                 this.players.set(def.id, player);
                 player.on('loaded', () => {
-                    this.emit('player_added', player);
+                    this.emit('unitAdded', player);
                 });
             }
             player.onTick(def);
             player.lastTickUpdated = tick;
+        }
+    }
+
+    private tickGroundItems(tick: number, giDefs: GroundItemDef[]): void {
+        for (const def of giDefs) {
+            let gi = this.groundItems.get(def.item.uuid);
+            if (!gi) {
+                gi = new LocalGroundItem(this, def);
+                this.groundItems.set(def.item.uuid, gi);
+            }
+            gi.lastTickUpdated = tick;
         }
     }
 
@@ -114,7 +127,7 @@ export default class World {
                 if (u.data.health <= 0 && !u.stale) {
                     u.kill();
                 } else {
-                    this.emit('unit_removed', u);
+                    this.emit('unitRemoved', u);
                     u.dispose();
                     this.units.delete(id);
                 }
@@ -128,10 +141,19 @@ export default class World {
                 if (p.data.health <= 0 && !p.stale) {
                     p.kill();
                 } else {
-                    this.emit('player_removed', p);
+                    this.emit('unitRemoved', p);
                     p.dispose();
                     this.players.delete(id);
                 }
+            }
+        }
+    }
+
+    private removeStaleGroundItems(): void {
+        for (const [id, gi] of this.groundItems) {
+            if (gi.lastTickUpdated !== this.currentTick) {
+                gi.dispose();
+                this.groundItems.delete(id);
             }
         }
     }
@@ -143,8 +165,10 @@ export default class World {
         this.player.onTick(packet.self);
         this.tickUnits(packet.tick, packet.units);
         this.tickPlayers(packet.tick, packet.players);
+        this.tickGroundItems(packet.tick, packet.groundItems);
         this.removeStaleUnits();
         this.removeStalePlayers();
+        this.removeStaleGroundItems();
 
         this.emit('tick');
     }

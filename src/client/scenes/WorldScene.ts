@@ -120,14 +120,12 @@ export default class WorldScene extends GameScene {
             this.nameplates.delete(unit.data.id);
         };
 
-        this.world.on('player_added', createNameplate.bind(this));
-        this.world.on('unit_added', createNameplate.bind(this));
-        this.world.on('unit_removed', disposeNameplate.bind(this));
-        this.world.on('player_removed', disposeNameplate.bind(this));
+        this.world.on('unitAdded', createNameplate.bind(this));
+        this.world.on('unitRemoved', disposeNameplate.bind(this));
     }
 
     private initSplats(): void {
-        NetClient.on(PacketHeader.UNIT_DAMAGE, (packet: DamagePacket) => {
+        NetClient.on(PacketHeader.UNIT_DAMAGED, (packet: DamagePacket) => {
             const defender = this.world.getUnit(packet.defender);
             const attacker = this.world.getUnit(packet.attacker);
             if (attacker) {
@@ -179,10 +177,16 @@ export default class WorldScene extends GameScene {
 
     private updateMousePoint(): void {
         const intersects = this.camera.rcast(this.scene, Input.mousePos(), true);
-        if (intersects.length > 0) {
-            this.mousePoint = new WorldPoint(intersects[0].point, this.world.chunkWorld);
-            this.intersects = intersects;
-        } else {
+        let found = false;
+        for (const int of intersects) {
+            if (int.object.name === 'terrain') {
+                this.mousePoint = new WorldPoint(int.point, this.world.chunkWorld);
+                this.intersects = intersects;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
             this.mousePoint = null;
             this.intersects = [];
         }
@@ -238,7 +242,7 @@ export default class WorldScene extends GameScene {
         this.updateHitSplats();
 
         if (this.world.player.data) {
-            this.camera.setTarget(this.world.player.getWorldPosition());
+            this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));
         }
         this.camera.update();
         this.world.update(delta, this.mousePoint, this.intersects);
