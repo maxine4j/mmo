@@ -6,6 +6,8 @@ import LocalItem from '../LocalItem';
 import SpriteAtlas from './components/SpriteAtlas';
 import SpriteAtlasImage from './components/SpriteAtlasImage';
 import InventoryDef from '../../../common/InventoryDef';
+import Input from '../Input';
+import { Point } from '../../../common/Point';
 
 const slotSize = 32;
 const atlas = new SpriteAtlas('assets/icons/atlas.png');
@@ -14,7 +16,7 @@ const slotBg = 'rgba(255,255,255,0.0)';
 const slotBgOver = 'rgba(255,255,255,0.2)';
 const slotBgSelected = 'rgba(255,255,255,0.4)';
 
-type InventoryEvent = 'swap' | 'use';
+type InventoryEvent = 'swap' | 'use' | 'drop';
 
 export class InventorySlot extends Panel {
     public icon: SpriteAtlasImage;
@@ -36,7 +38,34 @@ export class InventorySlot extends Panel {
 
         this.initDragging();
         this.element.addEventListener('click', (ev: MouseEvent) => {
-            this.inventory.selectedSlot = this.slot;
+            if (this.item) {
+                this.inventory.useItem(this);
+            }
+        });
+        this.element.addEventListener('contextmenu', (ev: MouseEvent) => {
+            Input.openContextMenu(
+                new Point(ev.clientX, ev.clientY),
+                [
+                    {
+                        text: `Use ${this.item.data.name}`,
+                        listener: () => {
+                            this.inventory.useItem(this);
+                        },
+                    },
+                    {
+                        text: `Drop ${this.item.data.name}`,
+                        listener: () => {
+                            if (this.item) {
+                                this.inventory.dropItem(this);
+                            }
+                        },
+                    },
+                    {
+                        text: 'Cancel',
+                        listener: () => {},
+                    },
+                ],
+            );
         });
     }
 
@@ -100,7 +129,7 @@ export default class Inventory extends Panel {
     private readonly slotSize: number = 32;
     private readonly slotsPerCol: number = this.slotCount / this.slotsPerRow;
     private slots: Map<number, InventorySlot> = new Map();
-    private _selectedSlot: InventorySlot = null;
+    private selectedSlot: InventorySlot = null;
     private eventEmitter: EventEmitter = new EventEmitter();
 
     public constructor() {
@@ -131,16 +160,6 @@ export default class Inventory extends Panel {
         this.eventEmitter.emit(event, ...args);
     }
 
-    public get selectedSlot(): number {
-        return this._selectedSlot.slot;
-    }
-    public set selectedSlot(s: number) {
-        const slot = this.slots.get(s);
-        if (this._selectedSlot) this._selectedSlot.style.backgroundColor = slotBg;
-        this._selectedSlot = slot;
-        this._selectedSlot.style.backgroundColor = slotBgSelected;
-    }
-
     public loadDef(def: InventoryDef): void {
         for (const idef of def.items) {
             this.setSlot(idef.slot, new LocalItem(idef));
@@ -160,5 +179,20 @@ export default class Inventory extends Panel {
     public setSlot(slot: number, item: LocalItem): void {
         const itemSlot = this.slots.get(slot);
         itemSlot.item = item;
+    }
+
+    public useItem(slot: InventorySlot): void {
+        if (this.selectedSlot) { // send the use event we already have a selected item
+            this.selectedSlot.style.backgroundColor = slotBg;
+            this.emit('use', this.selectedSlot, slot);
+            this.selectedSlot = null;
+        } else { // else we select this as our first item
+            this.selectedSlot = slot;
+            this.selectedSlot.style.backgroundColor = slotBgSelected;
+        }
+    }
+
+    public dropItem(slot: InventorySlot): void {
+
     }
 }

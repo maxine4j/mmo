@@ -1,6 +1,7 @@
 import { Key } from 'ts-key-enum';
 import { Point } from '../../common/Point';
 import ContextMenu, { ContextOptionDef } from './interface/components/ContextMenu';
+import UIParent from './interface/components/UIParent';
 
 export enum MouseButton {
     LEFT = 0,
@@ -45,14 +46,17 @@ export default class Input {
         this.clickMarker.style.position = 'fixed';
         this.clickMarker.style.display = 'none';
         this.clickMarker.style.pointerEvents = 'none';
+
+        this.contextMenu = new ContextMenu(UIParent.get());
     }
 
-    public static openContextMenu(options: ContextOptionDef[]): void {
+    public static openContextMenu(pos: Point, options: ContextOptionDef[]): void {
         this.contextMenu.clear();
         for (const opt of options) {
-            this.contextMenu.addOption(opt.text, opt.listener);
+            this.contextMenu.addOption(opt);
         }
-        this.contextMenu.open(this.mousePos());
+        this.contextMenu.parent.addChild(this.contextMenu);
+        this.contextMenu.open(pos);
     }
 
     public static playClickMark(p: Point, color: string): void {

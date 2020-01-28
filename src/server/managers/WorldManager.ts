@@ -2,7 +2,7 @@ import io from 'socket.io';
 import Map2D from '../../common/Map2D';
 import {
     PacketHeader, PointPacket, CharacterPacket, TickPacket, ChatMsgPacket, ChunkListPacket, WorldInfoPacket,
-    TargetPacket, DamagePacket, InventorySwapPacket, ResponsePacket, InventoryPacket, LootPacket,
+    TargetPacket, DamagePacket, InventorySwapPacket, ResponsePacket, InventoryPacket, LootPacket, InventoryUsePacket,
 } from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
 import PlayerManager from './PlayerManager';
@@ -314,6 +314,15 @@ export default class WorldManager {
         return <ResponsePacket>{
             success: true,
             message: '',
+        };
+    }
+
+    public handleInventoryUse(session: io.Socket, packet: InventoryUsePacket): ResponsePacket {
+        const player = this.players.get(session.id);
+        const message = player.bags.useItems(packet.slotA, packet.slotB);
+        return <ResponsePacket>{
+            success: true,
+            message,
         };
     }
 

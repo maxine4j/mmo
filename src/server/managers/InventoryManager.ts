@@ -20,6 +20,15 @@ export default class InventoryManager {
         if (itemB) itemB.slot = a;
     }
 
+    public useItems(a: number, b: number): string {
+        const itemA = this.getFromSlot(a);
+        const itemB = this.getFromSlot(b);
+        if (itemA && itemB) {
+            return `Used ${itemA.name} with ${itemB.name}`;
+        }
+        return 'Nothing interesting happens';
+    }
+
     public tryAddItem(newItem: ItemDef): boolean {
         // check if this inventory is full
         if (this.data.items.length >= this.data.capacity) {

@@ -58,10 +58,10 @@ export default class ContextMenu extends Frame {
         this.hide();
     }
 
-    public addOption(text: string, listener: () => void): void {
-        const opt = new ContextMenuOption(text, text, this);
+    public addOption(def: ContextOptionDef): void {
+        const opt = new ContextMenuOption(def.text, def.text, this);
         opt.addEventListener('click', (self: ContextMenuOption, ev: MouseEvent) => {
-            listener();
+            def.listener();
             this.close();
         });
     }

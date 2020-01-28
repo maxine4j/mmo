@@ -22,6 +22,7 @@ export enum PacketHeader {
     PLAYER_LOOT = 'PLAYER_LOOT',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
+    INVENTORY_USE = 'INVENTORY_USE',
     INVENTORY_FULL = 'INVENTORY_FULL',
     INVENTORY_ITEM = 'INVENTORY_ITEM',
 
@@ -87,14 +88,14 @@ export interface ChunkListPacket extends Packet {
 }
 
 export interface ChatMsgPacket extends Packet {
-    authorId: string,
-    authorName: string,
-    timestamp: number,
-    message: string
+    authorId: string;
+    authorName: string;
+    timestamp: number;
+    message: string;
 }
 
 export interface TargetPacket extends Packet {
-    target: string
+    target: string;
 }
 
 export interface DamagePacket extends Packet {
@@ -108,6 +109,11 @@ export interface InventorySwapPacket extends Packet {
     slotB: number;
 }
 
+export interface InventoryUsePacket extends Packet {
+    slotA: number;
+    slotB: number;
+}
+
 export interface ItemPacket extends Packet, ItemDef {
     invType: InventoryType;
 }
@@ -115,5 +121,5 @@ export interface ItemPacket extends Packet, ItemDef {
 export interface InventoryPacket extends Packet, InventoryDef { }
 
 export interface LootPacket extends Packet {
-    uuid: string,
+    uuid: string;
 }

@@ -13,7 +13,7 @@ import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryPacket,
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -95,12 +95,21 @@ export default class WorldScene extends GameScene {
         this.addGUI(this.chatbox);
 
         this.bags = new Inventory();
-        this.bags.on('swap', (slotA: InventorySlot, slotB: InventorySlot) => {
+        this.bags.on('swap', (a: InventorySlot, b: InventorySlot) => {
             NetClient.send(PacketHeader.INVENTORY_SWAP, <InventorySwapPacket>{
-                slotA: slotA.slot,
-                slotB: slotB.slot,
+                slotA: a.slot,
+                slotB: b.slot,
             });
         });
+        this.bags.on('use', (a: InventorySlot, b: InventorySlot) => {
+            NetClient.sendRecv(PacketHeader.INVENTORY_USE, <InventoryUsePacket>{
+                slotA: a.slot,
+                slotB: b.slot,
+            }).then((resp: ResponsePacket) => {
+                this.chatbox.addRawMessage(resp.message);
+            });
+        });
+
         NetClient.on(PacketHeader.INVENTORY_FULL, (packet: InventoryPacket) => {
             if (packet.type === InventoryType.BAGS) {
                 this.bags.loadDef(packet);

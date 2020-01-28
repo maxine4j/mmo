@@ -138,15 +138,21 @@ export default class ChunkTool extends Tool {
     private openContextMenu(showCreate: boolean, showDelete: boolean): void {
         this.menu.clear();
         if (showCreate) {
-            this.menu.addOption('Create', async () => {
-                await this.createSelectedChunk();
+            this.menu.addOption({
+                text: 'Create',
+                listener: async () => {
+                    await this.createSelectedChunk();
+                },
             });
         }
         if (showDelete) {
-            this.menu.addOption('Delete', () => {
-                if (confirm('Are you sure you want to delete the selected chunk?')) {
-                    this.deleteSelectedChunk();
-                }
+            this.menu.addOption({
+                text: 'Delete',
+                listener: () => {
+                    if (confirm('Are you sure you want to delete the selected chunk?')) {
+                        this.deleteSelectedChunk();
+                    }
+                },
             });
         }
         this.menu.open(Input.mousePos());

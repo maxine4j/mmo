@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket, InventorySwapPacket, LootPacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket, InventorySwapPacket, LootPacket, InventoryUsePacket,
 } from '../common/Packet';
 import {
     handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
@@ -74,7 +74,10 @@ export default class NetServer {
 
         // inventory
         socket.on(PacketHeader.INVENTORY_SWAP, (packet: InventorySwapPacket) => {
-            NetServer.world.handleInventorySwap(socket, packet);
+            socket.emit(PacketHeader.INVENTORY_SWAP, NetServer.world.handleInventorySwap(socket, packet));
+        });
+        socket.on(PacketHeader.INVENTORY_USE, (packet: InventoryUsePacket) => {
+            socket.emit(PacketHeader.INVENTORY_USE, NetServer.world.handleInventoryUse(socket, packet));
         });
     }
 }
