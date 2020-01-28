@@ -7,8 +7,8 @@ import AccountEntity from '../entities/Account.entity';
 import CharacterEntity from '../entities/Character.entity';
 import InventoryEntity from '../entities/Inventory.entity';
 import { InventoryType } from '../../common/InventoryDef';
-import ItemInstanceEntity from '../entities/ItemInstance.entity';
 import ItemEntity from '../entities/Item.entity';
+import ItemTypeEntity from '../entities/ItemType.entity';
 
 // log a user in with plaintext password (TEMP)
 export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
@@ -123,12 +123,12 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     // TODO: temp starting inventory
     for (let i = 1; i < 28; i++) {
         // eslint-disable-next-line no-await-in-loop
-        const itemEntity = await ItemEntity.findOne({ id: i });
+        const itemEntity = await ItemTypeEntity.findOne({ id: i });
         if (!itemEntity) break;
-        const item = new ItemInstanceEntity();
+        const item = new ItemEntity();
         item.uuid = uuid();
         item.slot = i;
-        item.def = itemEntity;
+        item.type = itemEntity;
         char.bags.items[i] = item;
         // eslint-disable-next-line no-await-in-loop
         await item.save();

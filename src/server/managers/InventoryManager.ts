@@ -1,6 +1,6 @@
 import InventoryDef from '../../common/InventoryDef';
 import ItemDef from '../../common/ItemDef';
-import ItemInstanceEntity from '../entities/ItemInstance.entity';
+import ItemEntity from '../entities/Item.entity';
 
 export default class InventoryManager {
     public data: InventoryDef;
@@ -63,11 +63,11 @@ export default class InventoryManager {
         // insert new items
         for (const item of this.data.items) {
             updates.push(
-                ItemInstanceEntity.createQueryBuilder()
+                ItemEntity.createQueryBuilder()
                     .insert()
                     .values({
                         uuid: item.uuid,
-                        def: {
+                        type: {
                             id: item.itemid,
                         },
                         slot: item.slot,
@@ -80,7 +80,7 @@ export default class InventoryManager {
         // update item instance slots
         for (const item of this.data.items) {
             updates.push(
-                ItemInstanceEntity.createQueryBuilder()
+                ItemEntity.createQueryBuilder()
                     .update()
                     .set({
                         slot: item.slot,
