@@ -58,7 +58,7 @@ export default class InventoryManager {
         return true;
     }
 
-    public async saveToDB(): Promise<void> {
+    public async save(): Promise<void> {
         const updates: Promise<any>[] = [];
         // insert new items
         for (const item of this.data.items) {

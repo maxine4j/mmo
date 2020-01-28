@@ -1,147 +1,189 @@
-import io from 'socket.io';
-import CharacterDef from '../../common/CharacterDef';
-import WorldManager from './WorldManager';
-import UnitManager, { UnitState, UnitManagerEvent } from './UnitManager';
-import { TilePoint, Point } from '../../common/Point';
-import Map2D from '../../common/Map2D';
-import ChunkManager from './ChunkManager';
-import InventoryManager from './InventoryManager';
-import InventoryDef from '../../common/InventoryDef';
+import Unit from '../models/Unit';
+import Player from '../models/Player';
+import Client from '../Client';
+import {
+    PacketHeader, CharacterPacket, PointPacket, TargetPacket, LootPacket, InventoryPacket,
+    DamagePacket, InventorySwapPacket, ResponsePacket, TickPacket, InventoryUsePacket,
+} from '../../common/Packet';
 import CharacterEntity from '../entities/Character.entity';
+import WorldManager from './WorldManager';
+import { Point } from '../../common/Point';
+import CharacterDef from '../../common/CharacterDef';
+import UnitDef from '../../common/UnitDef';
 import { GroundItemDef } from '../../common/ItemDef';
-import { PacketHeader, InventoryPacket } from '../../common/Packet';
 
-type PlayerManagerEvent = UnitManagerEvent | 'saved';
+export default class PlayerManager {
+    private world: WorldManager;
+    private players: Map<string, Player> = new Map();
 
-export default class PlayerManager extends UnitManager {
-    public socket: io.Socket;
-    public data: CharacterDef;
-    public bags: InventoryManager;
-    public bank: InventoryManager;
-    public loadedChunks: Map2D<number, number, ChunkManager> = new Map2D();
-    public visibleGroundItems: Map<string, GroundItemDef> = new Map();
-    private lootTarget: GroundItemDef;
-
-    public constructor(world: WorldManager, data: CharacterDef, socket: io.Socket, bagsData: InventoryDef, bankData: InventoryDef) {
-        super(world, data);
-        this.data.maxHealth = 10;
-        this.data.health = 10; // TODO: temp
-        this.data.autoRetaliate = true;
-        this.socket = socket;
-        this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
-        this.data.running = true;
-        this.bags = new InventoryManager(bagsData);
-        this.bank = new InventoryManager(bankData);
+    public constructor(world: WorldManager) {
+        this.world = world;
+        this.world.on('tick', this.tick.bind(this));
     }
 
-    public dispose(): void {
-        super.dispose();
-        this.currentChunk.players.delete(this.data.id);
-    }
-    public on(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-    public off(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-    protected emit(event: PlayerManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+    /**
+     * Sets up a new client
+     * @param client
+     */
+    public handleClient(client: Client): void {
+        client.socket.on(PacketHeader.PLAYER_ENTERWORLD, (packet) => {
+            this.handlePlayerEnterWorld(client, packet);
+        });
+        client.socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => {
+            this.handlePlayerLeaveWorld(client);
+        });
+        client.socket.on('disconnect', () => {
+            this.handlePlayerLeaveWorld(client);
+        });
+        client.socket.on(PacketHeader.AUTH_LOGOUT, () => {
+            this.handlePlayerLeaveWorld(client);
+        });
+
+
+        // player
+        client.socket.on(PacketHeader.PLAYER_MOVETO, (packet: PointPacket) => {
+            this.handleMoveTo(client, packet);
+        });
+        client.socket.on(PacketHeader.PLAYER_TARGET, (packet: TargetPacket) => {
+            this.handlePlayerTarget(client, packet);
+        });
+        client.socket.on(PacketHeader.PLAYER_LOOT, (packet: LootPacket) => {
+            this.handlePlayerLoot(client, packet);
+        });
+
+        // inventory
+        client.socket.on(PacketHeader.INVENTORY_SWAP, (packet: InventorySwapPacket) => {
+            client.socket.emit(PacketHeader.INVENTORY_SWAP, this.handleInventorySwap(client, packet));
+        });
+        client.socket.on(PacketHeader.INVENTORY_USE, (packet: InventoryUsePacket) => {
+            client.socket.emit(PacketHeader.INVENTORY_USE, this.handleInventoryUse(client, packet));
+        });
     }
 
-    public async saveToDB(): Promise<void> {
-        await this.bags.saveToDB();
-        await this.bank.saveToDB();
-        await CharacterEntity.createQueryBuilder()
-            .update()
-            .set({
-                level: this.data.level,
-                posX: this.data.position.x,
-                posY: this.data.position.y,
-            })
-            .where('id = :id', { id: Number(this.data.id) })
-            .execute();
-    }
-
-    // used to update the units chunk
-    protected addToNewChunk(chunk: ChunkManager): void {
-        chunk.players.set(this.data.id, this);
-        chunk.allUnits.set(this.data.id, this);
-        this.currentChunk = chunk;
-    }
-
-    // used to update the units chunk
-    protected removeFromOldChunk(): void {
-        this.currentChunk.players.delete(this.data.id);
-        this.currentChunk.allUnits.delete(this.data.id);
-    }
-
-    public respawn(): void {
-        // could get new spawn points here, maybe unlock them
-        // different per instance/map
-        // graveyards?
-        // drop inventory?
-        // TODO: need teleport functionality instead of lerping
-        this.data.position = { x: 0, y: 0 };
-        this.data.health = this.data.maxHealth;
-        this.data.moveQueue = [];
-        this.data.target = '';
-        this.state = UnitState.IDLE;
-        this.stopAttacking();
-        this.emit('updated', this);
-    }
-
-    public pickUpItem(gi: GroundItemDef): void {
-        this.state = UnitState.LOOTING;
-        this.lootTarget = gi;
-        this.path = this.findPath(gi.position);
-    }
-
-    public pruneLoadedChunks(): void {
-        const [ccx, ccy] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
-        const minX = ccx - this.world.chunkViewDist;
-        const maxX = ccx + this.world.chunkViewDist;
-        const minY = ccy - this.world.chunkViewDist;
-        const maxY = ccy + this.world.chunkViewDist;
-        for (const [x, y, _c] of this.loadedChunks) {
-            if (x < minX || x > maxX || y < minY || y > maxY) {
-                this.loadedChunks.delete(x, y);
-            }
+    /**
+     * Ticks the player manager
+     */
+    private tick(): void {
+        for (const [_, player] of this.players) {
+            player.tick(); // tick the player
+            // send players, units, and ground items in range
+            const players: CharacterDef[] = this.inRange(player.position).map((pm) => pm.data);
+            const units: UnitDef[] = this.world.units.inRange(player.position).map((um) => um.data);
+            const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi);
+            player.socket.emit(PacketHeader.WORLD_TICK, <TickPacket>{
+                self: player.data,
+                units,
+                players,
+                groundItems,
+                tick: this.world.tickCounter,
+            });
         }
     }
 
-    private tickLooting(): void {
-        // check if we are on top of the item
-        if (this.position.eq(Point.fromDef(this.lootTarget.position))) {
-            // check if the item still exists on the ground
-            if (this.world.groundItemExists(this.lootTarget)) {
-                if (this.bags.tryAddItem(this.lootTarget.item)) {
-                    this.world.removeGroundItem(this.lootTarget); // potential race condition, item duplication?
-                    this.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket> this.bags.data);
+    private handlePlayerEnterWorld(client: Client, packet: CharacterPacket): void {
+        if (packet) {
+            // find an entity for this char
+            CharacterEntity.findOne({
+                where: {
+                    id: Number(packet.id),
+                },
+            }).then((ce) => {
+                const bagData = ce.bags.toNet();
+                const bankData = ce.bank.toNet();
+                client.player = new Player(this.world, ce.toNet(), client.socket, bagData, bankData);
+                this.addPlayer(client.player);
+
+                // // notify all players in range
+                // for (const player of this.inRange(client.player.position)) {
+                //     player.socket.emit(PacketHeader.PLAYER_ENTERWORLD, client.player.data);
+                // }
+                // add the char to the logged in players list
+                client.socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>client.player.data);
+                client.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>client.player.bags.data);
+            });
+        }
+    }
+
+    private handleMoveTo(client: Client, packet: PointPacket): void {
+        client.player.data.target = '';
+        client.player.moveTo(packet);
+    }
+
+    private handlePlayerTarget(client: Client, packet: TargetPacket): void {
+        const tar = this.world.units.getUnit(packet.target);
+        if (tar) {
+            client.player.attackUnit(tar);
+        }
+    }
+
+    private handlePlayerLoot(client: Client, packet: LootPacket): void {
+        const gi = this.world.groundItems.getItem(packet.uuid);
+        if (gi) {
+            client.player.pickUpItem(gi);
+        }
+    }
+
+    private handlePlayerLeaveWorld(client: Client): void {
+        // remove the sessions player from the world if one exists
+        const player = this.players.get(client.id);
+        if (player) {
+            this.removePlayer(player);
+        }
+    }
+
+    public addPlayer(player: Player): void {
+        this.players.set(player.socket.id, player);
+        player.updateChunk();
+        player.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
+            for (const p of this.inRange(player.position)) {
+                p.socket.emit(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
+                    damage: dmg,
+                    defender: defender.data.id,
+                    attacker: attacker.data.id,
+                });
+            }
+        });
+        player.on('death', () => {
+            player.respawn();
+        });
+    }
+
+    private async removePlayer(player: Player): Promise<void> {
+        await player.save();
+        this.players.delete(player.socket.id);
+    }
+
+    /**
+     * Returns a list of players that are in range of the given tile point
+     * @param pos Tile point
+     */
+    public inRange(pos: Point): Player[] {
+        const inrange: Player[] = [];
+        const bounds = this.world.viewBounds(pos);
+        for (const chunk of this.world.chunks.inRange(pos)) {
+            for (const [_, p] of chunk.players) {
+                if (bounds.contains(Point.fromDef(p.position))) {
+                    inrange.push(p);
                 }
             }
-            this.state = UnitState.IDLE;
         }
+        return inrange;
     }
 
-    public tick(): void {
-        // cache last point
-        const [ccxLast, ccyLast] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
-        super.tick();
-        // check if the player moved between chunks
-        const [ccxCurrent, ccyCurrent] = TilePoint.getChunkCoord(this.data.position.x, this.data.position.y, this.world.chunkSize);
-        if (ccxLast !== ccxCurrent || ccyLast !== ccyCurrent) {
-            this.world.sendSurroundingChunks(this); // ask the world to send new chunks
-        }
 
-        // TODO: personal loot for X ticks so other players cant steal immediately
-        this.visibleGroundItems.clear();
-        for (const gi of this.world.groundItemsInRange(this.data.position)) {
-            this.visibleGroundItems.set(gi.item.uuid, gi);
-        }
+    public handleInventorySwap(client: Client, packet: InventorySwapPacket): ResponsePacket {
+        client.player.bags.swap(packet.slotA, packet.slotB);
+        return <ResponsePacket>{
+            success: true,
+            message: '',
+        };
+    }
 
-        switch (this.state) {
-        case UnitState.LOOTING: this.tickLooting(); break;
-        default: break;
-        }
+    public handleInventoryUse(client: Client, packet: InventoryUsePacket): ResponsePacket {
+        const message = client.player.bags.useItems(packet.slotA, packet.slotB);
+        return <ResponsePacket>{
+            success: true,
+            message,
+        };
     }
 }

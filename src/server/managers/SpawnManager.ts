@@ -2,12 +2,12 @@ import uuid from 'uuid/v4';
 import { PointDef, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
-import UnitManager, { UnitState } from './UnitManager';
+import Unit, { UnitState } from '../models/Unit';
 
 export default class SpawnManager {
     private world: WorldManager;
     public data: UnitSpawnGroup;
-    private units: Map<string, UnitManager> = new Map();
+    private units: Map<string, Unit> = new Map();
     private lastSpawnTick: number = 0;
 
     public get center(): Point { return Point.fromDef(this.data.center); }
@@ -28,7 +28,7 @@ export default class SpawnManager {
 
     private spawnUnit(): void {
         const id = uuid();
-        const unit = new UnitManager(this.world, {
+        const unit = new Unit(this.world, {
             id,
             target: '',
             autoRetaliate: true,
@@ -46,7 +46,7 @@ export default class SpawnManager {
         });
         // save the new unit to the world and also keep track of it here
         this.units.set(unit.data.id, unit);
-        this.world.addUnit(unit);
+        this.world.units.addUnit(unit);
         this.lastSpawnTick = this.world.tickCounter; // update the last spawn tick
     }
 
@@ -64,7 +64,7 @@ export default class SpawnManager {
         }
     }
 
-    private tickLeash(unit: UnitManager): void {
+    private tickLeash(unit: Unit): void {
         const diff = unit.position.sub(this.center);
         if (Math.abs(diff.x) > this.data.leashRadius.x || Math.abs(diff.y) > this.data.leashRadius.y) {
             unit.stopAttacking();
@@ -74,14 +74,14 @@ export default class SpawnManager {
         }
     }
 
-    private wanderUnit(unit: UnitManager): void {
+    private wanderUnit(unit: Unit): void {
         if (unit.state === UnitState.IDLE) {
             unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
             unit.lastWanderTick = this.world.tickCounter;
         }
     }
 
-    private tickWander(unit: UnitManager): void {
+    private tickWander(unit: Unit): void {
         if (this.checkRate(this.data.wanderRate, unit.lastWanderTick)) {
             this.wanderUnit(unit);
         }

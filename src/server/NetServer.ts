@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import {
-    PacketHeader, AuthLoginPacket, CharacterPacket, PointPacket, ChatMsgPacket, TargetPacket, InventorySwapPacket, LootPacket, InventoryUsePacket,
+    PacketHeader, AuthLoginPacket, CharacterPacket,
 } from '../common/Packet';
 import {
     handleAuthLogin, handleAuthLogout, handleMyList, handleCreate,
@@ -20,17 +20,17 @@ export default class NetServer {
     }
 
     private static onConnection(socket: io.Socket): void {
+        NetServer.world.handleConnection(socket);
+
         // client authentication
         console.log(`Client connected: ${socket.id}`);
         socket.on('disconnect', async () => {
-            NetServer.world.handlePlayerLeaveWorld(socket);
             await handleAuthLogout(socket);
         });
         socket.on(PacketHeader.AUTH_LOGIN, async (packet: AuthLoginPacket) => {
             socket.emit(PacketHeader.AUTH_LOGIN, await handleAuthLogin(socket, packet));
         });
         socket.on(PacketHeader.AUTH_LOGOUT, async () => {
-            NetServer.world.handlePlayerLeaveWorld(socket);
             await handleAuthLogout(socket);
         });
 
@@ -45,39 +45,6 @@ export default class NetServer {
         // world info
         socket.on(PacketHeader.WORLD_INFO, () => {
             socket.emit(PacketHeader.WORLD_INFO, NetServer.world.handleWorldInfo(socket));
-        });
-
-        // player
-        socket.on(PacketHeader.PLAYER_ENTERWORLD, (packet: CharacterPacket) => {
-            NetServer.world.handlePlayerEnterWorld(socket, packet);
-        });
-        socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => {
-            NetServer.world.handlePlayerLeaveWorld(socket);
-        });
-        socket.on(PacketHeader.CHUNK_LOAD, () => {
-            NetServer.world.handleChunkLoad(socket);
-        });
-        socket.on(PacketHeader.PLAYER_MOVETO, (packet: PointPacket) => {
-            NetServer.world.handleMoveTo(socket, packet);
-        });
-        socket.on(PacketHeader.PLAYER_TARGET, (packet: TargetPacket) => {
-            NetServer.world.handlePlayerTarget(socket, packet);
-        });
-        socket.on(PacketHeader.PLAYER_LOOT, (packet: LootPacket) => {
-            NetServer.world.handlePlayerLoot(socket, packet);
-        });
-
-        // chat
-        socket.on(PacketHeader.CHAT_EVENT, (packet: ChatMsgPacket) => {
-            NetServer.world.handleChatMessage(socket, packet);
-        });
-
-        // inventory
-        socket.on(PacketHeader.INVENTORY_SWAP, (packet: InventorySwapPacket) => {
-            socket.emit(PacketHeader.INVENTORY_SWAP, NetServer.world.handleInventorySwap(socket, packet));
-        });
-        socket.on(PacketHeader.INVENTORY_USE, (packet: InventoryUsePacket) => {
-            socket.emit(PacketHeader.INVENTORY_USE, NetServer.world.handleInventoryUse(socket, packet));
         });
     }
 }
