@@ -83,7 +83,6 @@ export default class InventoryManager implements IModel {
 
         // add the item to this inventory
         newItem.inventory = this.entity;
-        console.log('Setting new item to slot:', newItem.slot);
         this.slots.set(newItem.slot, newItem);
         return true;
     }

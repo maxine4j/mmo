@@ -38,8 +38,6 @@ export default class World {
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
-        console.log('Self:', info.self);
-
         this._player = new LocalPlayer(this, info.self);
         this._player.on('loaded', () => {
             this.emit('unitAdded', this._player);

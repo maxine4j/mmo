@@ -68,8 +68,6 @@ export default class DoodadAddTool extends Tool {
     private placeDoodad(): void {
         // make a new doodad and place it at the mouse point
         // select the dooddad
-        console.log('placing doodad at', this.props.point.toChunk());
-
         const chunkPoint = this.props.point.toChunk();
         const chunk = chunkPoint.chunk;
 

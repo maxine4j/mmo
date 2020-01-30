@@ -42,8 +42,6 @@ export default class LocalUnit {
     public constructor(world: World, data: UnitDef) {
         this.world = world;
         this.data = data;
-        console.log('Making unit with data', this.data);
-
         this.loadModel();
     }
 
@@ -132,7 +130,6 @@ export default class LocalUnit {
                     this.world.scene.add(this.model.obj);
 
                     this.emit('loaded', this);
-                    console.log(`UNIT: ${this.data.name} has loaded`);
                 });
         }
     }

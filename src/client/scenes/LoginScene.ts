@@ -75,21 +75,10 @@ export default class LoginScene extends GameScene {
                 if (resp.success) {
                     SceneManager.changeScene('char-select');
                 } else {
-                    console.log(`Failed to log in: ${resp.message}`);
                     dialog.setText(resp.message);
                     dialog.show();
                 }
             });
-            // NetClient.login(txtUsername.text, txtPassword.text, (resp: AccountPacket) => {
-            //     if (resp.success) {
-            //         Engine.account = resp;
-            //         SceneManager.changeScene('char-select');
-            //     } else {
-            //         console.log(`Failed to log in: ${resp.message}`);
-            //         dialog.setText(resp.message);
-            //         dialog.show();
-            //     }
-            // });
         });
         this.addGUI(btnLogin);
     }

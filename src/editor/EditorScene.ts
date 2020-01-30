@@ -183,9 +183,7 @@ export default class EditorScene extends GameScene {
         this.props.world = new EditorChunkWorld(this.props.scene, overworldDef);
         const chunkLoads: Promise<Chunk>[] = [];
         for (const key in overworldDef.chunks) { chunkLoads.push(this.props.world.loadChunk(overworldDef.chunks[key])); }
-        console.log(`Loading ${chunkLoads.length} chunks...`);
         await Promise.all(chunkLoads);
-        console.log(`Done: Loaded ${chunkLoads.length} chunks`);
         this.props.world.stitchChunks();
         this.props.world.stitchChunks(); // calling this twice on init allows us to have chunks be unordered
 

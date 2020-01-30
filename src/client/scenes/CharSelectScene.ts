@@ -109,7 +109,7 @@ export default class CharSelectScene extends GameScene {
         btnDeleteChar.style.bottom = '5px';
         btnDeleteChar.style.right = '130px';
         btnDeleteChar.addEventListener('click', () => {
-            console.log('Delete character...');
+            console.log('Delete Character NYI');
         });
         this.addGUI(btnDeleteChar);
         // build back button

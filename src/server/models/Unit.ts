@@ -121,8 +121,6 @@ export default class Unit implements IModel {
                 slot: null,
                 type: tempUnitDrop, // TODO: drop tables
             });
-            console.log('Made a new item with uuid:', drop.uuid);
-
             this.world.ground.addItem(drop, this.position);
             attacker.stopAttacking();
         }
