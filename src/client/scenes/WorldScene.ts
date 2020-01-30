@@ -263,7 +263,7 @@ export default class WorldScene extends GameScene {
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));
         }
-        this.camera.update();
+        this.camera.update(delta);
         this.world.update(delta, this.mousePoint, this.intersects);
     }
 

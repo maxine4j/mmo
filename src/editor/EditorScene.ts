@@ -213,7 +213,7 @@ export default class EditorScene extends GameScene {
     }
 
     public update(delta: number): void {
-        this.props.camera.update();
+        this.props.camera.update(delta);
         this.props.update(delta);
         this.toolPanel.update(delta);
         this.updateMouseLabels();

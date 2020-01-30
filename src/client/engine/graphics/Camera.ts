@@ -6,6 +6,7 @@ import Input, { MouseButton } from '../Input';
 
 export default class Camera extends THREE.PerspectiveCamera {
     protected raycaster: THREE.Raycaster = new THREE.Raycaster();
+    protected currentPos: THREE.Vector3 = new THREE.Vector3();
     protected target: THREE.Vector3 = new THREE.Vector3();
     protected maxPolar: number = Graphics.toRadians(75);
     protected minPolar: number = Graphics.toRadians(0);
@@ -16,6 +17,7 @@ export default class Camera extends THREE.PerspectiveCamera {
     protected rotateDelta: Point;
     protected polar: number = 0;
     protected azimuth: number = 0;
+    protected followSpeed: number = 4;
     protected lastMouse: Point;
 
     public constructor(fov?: number, aspect?: number, near?: number, far?: number) {
@@ -65,13 +67,19 @@ export default class Camera extends THREE.PerspectiveCamera {
         this.target = target;
     }
 
-    public update(): void {
+    private updateTarget(delta: number): void {
+        this.currentPos.lerp(this.target, this.followSpeed * delta);
+    }
+
+    public update(delta: number): void {
+        this.updateTarget(delta);
+
         // make a quaterion from camera up to world up and its inverse
         const localToWorld = new THREE.Quaternion().setFromUnitVectors(this.up, new THREE.Vector3(0, 1, 0));
         const worldToLocal = localToWorld.clone().inverse();
 
         // get offset from camera pos to the target pos
-        const offset = new THREE.Vector3().copy(this.position).sub(this.target);
+        const offset = new THREE.Vector3().copy(this.position).sub(this.currentPos);
         offset.applyQuaternion(localToWorld); // rotate offset to y axis is up space
 
         // angle from z axis around y axis
@@ -85,10 +93,10 @@ export default class Camera extends THREE.PerspectiveCamera {
         offset.applyQuaternion(worldToLocal); // rotate back to camera up is up space
 
         // position = target + offset
-        this.position.copy(this.target).add(offset);
+        this.position.copy(this.currentPos).add(offset);
 
         // look at the target
-        this.lookAt(this.target);
+        this.lookAt(this.currentPos);
 
         // update rotate delta
         if (Input.isMouseDown(MouseButton.MIDDLE)) {

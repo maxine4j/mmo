@@ -26,9 +26,10 @@ export default class EditorCamera extends Camera {
         }
     }
 
-    public update(): void {
+    public update(delta: number): void {
         const lastMouse = this.lastMouse;
-        super.update(); // this updates last mouse
+        this.currentPos = this.target; // disable follow
+        super.update(delta); // this updates last mouse
 
         if (this.chunkOverviewMode) {
             this.zoomLevel = 600;
