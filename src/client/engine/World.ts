@@ -15,9 +15,7 @@ import CharacterDef from '../../common/CharacterDef';
 import { GroundItemDef } from '../../common/ItemDef';
 import LocalGroundItem from './LocalGroundItem';
 
-type WorldEvent = 'unitAdded' | 'unitRemoved' |
-                   'chunk_loaded' | 'chunk_unloaded' |
-                   'tick' | 'unit_damaged';
+type WorldEvent = 'unitAdded' | 'unitRemoved' | 'tick';
 
 export default class World {
     public scene: Scene;

@@ -22,8 +22,8 @@ const unitSpawnDefs: UnitSpawnsDef = {
         wanderRadius: { x: 10, y: 10 },
         leashRadius: { x: 15, y: 15 },
         wanderRate: 20,
-        minAlive: 1,
-        maxAlive: 1,
+        minAlive: 0,
+        maxAlive: 10,
         spawnRate: 10,
     },
 };

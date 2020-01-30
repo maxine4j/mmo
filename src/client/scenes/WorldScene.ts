@@ -128,19 +128,22 @@ export default class WorldScene extends GameScene {
         this.addGUI(this.bags);
     }
 
-    private initNameplates(): void {
-        const createNameplate = (unit: LocalUnit): void => {
+    private createNameplate(unit: LocalUnit): void {
+        if (!this.nameplates.has(unit.data.id)) {
             const np = new UnitNameplate(this.world, this.camera, unit);
             this.nameplates.set(unit.data.id, np);
             this.addGUI(np);
-        };
-        const disposeNameplate = (unit: LocalUnit): void => {
-            this.nameplates.get(unit.data.id).dispose();
-            this.nameplates.delete(unit.data.id);
-        };
+        }
+    }
 
-        this.world.on('unitAdded', createNameplate.bind(this));
-        this.world.on('unitRemoved', disposeNameplate.bind(this));
+    private disposeNameplate(unit: LocalUnit): void {
+        this.nameplates.get(unit.data.id).dispose();
+        this.nameplates.delete(unit.data.id);
+    }
+
+    private initNameplates(): void {
+        // this.world.on('unitAdded', this.createNameplate.bind(this));
+        this.world.on('unitRemoved', this.disposeNameplate.bind(this));
     }
 
     private initSplats(): void {
@@ -152,6 +155,7 @@ export default class WorldScene extends GameScene {
                 attacker.lookAt(defender);
             }
             if (defender) {
+                this.createNameplate(defender);
                 defender.animPlayOnce(UnitAnimation.FLINCH);
                 defender.lookAt(attacker);
                 const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
