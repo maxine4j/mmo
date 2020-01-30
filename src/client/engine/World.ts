@@ -31,6 +31,10 @@ export default class World {
     private currentTick: number;
     private chunkViewDist: number;
     private eventEmitter: EventEmitter = new EventEmitter();
+    public get player(): LocalPlayer { return this._player; }
+    public get tickTimer(): number { return this._tickTimer; }
+    public get tickRate(): number { return this._tickRate; }
+    public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
@@ -67,11 +71,6 @@ export default class World {
     private emit(event: WorldEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
     }
-
-    public get player(): LocalPlayer { return this._player; }
-    public get tickTimer(): number { return this._tickTimer; }
-    public get tickRate(): number { return this._tickRate; }
-    public get tickProgression(): number { return this._tickTimer / this._tickRate; }
 
     public getUnit(id: string): LocalUnit {
         const unit = this.units.get(id);

@@ -25,6 +25,7 @@ export enum PacketHeader {
     INVENTORY_USE = 'INVENTORY_USE',
     INVENTORY_FULL = 'INVENTORY_FULL',
     INVENTORY_ITEM = 'INVENTORY_ITEM',
+    INVENTORY_DROP = 'INVENTORY_DROP',
 
     UNIT_UPDATE = 'UNIT_UPDATE',
     UNIT_DAMAGED = 'UNIT_DAMAGED',
@@ -112,6 +113,10 @@ export interface InventorySwapPacket extends Packet {
 export interface InventoryUsePacket extends Packet {
     slotA: number;
     slotB: number;
+}
+
+export interface InventoryDropPacket extends Packet {
+    slot: number;
 }
 
 export interface ItemPacket extends Packet, ItemDef {

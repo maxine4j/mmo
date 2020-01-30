@@ -1,24 +1,28 @@
-import Client from '../Client';
+import Client from '../models/Client';
 import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
 import WorldManager from './WorldManager';
+import IManager from './IManager';
 
-export default class ChatManager {
+export default class ChatManager implements IManager {
     private world: WorldManager;
 
     public constructor(world: WorldManager) {
         this.world = world;
     }
 
-    public handleConnection(client: Client): void {
+    public enterWorld(client: Client): void {
         client.socket.on(PacketHeader.CHAT_EVENT, (packet) => {
             this.handleChatMessage(client, packet);
         });
     }
 
+    public leaveWorld(client: Client): void {
+    }
+
     private parseChatCommand(client: Client, msg: ChatMsgPacket): void {
         const argv = msg.message.split(' ');
         if (argv[0] === '/run') {
-            client.player.data.running = (argv[1] === 'true');
+            client.player.running = (argv[1] === 'true');
         }
     }
 
@@ -27,8 +31,8 @@ export default class ChatManager {
             this.parseChatCommand(client, msg);
         } else {
             const out = <ChatMsgPacket>{
-                authorId: client.player.data.id,
-                authorName: client.player.data.name,
+                authorId: client.player.id,
+                authorName: client.player.name,
                 timestamp: Date.now(),
                 message: msg.message,
             };
@@ -36,7 +40,7 @@ export default class ChatManager {
             for (const player of this.world.players.inRange(client.player.position)) {
                 // TODO: better chat processing here
                 // channels, commands, etc
-                player.socket.emit(PacketHeader.CHAT_EVENT, out);
+                player.send(PacketHeader.CHAT_EVENT, out);
             }
         }
     }

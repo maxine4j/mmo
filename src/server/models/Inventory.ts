@@ -1,94 +1,80 @@
 import InventoryDef from '../../common/InventoryDef';
-import ItemDef from '../../common/ItemDef';
 import ItemEntity from '../entities/Item.entity';
+import IModel from './IModel';
+import WorldManager from '../managers/WorldManager';
+import InventoryEntity from '../entities/Inventory.entity';
 
-export default class InventoryManager {
-    public data: InventoryDef;
+export default class InventoryManager implements IModel {
+    private entity: InventoryEntity;
+    private world: WorldManager;
+    private slots: Map<number, ItemEntity> = new Map();
 
-    public constructor(def: InventoryDef) {
-        this.data = def;
+    public constructor(world: WorldManager, entity: InventoryEntity) {
+        this.world = world;
+        this.entity = entity;
+        for (const item of this.entity.items) {
+            this.slots.set(item.slot, item);
+        }
     }
 
-    private getFromSlot(slot: number): ItemDef {
-        return this.data.items.find((i) => i.slot === slot);
+    public toNet(): InventoryDef {
+        return <InventoryDef>{
+            id: this.entity.id,
+            type: this.entity.type,
+            capacity: this.entity.capacity,
+            items: Array.from(this.slots).map(([id, item]) => item.toNet()),
+        };
     }
 
     public swap(a: number, b: number): void {
-        const itemA = this.getFromSlot(a);
-        const itemB = this.getFromSlot(b);
+        const itemA = this.slots.get(a);
+        const itemB = this.slots.get(b);
         if (itemA) itemA.slot = b;
         if (itemB) itemB.slot = a;
     }
 
     public useItems(a: number, b: number): string {
-        const itemA = this.getFromSlot(a);
-        const itemB = this.getFromSlot(b);
+        const itemA = this.slots.get(a);
+        const itemB = this.slots.get(b);
         if (itemA && itemB) {
-            return `Used ${itemA.name} with ${itemB.name}`;
+            return `Used ${itemA.type.name} with ${itemB.type.name}`;
         }
         return 'Nothing interesting happens';
     }
 
-    public tryAddItem(newItem: ItemDef): boolean {
+    public dropItem(s: number): void {
+        this.entity.items = this.entity.items.filter((i) => i.slot !== s);
+    }
+
+    public tryAddItem(newItem: ItemEntity): boolean {
         // check if this inventory is full
-        if (this.data.items.length >= this.data.capacity) {
+        if (this.entity.items.length >= this.entity.capacity) {
             return false;
         }
-        console.log('sorting the array');
 
-        // sort the items array
-        this.data.items.sort((a, b) => {
+        // find the smallest empty slot
+        this.entity.items.sort((a, b) => {
             if (a.slot > b.slot) return 1;
             if (a.slot < b.slot) return -1;
             return 0; // should never get here......
         });
-        console.log('finding first empty slot');
-
-        // find the smallest empty slot
-        for (let i = 0; i < this.data.capacity; i++) {
-            const existingItem = this.data.items[i];
+        for (let i = 0; i < this.entity.capacity; i++) {
+            const existingItem = this.entity.items[i];
             if (!existingItem || i < existingItem.slot) {
-                console.log('Set slot to ', i);
-                newItem.slot = i;
+                newItem.slot = i; // found it
                 break;
             }
         }
+        if (newItem.slot == null) return false; // shouldnt get here
+
         // add the item to this inventory
-        this.data.items.push(newItem);
+        this.slots.set(newItem.slot, newItem);
         return true;
     }
 
     public async save(): Promise<void> {
-        const updates: Promise<any>[] = [];
-        // insert new items
-        for (const item of this.data.items) {
-            updates.push(
-                ItemEntity.createQueryBuilder()
-                    .insert()
-                    .values({
-                        uuid: item.uuid,
-                        type: {
-                            id: item.itemid,
-                        },
-                        slot: item.slot,
-                        inventory: this.data,
-                    })
-                    .onConflict('("UUID") DO NOTHING')
-                    .execute(),
-            );
-        }
-        // update item instance slots
-        for (const item of this.data.items) {
-            updates.push(
-                ItemEntity.createQueryBuilder()
-                    .update()
-                    .set({
-                        slot: item.slot,
-                    })
-                    .where('uuid = :uuid', { uuid: item.uuid })
-                    .execute(),
-            );
-        }
-        await Promise.all(updates);
+        // save the slots map to the entity
+        this.entity.items = Array.from(this.slots).map(([id, item]) => item);
+        await this.entity.save();
     }
 }

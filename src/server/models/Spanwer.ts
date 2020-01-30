@@ -1,20 +1,35 @@
 import uuid from 'uuid/v4';
+import { EventEmitter } from 'events';
 import { PointDef, Point } from '../../common/Point';
-import WorldManager from './WorldManager';
+import WorldManager from '../managers/WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
-import Unit, { UnitState } from '../models/Unit';
+import Unit, { UnitState } from './Unit';
 
-export default class SpawnManager {
+type SpawnerEvent = 'spawn';
+
+export default class Spawner {
+    private eventEmitter: EventEmitter = new EventEmitter();
     private world: WorldManager;
-    public data: UnitSpawnGroup;
+    private data: UnitSpawnGroup;
     private units: Map<string, Unit> = new Map();
     private lastSpawnTick: number = 0;
-
     public get center(): Point { return Point.fromDef(this.data.center); }
 
     public constructor(def: UnitSpawnGroup, world: WorldManager) {
         this.world = world;
         this.data = def;
+    }
+
+    public on(event: SpawnerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: SpawnerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    protected emit(event: SpawnerEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
     }
 
     private getRandomPoint(center: PointDef, radius: PointDef): PointDef {
@@ -24,6 +39,10 @@ export default class SpawnManager {
             x: center.x + dx,
             y: center.y + dy,
         };
+    }
+
+    private checkRate(rate: number, lastTick: number): boolean {
+        return (lastTick + rate) < this.world.currentTick;
     }
 
     private spawnUnit(): void {
@@ -42,25 +61,24 @@ export default class SpawnManager {
             moveQueue: [],
         });
         unit.on('death', () => {
-            this.units.delete(unit.data.id);
+            this.units.delete(unit.id);
         });
         // save the new unit to the world and also keep track of it here
-        this.units.set(unit.data.id, unit);
-        this.world.units.addUnit(unit);
-        this.lastSpawnTick = this.world.tickCounter; // update the last spawn tick
+        this.units.set(unit.id, unit);
+        this.lastSpawnTick = this.world.currentTick; // update the last spawn tick
+        this.emit('spawn', this, unit);
     }
 
-    private checkRate(rate: number, lastTick: number): boolean {
-        return (lastTick + rate) < this.world.tickCounter;
+    private wanderUnit(unit: Unit): void {
+        if (unit.state === UnitState.IDLE) {
+            unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
+            unit.lastWanderTick = this.world.currentTick;
+        }
     }
 
-    private tickSpawns(): void {
-        if (this.units.size < this.data.minAlive) {
-            // spawn a unit every tick when under the min alive limit
-            this.spawnUnit();
-        } else if (this.checkRate(this.data.spawnRate, this.lastSpawnTick) && this.units.size < this.data.maxAlive) {
-            // spawn a unit if we are below the max alive limit and can spawn this tick
-            this.spawnUnit();
+    private tickWander(unit: Unit): void {
+        if (this.checkRate(this.data.wanderRate, unit.lastWanderTick)) {
+            this.wanderUnit(unit);
         }
     }
 
@@ -70,20 +88,7 @@ export default class SpawnManager {
             unit.stopAttacking();
             unit.lastWanderTick = 0;
             this.wanderUnit(unit);
-            unit.data.health = unit.data.maxHealth;
-        }
-    }
-
-    private wanderUnit(unit: Unit): void {
-        if (unit.state === UnitState.IDLE) {
-            unit.moveTo(this.getRandomPoint(this.data.center, this.data.wanderRadius));
-            unit.lastWanderTick = this.world.tickCounter;
-        }
-    }
-
-    private tickWander(unit: Unit): void {
-        if (this.checkRate(this.data.wanderRate, unit.lastWanderTick)) {
-            this.wanderUnit(unit);
+            unit.health = unit.maxHealth;
         }
     }
 
@@ -98,7 +103,10 @@ export default class SpawnManager {
     public tick(): void {
         // tick this managers units
         this.tickUnits();
-        // spawn units if required
-        this.tickSpawns();
+        if (this.units.size < this.data.minAlive) {
+            this.spawnUnit(); // spawn a unit every tick when under the min alive limit
+        } else if (this.checkRate(this.data.spawnRate, this.lastSpawnTick) && this.units.size < this.data.maxAlive) {
+            this.spawnUnit(); // spawn a unit if we are below the max alive limit and can spawn this tick
+        }
     }
 }

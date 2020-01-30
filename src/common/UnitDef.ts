@@ -1,6 +1,7 @@
 import { PointDef } from './Point';
+import IDefinition from './IDefinition';
 
-export default interface UnitDef {
+export default interface UnitDef extends IDefinition {
     id: string;
     name: string;
     level: number;

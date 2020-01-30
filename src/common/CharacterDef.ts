@@ -1,4 +1,5 @@
 import UnitDef from './UnitDef';
+import IDefinition from './IDefinition';
 
 export enum Race {
     HUMAN,
@@ -9,6 +10,6 @@ export enum Race {
     UNDEAD,
 }
 
-export default interface CharacterDef extends UnitDef {
+export default interface CharacterDef extends UnitDef, IDefinition {
     race: Race;
 }

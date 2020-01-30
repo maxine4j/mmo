@@ -1,12 +1,13 @@
 import WorldJsonDef from '../data/WorldsJsonDef';
 import Map2D from '../../common/Map2D';
 import Chunk from '../models/Chunk';
-import Client from '../Client';
+import Client from '../models/Client';
 import { PacketHeader, ChunkListPacket } from '../../common/Packet';
 import _overworldDef from '../data/overworld.json';
 import { PointDef, TilePoint, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
 import ChunkDef from '../../common/ChunkDef';
+import IManager from './IManager';
 
 const overworldDef = <WorldJsonDef>_overworldDef;
 
@@ -20,12 +21,11 @@ export interface Navmap {
     end: Point,
 }
 
-export default class ChunkManager {
+export default class ChunkManager implements IManager {
     private world: WorldManager;
     private chunks: Map2D<number, number, Chunk> = new Map2D();
     private worldDef: WorldJsonDef = overworldDef;
     public get chunkSize(): number { return this.worldDef.chunkSize; }
-    private get viewDist(): number { return this.world.tileViewDist; }
 
     public constructor(world: WorldManager) {
         this.world = world;
@@ -34,18 +34,21 @@ export default class ChunkManager {
         }
     }
 
-    public handleClient(client: Client): void {
+    public enterWorld(client: Client): void {
         client.socket.on(PacketHeader.CHUNK_LOAD, (packet) => {
             this.handleChunkLoad(client);
         });
     }
 
+    public leaveWorld(client: Client): void {
+    }
+
     public inRange(pos: PointDef): Set<Chunk> {
         // get extreme points based on viewDist
-        const minViewX = pos.x - this.viewDist;
-        const maxViewX = pos.x + this.viewDist;
-        const minViewY = pos.y - this.viewDist;
-        const maxViewY = pos.y + this.viewDist;
+        const minViewX = pos.x - this.world.tileViewDist;
+        const maxViewX = pos.x + this.world.tileViewDist;
+        const minViewY = pos.y - this.world.tileViewDist;
+        const maxViewY = pos.y + this.world.tileViewDist;
         // get the chunk coords of these extreme points
         const [tlX, tlY] = TilePoint.getChunkCoord(minViewX, minViewY, this.chunkSize);
         const [trX, trY] = TilePoint.getChunkCoord(maxViewX, minViewY, this.chunkSize);
@@ -64,17 +67,22 @@ export default class ChunkManager {
         return this.chunks.get(x, y);
     }
 
-    public getNeighbours(def: ChunkDef): Chunk[] {
+    public getChunkContaining(pos: Point): Chunk {
+        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.world.chunks.chunkSize);
+        return this.world.chunks.getChunk(ccx, ccy);
+    }
+
+    public getNeighbours(chunk: Chunk): Chunk[] {
         const neighbours: Chunk[] = [];
-        const minX = def.x - 1;
-        const maxX = def.x + 1;
-        const minY = def.y - 1;
-        const maxY = def.y + 1;
+        const minX = chunk.x - 1;
+        const maxX = chunk.x + 1;
+        const minY = chunk.y - 1;
+        const maxY = chunk.y + 1;
         for (let x = minX; x <= maxX; x++) {
             for (let y = minY; y <= maxY; y++) {
-                const chunk = this.chunks.get(x, y);
-                if (chunk) {
-                    neighbours.push(chunk);
+                const nbc = this.getChunk(x, y);
+                if (nbc) {
+                    neighbours.push(nbc);
                 }
             }
         }
@@ -83,23 +91,23 @@ export default class ChunkManager {
 
     private loadChunk(id: string): void {
         const cm = new Chunk(this.worldDef.chunks[id], this.chunkSize);
-        this.chunks.set(cm.def.x, cm.def.y, cm);
+        this.chunks.set(cm.x, cm.y, cm);
     }
 
     private handleChunkLoad(client: Client): void {
         const [ccx, ccy] = TilePoint.getChunkCoord(client.player.position.x, client.player.position.y, this.chunkSize);
         const chunk = this.chunks.get(ccx, ccy);
         const chunks: ChunkDef[] = [];
-        for (const nbc of this.getNeighbours(chunk.def)) {
+        for (const nbc of this.getNeighbours(chunk)) {
             // only send the player chunks they do not have loaded
-            if (!client.player.loadedChunks.contains(nbc.def.x, nbc.def.y)) {
-                chunks.push(nbc.def);
-                client.player.loadedChunks.set(nbc.def.x, nbc.def.y, nbc); // mark as loaded
+            if (!client.player.loadedChunks.contains(nbc.x, nbc.y)) {
+                chunks.push(nbc.toNet());
+                client.player.loadedChunks.set(nbc.x, nbc.y, nbc); // mark as loaded
             }
         }
         client.player.pruneLoadedChunks(); // prune the chunks the player will unload
         client.socket.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
-            center: client.player.data.position,
+            center: client.player.position.toNet(),
             chunks,
         });
     }

@@ -17,11 +17,11 @@ export default class AccountEntity extends BaseEntity {
 
     @Column()
     // eslint-disable-next-line camelcase
-    public temp_username: string;
+    public temp_username: string; // TODO: temp plaintext password
 
     @Column()
     // eslint-disable-next-line camelcase
-    public temp_password: string;
+    public temp_password: string; // TODO: temp plaintext password
 
     @OneToMany((type) => CharacterEntity, (character) => character.account)
     public characters: CharacterEntity[];

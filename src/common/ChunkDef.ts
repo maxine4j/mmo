@@ -1,9 +1,11 @@
-export interface NavblockDef {
+import IDefinition from './IDefinition';
+
+export interface NavblockDef extends IDefinition {
     x: number,
     y: number,
 }
 
-export interface DoodadDef {
+export interface DoodadDef extends IDefinition {
     uuid: string;
     model: string,
     x: number;
@@ -15,7 +17,7 @@ export interface DoodadDef {
     walkable: boolean,
 }
 
-export default interface ChunkDef {
+export default interface ChunkDef extends IDefinition {
     id: string;
     x: number;
     y: number;

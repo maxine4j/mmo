@@ -1,6 +1,7 @@
 import { PointDef } from './Point';
+import IDefinition from './IDefinition';
 
-export default interface ItemDef {
+export default interface ItemDef extends IDefinition {
     uuid: string;
     itemid: number;
     name: string;
@@ -8,7 +9,7 @@ export default interface ItemDef {
     slot: number;
 }
 
-export interface GroundItemDef {
+export interface GroundItemDef extends IDefinition {
     item: ItemDef;
     position: PointDef;
 }

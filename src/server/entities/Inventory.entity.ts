@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
 } from 'typeorm';
-import InventoryDef, { InventoryType } from '../../common/InventoryDef';
+import { InventoryType } from '../../common/InventoryDef';
 import ItemEntity from './Item.entity';
 
 @Entity()
@@ -17,14 +17,4 @@ export default class InventoryEntity extends BaseEntity {
 
     @Column()
     public capacity: number;
-
-    // converts a db entity to a network def
-    public toNet(): InventoryDef {
-        return <InventoryDef>{
-            id: this.id,
-            type: this.type,
-            capacity: this.capacity,
-            items: this.items.map((inst) => inst.toNet()),
-        };
-    }
 }

@@ -1,37 +1,23 @@
-import { EventEmitter } from 'events';
-import { GroundItemDef } from '../../common/ItemDef';
 import { Point, TilePoint } from '../../common/Point';
 import WorldManager from './WorldManager';
+import IManager from './IManager';
+import Client from '../models/Client';
+import ItemEntity from '../entities/Item.entity';
+import GroundItem from '../models/GroundItem';
 
-type GroundItemsManagerEvent = 'itemAdded' | 'itemRemoved';
-
-export default class GroundManager {
-    private eventEmitter: EventEmitter = new EventEmitter();
+export default class GroundManager implements IManager {
     private world: WorldManager;
-    private groundItems: Map<string, GroundItemDef> = new Map();
+    private items: Map<string, GroundItem> = new Map();
 
     public constructor(world: WorldManager) {
         this.world = world;
     }
 
-    public on(event: GroundItemsManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
+    public enterWorld(client: Client): void {}
+    public leaveWorld(client: Client): void {}
 
-    public off(event: GroundItemsManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    public once(event: GroundItemsManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.once(event, listener);
-    }
-
-    public emit(event: GroundItemsManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
-
-    public inRange(pos: Point): GroundItemDef[] {
-        const inrange: GroundItemDef[] = [];
+    public inRange(pos: Point): GroundItem[] {
+        const inrange: GroundItem[] = [];
         const bounds = this.world.viewBounds(pos);
         for (const chunk of this.world.chunks.inRange(pos)) {
             for (const [_, gi] of chunk.groundItems) {
@@ -43,28 +29,26 @@ export default class GroundManager {
         return inrange;
     }
 
-    public addGroundItem(gi: GroundItemDef): void {
-        this.groundItems.set(gi.item.uuid, gi);
-        const [ccx, ccy] = TilePoint.getChunkCoord(gi.position.x, gi.position.y, this.world.chunks.chunkSize);
+    public addItem(item: ItemEntity, pos: Point): void {
+        const groundItem = new GroundItem(item, pos);
+        this.items.set(item.uuid, groundItem);
+        const [ccx, ccy] = TilePoint.getChunkCoord(pos.x, pos.y, this.world.chunks.chunkSize);
         const chunk = this.world.chunks.getChunk(ccx, ccy);
-        chunk.groundItems.set(gi.item.uuid, gi);
-        this.groundItems.set(gi.item.uuid, gi);
-        this.emit('itemAdded', gi);
+        chunk.addGroundItem(groundItem);
     }
 
-    public removeGroundItem(gi: GroundItemDef): void {
-        const [ccx, ccy] = TilePoint.getChunkCoord(gi.position.x, gi.position.y, this.world.chunks.chunkSize);
-        const chunk = this.world.chunks.getChunk(ccx, ccy);
-        chunk.groundItems.delete(gi.item.uuid);
-        this.groundItems.delete(gi.item.uuid);
-        this.emit('itemRemoved', gi);
+    public removeItem(id: string): void {
+        const groundItem = this.items.get(id);
+        const chunk = this.world.chunks.getChunkContaining(groundItem.position);
+        chunk.removeGroundItem(id);
+        this.items.delete(id);
     }
 
-    public getItem(id: string): GroundItemDef {
-        return this.groundItems.get(id);
+    public getItem(id: string): GroundItem {
+        return this.items.get(id);
     }
 
-    public groundItemExists(gi: GroundItemDef): boolean {
-        return this.groundItems.has(gi.item.uuid);
+    public groundItemExists(gi: GroundItem): boolean {
+        return this.items.has(gi.item.uuid);
     }
 }

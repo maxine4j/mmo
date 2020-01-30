@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import Chunk from '../client/engine/Chunk';
+import IDefinition from './IDefinition';
 
 interface IPoint<T> {
     x: number;
@@ -16,7 +17,7 @@ interface IPoint<T> {
     toChunk: () => ChunkPoint;
 }
 
-export interface PointDef {
+export interface PointDef extends IDefinition {
     x: number;
     y: number;
 }
@@ -42,6 +43,10 @@ export class Point {
             return <PointDef>{ x: point.x, y: point.y };
         }
         return null;
+    }
+
+    public toNet(): PointDef {
+        return <PointDef>{ x: this.x, y: this.y };
     }
 
     // public toWorld(world: ChunkWorld): WorldPoint {
