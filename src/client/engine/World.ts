@@ -38,8 +38,12 @@ export default class World {
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
-        this._player = new LocalPlayer(this, null);
-        this._player.on('loaded', (p: LocalPlayer) => { this.emit('unitAdded', p); });
+        console.log('Self:', info.self);
+
+        this._player = new LocalPlayer(this, info.self);
+        this._player.on('loaded', () => {
+            this.emit('unitAdded', this._player);
+        });
         this._tickRate = info.tickRate;
         this.chunkViewDist = info.chunkViewDist;
         this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);

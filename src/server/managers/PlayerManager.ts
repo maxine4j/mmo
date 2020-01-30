@@ -53,11 +53,12 @@ export default class PlayerManager implements IManager {
         this.players.delete(player.id); // WAS: socket.id
     }
 
-    public inRange(pos: Point): Player[] {
+    public inRange(pos: Point, exclude?: Player): Player[] {
         const inrange: Player[] = [];
         const bounds = this.world.viewBounds(pos);
         for (const chunk of this.world.chunks.inRange(pos)) {
             for (const [_, p] of chunk.players) {
+                if (exclude && exclude.id === p.id) continue;
                 if (bounds.contains(Point.fromDef(p.position))) {
                     inrange.push(p);
                 }
@@ -70,7 +71,7 @@ export default class PlayerManager implements IManager {
         for (const [_, player] of this.players) {
             player.tick(); // tick the player
             // send players, units, and ground items in range
-            const players: CharacterDef[] = this.inRange(player.position).map((p) => p.toNet());
+            const players: CharacterDef[] = this.inRange(player.position, player).map((p) => p.toNet());
             const units: UnitDef[] = this.world.units.inRange(player.position).map((u) => u.toNet());
             const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi.toNet());
             player.send(PacketHeader.WORLD_TICK, <TickPacket>{

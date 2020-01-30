@@ -42,6 +42,8 @@ export default class LocalUnit {
     public constructor(world: World, data: UnitDef) {
         this.world = world;
         this.data = data;
+        console.log('Making unit with data', this.data);
+
         this.loadModel();
     }
 
@@ -130,6 +132,7 @@ export default class LocalUnit {
                     this.world.scene.add(this.model.obj);
 
                     this.emit('loaded', this);
+                    console.log(`UNIT: ${this.data.name} has loaded`);
                 });
         }
     }
@@ -194,10 +197,6 @@ export default class LocalUnit {
     }
 
     public onTick(u: UnitDef): void {
-        if (!this.data) {
-            this.data = u;
-            this.loadModel();
-        }
         this.data = u;
         if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
@@ -242,7 +241,10 @@ export default class LocalUnit {
         if (this.targetPosition) {
             return this.currentPosition.toWorld().lerp(this.targetPosition.toWorld(), Math.min(this.moveTimer, 1));
         }
-        return this.currentPosition.toWorld();
+        if (this.currentPosition) {
+            return this.currentPosition.toWorld();
+        }
+        return new THREE.Vector3();
     }
 
     private updateMovement(delta: number): void {

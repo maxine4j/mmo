@@ -99,6 +99,7 @@ export default class WorldManager implements IManager {
             tickRate: this.tickRate,
             chunkSize: this.chunks.chunkSize,
             chunkViewDist: this.chunkViewDist,
+            self: client.player.toNet(),
         });
     }
 
