@@ -56,14 +56,12 @@ export default class InventoryManager implements IModel {
     public dropItem(s: number, pos: Point): void {
         const item = this.slots.get(s);
         this.world.ground.addItem(item, pos);
-        this.slots.delete(item.slot);
+        this.slots.delete(s);
     }
 
     public tryAddItem(newItem: ItemEntity): boolean {
         // check if this inventory is full
-        if (this.entity.items.length >= this.entity.capacity) {
-            return false;
-        }
+        if (this.slots.size >= this.entity.capacity) return false;
 
         // find the smallest empty slot
         const items = this.getFromSlots();

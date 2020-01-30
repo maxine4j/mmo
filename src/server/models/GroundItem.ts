@@ -11,6 +11,7 @@ export default class GroundItem implements IModel {
     public constructor(item: ItemEntity, pos: Point) {
         this.item = item;
         this.position = pos;
+        this.item.slot = null;
     }
 
     public toNet(): GroundItemDef {
