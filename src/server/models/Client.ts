@@ -3,7 +3,7 @@ import Player from './Player';
 import { PacketHeader, AuthLoginPacket, CharacterPacket } from '../../common/Packet';
 import {
     handleAuthLogout, handleAuthLogin, handleMyList, handleCreate,
-} from '../managers/AccountManager';
+} from '../Authentication';
 import WorldManager from '../managers/WorldManager';
 import CharacterEntity from '../entities/Character.entity';
 
@@ -25,7 +25,10 @@ export default class Client {
         this.socket = socket;
         this.world = world;
 
-        // authentication
+        this.registerBase();
+    }
+
+    private registerBase(): void {
         this.socket.on(PacketHeader.AUTH_LOGIN, this.handleAuthLogin.bind(this));
         this.socket.on(PacketHeader.AUTH_LOGOUT, this.handleAuthLogout.bind(this));
         this.socket.on('disconnect', this.handleAuthLogout.bind(this));
@@ -46,13 +49,11 @@ export default class Client {
 
     private async handleAuthLogout(): Promise<void> {
         this.socket.removeAllListeners();
+        this.registerBase();
         await handleAuthLogout(this.socket);
     }
 
     private handlePlayerEnterWorld(packet: CharacterPacket): void {
-        console.log('player enter world');
-
-        // find an entity for this char
         CharacterEntity.findOne({ where: { id: Number(packet.id) } }).then((ce) => {
             this.player = new Player(this.world, ce, this);
             this.world.enterWorld(this);
@@ -60,9 +61,9 @@ export default class Client {
     }
 
     private handlePlayerLeaveWorld(): void {
-        console.log('player leave world');
         this.socket.removeAllListeners();
         this.registerAuthenticated(); // we are still authenticated
+        this.registerBase();
         this.world.leaveWorld(this);
     }
 

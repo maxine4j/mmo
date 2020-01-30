@@ -2,13 +2,13 @@ import io from 'socket.io';
 import uuid from 'uuid/v4';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
-} from '../../common/Packet';
-import AccountEntity from '../entities/Account.entity';
-import CharacterEntity from '../entities/Character.entity';
-import InventoryEntity from '../entities/Inventory.entity';
-import { InventoryType } from '../../common/InventoryDef';
-import ItemEntity from '../entities/Item.entity';
-import ItemTypeEntity from '../entities/ItemType.entity';
+} from '../common/Packet';
+import AccountEntity from './entities/Account.entity';
+import CharacterEntity from './entities/Character.entity';
+import InventoryEntity from './entities/Inventory.entity';
+import { InventoryType } from '../common/InventoryDef';
+import ItemEntity from './entities/Item.entity';
+import ItemTypeEntity from './entities/ItemType.entity';
 
 // log a user in with plaintext password (TEMP)
 export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {

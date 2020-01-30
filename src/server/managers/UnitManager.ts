@@ -8,16 +8,16 @@ import IManager from './IManager';
 import Client from '../models/Client';
 
 const unitSpawnDefs: UnitSpawnsDef = {
-    'skeleton-group': {
-        id: 'skeleton-group',
+    'human-group': {
+        id: 'human-group',
         unit: {
-            id: 'skeleton',
+            id: 'human',
             maxHealth: 2,
-            name: 'Skeleton',
+            name: 'Man',
             level: 1,
-            model: 'assets/models/units/skeleton/skeleton.model.json',
+            model: 'assets/models/units/human/human.model.json',
         },
-        center: { x: -60, y: -60 },
+        center: { x: 0, y: 0 },
         spawnRadius: { x: 5, y: 5 },
         wanderRadius: { x: 10, y: 10 },
         leashRadius: { x: 15, y: 15 },

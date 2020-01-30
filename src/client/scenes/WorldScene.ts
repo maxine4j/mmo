@@ -13,7 +13,7 @@ import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket,
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket, InventoryDropPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -107,6 +107,16 @@ export default class WorldScene extends GameScene {
                 slotB: b.slot,
             }).then((resp: ResponsePacket) => {
                 this.chatbox.addRawMessage(resp.message);
+            });
+        });
+        this.bags.on('drop', (s: InventorySlot) => {
+            NetClient.sendRecv(PacketHeader.INVENTORY_DROP, <InventoryDropPacket>{
+                slot: s.slot,
+            }).then((resp: ResponsePacket) => {
+                this.chatbox.addRawMessage(resp.message);
+                if (resp) {
+                    s.item = null;
+                }
             });
         });
 

@@ -60,6 +60,7 @@ export interface AuthLoginPacket extends Packet {
 export interface AccountPacket extends Packet, ResponsePacket, AccountDef { }
 
 export interface WorldInfoPacket extends Packet {
+    self: CharacterDef;
     tickRate: number;
     chunkSize: number;
     chunkViewDist: number;

@@ -121,7 +121,7 @@ export default class CharSelectScene extends GameScene {
         btnBack.style.bottom = '5px';
         btnBack.style.right = '0';
         btnBack.addEventListener('click', () => {
-            NetClient.logout();
+            NetClient.send(PacketHeader.AUTH_LOGOUT);
             SceneManager.changeScene('login');
         });
         this.addGUI(btnBack);

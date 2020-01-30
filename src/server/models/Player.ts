@@ -20,6 +20,7 @@ type PlayerManagerEvent = UnitManagerEvent | 'saved';
 export default class Player extends Unit implements IModel {
     private socket: io.Socket;
     protected data: CharacterDef;
+    private entity: CharacterEntity;
     public bags: InventoryManager;
     public bank: InventoryManager;
     public loadedChunks: Map2D<number, number, Chunk> = new Map2D();
@@ -28,6 +29,7 @@ export default class Player extends Unit implements IModel {
 
     public constructor(world: WorldManager, entity: CharacterEntity, client: Client) {
         super(world, entity.toNet());
+        this.entity = entity;
         this.data.maxHealth = 10;
         this.data.health = 10; // TODO: temp
         this.data.autoRetaliate = true;
@@ -110,7 +112,11 @@ export default class Player extends Unit implements IModel {
     }
 
     private handleInventoryDrop(packet: InventoryDropPacket): void {
-        this.bags.dropItem(packet.slot);
+        this.bags.dropItem(packet.slot, this.position);
+        this.socket.emit(PacketHeader.INVENTORY_DROP, <ResponsePacket>{
+            success: true,
+            message: 'Item dropped',
+        });
     }
     // #endregion
 
@@ -223,15 +229,10 @@ export default class Player extends Unit implements IModel {
     private async save(): Promise<void> {
         await this.bags.save();
         await this.bank.save();
-        await CharacterEntity.createQueryBuilder()
-            .update()
-            .set({
-                level: this.data.level,
-                posX: this.data.position.x,
-                posY: this.data.position.y,
-            })
-            .where('id = :id', { id: Number(this.data.id) })
-            .execute();
+        this.entity.level = this.data.level;
+        this.entity.posX = this.data.position.x;
+        this.entity.posY = this.data.position.y;
+        await this.entity.save();
     }
     // #endregion
 }

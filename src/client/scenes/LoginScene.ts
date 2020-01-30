@@ -1,5 +1,5 @@
 import { AmbientLight } from 'three';
-import { AccountPacket } from '../../common/Packet';
+import { AccountPacket, PacketHeader, AuthLoginPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
@@ -9,7 +9,6 @@ import Label from '../engine/interface/components/Label';
 import TextBox from '../engine/interface/components/TextBox';
 import NetClient from '../engine/NetClient';
 import Dialog from '../engine/interface/components/Dialog';
-import Engine from '../engine/Engine';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Model from '../engine/graphics/Model';
@@ -69,9 +68,11 @@ export default class LoginScene extends GameScene {
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';
         btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            NetClient.login(txtUsername.text, txtPassword.text, (resp: AccountPacket) => {
+            NetClient.sendRecv(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
+                username: txtUsername.text,
+                password: txtPassword.text,
+            }).then((resp: AccountPacket) => {
                 if (resp.success) {
-                    Engine.account = resp;
                     SceneManager.changeScene('char-select');
                 } else {
                     console.log(`Failed to log in: ${resp.message}`);
@@ -79,6 +80,16 @@ export default class LoginScene extends GameScene {
                     dialog.show();
                 }
             });
+            // NetClient.login(txtUsername.text, txtPassword.text, (resp: AccountPacket) => {
+            //     if (resp.success) {
+            //         Engine.account = resp;
+            //         SceneManager.changeScene('char-select');
+            //     } else {
+            //         console.log(`Failed to log in: ${resp.message}`);
+            //         dialog.setText(resp.message);
+            //         dialog.show();
+            //     }
+            // });
         });
         this.addGUI(btnLogin);
     }

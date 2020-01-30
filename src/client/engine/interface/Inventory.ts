@@ -8,6 +8,7 @@ import SpriteAtlasImage from './components/SpriteAtlasImage';
 import InventoryDef from '../../../common/InventoryDef';
 import Input from '../Input';
 import { Point } from '../../../common/Point';
+import { InventoryDropPacket } from '../../../common/Packet';
 
 const slotSize = 32;
 const atlas = new SpriteAtlas('assets/icons/atlas.png');
@@ -193,6 +194,6 @@ export default class Inventory extends Panel {
     }
 
     public dropItem(slot: InventorySlot): void {
-
+        this.emit('drop', slot);
     }
 }

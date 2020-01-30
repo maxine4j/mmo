@@ -5,12 +5,11 @@ import SceneManager from './scene/SceneManager';
 import GameScene from './scene/GameScene';
 import Label from './interface/components/Label';
 import UIParent from './interface/components/UIParent';
-import AccountDef from '../../common/AccountDef';
 
 export default class Engine {
     private static lastrender: number = 0;
     private static lblFps: Label;
-    private static _account: AccountDef;
+    // private static _account: AccountDef;
 
     public static init(enableNetworking: boolean = true): void {
         // initialise modules
@@ -34,12 +33,12 @@ export default class Engine {
         });
     }
 
-    public static get account(): AccountDef {
-        return this._account;
-    }
-    public static set account(account: AccountDef) {
-        this._account = account;
-    }
+    // public static get account(): AccountDef {
+    //     return this._account;
+    // }
+    // public static set account(account: AccountDef) {
+    //     this._account = account;
+    // }
 
     public static start(): void {
         window.requestAnimationFrame(this.loop);
