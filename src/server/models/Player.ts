@@ -185,6 +185,11 @@ export default class Player extends Unit implements IModel {
         this.lootTarget = gi;
         this.path = this.findPath(gi.position);
     }
+
+    public teleport(pos: Point): void {
+        super.teleport(pos);
+        this.sendSurroundingChunks();
+    }
     // #endregion
 
     // #region Tick

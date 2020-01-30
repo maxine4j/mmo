@@ -67,12 +67,14 @@ export default class Camera extends THREE.PerspectiveCamera {
         this.target = target;
     }
 
-    private updateTarget(delta: number): void {
-        this.currentPos.lerp(this.target, this.followSpeed * delta);
+    public setPosition(pos: THREE.Vector3): void {
+        this.currentPos = pos;
+        this.target = pos;
     }
 
     public update(delta: number): void {
-        this.updateTarget(delta);
+        // lerp current position towards the target
+        this.currentPos.lerp(this.target, this.followSpeed * delta);
 
         // make a quaterion from camera up to world up and its inverse
         const localToWorld = new THREE.Quaternion().setFromUnitVectors(this.up, new THREE.Vector3(0, 1, 0));

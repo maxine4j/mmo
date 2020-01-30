@@ -1,3 +1,4 @@
+import { Point } from '../../common/Point';
 import Client from '../models/Client';
 import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
 import WorldManager from './WorldManager';
@@ -21,8 +22,22 @@ export default class ChatManager implements IManager {
 
     private parseChatCommand(client: Client, msg: ChatMsgPacket): void {
         const argv = msg.message.split(' ');
-        if (argv[0] === '/run') {
+        switch (argv[0]) {
+        case '/run': {
             client.player.running = (argv[1] === 'true');
+            break;
+        }
+        case '/tp': {
+            if (argv.length >= 3) {
+                const x = Number(argv[1]);
+                const y = Number(argv[2]);
+                client.player.teleport(new Point(x, y));
+            } else if (argv.length === 1) {
+                client.player.teleport(new Point(0, 0));
+            }
+            break;
+        }
+        default: break;
         }
     }
 

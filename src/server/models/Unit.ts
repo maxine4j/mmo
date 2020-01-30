@@ -142,6 +142,13 @@ export default class Unit implements IModel {
         this.path = this.findPath(dest);
     }
 
+    public teleport(pos: Point): void {
+        this.data.position = { x: pos.x, y: pos.y };
+        this.path = [];
+        this._state = UnitState.IDLE;
+        this.updateChunk();
+    }
+
     protected findPath(dest: PointDef): PointDef[] {
         const navmap = this.world.chunks.generateNavmap(this.data.position, dest);
         const grid = new PF.Grid(navmap.matrix);

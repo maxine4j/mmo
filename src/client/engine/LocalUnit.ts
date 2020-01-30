@@ -260,8 +260,18 @@ export default class LocalUnit {
         }
     }
 
+    private updateTeleport(): void {
+        if (this.currentPosition) {
+            const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
+            if (this.position.dist(dataPos) > 10) {
+                this.currentPosition = dataPos;
+            }
+        }
+    }
+
     public update(delta: number): void {
         if (this.model) {
+            this.updateTeleport();
             if (this.isMoving()) {
                 this.updateMovement(delta);
                 this.updateModel();

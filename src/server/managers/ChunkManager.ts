@@ -56,10 +56,15 @@ export default class ChunkManager implements IManager {
         const [brX, brY] = TilePoint.getChunkCoord(maxViewX, maxViewY, this.chunkSize);
         // save the chunks to a set so we only get unique chunks
         const chunks: Set<Chunk> = new Set();
-        chunks.add(this.chunks.get(tlX, tlY));
-        chunks.add(this.chunks.get(trX, trY));
-        chunks.add(this.chunks.get(blX, blY));
-        chunks.add(this.chunks.get(brX, brY));
+        const tl = this.chunks.get(tlX, tlY);
+        if (tl) chunks.add(tl);
+        const tr = this.chunks.get(trX, trY);
+        if (tr) chunks.add(tr);
+        const bl = this.chunks.get(blX, blY);
+        if (bl) chunks.add(bl);
+        const br = this.chunks.get(brX, brY);
+        if (br) chunks.add(br);
+
         return chunks;
     }
 
