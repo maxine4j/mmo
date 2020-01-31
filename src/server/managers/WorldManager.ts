@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import { EventEmitter } from 'events';
 import {
-    PacketHeader, WorldInfoPacket, CharacterPacket, InventoryPacket,
+    PacketHeader, WorldInfoPacket, CharacterPacket, InventoryPacket, SkillsPacket,
 } from '../../common/Packet';
 import ChatManager from './ChatManager';
 import ChunksManager from './ChunkManager';
@@ -73,6 +73,9 @@ export default class WorldManager implements IManager {
 
         client.socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>client.player.toNet());
         client.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>client.player.bags.toNet());
+        client.socket.emit(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
+            skills: client.player.skills.map((s) => s.toNet()),
+        });
     }
 
     public leaveWorld(client: Client): void {

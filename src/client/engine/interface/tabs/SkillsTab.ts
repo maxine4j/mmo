@@ -5,6 +5,7 @@ import SpriteAtlasImage from '../components/SpriteAtlasImage';
 import TabContainer from '../TabContainer';
 import BaseTab, { setUpTabPanel } from '../BaseTab';
 import Label from '../components/Label';
+import { SkillDef, Skill, expToLevel } from '../../../../common/CharacterDef';
 
 const atlasIconSize = 25;
 const atlas = new SpriteAtlas('assets/icons/skills.png');
@@ -38,8 +39,6 @@ export class SkillIcon extends Panel {
         this.lblLevel = new Label(this, 'x/x');
         this.lblLevel.style.position = 'initial';
         this.lblLevel.style.display = 'inline-block';
-        this.current = 130;
-        this.level = 99;
     }
 
     private updateLabel(): void {
@@ -65,6 +64,16 @@ export default class SkillsTab extends BaseTab {
 
         for (let i = 0; i < this.skillCount; i++) {
             this.skillIcons.set(i, new SkillIcon(this, this.margin, this.skillIconSize, this.skillWidth, this.skillHeight));
+        }
+    }
+
+    public setSkills(skills: SkillDef[]): void {
+        for (let i = 0; i < this.skillCount; i++) {
+            const icon = this.skillIcons.get(i);
+            if (icon) {
+                icon.level = expToLevel(skills[i].experience);
+                icon.current = skills[i].current;
+            }
         }
     }
 }

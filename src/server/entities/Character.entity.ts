@@ -1,9 +1,10 @@
 import {
-    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn,
+    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn, OneToMany,
 } from 'typeorm';
 import CharacterDef, { Race } from '../../common/CharacterDef';
 import AccountEntity from './Account.entity';
 import InventoryEntity from './Inventory.entity';
+import SkillEntity from './Skill.entity';
 
 @Entity()
 export default class CharacterEntity extends BaseEntity {
@@ -30,6 +31,9 @@ export default class CharacterEntity extends BaseEntity {
 
     @Column()
     public level: number;
+
+    @OneToMany((type) => SkillEntity, (skill) => skill.character, { eager: true, cascade: true })
+    public skills: SkillEntity[];
 
     @OneToOne((type) => InventoryEntity, { eager: true, cascade: true })
     @JoinColumn()

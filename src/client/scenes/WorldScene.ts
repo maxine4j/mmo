@@ -13,7 +13,7 @@ import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket, InventoryDropPacket,
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -84,6 +84,9 @@ export default class WorldScene extends GameScene {
 
         const skillsTab = new SkillsTab(this.tabContainer);
         this.tabContainer.addTab(skillsTab, new Rectangle(tabIconSize * 1, tabIconSize * 2, tabIconSize, tabIconSize));
+        NetClient.on(PacketHeader.PLAYER_SKILLS, (packet: SkillsPacket) => {
+            skillsTab.setSkills(packet.skills);
+        });
     }
 
     private initGUI(): void {

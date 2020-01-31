@@ -8,12 +8,14 @@ import Chunk from './Chunk';
 import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
-    PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket, PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet,
+    PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
+    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet,
 } from '../../common/Packet';
 import ChunkDef from '../../common/ChunkDef';
 import IModel from './IModel';
 import Client from './Client';
 import GroundItem from './GroundItem';
+import SkillEntity from '../entities/Skill.entity';
 
 type PlayerManagerEvent = UnitManagerEvent | 'saved';
 
@@ -26,10 +28,12 @@ export default class Player extends Unit implements IModel {
     public loadedChunks: Map2D<number, number, Chunk> = new Map2D();
     public visibleGroundItems: Map<string, GroundItem> = new Map();
     private lootTarget: GroundItem;
+    public get skills(): SkillEntity[] { return this.entity.skills; }
 
     public constructor(world: WorldManager, entity: CharacterEntity, client: Client) {
         super(world, entity.toNet());
         this.entity = entity;
+
         this.data.maxHealth = 10;
         this.data.health = 10; // TODO: temp
         this.data.autoRetaliate = true;

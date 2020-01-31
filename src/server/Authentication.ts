@@ -9,6 +9,7 @@ import InventoryEntity from './entities/Inventory.entity';
 import { InventoryType } from '../common/InventoryDef';
 import ItemEntity from './entities/Item.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
+import SkillEntity from './entities/Skill.entity';
 
 // log a user in with plaintext password (TEMP)
 export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
@@ -121,7 +122,7 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
     char.bags.capacity = 28;
 
     // TODO: temp starting inventory
-    for (let i = 1; i < 28; i++) {
+    for (let i = 0; i < 28; i++) {
         // eslint-disable-next-line no-await-in-loop
         const itemEntity = await ItemTypeEntity.findOne({ id: i });
         if (!itemEntity) break;
@@ -131,15 +132,22 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
         item.type = itemEntity;
         char.bags.items[i] = item;
         // eslint-disable-next-line no-await-in-loop
-        await item.save();
+        // await item.save();
     }
-    await char.bags.save();
+    // await char.bags.save();
 
     char.bank = new InventoryEntity();
     char.bank.items = [];
     char.bank.type = InventoryType.BAGS;
     char.bank.capacity = 1000;
-    await char.bank.save();
+    // await char.bank.save();
+
+    char.skills = [];
+    for (let i = 0; i < 23; i++) {
+        char.skills[i] = SkillEntity.create({
+            type: { id: i },
+        });
+    }
 
     await char.save();
     // send success response

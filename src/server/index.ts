@@ -5,6 +5,105 @@ import ItemTypeEntity from './entities/ItemType.entity';
 import LootTableEntity from './entities/LootTable.entity';
 import LootTableItemEntity from './entities/LootTableItem.entity';
 import LootTableEntryEntity from './entities/LootTableEntry.entity';
+import SkillTypeEntity from './entities/SkillType.entity';
+import { Skill } from '../common/CharacterDef';
+
+async function initSkills(): Promise<void> {
+    await Promise.all([
+        SkillTypeEntity.create({
+            id: Skill.ATTACK,
+            name: 'Attack',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.HITPOINTS,
+            name: 'Hitpoints',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.MINING,
+            name: 'Mining',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.STRENGTH,
+            name: 'Strength',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.AGILITY,
+            name: 'Agility',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.SMITHING,
+            name: 'Smithing',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.DEFENSE,
+            name: 'Defense',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.HERBLORE,
+            name: 'Herblore',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.FISHING,
+            name: 'Fishing',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.RANGED,
+            name: 'Ranged',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.THIEVING,
+            name: 'Thieving',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.COOKING,
+            name: 'Cooking',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.PRAYER,
+            name: 'Prayer',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.CRAFTING,
+            name: 'Crafting',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.FIREMAKING,
+            name: 'Firemaking',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.MAGIC,
+            name: 'Magic',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.FLETCHING,
+            name: 'Fletching',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.WOODCUTTING,
+            name: 'Woodcutting',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.RUNECRAFTING,
+            name: 'Runecrafting',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.SLAYER,
+            name: 'Slayer',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.FARMING,
+            name: 'Farming',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.CONSTRUCTION,
+            name: 'Construction',
+        }).save(),
+        SkillTypeEntity.create({
+            id: Skill.HUNTER,
+            name: 'Hunter',
+        }).save(),
+    ]);
+}
 
 async function initItems(): Promise<void> {
     const item0 = new ItemTypeEntity();
@@ -123,6 +222,7 @@ async function initDB(): Promise<void> {
     await account1.save();
     await account2.save();
 
+    await initSkills();
     await initItems();
 }
 

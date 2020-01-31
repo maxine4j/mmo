@@ -1,5 +1,5 @@
 import AccountDef from './AccountDef';
-import CharacterDef from './CharacterDef';
+import CharacterDef, { SkillDef } from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';
@@ -20,6 +20,7 @@ export enum PacketHeader {
     PLAYER_UPDATE = 'PLAYER_UPDATE',
     PLAYER_TARGET = 'PLAYER_TARGET',
     PLAYER_LOOT = 'PLAYER_LOOT',
+    PLAYER_SKILLS = 'PLAYER_SKILLS',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_USE = 'INVENTORY_USE',
@@ -128,4 +129,8 @@ export interface InventoryPacket extends Packet, InventoryDef { }
 
 export interface LootPacket extends Packet {
     uuid: string;
+}
+
+export interface SkillsPacket extends Packet {
+    skills: SkillDef[];
 }
