@@ -67,13 +67,18 @@ export default class SkillsTab extends BaseTab {
         }
     }
 
+    private getIconRect(id: Skill): Rectangle {
+        const x = id % 3;
+        const y = Math.floor(id / 3);
+        return new Rectangle(x * atlasIconSize, y * atlasIconSize, atlasIconSize, atlasIconSize);
+    }
+
     public setSkills(skills: SkillDef[]): void {
-        for (let i = 0; i < this.skillCount; i++) {
-            const icon = this.skillIcons.get(i);
-            if (icon) {
-                icon.level = expToLevel(skills[i].experience);
-                icon.current = skills[i].current;
-            }
+        for (const skill of skills) {
+            const icon = this.skillIcons.get(skill.id);
+            icon.level = expToLevel(skill.experience);
+            icon.current = skill.current;
+            icon.icon.src = this.getIconRect(skill.id);
         }
     }
 }

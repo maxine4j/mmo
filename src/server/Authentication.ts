@@ -1,5 +1,6 @@
 import io from 'socket.io';
 import uuid from 'uuid/v4';
+import { expToLevel } from '../common/CharacterDef';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../common/Packet';
@@ -132,20 +133,20 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
         item.type = itemEntity;
         char.bags.items[i] = item;
         // eslint-disable-next-line no-await-in-loop
-        // await item.save();
     }
-    // await char.bags.save();
 
     char.bank = new InventoryEntity();
     char.bank.items = [];
     char.bank.type = InventoryType.BAGS;
     char.bank.capacity = 1000;
-    // await char.bank.save();
 
     char.skills = [];
     for (let i = 0; i < 23; i++) {
+        const exp = Math.random() * 10_000_000;
         char.skills[i] = SkillEntity.create({
             type: { id: i },
+            experience: exp,
+            current: expToLevel(exp),
         });
     }
 

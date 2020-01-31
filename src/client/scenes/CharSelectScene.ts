@@ -190,9 +190,9 @@ export default class CharSelectScene extends GameScene {
         this.updateCharRotation(delta);
         if (Input.wasKeyPressed('1')) {
             this.selectedModel.getAnim('Stand').then((a) => a.stop());
-            this.selectedModel.getAnim('Loot').then((a) => {
-                a.clampWhenFinished = true;
-                a.loop = THREE.LoopOnce;
+            this.selectedModel.getAnim('EmoteCheer').then((a) => {
+                // a.clampWhenFinished = true;
+                // a.loop = THREE.LoopOnce;
                 a.play();
             });
         }

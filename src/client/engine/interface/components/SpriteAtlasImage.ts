@@ -5,14 +5,19 @@ import Rectangle from '../../../../common/Rectangle';
 export default class SpriteAtlasImage extends Frame {
     protected element: HTMLDivElement;
     private atlas: SpriteAtlas;
-    private src: Rectangle;
+    private _src: Rectangle;
     private _width: number;
     private _height: number;
+    public get src(): Rectangle { return this._src; }
+    public set src(src: Rectangle) {
+        this._src = src;
+        this.updateSizePos();
+    }
 
     public constructor(parent: Frame, atlas: SpriteAtlas, src: Rectangle) {
         super('div', parent);
         this.atlas = atlas;
-        this.src = src;
+        this._src = src;
 
         this._width = src.w;
         this.style.width = `${src.w}px`;
