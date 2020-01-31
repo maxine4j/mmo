@@ -115,13 +115,6 @@ export default class Unit implements IModel {
         this.emit('damaged', this, dmg, attacker);
         if (this.dead) {
             this.emit('death', this, dmg, attacker);
-            const drop = ItemEntity.create({
-                uuid: uuid(),
-                inventory: null,
-                slot: null,
-                type: tempUnitDrop, // TODO: drop tables
-            });
-            this.world.ground.addItem(drop, this.position);
             attacker.stopAttacking();
         }
     }

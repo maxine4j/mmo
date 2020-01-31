@@ -4,6 +4,8 @@ import { PointDef, Point } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import Unit, { UnitState } from './Unit';
+import LootTable from './LootTable';
+import LootTableEntity from '../entities/LootTable.entity';
 
 type SpawnerEvent = 'spawn';
 
@@ -11,6 +13,7 @@ export default class Spawner {
     private eventEmitter: EventEmitter = new EventEmitter();
     private world: WorldManager;
     private data: UnitSpawnGroup;
+    private lootTable: LootTable;
     private units: Map<string, Unit> = new Map();
     private lastSpawnTick: number = 0;
     public get center(): Point { return Point.fromDef(this.data.center); }
@@ -18,6 +21,9 @@ export default class Spawner {
     public constructor(def: UnitSpawnGroup, world: WorldManager) {
         this.world = world;
         this.data = def;
+        LootTableEntity.findOne({ where: { id: def.lootTable } }).then((table) => {
+            this.lootTable = new LootTable(table);
+        });
     }
 
     public on(event: SpawnerEvent, listener: (...args: any[]) => void): void {
@@ -60,8 +66,12 @@ export default class Spawner {
             position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
             moveQueue: [],
         });
-        unit.on('death', () => {
+        unit.on('death', (self: Unit) => {
             this.units.delete(unit.id);
+            console.log('Spawner unit died!');
+            for (const drop of this.lootTable.roll()) {
+                this.world.ground.addItem(drop, self.position);
+            }
         });
         // save the new unit to the world and also keep track of it here
         this.units.set(unit.id, unit);

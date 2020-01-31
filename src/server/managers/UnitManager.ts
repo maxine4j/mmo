@@ -25,6 +25,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
         minAlive: 0,
         maxAlive: 10,
         spawnRate: 10,
+        lootTable: 0,
     },
 };
 

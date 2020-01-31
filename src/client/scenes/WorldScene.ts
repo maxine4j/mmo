@@ -137,7 +137,8 @@ export default class WorldScene extends GameScene {
     }
 
     private disposeNameplate(unit: LocalUnit): void {
-        this.nameplates.get(unit.data.id).dispose();
+        const plate = this.nameplates.get(unit.data.id);
+        if (plate) plate.dispose();
         this.nameplates.delete(unit.data.id);
     }
 

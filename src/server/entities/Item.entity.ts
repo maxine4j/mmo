@@ -32,15 +32,4 @@ export default class ItemEntity extends BaseEntity {
         };
         return item;
     }
-
-    // converts a network def to a db entity
-    public static fromNet(def: ItemDef): Promise<ItemEntity> {
-        return new Promise((resolve) => {
-            this.findOne({ uuid: def.uuid }).then((item) => {
-                item.slot = def.slot;
-                item.save();
-                resolve(item);
-            });
-        });
-    }
 }

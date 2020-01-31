@@ -19,6 +19,7 @@ export interface UnitSpawnGroup {
     minAlive: number, // instantly spawn a unit if count falls below this
     maxAlive: number, // stop spawning when this many units exist
     spawnRate: number, // ticks
+    lootTable: number; // the id of the loot table to generate drops from
 }
 
 // TODO: merge this with world def and add to editor

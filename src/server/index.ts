@@ -2,6 +2,9 @@ import { createConnection } from 'typeorm';
 import NetServer from './NetServer';
 import AccountEntity from './entities/Account.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
+import LootTableEntity from './entities/LootTable.entity';
+import LootTableItemEntity from './entities/LootTableItem.entity';
+import LootTableEntryEntity from './entities/LootTableEntry.entity';
 
 async function initItems(): Promise<void> {
     const item0 = new ItemTypeEntity();
@@ -39,6 +42,67 @@ async function initItems(): Promise<void> {
     item5.icon = 144;
     item5.name = 'Health Potion';
     await item5.save();
+
+    // loot table
+
+    // weapons entry
+    const tableItems0: LootTableItemEntity[] = [];
+    tableItems0.push(LootTableItemEntity.create({
+        id: 0,
+        itemType: item0, // iron sword
+        weight: 40,
+    }));
+    tableItems0.push(LootTableItemEntity.create({
+        id: 1,
+        itemType: item1, // iron axe
+        weight: 10,
+    }));
+    tableItems0.push(LootTableItemEntity.create({
+        id: 2,
+        itemType: item2, // flail
+        weight: 5,
+    }));
+    tableItems0.push(LootTableItemEntity.create({
+        id: 3,
+        itemType: item3, // whip
+        weight: 5,
+    }));
+
+    // other entry
+    const tableItems1: LootTableItemEntity[] = [];
+    tableItems1.push(LootTableItemEntity.create({
+        id: 4,
+        itemType: item4, // wooden shield
+        weight: 20,
+    }));
+    tableItems1.push(LootTableItemEntity.create({
+        id: 5,
+        itemType: item5, // health potion
+        weight: 50,
+    }));
+
+    // table entries
+    const entries0: LootTableEntryEntity[] = [];
+    entries0.push(LootTableEntryEntity.create({
+        id: 0,
+        items: tableItems0,
+        chance: 1,
+        minCount: 1,
+        maxCount: 3,
+    }));
+    entries0.push(LootTableEntryEntity.create({
+        id: 1,
+        items: tableItems1,
+        chance: 0.3,
+        minCount: 1,
+        maxCount: 1,
+    }));
+
+    const table0 = LootTableEntity.create({
+        id: 0,
+        entries: entries0,
+    });
+    await table0.save();
 }
 
 async function initDB(): Promise<void> {
