@@ -1,12 +1,10 @@
 import PF from 'pathfinding';
 import { EventEmitter } from 'events';
-import uuid from 'uuid/v4';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import UnitDef from '../../common/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
-import ItemEntity from '../entities/Item.entity';
 import ItemTypeEntity from '../entities/ItemType.entity';
 
 export type UnitManagerEvent = 'damaged' | 'death' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';

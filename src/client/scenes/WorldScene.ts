@@ -23,6 +23,8 @@ import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
 import Inventory, { InventorySlot } from '../engine/interface/Inventory';
 
+const nameplateTimeout = 10;
+
 export default class WorldScene extends GameScene {
     private world: World;
     private lblMouseTile: Label;
@@ -129,10 +131,13 @@ export default class WorldScene extends GameScene {
     }
 
     private createNameplate(unit: LocalUnit): void {
-        if (!this.nameplates.has(unit.data.id)) {
+        const existing = this.nameplates.get(unit.data.id);
+        if (existing == null) {
             const np = new UnitNameplate(this.world, this.camera, unit);
             this.nameplates.set(unit.data.id, np);
             this.addGUI(np);
+        } else {
+            existing.lastTickUpdated = this.world.currentTick;
         }
     }
 
@@ -248,6 +253,9 @@ export default class WorldScene extends GameScene {
     private updateNameplates(): void {
         for (const [_, np] of this.nameplates) {
             np.update();
+            if (np.lastTickUpdated + nameplateTimeout < this.world.currentTick) {
+                this.disposeNameplate(np.unit);
+            }
         }
     }
 

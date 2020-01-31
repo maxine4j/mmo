@@ -1,6 +1,6 @@
 /* eslint-disable no-use-before-define */
 import {
-    Entity, BaseEntity, ManyToOne, Column, PrimaryColumn, OneToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn,
+    Entity, BaseEntity, ManyToOne, Column, JoinColumn, OneToMany, PrimaryGeneratedColumn,
 } from 'typeorm';
 import LootTableEntity from './LootTable.entity';
 import LootTableItemEntity from './LootTableItem.entity';

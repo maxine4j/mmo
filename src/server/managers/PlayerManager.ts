@@ -75,7 +75,8 @@ export default class PlayerManager implements IManager {
             // send players, units, and ground items in range
             const players: CharacterDef[] = this.inRange(player.position, player).map((p) => p.toNet());
             const units: UnitDef[] = this.world.units.inRange(player.position).map((u) => u.toNet());
-            const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi.toNet());
+            // const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi.toNet());
+            const groundItems: GroundItemDef[] = this.world.ground.inRange(player.position).map((gi) => gi.toNet());
             player.send(PacketHeader.WORLD_TICK, <TickPacket>{
                 self: player.toNet(),
                 units,

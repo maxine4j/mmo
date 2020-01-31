@@ -26,13 +26,14 @@ export default class World {
     private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
-    private currentTick: number;
+    private _currentTick: number;
     private chunkViewDist: number;
     private eventEmitter: EventEmitter = new EventEmitter();
     public get player(): LocalPlayer { return this._player; }
     public get tickTimer(): number { return this._tickTimer; }
     public get tickRate(): number { return this._tickRate; }
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
+    public get currentTick(): number { return this._currentTick; }
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         this.scene = scene;
@@ -74,8 +75,12 @@ export default class World {
 
     public getUnit(id: string): LocalUnit {
         const unit = this.units.get(id);
-        if (unit) return unit;
-        if (id === this.player.data.id) return this.player;
+        if (unit) {
+            return unit;
+        }
+        if (id === this.player.data.id) {
+            return this.player;
+        }
         return this.players.get(id);
     }
 
@@ -122,7 +127,7 @@ export default class World {
 
     private removeStaleUnits(): void {
         for (const [id, u] of this.units) {
-            if (u.lastTickUpdated !== this.currentTick) {
+            if (u.lastTickUpdated !== this._currentTick) {
                 if (u.data.health <= 0 && !u.stale) {
                     u.kill();
                 } else {
@@ -136,7 +141,7 @@ export default class World {
 
     private removeStalePlayers(): void {
         for (const [id, p] of this.players) {
-            if (p.lastTickUpdated !== this.currentTick) {
+            if (p.lastTickUpdated !== this._currentTick) {
                 if (p.data.health <= 0 && !p.stale) {
                     p.kill();
                 } else {
@@ -150,7 +155,7 @@ export default class World {
 
     private removeStaleGroundItems(): void {
         for (const [id, gi] of this.groundItems) {
-            if (gi.lastTickUpdated !== this.currentTick) {
+            if (gi.lastTickUpdated !== this._currentTick) {
                 gi.dispose();
                 this.groundItems.delete(id);
             }
@@ -159,7 +164,7 @@ export default class World {
 
     public onTick(packet: TickPacket): void {
         this._tickTimer = 0; // reset tick timer
-        this.currentTick = packet.tick; // update the current tick
+        this._currentTick = packet.tick; // update the current tick
 
         this.player.onTick(packet.self);
         this.tickUnits(packet.tick, packet.units);

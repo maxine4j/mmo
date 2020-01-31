@@ -15,6 +15,7 @@ export default class UnitNameplate extends Panel {
     public world: World;
     public camera: Camera;
     public unit: LocalUnit;
+    public lastTickUpdated: number;
 
     private label: Label;
     private healthbar: ProgressBar;
@@ -26,6 +27,7 @@ export default class UnitNameplate extends Panel {
         this.unit = unit;
         this.width = 100;
         this.height = 30;
+        this.lastTickUpdated = world.currentTick;
         this.disablePointerEvents();
 
         this.label = new Label(this, '');
