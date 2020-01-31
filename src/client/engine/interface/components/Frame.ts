@@ -16,7 +16,7 @@ export enum FrameStrata {
 export abstract class Frame {
     public readonly id: string;
     private _children: Map<string, Frame>;
-    private _visible: boolean;
+    protected _visible: boolean;
     private tag: string;
     public clickThrough: boolean;
     protected _parent: Frame;

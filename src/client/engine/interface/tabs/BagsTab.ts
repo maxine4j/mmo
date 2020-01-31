@@ -1,17 +1,17 @@
 import { EventEmitter } from 'events';
-import Rectangle from '../../../common/Rectangle';
-import Panel from './components/Panel';
-import UIParent from './components/UIParent';
-import LocalItem from '../LocalItem';
-import SpriteAtlas from './components/SpriteAtlas';
-import SpriteAtlasImage from './components/SpriteAtlasImage';
-import InventoryDef from '../../../common/InventoryDef';
-import Input from '../Input';
-import { Point } from '../../../common/Point';
-import { InventoryDropPacket } from '../../../common/Packet';
+import Rectangle from '../../../../common/Rectangle';
+import Panel from '../components/Panel';
+import LocalItem from '../../LocalItem';
+import SpriteAtlas from '../components/SpriteAtlas';
+import SpriteAtlasImage from '../components/SpriteAtlasImage';
+import InventoryDef from '../../../../common/InventoryDef';
+import Input from '../../Input';
+import { Point } from '../../../../common/Point';
+import TabContainer from '../TabContainer';
+import BaseTab, { setUpTabPanel } from '../BaseTab';
 
 const slotSize = 32;
-const atlas = new SpriteAtlas('assets/icons/atlas.png');
+const atlas = new SpriteAtlas('assets/icons/items.png');
 
 const slotBg = 'rgba(255,255,255,0.0)';
 const slotBgOver = 'rgba(255,255,255,0.2)';
@@ -23,9 +23,9 @@ export class InventorySlot extends Panel {
     public icon: SpriteAtlasImage;
     private _item: LocalItem;
     public slot: number;
-    public inventory: Inventory;
+    public inventory: BagsTab;
 
-    public constructor(item: LocalItem, slot: number, parent: Inventory, margin: number) {
+    public constructor(item: LocalItem, slot: number, parent: BagsTab, margin: number) {
         super(parent);
         this.inventory = parent;
         this.element.draggable = true;
@@ -123,28 +123,24 @@ export class InventorySlot extends Panel {
     }
 }
 
-export default class Inventory extends Panel {
+export default class BagsTab extends BaseTab {
+    public get name(): string { return 'Inventory'; }
     private readonly slotCount: number = 28;
     private readonly slotsPerRow: number = 4;
     private readonly margin: number = 5;
     private readonly slotSize: number = 32;
-    private readonly slotsPerCol: number = this.slotCount / this.slotsPerRow;
     private slots: Map<number, InventorySlot> = new Map();
     private selectedSlot: InventorySlot = null;
     private eventEmitter: EventEmitter = new EventEmitter();
 
-    public constructor() {
-        super(UIParent.get());
+    public constructor(parent: TabContainer) {
+        super(parent);
+        setUpTabPanel(this);
+        this.width = this.slotsPerRow * (this.slotSize + 2 * this.margin);
+        this.height = parent.height;
 
-        this.width = (this.slotSize + (this.margin * 2)) * this.slotsPerRow;
-        this.height = (this.slotSize + (this.margin * 2)) * (this.slotCount / this.slotsPerRow);
 
-        this.style.bottom = '0';
-        this.style.right = '0';
-
-        this.style.backgroundColor = 'rgba(0,0,0,0.2)';
-
-        for (let i = 0; i < 28; i++) {
+        for (let i = 0; i < this.slotCount; i++) {
             this.slots.set(i, new InventorySlot(null, i, this, 5));
         }
     }

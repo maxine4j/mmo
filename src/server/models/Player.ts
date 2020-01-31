@@ -115,7 +115,7 @@ export default class Player extends Unit implements IModel {
         this.bags.dropItem(packet.slot, this.position);
         this.socket.emit(PacketHeader.INVENTORY_DROP, <ResponsePacket>{
             success: true,
-            message: 'Item dropped',
+            message: '',
         });
     }
     // #endregion

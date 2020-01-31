@@ -21,7 +21,10 @@ import { WorldPoint } from '../../common/Point';
 import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
-import Inventory, { InventorySlot } from '../engine/interface/Inventory';
+import BagsTab, { InventorySlot } from '../engine/interface/tabs/BagsTab';
+import SkillsTab from '../engine/interface/tabs/SkillsTab';
+import TabContainer from '../engine/interface/TabContainer';
+import Rectangle from '../../common/Rectangle';
 
 const nameplateTimeout = 10;
 
@@ -38,10 +41,49 @@ export default class WorldScene extends GameScene {
     private chatHoverMsgs: ChatHoverMessage[] = [];
     private nameplates: Map<string, UnitNameplate> = new Map();
     private hitsplats: Map<string, HitSplat> = new Map();
-    private bags: Inventory;
+    private tabContainer: TabContainer;
 
     public constructor() {
         super('world');
+    }
+
+    private initGUITabs(): void {
+        const tabIconSize = 30;
+        this.tabContainer = new TabContainer(UIParent.get(), 320, 320);
+
+        const bagsTab = new BagsTab(this.tabContainer);
+        this.tabContainer.addTab(bagsTab, new Rectangle(tabIconSize * 2, tabIconSize * 0, tabIconSize, tabIconSize));
+        bagsTab.on('swap', (a: InventorySlot, b: InventorySlot) => {
+            NetClient.send(PacketHeader.INVENTORY_SWAP, <InventorySwapPacket>{
+                slotA: a.slot,
+                slotB: b.slot,
+            });
+        });
+        bagsTab.on('use', (a: InventorySlot, b: InventorySlot) => {
+            NetClient.sendRecv(PacketHeader.INVENTORY_USE, <InventoryUsePacket>{
+                slotA: a.slot,
+                slotB: b.slot,
+            }).then((resp: ResponsePacket) => {
+                this.chatbox.addRawMessage(resp.message);
+            });
+        });
+        bagsTab.on('drop', (s: InventorySlot) => {
+            NetClient.sendRecv(PacketHeader.INVENTORY_DROP, <InventoryDropPacket>{
+                slot: s.slot,
+            }).then((resp: ResponsePacket) => {
+                if (resp) {
+                    s.item = null;
+                }
+            });
+        });
+        NetClient.on(PacketHeader.INVENTORY_FULL, (packet: InventoryPacket) => {
+            if (packet.type === InventoryType.BAGS) {
+                bagsTab.loadDef(packet);
+            }
+        });
+
+        const skillsTab = new SkillsTab(this.tabContainer);
+        this.tabContainer.addTab(skillsTab, new Rectangle(tabIconSize * 1, tabIconSize * 2, tabIconSize, tabIconSize));
     }
 
     private initGUI(): void {
@@ -95,39 +137,6 @@ export default class WorldScene extends GameScene {
             this.chatHoverMsgs.push(new ChatHoverMessage(this.world, this.camera, p));
         });
         this.addGUI(this.chatbox);
-
-        this.bags = new Inventory();
-        this.bags.on('swap', (a: InventorySlot, b: InventorySlot) => {
-            NetClient.send(PacketHeader.INVENTORY_SWAP, <InventorySwapPacket>{
-                slotA: a.slot,
-                slotB: b.slot,
-            });
-        });
-        this.bags.on('use', (a: InventorySlot, b: InventorySlot) => {
-            NetClient.sendRecv(PacketHeader.INVENTORY_USE, <InventoryUsePacket>{
-                slotA: a.slot,
-                slotB: b.slot,
-            }).then((resp: ResponsePacket) => {
-                this.chatbox.addRawMessage(resp.message);
-            });
-        });
-        this.bags.on('drop', (s: InventorySlot) => {
-            NetClient.sendRecv(PacketHeader.INVENTORY_DROP, <InventoryDropPacket>{
-                slot: s.slot,
-            }).then((resp: ResponsePacket) => {
-                this.chatbox.addRawMessage(resp.message);
-                if (resp) {
-                    s.item = null;
-                }
-            });
-        });
-
-        NetClient.on(PacketHeader.INVENTORY_FULL, (packet: InventoryPacket) => {
-            if (packet.type === InventoryType.BAGS) {
-                this.bags.loadDef(packet);
-            }
-        });
-        this.addGUI(this.bags);
     }
 
     private createNameplate(unit: LocalUnit): void {
@@ -177,6 +186,7 @@ export default class WorldScene extends GameScene {
 
     public async init(): Promise<void> {
         this.initGUI();
+        this.initGUITabs();
 
         this.scene = new Scene();
 
