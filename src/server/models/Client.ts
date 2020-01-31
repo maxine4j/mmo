@@ -50,6 +50,7 @@ export default class Client {
     private async handleAuthLogout(): Promise<void> {
         this.socket.removeAllListeners();
         this.registerBase();
+        this.world.leaveWorld(this);
         await handleAuthLogout(this.socket);
     }
 

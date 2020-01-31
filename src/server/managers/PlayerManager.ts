@@ -25,7 +25,9 @@ export default class PlayerManager implements IManager {
     }
 
     public leaveWorld(client: Client): void {
-        this.removePlayer(client.player);
+        if (client.player) {
+            this.removePlayer(client.player);
+        }
     }
 
     public getPlayer(id: string): Player {
