@@ -1,5 +1,5 @@
 import AccountDef from './AccountDef';
-import CharacterDef, { SkillDef, ExperienceDrop, Skill } from './CharacterDef';
+import CharacterDef, { SkillDef, ExperienceDrop } from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';

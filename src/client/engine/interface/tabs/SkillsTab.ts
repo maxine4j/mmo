@@ -8,8 +8,6 @@ import Label from '../components/Label';
 import {
     SkillDef, Skill, expToLevel, skillName,
 } from '../../../../common/CharacterDef';
-import Tooltip from '../components/Tooltip';
-import UIParent from '../components/UIParent';
 import { Point } from '../../../../common/Point';
 import Input from '../../Input';
 
