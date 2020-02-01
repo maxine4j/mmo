@@ -67,12 +67,12 @@ export default class Spawner {
                 running: false,
                 position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
                 moveQueue: [],
+                combatStyle: this.data.unit.combatStyle,
             },
         );
         unit.setStats(this.data.unit.stats);
         unit.on('death', (self: Unit) => {
             this.units.delete(unit.id);
-            console.log('Spawner unit died!');
             for (const drop of this.lootTable.roll()) {
                 this.world.ground.addItem(drop, self.position);
             }

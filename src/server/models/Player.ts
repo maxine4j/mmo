@@ -9,14 +9,14 @@ import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
-    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet,
+    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket,
 } from '../../common/Packet';
 import ChunkDef from '../../common/ChunkDef';
 import IModel from './IModel';
 import Client from './Client';
 import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
-import { CombatStatsDef } from '../data/UnitSpawnsDef';
+import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
 
 type PlayerManagerEvent = UnitManagerEvent | 'saved';
 
@@ -35,15 +35,7 @@ export default class Player extends Unit implements IModel {
         super(world, entity.toNet());
         this.entity = entity;
 
-        this.setStats(<CombatStatsDef>{
-            attack: expToLevel(this.entity.skills[Skill.ATTACK].experience),
-            strength: expToLevel(this.entity.skills[Skill.STRENGTH].experience),
-            defense: expToLevel(this.entity.skills[Skill.DEFENSE].experience),
-            hitpoints: expToLevel(this.entity.skills[Skill.HITPOINTS].experience),
-            magic: expToLevel(this.entity.skills[Skill.MAGIC].experience),
-            ranged: expToLevel(this.entity.skills[Skill.RANGED].experience),
-            prayer: expToLevel(this.entity.skills[Skill.PRAYER].experience),
-        });
+        this.updateCombatStats();
 
         this.data.autoRetaliate = this.entity.autoRetaliate;
         this.socket = client.socket;
@@ -74,7 +66,6 @@ export default class Player extends Unit implements IModel {
         return this.data;
     }
 
-    // #region Event Emitter
     public on(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
         this.eventEmitter.on(event, listener);
     }
@@ -86,9 +77,7 @@ export default class Player extends Unit implements IModel {
     protected emit(event: PlayerManagerEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
     }
-    // #endregion
 
-    // #region Handlers
     private handleMoveTo(packet: PointPacket): void {
         this.data.target = '';
         this.moveTo(packet);
@@ -131,9 +120,7 @@ export default class Player extends Unit implements IModel {
             message: '',
         });
     }
-    // #endregion
 
-    // #region Chunk World
     protected addToNewChunk(chunk: Chunk): void {
         chunk.players.set(this.data.id, this);
         chunk.allUnits.set(this.data.id, this);
@@ -175,9 +162,7 @@ export default class Player extends Unit implements IModel {
             chunks,
         });
     }
-    // #endregion
 
-    // #region Actions
     public respawn(): void {
         // could get new spawn points here, maybe unlock them
         // different per instance/map
@@ -193,6 +178,59 @@ export default class Player extends Unit implements IModel {
         this.emit('updated', this);
     }
 
+    private updateCombatStats(): void {
+        this.data.combatStyle = CombatStyle.MELEE_AGGRESSIVE; // TODO: get from entity
+
+        this.setStats(<CombatStatsDef>{
+            attack: expToLevel(this.entity.skills[Skill.ATTACK].experience),
+            strength: expToLevel(this.entity.skills[Skill.STRENGTH].experience),
+            defense: expToLevel(this.entity.skills[Skill.DEFENSE].experience),
+            hitpoints: expToLevel(this.entity.skills[Skill.HITPOINTS].experience),
+            magic: expToLevel(this.entity.skills[Skill.MAGIC].experience),
+            ranged: expToLevel(this.entity.skills[Skill.RANGED].experience),
+            prayer: expToLevel(this.entity.skills[Skill.PRAYER].experience),
+            bonuses: {
+                equipment: { // TODO: get this from equipment when implemented
+                    attack: {
+                        crush: 0,
+                        magic: 0,
+                        ranged: 0,
+                        slash: 0,
+                        stab: 0,
+                    },
+                    defense: {
+                        crush: 0,
+                        magic: 0,
+                        ranged: 0,
+                        slash: 0,
+                        stab: 0,
+                    },
+                    other: {
+                        magicDamage: 0,
+                        meleeStr: 0,
+                        prayer: 0,
+                        rangedStr: 0,
+                    },
+                },
+                potion: { // TODO: calc from active potions when implemented
+                    attack: 0,
+                    strength: 0,
+                    defense: 0,
+                    ranged: 0,
+                    magic: 0,
+                },
+                prayer: { // TODO: calc from active prayers when active
+                    attack: 1,
+                    strength: 1,
+                    defense: 1,
+                    ranged: 1,
+                    magic: 1,
+                },
+            },
+
+        });
+    }
+
     public pickUpItem(gi: GroundItem): void {
         this._state = UnitState.LOOTING;
         this.lootTarget = gi;
@@ -203,9 +241,7 @@ export default class Player extends Unit implements IModel {
         super.teleport(pos);
         this.sendSurroundingChunks();
     }
-    // #endregion
 
-    // #region Tick
     private tickLooting(): void {
         // check if we are on top of the item
         if (this.position.eq(Point.fromDef(this.lootTarget.position))) {
@@ -236,14 +272,22 @@ export default class Player extends Unit implements IModel {
             this.visibleGroundItems.set(gi.item.uuid, gi);
         }
 
+        this.socket.emit(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
+            skills: [
+                {
+                    id: Skill.AGILITY,
+                    experience: Math.floor(Math.random() * 13_000_000),
+                    current: Math.floor(Math.random() * 99),
+                },
+            ],
+        });
+
         switch (this.state) {
         case UnitState.LOOTING: this.tickLooting(); break;
         default: break;
         }
     }
-    // #endregion
 
-    // #region Database
     private async save(): Promise<void> {
         await this.bags.save();
         await this.bank.save();
@@ -254,5 +298,4 @@ export default class Player extends Unit implements IModel {
         this.entity.autoRetaliate = this.data.autoRetaliate;
         await this.entity.save();
     }
-    // #endregion
 }

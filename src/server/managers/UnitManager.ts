@@ -6,6 +6,7 @@ import { Point } from '../../common/Point';
 import { PacketHeader, DamagePacket } from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
+import { CombatStyle } from '../../common/UnitDef';
 
 const unitSpawnDefs: UnitSpawnsDef = {
     'skeleton-group': {
@@ -14,6 +15,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
             id: 'skeleton',
             name: 'Skeleton',
             model: 'assets/models/units/skeleton/skeleton.model.json',
+            combatStyle: CombatStyle.MELEE_AGGRESSIVE,
             stats: {
                 attack: 1,
                 strength: 1,
@@ -22,6 +24,44 @@ const unitSpawnDefs: UnitSpawnsDef = {
                 magic: 1,
                 ranged: 1,
                 prayer: 1,
+                bonuses: {
+                    equipment: {
+                        attack: {
+                            crush: 0,
+                            magic: 0,
+                            ranged: 0,
+                            slash: 0,
+                            stab: 0,
+                        },
+                        defense: {
+                            crush: 0,
+                            magic: 0,
+                            ranged: 0,
+                            slash: 0,
+                            stab: 0,
+                        },
+                        other: {
+                            magicDamage: 0,
+                            meleeStr: 0,
+                            prayer: 0,
+                            rangedStr: 0,
+                        },
+                    },
+                    potion: {
+                        attack: 0,
+                        strength: 0,
+                        defense: 0,
+                        ranged: 0,
+                        magic: 0,
+                    },
+                    prayer: {
+                        attack: 1,
+                        strength: 1,
+                        defense: 1,
+                        ranged: 1,
+                        magic: 1,
+                    },
+                },
             },
         },
         center: { x: 0, y: 0 },

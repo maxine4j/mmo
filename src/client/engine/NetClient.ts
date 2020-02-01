@@ -32,8 +32,12 @@ export default class NetClient {
         return this._client;
     }
 
+    public static clear(): void {
+        this.client.removeAllListeners();
+        this.initEvents();
+    }
+
     public static on(header: PacketHeader, cb: (p: Packet) => void): void {
-        this.client.off(header); // remove old listeners so we dont duplicate
         this.client.on(header, cb);
     }
 

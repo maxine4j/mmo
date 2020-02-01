@@ -2,12 +2,12 @@ import PF from 'pathfinding';
 import { EventEmitter } from 'events';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
-import UnitDef from '../../common/UnitDef';
+import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
-import { CombatStatsDef } from '../data/UnitSpawnsDef';
+import Attack from './Attack';
 
-export type UnitManagerEvent = 'damaged' | 'death' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';
+export type UnitManagerEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';
 
 export enum UnitState {
     IDLE,
@@ -25,7 +25,7 @@ export default class Unit implements IModel {
     protected _state: UnitState;
     protected currentChunk: Chunk;
     private attackRate: number = 2;
-    private lastAttackTick: number = 2;
+    private lastAttackTick: number = 0;
     private retaliateTarget: Unit;
     public get id(): string { return this.data.id; }
     public get dead(): boolean { return this.data.health <= 0; }
@@ -39,6 +39,7 @@ export default class Unit implements IModel {
     public get health(): number { return this.data.health; }
     public set health(hp: number) { this.data.health = hp; }
     public get maxHealth(): number { return this.data.maxHealth; }
+    public get combatStyle(): CombatStyle { return this.data.combatStyle; }
 
     public lastWanderTick: number = 0;
 
@@ -76,7 +77,6 @@ export default class Unit implements IModel {
         this.data.level = Math.floor(base + Math.max(melee, range, mage));
     }
 
-    // #region Event Emitter
     public on(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
         this.eventEmitter.on(event, listener);
     }
@@ -88,9 +88,7 @@ export default class Unit implements IModel {
     protected emit(event: UnitManagerEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
     }
-    // #endregion
 
-    // #region Range
     private distance(other: Unit): number {
         return this.position.dist(other.position);
     }
@@ -98,9 +96,7 @@ export default class Unit implements IModel {
     private inMeleeRange(other: Unit): boolean {
         return this.distance(other) < 1.5;
     }
-    // #endregion
 
-    // #region Combat
     protected attackUnit(target: Unit): void {
         this._state = UnitState.ATTACKING;
         this.target = target;
@@ -116,7 +112,7 @@ export default class Unit implements IModel {
         this._state = UnitState.ATTACKING;
     }
 
-    private takeHit(dmg: number, attacker: Unit): void {
+    public takeHit(dmg: number, attacker: Unit): void {
         // mitigate dmg here, could also reflect to attacker
         this.data.health -= dmg;
         if (this.data.autoRetaliate) {
@@ -130,22 +126,6 @@ export default class Unit implements IModel {
         }
     }
 
-    private calculateStrength(): number {
-        const lvl = 1;
-        const potBonus = 0;
-        const prayerBonus = 1;
-        const otherBonus = 1;
-        const styleBonus = 0;
-
-        return Math.floor((lvl + potBonus) * prayerBonus * otherBonus) + styleBonus;
-    }
-
-    private calculateMeleeDamage(): number {
-        return Math.round(Math.random());
-    }
-    // #endregion
-
-    // #region Movement
     protected followUnit(target: Unit): void {
         this._state = UnitState.FOLLOWING;
         this.target = target;
@@ -181,9 +161,7 @@ export default class Unit implements IModel {
         path.pop(); // remove the players current position
         return path;
     }
-    // #endregion
 
-    // #region Chunk world
     protected addToNewChunk(chunk: Chunk): void {
         chunk.units.set(this.data.id, this);
         chunk.allUnits.set(this.data.id, this);
@@ -205,9 +183,7 @@ export default class Unit implements IModel {
             this.addToNewChunk(newChunk);
         }
     }
-    // #endregion
 
-    // #region Tick
     private checkRate(rate: number, lastTick: number): boolean {
         return (lastTick + rate) < this.world.currentTick;
     }
@@ -239,7 +215,8 @@ export default class Unit implements IModel {
         if (this.target) {
             // either attack the target or follow to get in range
             if (this.inMeleeRange(this.target) && this.checkRate(this.attackRate, this.lastAttackTick)) {
-                this.target.takeHit(this.calculateMeleeDamage(), this);
+                const attack = new Attack(this, this.stats, this.target, this.target.stats);
+                attack.perform();
                 this.lastAttackTick = this.world.currentTick;
             } else {
                 this.path = this.findPath(this.target.data.position);
@@ -263,5 +240,4 @@ export default class Unit implements IModel {
         }
         this.emit('tick', this);
     }
-    // #endregion
 }

@@ -1,5 +1,6 @@
 import GameScene from './GameScene';
 import UIParent from '../interface/components/UIParent';
+import NetClient from '../NetClient';
 
 export default class SceneManager {
     private static scenes: Map<string, GameScene>;
@@ -15,6 +16,7 @@ export default class SceneManager {
     public static set current(scene: GameScene) {
         if (this.current !== undefined) {
             this.current.final();
+            NetClient.clear();
             UIParent.get().clear();
         }
 

@@ -13,7 +13,8 @@ import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket, InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket,
+    PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket,
+    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
