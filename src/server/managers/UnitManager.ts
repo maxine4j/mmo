@@ -20,7 +20,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
                 attack: 1,
                 strength: 1,
                 defense: 1,
-                hitpoints: 10,
+                hitpoints: 3,
                 magic: 1,
                 ranged: 1,
                 prayer: 1,

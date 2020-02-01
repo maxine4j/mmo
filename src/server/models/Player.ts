@@ -1,5 +1,5 @@
 import io from 'socket.io';
-import CharacterDef, { Skill, expToLevel } from '../../common/CharacterDef';
+import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/CharacterDef';
 import WorldManager from '../managers/WorldManager';
 import Unit, { UnitState, UnitManagerEvent } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
@@ -9,7 +9,7 @@ import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
-    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket,
+    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket,
 } from '../../common/Packet';
 import ChunkDef from '../../common/ChunkDef';
 import IModel from './IModel';
@@ -17,8 +17,9 @@ import Client from './Client';
 import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
 import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import Attack, { calcCombatExp } from './Attack';
 
-type PlayerManagerEvent = UnitManagerEvent | 'saved';
+type PlayerManagerEvent = UnitManagerEvent | 'saved' | 'levelup';
 
 export default class Player extends Unit implements IModel {
     private socket: io.Socket;
@@ -43,6 +44,9 @@ export default class Player extends Unit implements IModel {
         this.data.running = this.entity.running;
         this.bags = new InventoryManager(this.world, entity.bags);
         this.bank = new InventoryManager(this.world, entity.bank);
+
+        this.on('attack', this.onAttack.bind(this));
+        this.on('damaged', this.onDamaged.bind(this));
 
         this.socket.on(PacketHeader.PLAYER_MOVETO, this.handleMoveTo.bind(this));
         this.socket.on(PacketHeader.PLAYER_TARGET, this.handleTarget.bind(this));
@@ -175,7 +179,44 @@ export default class Player extends Unit implements IModel {
         this.data.target = '';
         this._state = UnitState.IDLE;
         this.stopAttacking();
+        this.updateCombatStats();
         this.emit('updated', this);
+    }
+
+    private onDamaged(self: Player, dmg: number, attacker: Unit): void {
+        this.skills[Skill.HITPOINTS].current = this.data.health; // update hitpoints skill with current health
+        // send the updated skill to the client
+        this.send(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
+            skills: [
+                this.skills[Skill.HITPOINTS].toNet(),
+            ],
+        });
+    }
+
+    private onAttack(self: Player, attack: Attack, dmgDone: number): void {
+        const drops = calcCombatExp(dmgDone, attack.attacker.combatStyle);
+        for (const drop of drops) {
+            this.awardExp(drop);
+        }
+    }
+
+    public awardExp(drop: ExperienceDrop): void {
+        const skill = this.entity.skills[drop.skill];
+        const oldLevel = expToLevel(skill.experience);
+        skill.experience += drop.amount * this.world.expModifier;
+        const newLevel = expToLevel(skill.experience);
+        if (newLevel > oldLevel) { // level up has occured
+            this.updateCombatStats();
+            skill.current += 1;
+            this.send(PacketHeader.PLAYERL_LEVELUP, <LevelupPacket>skill.toNet());
+            this.emit('levelup', skill);
+        }
+        // update the clients skills tab
+        this.send(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
+            skills: [skill.toNet()],
+        });
+        // show an exp drop on the client
+        this.send(PacketHeader.PLAYER_EXP_DROP, <ExpDropPacket>drop);
     }
 
     private updateCombatStats(): void {
@@ -227,8 +268,9 @@ export default class Player extends Unit implements IModel {
                     magic: 1,
                 },
             },
-
         });
+
+        this.skills[Skill.HITPOINTS].current = this.data.health; // update hitpoints skill with current health
     }
 
     public pickUpItem(gi: GroundItem): void {
@@ -271,16 +313,6 @@ export default class Player extends Unit implements IModel {
         for (const gi of this.world.ground.inRange(this.position)) {
             this.visibleGroundItems.set(gi.item.uuid, gi);
         }
-
-        this.socket.emit(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
-            skills: [
-                {
-                    id: Skill.AGILITY,
-                    experience: Math.floor(Math.random() * 13_000_000),
-                    current: Math.floor(Math.random() * 99),
-                },
-            ],
-        });
 
         switch (this.state) {
         case UnitState.LOOTING: this.tickLooting(); break;

@@ -22,6 +22,8 @@ export default class WorldManager implements IManager {
     private server: io.Server;
     private _chunkViewDist: number = 1;
     private _tileViewDist: number = 50;
+    private _expModifier = 1;
+    public get expModifier(): number { return this._expModifier; }
 
     public chat: ChatManager;
     public chunks: ChunksManager;

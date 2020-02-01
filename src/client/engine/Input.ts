@@ -2,6 +2,7 @@ import { Key } from 'ts-key-enum';
 import { Point } from '../../common/Point';
 import ContextMenu, { ContextOptionDef } from './interface/components/ContextMenu';
 import UIParent from './interface/components/UIParent';
+import Tooltip from './interface/components/Tooltip';
 
 export enum MouseButton {
     LEFT = 0,
@@ -18,6 +19,7 @@ export default class Input {
     private static clickMarker: HTMLImageElement;
     private static clickMarkerDim: number = 16;
     private static contextMenu: ContextMenu;
+    private static tooltip: Tooltip;
 
     public static init(canvas: HTMLCanvasElement): void {
         this.mousePosition = new Point(0, 0);
@@ -48,6 +50,7 @@ export default class Input {
         this.clickMarker.style.pointerEvents = 'none';
 
         this.contextMenu = new ContextMenu(UIParent.get());
+        this.tooltip = new Tooltip(UIParent.get());
     }
 
     public static openContextMenu(pos: Point, options: ContextOptionDef[]): void {
@@ -57,6 +60,23 @@ export default class Input {
         }
         this.contextMenu.parent.addChild(this.contextMenu);
         this.contextMenu.open(pos);
+    }
+
+    public static openTooltip(pos: Point, lines: string[]): void {
+        this.tooltip.clear();
+        for (const line of lines) {
+            this.tooltip.addLine(line);
+        }
+        this.contextMenu.parent.addChild(this.tooltip);
+        this.tooltip.open(pos);
+    }
+
+    public static positionTooltip(pos: Point): void {
+        this.tooltip.position(pos);
+    }
+
+    public static closeTooltip(): void {
+        this.tooltip.hide();
     }
 
     public static playClickMark(p: Point, color: string): void {

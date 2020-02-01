@@ -1,5 +1,5 @@
 import AccountDef from './AccountDef';
-import CharacterDef, { SkillDef } from './CharacterDef';
+import CharacterDef, { SkillDef, ExperienceDrop, Skill } from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';
@@ -21,6 +21,8 @@ export enum PacketHeader {
     PLAYER_TARGET = 'PLAYER_TARGET',
     PLAYER_LOOT = 'PLAYER_LOOT',
     PLAYER_SKILLS = 'PLAYER_SKILLS',
+    PLAYER_EXP_DROP = 'PLAYER_EXP_DROP',
+    PLAYERL_LEVELUP = 'PLAYERL_LEVELUP',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_USE = 'INVENTORY_USE',
@@ -134,3 +136,7 @@ export interface LootPacket extends Packet {
 export interface SkillsPacket extends Packet {
     skills: SkillDef[];
 }
+
+export interface ExpDropPacket extends Packet, ExperienceDrop { }
+
+export interface LevelupPacket extends Packet, SkillDef { }

@@ -55,10 +55,12 @@ export default class Client {
     }
 
     private handlePlayerEnterWorld(packet: CharacterPacket): void {
-        CharacterEntity.findOneSorted({ id: Number(packet.id) }).then((ce) => {
-            this.player = new Player(this.world, ce, this);
-            this.world.enterWorld(this);
-        });
+        if (packet) {
+            CharacterEntity.findOneSorted({ id: Number(packet.id) }).then((ce) => {
+                this.player = new Player(this.world, ce, this);
+                this.world.enterWorld(this);
+            });
+        }
     }
 
     private handlePlayerLeaveWorld(): void {

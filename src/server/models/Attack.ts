@@ -1,3 +1,4 @@
+import { Skill, ExperienceDrop } from '../../common/CharacterDef';
 import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
 import Unit from './Unit';
 
@@ -49,6 +50,55 @@ function calcMaxHit(effectiveStr: number, strBonus: number, specBonus: number): 
     return Math.floor((1.3 + effectiveStr / 10 + strBonus / 80 + (effectiveStr + strBonus) / 640) * specBonus);
 }
 
+export function calcCombatExp(dmg: number, style: CombatStyle): ExperienceDrop[] {
+    switch (style) {
+    case CombatStyle.MELEE_ACCURATE:
+        return [
+            { amount: dmg * 4, skill: Skill.ATTACK },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+    case CombatStyle.MELEE_AGGRESSIVE:
+        return [
+            { amount: dmg * 4, skill: Skill.STRENGTH },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+    case CombatStyle.MELEE_CONTROLLED:
+        return [
+            { amount: dmg * 1.33, skill: Skill.ATTACK },
+            { amount: dmg * 1.33, skill: Skill.STRENGTH },
+            { amount: dmg * 1.33, skill: Skill.DEFENSE },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+    case CombatStyle.MELEE_DEFENSIVE:
+        return [
+            { amount: dmg * 4, skill: Skill.DEFENSE },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+
+    case CombatStyle.RANGED_ACCURATE:
+        return [
+            { amount: dmg * 4, skill: Skill.RANGED },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+    case CombatStyle.RANGED_RAPID:
+        return [
+            { amount: dmg * 4, skill: Skill.RANGED },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+    case CombatStyle.RANGED_LONGRANGE:
+        return [
+            { amount: dmg * 2, skill: Skill.RANGED },
+            { amount: dmg * 2, skill: Skill.DEFENSE },
+            { amount: dmg * 1.33, skill: Skill.HITPOINTS },
+        ];
+
+    case CombatStyle.MAGIC_STANDARD:
+    case CombatStyle.MAGIC_DEFENSIVE:
+        return [{ amount: 0, skill: Skill.MAGIC }];
+
+    default: return [{ amount: 0, skill: Skill.HITPOINTS }];
+    }
+}
 
 export default class Attack {
     public attacker: Unit;
@@ -120,11 +170,12 @@ export default class Attack {
         }
     }
 
-    public perform(): void {
+    public perform(): number {
         let dmg = 0;
         if (Math.random() < this.hitChance) {
             dmg = Math.floor(Math.random() * this.maxHit + 1);
         }
         this.defender.takeHit(dmg, this.attacker);
+        return dmg;
     }
 }

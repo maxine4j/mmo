@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import uuid from 'uuid/v4';
-import { expToLevel } from '../common/CharacterDef';
+import { expToLevel, Skill } from '../common/CharacterDef';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../common/Packet';
@@ -142,12 +142,28 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
 
     char.skills = [];
     for (let i = 0; i < 23; i++) {
-        const exp = Math.random() * 10_000_000;
         char.skills[i] = SkillEntity.create({
             type: { id: i },
-            experience: exp,
-            current: expToLevel(exp),
+            experience: 0,
+            current: 1,
         });
+    }
+    char.skills[Skill.HITPOINTS].experience = 1154; // level 10
+
+    if (char.name === 'levelup') {
+        char.skills[Skill.STRENGTH].experience = 60;
+    }
+    if (char.name === 'highlvl') {
+        for (let i = 0; i < 23; i++) {
+            char.skills[i].experience = Math.random() * 5_000_000;
+            char.skills[i].current = expToLevel(char.skills[i].experience);
+        }
+    }
+    if (char.name === 'max') {
+        for (let i = 0; i < 23; i++) {
+            char.skills[i].experience = 14_000_000;
+            char.skills[i].current = expToLevel(char.skills[i].experience);
+        }
     }
 
     await char.save();

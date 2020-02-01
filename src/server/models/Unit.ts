@@ -216,7 +216,8 @@ export default class Unit implements IModel {
             // either attack the target or follow to get in range
             if (this.inMeleeRange(this.target) && this.checkRate(this.attackRate, this.lastAttackTick)) {
                 const attack = new Attack(this, this.stats, this.target, this.target.stats);
-                attack.perform();
+                const dmgDone = attack.perform();
+                this.emit('attack', this, attack, dmgDone);
                 this.lastAttackTick = this.world.currentTick;
             } else {
                 this.path = this.findPath(this.target.data.position);

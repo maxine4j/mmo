@@ -29,6 +29,37 @@ export enum Skill {
     HUNTER = 22,
 }
 
+const skillMap = new Map([
+    [Skill.ATTACK, 'ATTACK'],
+    [Skill.HITPOINTS, 'HITPOINTS'],
+    [Skill.MINING, 'MINING'],
+    [Skill.STRENGTH, 'STRENGTH'],
+    [Skill.AGILITY, 'AGILITY'],
+    [Skill.SMITHING, 'SMITHING'],
+    [Skill.DEFENSE, 'DEFENSE'],
+    [Skill.HERBLORE, 'HERBLORE'],
+    [Skill.FISHING, 'FISHING'],
+    [Skill.RANGED, 'RANGED'],
+    [Skill.THIEVING, 'THIEVING'],
+    [Skill.COOKING, 'COOKING'],
+    [Skill.PRAYER, 'PRAYER'],
+    [Skill.CRAFTING, 'CRAFTING'],
+    [Skill.FIREMAKING, 'FIREMAKING'],
+    [Skill.MAGIC, 'MAGIC'],
+    [Skill.FLETCHING, 'FLETCHING'],
+    [Skill.WOODCUTTING, 'WOODCUTTING'],
+    [Skill.RUNECRAFTING, 'RUNECRAFTING'],
+    [Skill.SLAYER, 'SLAYER'],
+    [Skill.FARMING, 'FARMING'],
+    [Skill.CONSTRUCTION, 'CONSTRUCTION'],
+    [Skill.HUNTER, 'HUNTER'],
+]);
+
+export function skillName(skill: Skill): string {
+    return skillMap.get(skill);
+}
+
+
 export enum Race {
     HUMAN,
     DWARF,
@@ -36,6 +67,11 @@ export enum Race {
     NIGHTELF,
     ORC,
     UNDEAD,
+}
+
+export interface ExperienceDrop {
+    skill: Skill;
+    amount: number;
 }
 
 export default interface CharacterDef extends UnitDef, IDefinition {

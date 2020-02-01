@@ -5,7 +5,13 @@ import SpriteAtlasImage from '../components/SpriteAtlasImage';
 import TabContainer from '../TabContainer';
 import BaseTab, { setUpTabPanel } from '../BaseTab';
 import Label from '../components/Label';
-import { SkillDef, Skill, expToLevel } from '../../../../common/CharacterDef';
+import {
+    SkillDef, Skill, expToLevel, skillName,
+} from '../../../../common/CharacterDef';
+import Tooltip from '../components/Tooltip';
+import UIParent from '../components/UIParent';
+import { Point } from '../../../../common/Point';
+import Input from '../../Input';
 
 const atlasIconSize = 25;
 const atlas = new SpriteAtlas('assets/icons/skills.png');
@@ -20,6 +26,9 @@ export class SkillIcon extends Panel {
     public get level(): number { return this._level; }
     public set level(val: number) { this._level = val; this.updateLabel(); }
 
+    public name: string;
+    public experience: number;
+
     public constructor(parent: SkillsTab, margin: number, iconSize: number, width: number, height: number) {
         super(parent);
         this.style.position = 'initial';
@@ -29,6 +38,20 @@ export class SkillIcon extends Panel {
         this.style.borderRadius = '2px';
         this.width = width;
         this.height = height;
+
+        this.addEventListener('mouseenter', (self: SkillIcon, ev: MouseEvent) => {
+            Input.openTooltip(new Point(ev.clientX, ev.clientY), [
+                this.name,
+                `Lvl: ${this.current} / ${this.level}`,
+                `Exp: ${this.experience.toFixed(0)}`,
+            ]);
+        });
+        this.addEventListener('mousemove', (self: SkillIcon, ev: MouseEvent) => {
+            Input.positionTooltip(new Point(ev.clientX, ev.clientY));
+        });
+        this.addEventListener('mouseleave', (self: SkillIcon, ev: MouseEvent) => {
+            Input.closeTooltip();
+        });
 
         this.icon = new SpriteAtlasImage(this, atlas, new Rectangle(0, 0, atlasIconSize, atlasIconSize));
         this.icon.style.position = 'initial';
@@ -78,6 +101,8 @@ export default class SkillsTab extends BaseTab {
             const icon = this.skillIcons.get(skill.id);
             icon.level = expToLevel(skill.experience);
             icon.current = skill.current;
+            icon.experience = skill.experience;
+            icon.name = skillName(skill.id);
             icon.icon.src = this.getIconRect(skill.id);
         }
     }

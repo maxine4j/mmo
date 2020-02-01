@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
+import { skillName, expToLevel } from '../../common/CharacterDef';
 import { InventoryType } from '../../common/InventoryDef';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
@@ -14,7 +15,7 @@ import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
     PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket,
-    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket,
+    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket, ExpDropPacket, LevelupPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -137,6 +138,16 @@ export default class WorldScene extends GameScene {
         NetClient.on(PacketHeader.CHAT_EVENT, (p: ChatMsgPacket) => {
             this.chatbox.addChatMessage(p);
             this.chatHoverMsgs.push(new ChatHoverMessage(this.world, this.camera, p));
+        });
+
+        NetClient.on(PacketHeader.PLAYER_EXP_DROP, (p: ExpDropPacket) => {
+            if (p.amount > 0) {
+                this.chatbox.addRawMessage(`Gained ${p.amount} experience in ${skillName(p.skill)}`);
+            }
+        });
+
+        NetClient.on(PacketHeader.PLAYERL_LEVELUP, (p: LevelupPacket) => {
+            this.chatbox.addRawMessage(`You have advanced a level in ${skillName(p.id)}. You are now level ${expToLevel(p.experience)}!`);
         });
     }
 
