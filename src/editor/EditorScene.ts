@@ -80,7 +80,6 @@ export default class EditorScene extends GameScene {
 
     private initTools(): void {
         this.toolPanel = new ToolPanel();
-        this.addGUI(this.toolPanel);
 
         this.toolPanel.add(new AddTool(this.props, this.toolPanel));
         this.toolPanel.add(new SubTool(this.props, this.toolPanel));
@@ -105,7 +104,6 @@ export default class EditorScene extends GameScene {
         this.worldPropsPanel.style.right = '0';
         this.worldPropsPanel.style.bottom = '0';
         this.worldPropsPanel.show();
-        this.addGUI(this.worldPropsPanel);
 
         this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Terrain Wireframe',
             (value) => {
@@ -149,19 +147,16 @@ export default class EditorScene extends GameScene {
         this.lblMouseWorld.style.position = 'fixed';
         this.lblMouseWorld.style.top = '15px';
         this.lblMouseWorld.style.left = '0';
-        this.addGUI(this.lblMouseWorld);
 
         this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
         this.lblMouseTile.style.top = '30px';
         this.lblMouseTile.style.left = '0';
-        this.addGUI(this.lblMouseTile);
 
         this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
         this.lblMouseChunk.style.top = '45px';
         this.lblMouseChunk.style.left = '0';
-        this.addGUI(this.lblMouseChunk);
     }
 
     private initGUI(): void {

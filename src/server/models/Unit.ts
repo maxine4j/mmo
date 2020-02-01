@@ -5,7 +5,7 @@ import WorldManager from '../managers/WorldManager';
 import UnitDef from '../../common/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
-import ItemTypeEntity from '../entities/ItemType.entity';
+import { CombatStatsDef } from '../data/UnitSpawnsDef';
 
 export type UnitManagerEvent = 'damaged' | 'death' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';
 
@@ -16,12 +16,11 @@ export enum UnitState {
     LOOTING,
 }
 
-let tempUnitDrop: ItemTypeEntity;
-
 export default class Unit implements IModel {
     protected eventEmitter: EventEmitter = new EventEmitter();
     protected world: WorldManager;
     protected data: UnitDef;
+    protected stats: CombatStatsDef;
     protected path: PointDef[];
     protected _state: UnitState;
     protected currentChunk: Chunk;
@@ -48,10 +47,6 @@ export default class Unit implements IModel {
         this.data = data;
         this._state = UnitState.IDLE;
         this.updateChunk();
-
-        if (!tempUnitDrop) { // TEMP: load potential drop item types on start up
-            ItemTypeEntity.findOne({ where: { id: 0 } }).then((i) => { tempUnitDrop = i; });
-        }
     }
 
     public dispose(): void {
@@ -61,6 +56,24 @@ export default class Unit implements IModel {
 
     public toNet(): UnitDef {
         return this.data;
+    }
+
+    public setStats(stats: CombatStatsDef): void {
+        this.stats = stats;
+        this.calcCombatLevel();
+
+        if (this.data.health == null) { // only set health if the value is null
+            this.data.health = this.stats.hitpoints;
+        }
+        this.data.maxHealth = this.stats.hitpoints;
+    }
+
+    private calcCombatLevel(): void {
+        const base = 0.25 * (this.stats.defense + this.stats.hitpoints + Math.floor(this.stats.prayer / 2));
+        const melee = 0.325 * (this.stats.attack + this.stats.defense);
+        const range = 0.325 * Math.floor(3 * (this.stats.ranged / 2));
+        const mage = 0.325 * Math.floor(3 * (this.stats.magic / 2));
+        this.data.level = Math.floor(base + Math.max(melee, range, mage));
     }
 
     // #region Event Emitter
@@ -115,6 +128,16 @@ export default class Unit implements IModel {
             this.emit('death', this, dmg, attacker);
             attacker.stopAttacking();
         }
+    }
+
+    private calculateStrength(): number {
+        const lvl = 1;
+        const potBonus = 0;
+        const prayerBonus = 1;
+        const otherBonus = 1;
+        const styleBonus = 0;
+
+        return Math.floor((lvl + potBonus) * prayerBonus * otherBonus) + styleBonus;
     }
 
     private calculateMeleeDamage(): number {

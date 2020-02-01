@@ -1,4 +1,5 @@
 import GameScene from './GameScene';
+import UIParent from '../interface/components/UIParent';
 
 export default class SceneManager {
     private static scenes: Map<string, GameScene>;
@@ -14,7 +15,7 @@ export default class SceneManager {
     public static set current(scene: GameScene) {
         if (this.current !== undefined) {
             this.current.final();
-            this.current.clearGUI();
+            UIParent.get().clear();
         }
 
         scene.init().then(() => {

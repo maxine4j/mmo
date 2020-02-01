@@ -1,7 +1,7 @@
 import {
-    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn, OneToMany,
+    Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn, OneToMany, FindConditions, FindOneOptions,
 } from 'typeorm';
-import CharacterDef, { Race } from '../../common/CharacterDef';
+import CharacterDef, { Race, Skill } from '../../common/CharacterDef';
 import AccountEntity from './Account.entity';
 import InventoryEntity from './Inventory.entity';
 import SkillEntity from './Skill.entity';
@@ -32,6 +32,12 @@ export default class CharacterEntity extends BaseEntity {
     @Column()
     public level: number;
 
+    @Column({ default: false })
+    public running: boolean;
+
+    @Column({ default: true })
+    public autoRetaliate: boolean;
+
     @OneToMany((type) => SkillEntity, (skill) => skill.character, { eager: true, cascade: true })
     public skills: SkillEntity[];
 
@@ -56,5 +62,18 @@ export default class CharacterEntity extends BaseEntity {
             },
         };
         return char;
+    }
+
+    public static findOneSorted(conditions?: FindConditions<CharacterEntity>, options?: FindOneOptions<CharacterEntity>): Promise<CharacterEntity> {
+        return new Promise((resolve) => {
+            CharacterEntity.findOne(conditions, options).then((ce) => {
+                ce.skills.sort((a, b) => {
+                    if (a.type.id > b.type.id) return 1;
+                    if (a.type.id < b.type.id) return -1;
+                    return 0;
+                });
+                resolve(ce);
+            });
+        });
     }
 }

@@ -25,6 +25,7 @@ import BagsTab, { InventorySlot } from '../engine/interface/tabs/BagsTab';
 import SkillsTab from '../engine/interface/tabs/SkillsTab';
 import TabContainer from '../engine/interface/TabContainer';
 import Rectangle from '../../common/Rectangle';
+import Engine from '../engine/Engine';
 
 const nameplateTimeout = 10;
 
@@ -90,6 +91,8 @@ export default class WorldScene extends GameScene {
     }
 
     private initGUI(): void {
+        Engine.addFpsLabel();
+
         // build back button
         const btnBack = new Button(UIParent.get(), 'Back');
         btnBack.style.position = 'fixed';
@@ -102,31 +105,26 @@ export default class WorldScene extends GameScene {
             NetClient.send(PacketHeader.PLAYER_LEAVEWORLD);
             SceneManager.changeScene('char-select');
         });
-        this.addGUI(btnBack);
 
         this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
         this.lblMouseWorld.style.top = '15px';
         this.lblMouseWorld.style.left = '0';
-        this.addGUI(this.lblMouseWorld);
 
         this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
         this.lblMouseTile.style.top = '30px';
         this.lblMouseTile.style.left = '0';
-        this.addGUI(this.lblMouseTile);
 
         this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
         this.lblMouseChunk.style.top = '45px';
         this.lblMouseChunk.style.left = '0';
-        this.addGUI(this.lblMouseChunk);
 
         this.lblSceneCount = new Label(UIParent.get(), 'Scene Count: ?');
         this.lblSceneCount.style.position = 'fixed';
         this.lblSceneCount.style.top = '60px';
         this.lblSceneCount.style.left = '0';
-        this.addGUI(this.lblSceneCount);
 
         this.chatbox = new Chatbox(UIParent.get(), 400, 200);
         this.chatbox.style.left = '0';
@@ -139,7 +137,6 @@ export default class WorldScene extends GameScene {
             this.chatbox.addChatMessage(p);
             this.chatHoverMsgs.push(new ChatHoverMessage(this.world, this.camera, p));
         });
-        this.addGUI(this.chatbox);
     }
 
     private createNameplate(unit: LocalUnit): void {
@@ -147,7 +144,6 @@ export default class WorldScene extends GameScene {
         if (existing == null) {
             const np = new UnitNameplate(this.world, this.camera, unit);
             this.nameplates.set(unit.data.id, np);
-            this.addGUI(np);
         } else {
             existing.lastTickUpdated = this.world.currentTick;
         }
@@ -177,7 +173,6 @@ export default class WorldScene extends GameScene {
                 defender.animPlayOnce(UnitAnimation.FLINCH);
                 defender.lookAt(attacker);
                 const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
-                this.addGUI(splat);
                 this.hitsplats.set(splat.id, splat);
                 setTimeout(() => {
                     this.hitsplats.delete(splat.id);

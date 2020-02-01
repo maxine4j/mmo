@@ -13,6 +13,7 @@ import Dialog from '../engine/interface/components/Dialog';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import Graphics from '../engine/graphics/Graphics';
+import Engine from '../engine/Engine';
 
 export default class CharCreateScene extends GameScene {
     private txtName: TextBox;
@@ -42,16 +43,16 @@ export default class CharCreateScene extends GameScene {
     }
 
     private initGUI(): void {
+        Engine.addFpsLabel();
+
         // build dialog
         this.dialog = new Dialog(UIParent.get(), '', false);
-        this.addGUI(this.dialog);
 
         // build bottom middle panel
         const panelMid = new Panel(UIParent.get());
         panelMid.style.width = '600px';
         panelMid.style.bottom = '10px';
         panelMid.centreHorizontal();
-        this.addGUI(panelMid);
         // build create button
         const btnCreate = new Button(panelMid, 'Create');
         btnCreate.style.position = 'initial';
@@ -61,7 +62,6 @@ export default class CharCreateScene extends GameScene {
         btnCreate.addEventListener('click', () => {
             this.characterCharacter();
         });
-        this.addGUI(btnCreate);
         // build name label
         const lblName = new Label(panelMid, 'Name');
         lblName.style.height = '30px';
@@ -75,7 +75,6 @@ export default class CharCreateScene extends GameScene {
         this.txtName.style.height = '30px';
         this.txtName.style.bottom = '50px';
         this.txtName.centreHorizontal();
-        this.addGUI(this.txtName);
         // build back button
         const btnBack = new Button(panelMid, 'Back');
         btnBack.style.position = 'initial';
@@ -85,7 +84,6 @@ export default class CharCreateScene extends GameScene {
         btnBack.addEventListener('click', () => {
             SceneManager.changeScene('char-select');
         });
-        this.addGUI(btnBack);
     }
 
     // eslint-disable-next-line require-await

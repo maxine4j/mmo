@@ -53,19 +53,23 @@ export default class Spawner {
 
     private spawnUnit(): void {
         const id = uuid();
-        const unit = new Unit(this.world, {
-            id,
-            target: '',
-            autoRetaliate: true,
-            health: this.data.unit.maxHealth,
-            maxHealth: this.data.unit.maxHealth,
-            name: this.data.unit.name,
-            level: this.data.unit.level,
-            model: this.data.unit.model,
-            running: false,
-            position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
-            moveQueue: [],
-        });
+        const unit = new Unit(
+            this.world,
+            {
+                id,
+                target: '',
+                autoRetaliate: true,
+                health: null,
+                maxHealth: null,
+                name: this.data.unit.name,
+                level: null,
+                model: this.data.unit.model,
+                running: false,
+                position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
+                moveQueue: [],
+            },
+        );
+        unit.setStats(this.data.unit.stats);
         unit.on('death', (self: Unit) => {
             this.units.delete(unit.id);
             console.log('Spawner unit died!');

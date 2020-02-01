@@ -16,6 +16,7 @@ import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import Sprite from '../engine/graphics/Sprite';
 import Input, { MouseButton } from '../engine/Input';
+import Engine from '../engine/Engine';
 
 export default class CharSelectScene extends GameScene {
     private characters: CharacterDef[];
@@ -51,7 +52,7 @@ export default class CharSelectScene extends GameScene {
             btnChar.style.height = '60px';
             btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
             btnChar.addEventListener('click', () => { this.selectedChar = char; });
-            this.addGUI(btnChar);
+            // this.addGUI(btnChar);
         }
     }
 
@@ -61,13 +62,15 @@ export default class CharSelectScene extends GameScene {
     }
 
     private initGUI(): void{
+        Engine.addFpsLabel();
+
         // build enter world button
         const btnEnterWorld = new Button(UIParent.get(), 'Enter World');
         btnEnterWorld.style.bottom = '50px';
         btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
         btnEnterWorld.addEventListener('click', () => this.enterWorld());
-        this.addGUI(btnEnterWorld);
+        // this.addGUI(btnEnterWorld);
         // build character list
         this.panelChars = new Panel(UIParent.get());
         this.panelChars.style.display = 'block';
@@ -80,14 +83,14 @@ export default class CharSelectScene extends GameScene {
         this.panelChars.style.backgroundColor = 'rgba(10, 10, 10, 0.6)';
         this.panelChars.style.borderRadius = '5px';
         this.panelChars.style.padding = '10px';
-        this.addGUI(this.panelChars);
+        // this.addGUI(this.panelChars);
         // realm label
         const charListLabel = new Label(this.panelChars, 'Characters');
         charListLabel.style.position = 'initial';
         charListLabel.style.display = 'block';
         charListLabel.style.fontSize = '180%';
         charListLabel.style.textAlign = 'center';
-        this.addGUI(charListLabel);
+        // this.addGUI(charListLabel);
 
         // build new character button
         const btnCreateCharacter = new Button(this.panelChars, 'Create Character');
@@ -98,7 +101,7 @@ export default class CharSelectScene extends GameScene {
         btnCreateCharacter.style.bottom = '75px';
         btnCreateCharacter.style.right = '40px';
         btnCreateCharacter.addEventListener('click', () => SceneManager.changeScene('char-create'));
-        this.addGUI(btnCreateCharacter);
+        // this.addGUI(btnCreateCharacter);
         // build delete character button
         const btnDeleteChar = new Button(this.panelChars, 'Delete Character');
         btnDeleteChar.style.position = 'fixed';
@@ -111,7 +114,7 @@ export default class CharSelectScene extends GameScene {
         btnDeleteChar.addEventListener('click', () => {
             console.log('Delete Character NYI');
         });
-        this.addGUI(btnDeleteChar);
+        // this.addGUI(btnDeleteChar);
         // build back button
         const btnBack = new Button(this.panelChars, 'Back');
         btnBack.style.position = 'fixed';
@@ -124,7 +127,7 @@ export default class CharSelectScene extends GameScene {
             NetClient.send(PacketHeader.AUTH_LOGOUT);
             SceneManager.changeScene('login');
         });
-        this.addGUI(btnBack);
+        // this.addGUI(btnBack);
     }
 
     public async init(): Promise<void> {

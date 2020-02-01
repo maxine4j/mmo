@@ -1,5 +1,5 @@
 import io from 'socket.io';
-import CharacterDef from '../../common/CharacterDef';
+import CharacterDef, { Skill, expToLevel } from '../../common/CharacterDef';
 import WorldManager from '../managers/WorldManager';
 import Unit, { UnitState, UnitManagerEvent } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
@@ -16,6 +16,7 @@ import IModel from './IModel';
 import Client from './Client';
 import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
+import { CombatStatsDef } from '../data/UnitSpawnsDef';
 
 type PlayerManagerEvent = UnitManagerEvent | 'saved';
 
@@ -34,12 +35,20 @@ export default class Player extends Unit implements IModel {
         super(world, entity.toNet());
         this.entity = entity;
 
-        this.data.maxHealth = 10;
-        this.data.health = 10; // TODO: temp
-        this.data.autoRetaliate = true;
+        this.setStats(<CombatStatsDef>{
+            attack: expToLevel(this.entity.skills[Skill.ATTACK].experience),
+            strength: expToLevel(this.entity.skills[Skill.STRENGTH].experience),
+            defense: expToLevel(this.entity.skills[Skill.DEFENSE].experience),
+            hitpoints: expToLevel(this.entity.skills[Skill.HITPOINTS].experience),
+            magic: expToLevel(this.entity.skills[Skill.MAGIC].experience),
+            ranged: expToLevel(this.entity.skills[Skill.RANGED].experience),
+            prayer: expToLevel(this.entity.skills[Skill.PRAYER].experience),
+        });
+
+        this.data.autoRetaliate = this.entity.autoRetaliate;
         this.socket = client.socket;
         this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
-        this.data.running = true;
+        this.data.running = this.entity.running;
         this.bags = new InventoryManager(this.world, entity.bags);
         this.bank = new InventoryManager(this.world, entity.bank);
 
@@ -241,6 +250,8 @@ export default class Player extends Unit implements IModel {
         this.entity.level = this.data.level;
         this.entity.posX = this.data.position.x;
         this.entity.posY = this.data.position.y;
+        this.entity.running = this.data.running;
+        this.entity.autoRetaliate = this.data.autoRetaliate;
         await this.entity.save();
     }
     // #endregion

@@ -48,6 +48,10 @@ export default class Engine {
         SceneManager.addScene(scene);
     }
 
+    public static addFpsLabel(): void {
+        UIParent.get().addChild(this.lblFps);
+    }
+
     private static loop(timestamp: number): void { // use Engine instead of this as requestAnimationFrame changes it
         const delta: number = (timestamp - Engine.lastrender) / 1000;
 

@@ -1,4 +1,5 @@
 import { AmbientLight } from 'three';
+import { Key } from 'ts-key-enum';
 import { AccountPacket, PacketHeader, AuthLoginPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
@@ -13,15 +14,35 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Model from '../engine/graphics/Model';
 import Scene from '../engine/graphics/Scene';
+import Engine from '../engine/Engine';
 
 export default class LoginScene extends GameScene {
     private background: Model;
+    private txtUsername: TextBox;
+    private txtPassword: TextBox;
+    private dialog: Dialog;
 
     public constructor() {
         super('login');
     }
 
+    private login(): void {
+        NetClient.sendRecv(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
+            username: this.txtUsername.text,
+            password: this.txtPassword.text,
+        }).then((resp: AccountPacket) => {
+            if (resp.success) {
+                SceneManager.changeScene('char-select');
+            } else {
+                this.dialog.setText(resp.message);
+                this.dialog.show();
+            }
+        });
+    }
+
     public initGUI(): void {
+        Engine.addFpsLabel();
+
         const panel = new Panel(UIParent.get());
         panel.style.border = '1px solid white';
         panel.style.width = '300px';
@@ -30,57 +51,44 @@ export default class LoginScene extends GameScene {
         panel.style.backgroundColor = 'rgba(10, 10, 10, 0.5)';
         panel.centreHorizontal();
         panel.centreVertical();
-        this.addGUI(panel);
 
         const lblUsername = new Label(panel, 'Account Name');
         lblUsername.style.position = 'initial';
         lblUsername.style.width = '100%';
         lblUsername.style.color = '#e6cc80';
         lblUsername.style.fontSize = '130%';
-        this.addGUI(lblUsername);
 
-        const txtUsername = new TextBox(panel);
-        txtUsername.style.position = 'initial';
-        txtUsername.style.width = '100%';
-        txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
-        txtUsername.text = 'arwic';
-        this.addGUI(txtUsername);
+        this.txtUsername = new TextBox(panel);
+        this.txtUsername.style.position = 'initial';
+        this.txtUsername.style.width = '100%';
+        this.txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        this.txtUsername.text = 'arwic';
+        this.txtUsername.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
+            if (ev.key === Key.Enter) this.login();
+        });
 
         const lblPassword = new Label(panel, 'Account Password');
         lblPassword.style.position = 'initial';
         lblPassword.style.width = '100%';
         lblPassword.style.color = '#e6cc80';
         lblPassword.style.fontSize = '130%';
-        this.addGUI(lblPassword);
 
-        const txtPassword = new TextBox(panel, 'password');
-        txtPassword.style.position = 'initial';
-        txtPassword.style.width = '100%';
-        txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
-        txtPassword.text = 'asd';
-        this.addGUI(txtPassword);
+        this.txtPassword = new TextBox(panel, 'password');
+        this.txtPassword.style.position = 'initial';
+        this.txtPassword.style.width = '100%';
+        this.txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        this.txtPassword.text = 'asd';
+        this.txtPassword.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
+            if (ev.key === Key.Enter) this.login();
+        });
 
-        const dialog = new Dialog(UIParent.get(), '', false);
-        this.addGUI(dialog);
+        this.dialog = new Dialog(UIParent.get(), '', false);
 
         const btnLogin = new Button(panel, 'Login');
         btnLogin.style.width = '150px';
         btnLogin.centreHorizontal();
         btnLogin.style.marginTop = '30px';
-        btnLogin.addEventListener('click', (self: Button, ev: MouseEvent) => {
-            NetClient.sendRecv(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
-                username: txtUsername.text,
-                password: txtPassword.text,
-            }).then((resp: AccountPacket) => {
-                if (resp.success) {
-                    SceneManager.changeScene('char-select');
-                } else {
-                    dialog.setText(resp.message);
-                    dialog.show();
-                }
-            });
-        });
-        this.addGUI(btnLogin);
+        btnLogin.addEventListener('click', this.login.bind(this));
     }
 
     public async init(): Promise<void> {

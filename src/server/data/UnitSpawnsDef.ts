@@ -1,11 +1,20 @@
 import { PointDef } from '../../common/Point';
 
+export interface CombatStatsDef {
+    attack: number;
+    strength: number;
+    defense: number;
+    magic: number;
+    ranged: number;
+    hitpoints: number;
+    prayer: number;
+}
+
 export interface UnitSpawnDef {
     id: string;
-    maxHealth: number;
     name: string;
-    level: number;
     model: string;
+    stats: CombatStatsDef;
 }
 
 export interface UnitSpawnGroup {
