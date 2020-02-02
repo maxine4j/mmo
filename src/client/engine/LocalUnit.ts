@@ -83,52 +83,52 @@ export default class LocalUnit {
                     this.model.getAnim('Walk').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.WALK, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('Run').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.RUN, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('Stand').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.STAND, a);
                         a.play();
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('AttackUnarmed').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.PUNCH, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('Death').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.DEATH, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('Dodge').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.DODGE, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('ParryFist1H').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.PARRY, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('ReadyUnarmed').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.COMBAT_IDLE, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('ReadySpellDirected').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.SPELL_DIRECTED, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('ReadySpellOmni').then((a) => {
                         a.loop = THREE.LoopRepeat;
                         this.animations.set(UnitAnimation.SPELL_OMNI, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('CombatCritical').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.FLINCH, a);
-                    });
+                    }).catch(() => {});
                     this.model.getAnim('Loot').then((a) => {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.LOOT, a);
-                    });
+                    }).catch(() => {});
                     this.world.scene.add(this.model.obj);
 
                     this.emit('loaded', this);
@@ -165,11 +165,13 @@ export default class LocalUnit {
 
     public animPlayOnce(anim: UnitAnimation, clamp: boolean = false): void {
         const a = this.animations.get(anim);
-        a.clampWhenFinished = clamp;
-        a.weight = 1;
-        a.reset();
-        this.model.mixer.stopAllAction();
-        a.play();
+        if (a) {
+            a.clampWhenFinished = clamp;
+            a.weight = 1;
+            a.reset();
+            this.model.mixer.stopAllAction();
+            a.play();
+        }
     }
 
     private updateAnimation(): void {

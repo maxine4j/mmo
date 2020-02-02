@@ -18,18 +18,20 @@ export default class ChunkWorld {
     }
 
     public loadChunk(def: ChunkDef): Promise<Chunk> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const existing = this.chunks.get(def.x, def.y);
             if (existing) {
                 existing.load();
                 resolve(existing);
             } else {
-                Chunk.load(def, this).then((c: Chunk) => {
-                    this.chunks.set(def.x, def.y, c); // save chunk to the worlds map2d
-                    c.setWireframeVisibility(this.wireframeVisibility);
-                    c.load();
-                    resolve(c);
-                });
+                Chunk.load(def, this)
+                    .then((c: Chunk) => {
+                        this.chunks.set(def.x, def.y, c); // save chunk to the worlds map2d
+                        c.setWireframeVisibility(this.wireframeVisibility);
+                        c.load();
+                        resolve(c);
+                    })
+                    .catch((err) => reject(err));
             }
         });
     }

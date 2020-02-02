@@ -46,11 +46,15 @@ export default class Chunk {
     }
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const loader = new THREE.TextureLoader();
-            loader.load(def.texture, (texture) => { // load the texture
-                resolve(new Chunk(def, world, texture));
-            });
+            try {
+                loader.load(def.texture, (texture) => { // load the texture
+                    resolve(new Chunk(def, world, texture));
+                });
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 

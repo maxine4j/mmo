@@ -29,10 +29,12 @@ export default class Doodad {
     }
 
     public static load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
-        return new Promise((resolve) => {
-            Model.loadDef(`assets/models/${def.model}`).then((model) => {
-                resolve(new Doodad(def, model, chunk));
-            });
+        return new Promise((resolve, reject) => {
+            Model.loadDef(`assets/models/${def.model}`)
+                .then((model) => {
+                    resolve(new Doodad(def, model, chunk));
+                })
+                .catch((err) => reject(err));
         });
     }
 

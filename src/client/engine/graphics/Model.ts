@@ -26,7 +26,7 @@ enum ModelPart {
     EARRINGS = 10,
 }
 
-function modelPart(model: Model, part: ModelPart): THREE.Object3D {
+function _modelPart(model: Model, part: ModelPart): THREE.Object3D {
     const rootNode = model.gltf.scene.children[0];
     const meshes = rootNode.children[1];
     return meshes.children[part];
@@ -70,29 +70,38 @@ export default class Model {
     }
 
     public loadAnim(name: string, src: string): Promise<AnimationAction> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
-            loader.load(src, (gltf) => {
-                const action = this.mixer.clipAction(gltf.animations[0]);
-                this.animations.set(name, action);
-                resolve(action);
-            });
+            try {
+                loader.load(src, (gltf) => {
+                    const action = this.mixer.clipAction(gltf.animations[0]);
+                    this.animations.set(name, action);
+                    resolve(action);
+                });
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
     public static load(src: string): Promise<Model> {
         return new Promise((resolve, reject) => {
             const loader = new GLTFLoader();
-            loader.load(src, (gltf) => {
-                resolve(new Model(gltf));
-            });
+            try {
+                loader.load(src, (gltf) => {
+                    resolve(new Model(gltf));
+                });
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
     public static loadDef(src: string, lazy: boolean = true): Promise<Model> {
         return new Promise((resolve, reject) => {
-            fetch(src).then((resp) => { // fetch the json def file
-                resp.json().then((data: ModelDef) => { // parse it
+            fetch(src)
+                .then((resp) => resp.json())
+                .then((data: ModelDef) => { // parse it
                     // get absolute main model path
                     const rootDirParts = src.split('.')[0].split('/');
                     rootDirParts.pop();
@@ -107,18 +116,21 @@ export default class Model {
 
                     // load the main model
                     const loader = new GLTFLoader();
-                    loader.load(modelSrc, (gltf) => {
-                        const model = new Model(gltf);
-                        // load all anims
-                        if (lazy) {
-                            model.lazyLoadAnims(animSrcs);
-                            resolve(model);
-                        } else {
-                            model.loadAnims(animSrcs).then(() => resolve(model));
-                        }
-                    });
-                });
-            });
+                    try {
+                        loader.load(modelSrc, (gltf) => {
+                            const model = new Model(gltf);
+                            // load all anims
+                            if (lazy) {
+                                model.lazyLoadAnims(animSrcs);
+                                resolve(model);
+                            } else {
+                                model.loadAnims(animSrcs).then(() => resolve(model));
+                            }
+                        });
+                    } catch (err) {
+                        reject(err);
+                    }
+                }).catch((err) => reject(err));
         });
     }
 
@@ -131,13 +143,15 @@ export default class Model {
     }
 
     public getAnim(name: string): Promise<AnimationAction> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             const anim = this.animations.get(name);
             if (anim) {
                 resolve(anim);
             } else {
                 const animSrc = this.lazyAnims.get(name);
-                this.loadAnim(name, animSrc).then((a) => resolve(a));
+                this.loadAnim(name, animSrc)
+                    .then((a) => resolve(a))
+                    .catch((e) => reject(e));
             }
         });
     }

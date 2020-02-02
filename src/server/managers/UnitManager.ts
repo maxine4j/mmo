@@ -8,6 +8,45 @@ import IManager from './IManager';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/UnitDef';
 
+const noBonuses = {
+    equipment: {
+        attack: {
+            crush: 0,
+            magic: 0,
+            ranged: 0,
+            slash: 0,
+            stab: 0,
+        },
+        defense: {
+            crush: 0,
+            magic: 0,
+            ranged: 0,
+            slash: 0,
+            stab: 0,
+        },
+        other: {
+            magicDamage: 0,
+            meleeStr: 0,
+            prayer: 0,
+            rangedStr: 0,
+        },
+    },
+    potion: {
+        attack: 0,
+        strength: 0,
+        defense: 0,
+        ranged: 0,
+        magic: 0,
+    },
+    prayer: {
+        attack: 1,
+        strength: 1,
+        defense: 1,
+        ranged: 1,
+        magic: 1,
+    },
+};
+
 const unitSpawnDefs: UnitSpawnsDef = {
     'skeleton-group': {
         id: 'skeleton-group',
@@ -24,53 +63,44 @@ const unitSpawnDefs: UnitSpawnsDef = {
                 magic: 1,
                 ranged: 1,
                 prayer: 1,
-                bonuses: {
-                    equipment: {
-                        attack: {
-                            crush: 0,
-                            magic: 0,
-                            ranged: 0,
-                            slash: 0,
-                            stab: 0,
-                        },
-                        defense: {
-                            crush: 0,
-                            magic: 0,
-                            ranged: 0,
-                            slash: 0,
-                            stab: 0,
-                        },
-                        other: {
-                            magicDamage: 0,
-                            meleeStr: 0,
-                            prayer: 0,
-                            rangedStr: 0,
-                        },
-                    },
-                    potion: {
-                        attack: 0,
-                        strength: 0,
-                        defense: 0,
-                        ranged: 0,
-                        magic: 0,
-                    },
-                    prayer: {
-                        attack: 1,
-                        strength: 1,
-                        defense: 1,
-                        ranged: 1,
-                        magic: 1,
-                    },
-                },
+                bonuses: noBonuses,
+            },
+        },
+        center: { x: -60, y: -60 },
+        spawnRadius: { x: 15, y: 15 },
+        wanderRadius: { x: 20, y: 20 },
+        leashRadius: { x: 30, y: 30 },
+        wanderRate: 40,
+        minAlive: 0,
+        maxAlive: 5,
+        spawnRate: 10,
+        lootTable: 0,
+    },
+    'chicken-group': {
+        id: 'chicken-group',
+        unit: {
+            id: 'chicken',
+            name: 'Chicken',
+            model: 'assets/models/units/chicken/chicken.model.json',
+            combatStyle: CombatStyle.MELEE_AGGRESSIVE,
+            stats: {
+                attack: 1,
+                strength: 1,
+                defense: 1,
+                hitpoints: 3,
+                magic: 1,
+                ranged: 1,
+                prayer: 1,
+                bonuses: noBonuses,
             },
         },
         center: { x: 0, y: 0 },
-        spawnRadius: { x: 5, y: 5 },
-        wanderRadius: { x: 10, y: 10 },
-        leashRadius: { x: 15, y: 15 },
+        spawnRadius: { x: 25, y: 25 },
+        wanderRadius: { x: 30, y: 30 },
+        leashRadius: { x: 35, y: 35 },
         wanderRate: 20,
-        minAlive: 0,
-        maxAlive: 10,
+        minAlive: 5,
+        maxAlive: 15,
         spawnRate: 10,
         lootTable: 0,
     },
