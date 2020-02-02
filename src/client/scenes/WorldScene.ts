@@ -47,6 +47,7 @@ export default class WorldScene extends GameScene {
     private hitsplats: Map<string, HitSplat> = new Map();
     private tabContainer: TabContainer;
     private minimap: Minimap;
+    private hpOrb: MinimapOrb;
 
     public constructor() {
         super('world');
@@ -191,13 +192,20 @@ export default class WorldScene extends GameScene {
             this.world.player.moveTo(pos);
         });
 
-        const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, 'assets/imgs/orbs/orb_run.png');
+        const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, -1, 'assets/imgs/orbs/orb_run.png');
         runOrb.on('click', (self: MinimapOrb, active: boolean) => {
             NetClient.send(PacketHeader.PLAYERL_SET_RUN, <BooleanPacket>{
                 value: active,
             });
         });
         this.minimap.addOrb(runOrb);
+
+
+        const hpOrb = new MinimapOrb(this.minimap, false, this.world.player.data.health, 'assets/imgs/orbs/orb_hp.png', false);
+        this.world.on('tick', () => {
+            hpOrb.value = this.world.player.data.health;
+        });
+        this.minimap.addOrb(hpOrb);
     }
 
     public async init(): Promise<void> {

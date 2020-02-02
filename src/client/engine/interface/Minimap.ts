@@ -13,6 +13,7 @@ export default class Minimap extends Panel {
     private eventEmitter: EventEmitter = new EventEmitter();
     private world: World;
 
+    private orbPanel: Panel;
     private orbs: MinimapOrb[] = [];
 
     private canvas: HTMLCanvasElement;
@@ -56,6 +57,9 @@ export default class Minimap extends Panel {
         this.world.player.on('moveTargetUpdated', (self: LocalPlayer, target: TilePoint) => {
             this.flagPos = target;
         });
+
+        this.orbPanel = new Panel(this);
+        this.orbPanel.style.position = 'initital';
     }
 
     public on(event: MinimapEvent, listener: (...args: any[]) => void): void {
@@ -71,6 +75,7 @@ export default class Minimap extends Panel {
     }
 
     public addOrb(orb: MinimapOrb): void {
+        this.orbPanel.addChild(orb);
         this.orbs.push(orb);
     }
 
