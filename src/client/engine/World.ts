@@ -15,7 +15,7 @@ import CharacterDef from '../../common/CharacterDef';
 import { GroundItemDef } from '../../common/ItemDef';
 import LocalGroundItem from './LocalGroundItem';
 
-type WorldEvent = 'unitAdded' | 'unitRemoved' | 'tick';
+type WorldEvent = 'tick' | 'unitAdded' | 'unitRemoved' | 'groundItemAdded' | 'groundItemRemoved';
 
 export default class World {
     public scene: Scene;
@@ -120,6 +120,7 @@ export default class World {
             if (!gi) {
                 gi = new LocalGroundItem(this, def);
                 this.groundItems.set(def.item.uuid, gi);
+                this.emit('groundItemAdded', gi);
             }
             gi.lastTickUpdated = tick;
         }
@@ -158,6 +159,7 @@ export default class World {
             if (gi.lastTickUpdated !== this._currentTick) {
                 gi.dispose();
                 this.groundItems.delete(id);
+                this.emit('groundItemRemoved', gi);
             }
         }
     }

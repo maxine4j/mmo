@@ -29,6 +29,7 @@ import Engine from '../engine/Engine';
 import Minimap from '../engine/interface/Minimap';
 import MinimapOrb from '../engine/interface/MinimapOrb';
 import LogoutTab from '../engine/interface/tabs/LogoutTab';
+import LocalGroundItem from '../engine/LocalGroundItem';
 
 const nameplateTimeout = 10;
 
@@ -196,6 +197,12 @@ export default class WorldScene extends GameScene {
         });
         this.world.on('unitRemoved', (unit: LocalUnit) => {
             this.minimap.untrackUnit(unit.data.id);
+        });
+        this.world.on('groundItemAdded', (gi: LocalGroundItem) => {
+            this.minimap.trackGrounItem(gi);
+        });
+        this.world.on('groundItemRemoved', (gi: LocalGroundItem) => {
+            this.minimap.untrackGroundItem(gi);
         });
 
         const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, -1, 'assets/imgs/orbs/orb_run.png');

@@ -7,6 +7,7 @@ import { TilePoint, Point } from '../../../common/Point';
 import LocalPlayer from '../LocalPlayer';
 import MinimapOrb from './MinimapOrb';
 import LocalUnit from '../LocalUnit';
+import LocalGroundItem from '../LocalGroundItem';
 
 type MinimapEvent = 'click';
 
@@ -21,6 +22,7 @@ export default class Minimap extends Panel {
     private orbs: MinimapOrb[] = [];
 
     private units: Map<string, LocalUnit> = new Map();
+    private groundItems: Map<string, LocalGroundItem> = new Map();
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -91,6 +93,14 @@ export default class Minimap extends Panel {
         this.units.delete(id);
     }
 
+    public trackGrounItem(gi: LocalGroundItem): void {
+        this.groundItems.set(gi.def.item.uuid, gi);
+    }
+
+    public untrackGroundItem(gi: LocalGroundItem): void {
+        this.groundItems.delete(gi.def.item.uuid);
+    }
+
     public addOrb(orb: MinimapOrb): void {
         this.orbPanel.addChild(orb);
         this.orbs.push(orb);
@@ -148,6 +158,12 @@ export default class Minimap extends Panel {
             for (const [_, unit] of this.units) {
                 const upos = this.tileToMinimap(unit.position);
                 this.drawDot(upos, unit.isPlayer ? 'white' : 'yellow');
+            }
+
+            // draw ground item dots
+            for (const [_, gi] of this.groundItems) {
+                const gipos = this.tileToMinimap(gi.position);
+                this.drawDot(gipos, 'red');
             }
 
             // draw player dot
