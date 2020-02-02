@@ -110,6 +110,7 @@ export default class Unit implements IModel {
     private retaliate(target: Unit): void {
         this.retaliateTarget = target;
         this._state = UnitState.ATTACKING;
+        this.data.moveQueue = [];
     }
 
     public takeHit(dmg: number, attacker: Unit): void {
@@ -217,13 +218,12 @@ export default class Unit implements IModel {
     private tickAttacking(): void {
         if (this.target) {
             // either attack the target or follow to get in range
-            const dist = this.distance(this.target);
-            if (dist < 2.1 && this.checkRate(this.attackRate, this.lastAttackTick)) {
+            if (this.inMeleeRange(this.target) && this.checkRate(this.attackRate, this.lastAttackTick)) {
                 const attack = new Attack(this, this.stats, this.target, this.target.stats);
                 const dmgDone = attack.perform();
                 this.emit('attack', this, attack, dmgDone);
                 this.lastAttackTick = this.world.currentTick;
-            } else if (dist > 1.5) {
+            } else {
                 this.path = this.findPath(this.target.data.position);
                 this.path.shift();
             }
