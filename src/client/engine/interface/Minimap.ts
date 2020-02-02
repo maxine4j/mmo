@@ -76,15 +76,17 @@ export default class Minimap extends Panel {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // clear the canvas
 
             for (const [ccx, ccy, chunk] of this.world.chunkWorld.chunks) {
-                // calculate chunk position
-                const dw = this.world.chunkWorld.chunkSize * this.scale;
-                const dh = this.world.chunkWorld.chunkSize * this.scale;
-                const x = (dw * ccx) + (dw / 2);
-                const y = (dh * ccy) + (dh / 2);
-                const px = (this.world.player.position.x * this.scale) + dw - this.canvas.width / 2;
-                const py = (this.world.player.position.y * this.scale) + dh - this.canvas.height / 2;
+                if (chunk) {
+                    // calculate chunk position
+                    const dw = this.world.chunkWorld.chunkSize * this.scale;
+                    const dh = this.world.chunkWorld.chunkSize * this.scale;
+                    const x = (dw * ccx) + (dw / 2);
+                    const y = (dh * ccy) + (dh / 2);
+                    const px = (this.world.player.position.x * this.scale) + dw - this.canvas.width / 2;
+                    const py = (this.world.player.position.y * this.scale) + dh - this.canvas.height / 2;
 
-                this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
+                    this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
+                }
             }
 
             this.ctx.fillStyle = 'red';

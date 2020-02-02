@@ -172,8 +172,7 @@ export default class Player extends Unit implements IModel {
         // different per instance/map
         // graveyards?
         // drop inventory?
-        // TODO: need teleport functionality instead of lerping
-        this.data.position = { x: 0, y: 0 };
+        this.teleport(new Point(0, 0));
         this.data.health = this.data.maxHealth;
         this.data.moveQueue = [];
         this.data.target = '';

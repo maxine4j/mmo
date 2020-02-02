@@ -170,7 +170,6 @@ export default class WorldScene extends GameScene {
     }
 
     private initNameplates(): void {
-        // this.world.on('unitAdded', this.createNameplate.bind(this));
         this.world.on('unitRemoved', this.disposeNameplate.bind(this));
     }
 
@@ -196,6 +195,14 @@ export default class WorldScene extends GameScene {
         });
     }
 
+    private initMinimap(): void {
+        this.minimap = new Minimap(UIParent.get(), this.world);
+        this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
+            NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: pos.x, y: pos.y });
+            Input.playClickMark(Input.mousePos(), 'yellow');
+        });
+    }
+
     public async init(): Promise<void> {
         this.initGUI();
         this.initGUITabs();
@@ -218,12 +225,7 @@ export default class WorldScene extends GameScene {
 
         this.initNameplates();
         this.initSplats();
-
-        this.minimap = new Minimap(UIParent.get(), this.world);
-        this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
-            NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: pos.x, y: pos.y });
-            Input.playClickMark(Input.mousePos(), 'yellow');
-        });
+        this.initMinimap();
 
         super.init();
     }
@@ -293,20 +295,18 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private timepassed = 0;
+    private updateMinimap(): void {
+        this.minimap.update();
+    }
 
     public update(delta: number): void {
-        this.timepassed += delta;
         this.updateMousePoint();
         this.updateTopLeftLabels();
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
         this.updateNameplates();
         this.updateHitSplats();
-
-        if (this.timepassed > 2) { // TODO: temp
-            this.minimap.update();
-        }
+        this.updateMinimap();
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));
