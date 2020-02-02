@@ -3,7 +3,7 @@ import Panel from './components/Panel';
 import { Frame } from './components/Frame';
 import World from '../World';
 import Slider from './components/Slider';
-import { TilePoint, Point } from '../../../common/Point';
+import { TilePoint } from '../../../common/Point';
 import LocalPlayer from '../LocalPlayer';
 
 type MinimapEvent = 'click';
