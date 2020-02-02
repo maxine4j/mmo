@@ -3,8 +3,6 @@ import { Key } from 'ts-key-enum';
 import { skillName, expToLevel } from '../../common/CharacterDef';
 import { InventoryType } from '../../common/InventoryDef';
 import GameScene from '../engine/scene/GameScene';
-import Button from '../engine/interface/components/Button';
-import SceneManager from '../engine/scene/SceneManager';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
@@ -15,7 +13,7 @@ import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
     PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket,
-    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket, ExpDropPacket, LevelupPacket,
+    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
@@ -29,6 +27,8 @@ import TabContainer from '../engine/interface/TabContainer';
 import Rectangle from '../../common/Rectangle';
 import Engine from '../engine/Engine';
 import Minimap from '../engine/interface/Minimap';
+import MinimapOrb from '../engine/interface/MinimapOrb';
+import LogoutTab from '../engine/interface/tabs/LogoutTab';
 
 const nameplateTimeout = 10;
 
@@ -92,23 +92,13 @@ export default class WorldScene extends GameScene {
         NetClient.on(PacketHeader.PLAYER_SKILLS, (packet: SkillsPacket) => {
             skillsTab.setSkills(packet.skills);
         });
+
+        const logoutTab = new LogoutTab(this.tabContainer);
+        this.tabContainer.addTab(logoutTab, new Rectangle(tabIconSize * 0, tabIconSize * 1, tabIconSize, tabIconSize));
     }
 
     private initGUI(): void {
         Engine.addFpsLabel();
-
-        // build back button
-        const btnBack = new Button(UIParent.get(), 'Back');
-        btnBack.style.position = 'fixed';
-        btnBack.style.margin = '5px 10px';
-        btnBack.style.display = 'block';
-        btnBack.style.width = '120px';
-        btnBack.style.top = '5px';
-        btnBack.style.right = '0';
-        btnBack.addEventListener('click', () => {
-            NetClient.send(PacketHeader.PLAYER_LEAVEWORLD);
-            SceneManager.changeScene('char-select');
-        });
 
         this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
@@ -199,8 +189,15 @@ export default class WorldScene extends GameScene {
         this.minimap = new Minimap(UIParent.get(), this.world);
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
             this.world.player.moveTo(pos);
-            // Input.playClickMark(Input.mousePos(), 'yellow');
         });
+
+        const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, 'assets/imgs/orbs/orb_run.png');
+        runOrb.on('click', (self: MinimapOrb, active: boolean) => {
+            NetClient.send(PacketHeader.PLAYERL_SET_RUN, <BooleanPacket>{
+                value: active,
+            });
+        });
+        this.minimap.addOrb(runOrb);
     }
 
     public async init(): Promise<void> {

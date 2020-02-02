@@ -9,7 +9,7 @@ import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
-    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket,
+    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket,
 } from '../../common/Packet';
 import ChunkDef from '../../common/ChunkDef';
 import IModel from './IModel';
@@ -54,6 +54,7 @@ export default class Player extends Unit implements IModel {
         this.socket.on(PacketHeader.INVENTORY_SWAP, this.handleInventorySwap.bind(this));
         this.socket.on(PacketHeader.INVENTORY_USE, this.handleInventoryUse.bind(this));
         this.socket.on(PacketHeader.INVENTORY_DROP, this.handleInventoryDrop.bind(this));
+        this.socket.on(PacketHeader.PLAYERL_SET_RUN, this.handleSetRun.bind(this));
     }
 
     public async dispose(): Promise<void> {
@@ -123,6 +124,10 @@ export default class Player extends Unit implements IModel {
             success: true,
             message: '',
         });
+    }
+
+    private handleSetRun(packet: BooleanPacket): void {
+        this.data.running = packet.value;
     }
 
     protected addToNewChunk(chunk: Chunk): void {

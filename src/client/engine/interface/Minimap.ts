@@ -5,12 +5,15 @@ import World from '../World';
 import Slider from './components/Slider';
 import { TilePoint } from '../../../common/Point';
 import LocalPlayer from '../LocalPlayer';
+import MinimapOrb from './MinimapOrb';
 
 type MinimapEvent = 'click';
 
 export default class Minimap extends Panel {
     private eventEmitter: EventEmitter = new EventEmitter();
     private world: World;
+
+    private orbs: MinimapOrb[] = [];
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -65,6 +68,10 @@ export default class Minimap extends Panel {
 
     private emit(event: MinimapEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
+    }
+
+    public addOrb(orb: MinimapOrb): void {
+        this.orbs.push(orb);
     }
 
     private canvasClick(ev: MouseEvent): void {

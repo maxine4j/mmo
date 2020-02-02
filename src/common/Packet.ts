@@ -23,6 +23,7 @@ export enum PacketHeader {
     PLAYER_SKILLS = 'PLAYER_SKILLS',
     PLAYER_EXP_DROP = 'PLAYER_EXP_DROP',
     PLAYERL_LEVELUP = 'PLAYERL_LEVELUP',
+    PLAYERL_SET_RUN = 'PLAYERL_SET_RUN',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_USE = 'INVENTORY_USE',
@@ -140,3 +141,7 @@ export interface SkillsPacket extends Packet {
 export interface ExpDropPacket extends Packet, ExperienceDrop { }
 
 export interface LevelupPacket extends Packet, SkillDef { }
+
+export interface BooleanPacket extends Packet {
+    value: boolean;
+}
