@@ -38,6 +38,8 @@ export default class LocalUnit {
     protected eventEmitter: EventEmitter = new EventEmitter();
     private killed: boolean = false;
     public stale: boolean = false;
+    protected _isPlayer: boolean = false;
+    public get isPlayer(): boolean { return this._isPlayer; }
 
     public constructor(world: World, data: UnitDef) {
         this.world = world;

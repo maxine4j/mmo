@@ -3,9 +3,10 @@ import Panel from './components/Panel';
 import { Frame } from './components/Frame';
 import World from '../World';
 import Slider from './components/Slider';
-import { TilePoint } from '../../../common/Point';
+import { TilePoint, Point } from '../../../common/Point';
 import LocalPlayer from '../LocalPlayer';
 import MinimapOrb from './MinimapOrb';
+import LocalUnit from '../LocalUnit';
 
 type MinimapEvent = 'click';
 
@@ -19,6 +20,8 @@ export default class Minimap extends Panel {
     private orbPanel: Panel;
     private orbs: MinimapOrb[] = [];
 
+    private units: Map<string, LocalUnit> = new Map();
+
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private flag: HTMLImageElement;
@@ -26,7 +29,6 @@ export default class Minimap extends Panel {
 
     private dotSize = 4;
     private flagSize = 16;
-
     private scale: number = 2;
 
     public constructor(parent: Frame, world: World) {
@@ -81,6 +83,14 @@ export default class Minimap extends Panel {
         this.eventEmitter.emit(event, ...args);
     }
 
+    public trackUnit(unit: LocalUnit): void {
+        this.units.set(unit.data.id, unit);
+    }
+
+    public untrackUnit(id: string): void {
+        this.units.delete(id);
+    }
+
     public addOrb(orb: MinimapOrb): void {
         this.orbPanel.addChild(orb);
         this.orbs.push(orb);
@@ -103,7 +113,19 @@ export default class Minimap extends Panel {
         this.emit('click', this, new TilePoint(tx, ty, this.world.chunkWorld));
     }
 
-    public update(): void {
+    private tileToMinimap(pos: TilePoint): Point {
+        return new Point(
+            ((pos.x - this.world.player.position.x) * this.scale) + this.world.chunkWorld.chunkSize,
+            ((pos.y - this.world.player.position.y) * this.scale) + this.world.chunkWorld.chunkSize,
+        );
+    }
+
+    private drawDot(pos: Point, colour: string, size: number = this.dotSize): void {
+        this.ctx.fillStyle = colour;
+        this.ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
+    }
+
+    public draw(): void {
         if (this.world.player && this.world.player.position) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // clear the canvas
 
@@ -121,15 +143,20 @@ export default class Minimap extends Panel {
                 }
             }
 
+            // draw unit dots
+            this.ctx.fillStyle = 'yellow';
+            for (const [_, unit] of this.units) {
+                const upos = this.tileToMinimap(unit.position);
+                this.drawDot(upos, unit.isPlayer ? 'white' : 'yellow');
+            }
+
             // draw player dot
-            this.ctx.fillStyle = 'white';
-            this.ctx.fillRect(this.canvas.width / 2 - this.dotSize / 2, this.canvas.height / 2 - this.dotSize / 2, this.dotSize, this.dotSize);
+            this.drawDot(new Point(this.canvas.width / 2, this.canvas.width / 2), 'white', 6);
 
             // draw flag
             if (this.flagPos) {
-                const fx = ((this.flagPos.x - this.world.player.position.x) * this.scale) + this.world.chunkWorld.chunkSize;
-                const fy = ((this.flagPos.y - this.world.player.position.y) * this.scale) + this.world.chunkWorld.chunkSize;
-                this.ctx.drawImage(this.flag, fx - this.flagSize / 2, fy - this.flagSize, this.flagSize, this.flagSize);
+                const fpos = this.tileToMinimap(this.flagPos);
+                this.ctx.drawImage(this.flag, fpos.x - this.flagSize / 2, fpos.y - this.flagSize, this.flagSize, this.flagSize);
             }
         }
     }

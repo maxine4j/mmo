@@ -9,11 +9,18 @@ import { WorldPoint, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 import LocalGroundItem from './LocalGroundItem';
 import Graphics from './graphics/Graphics';
+import World from './World';
 
 type LocalPlayerEvent = LocalUnitEvent | 'moveTargetUpdated';
 
 export default class LocalPlayer extends LocalUnit {
     public data: CharacterDef;
+
+    public constructor(world: World, data: CharacterDef) {
+        super(world, data);
+
+        this._isPlayer = true;
+    }
 
     public on(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
         this.eventEmitter.on(event, listener);

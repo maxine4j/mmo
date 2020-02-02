@@ -191,6 +191,12 @@ export default class WorldScene extends GameScene {
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
             this.world.player.moveTo(pos);
         });
+        this.world.on('unitAdded', (unit: LocalUnit) => {
+            this.minimap.trackUnit(unit);
+        });
+        this.world.on('unitRemoved', (unit: LocalUnit) => {
+            this.minimap.untrackUnit(unit.data.id);
+        });
 
         const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, -1, 'assets/imgs/orbs/orb_run.png');
         runOrb.on('click', (self: MinimapOrb, active: boolean) => {
@@ -300,10 +306,6 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private updateMinimap(): void {
-        this.minimap.update();
-    }
-
     public update(delta: number): void {
         this.updateMousePoint();
         this.updateTopLeftLabels();
@@ -311,7 +313,6 @@ export default class WorldScene extends GameScene {
         this.updateChatHoverMsgs();
         this.updateNameplates();
         this.updateHitSplats();
-        this.updateMinimap();
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));
@@ -321,6 +322,7 @@ export default class WorldScene extends GameScene {
     }
 
     public draw(): void {
+        this.minimap.draw();
         super.draw();
     }
 }
