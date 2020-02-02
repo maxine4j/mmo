@@ -178,7 +178,7 @@ export default class Unit implements IModel {
         const newChunk = this.world.chunks.getChunk(ccx, ccy);
         if (!this.currentChunk) {
             this.addToNewChunk(newChunk);
-        } else if (newChunk.id !== this.currentChunk.id) { // if we have changed chunk
+        } else if (newChunk && newChunk.id !== this.currentChunk.id) { // if we have changed chunk
             this.removeFromOldChunk();
             this.addToNewChunk(newChunk);
         }

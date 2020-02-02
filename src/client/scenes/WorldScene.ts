@@ -28,6 +28,7 @@ import SkillsTab from '../engine/interface/tabs/SkillsTab';
 import TabContainer from '../engine/interface/TabContainer';
 import Rectangle from '../../common/Rectangle';
 import Engine from '../engine/Engine';
+import Minimap from '../engine/interface/Minimap';
 
 const nameplateTimeout = 10;
 
@@ -45,6 +46,7 @@ export default class WorldScene extends GameScene {
     private nameplates: Map<string, UnitNameplate> = new Map();
     private hitsplats: Map<string, HitSplat> = new Map();
     private tabContainer: TabContainer;
+    private minimap: Minimap;
 
     public constructor() {
         super('world');
@@ -217,6 +219,7 @@ export default class WorldScene extends GameScene {
         this.initNameplates();
         this.initSplats();
 
+        this.minimap = new Minimap(UIParent.get(), this.world);
         super.init();
     }
 
@@ -285,13 +288,20 @@ export default class WorldScene extends GameScene {
         }
     }
 
+    private timepassed = 0;
+
     public update(delta: number): void {
+        this.timepassed += delta;
         this.updateMousePoint();
         this.updateTopLeftLabels();
         this.updateWireframesToggle();
         this.updateChatHoverMsgs();
         this.updateNameplates();
         this.updateHitSplats();
+
+        if (this.timepassed > 2) { // TODO: temp
+            this.minimap.update();
+        }
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));

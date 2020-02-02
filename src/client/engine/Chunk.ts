@@ -11,10 +11,12 @@ export default class Chunk {
     public wireframe: THREE.LineSegments;
     private wireframeVisible: boolean;
     private _isLoaded: boolean;
+    public texture: THREE.Texture;
 
     public constructor(def: ChunkDef, world: ChunkWorld, texture?: THREE.Texture) {
         this.def = def;
         this.world = world;
+        this.texture = texture;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
         geometry.computeVertexNormals();

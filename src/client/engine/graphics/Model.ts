@@ -12,6 +12,26 @@ interface ModelDef {
     anims: AnimsDict;
 }
 
+enum ModelPart {
+    HANDS_UARMS_BELT_FACE = 0,
+    LARMS = 1,
+    LLEGS = 2,
+    EARS = 3,
+    ULEGS = 4,
+    FEET = 5,
+    TORSO = 6,
+    EYEBROWS = 7,
+    HAIR = 8,
+    BEARD = 9,
+    EARRINGS = 10,
+}
+
+function modelPart(model: Model, part: ModelPart): THREE.Object3D {
+    const rootNode = model.gltf.scene.children[0];
+    const meshes = rootNode.children[1];
+    return meshes.children[part];
+}
+
 export default class Model {
     public mixer: THREE.AnimationMixer;
     private lazyAnims: Map<string, string> = new Map();
