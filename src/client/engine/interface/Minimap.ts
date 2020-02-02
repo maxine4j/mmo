@@ -1,9 +1,14 @@
+import { EventEmitter } from 'events';
 import Panel from './components/Panel';
 import { Frame } from './components/Frame';
 import World from '../World';
 import Slider from './components/Slider';
+import { TilePoint } from '../../../common/Point';
+
+type MinimapEvent = 'click';
 
 export default class Minimap extends Panel {
+    private eventEmitter: EventEmitter = new EventEmitter();
     private world: World;
 
     private canvas: HTMLCanvasElement;
@@ -19,8 +24,8 @@ export default class Minimap extends Panel {
         this.style.top = '0';
         this.style.right = '0';
         this.style.backgroundColor = 'rgba(0,0,0,1)';
-        this.width = 100;
-        this.height = 100;
+        this.width = 256;
+        this.height = 256;
 
         this.canvas = document.createElement('canvas');
         this.canvas.width = this.width;
@@ -37,10 +42,33 @@ export default class Minimap extends Panel {
         });
     }
 
+    public on(event: MinimapEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: MinimapEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    private emit(event: MinimapEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
+    }
+
     private canvasClick(ev: MouseEvent): void {
-        const dx = ev.offsetX;
-        const dy = ev.offsetY;
-        console.log('Got a minimap click at', dx, dy);
+        // get mouse click as ratio of canvas width and height
+        const dx = ev.offsetX / this.canvas.width;
+        const dy = ev.offsetY / this.canvas.height;
+        // get number of tiles that fit on the minimap canvas with the current scale
+        const tileW = this.canvas.width / this.scale;
+        const tileH = this.canvas.height / this.scale;
+        // get the top left tile
+        const topLeftTileX = this.world.player.position.x - tileW / 2;
+        const topLeftTileY = this.world.player.position.y - tileH / 2;
+        // use the mouse click ratio to find the tile that was clicked
+        const tx = topLeftTileX + tileW * dx;
+        const ty = topLeftTileY + tileH * dy;
+
+        this.emit('click', this, new TilePoint(tx, ty, this.world.chunkWorld));
     }
 
     public update(): void {

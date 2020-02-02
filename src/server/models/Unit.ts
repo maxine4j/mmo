@@ -144,7 +144,10 @@ export default class Unit implements IModel {
     }
 
     protected findPath(dest: PointDef): PointDef[] {
-        const navmap = this.world.chunks.generateNavmap(this.data.position, dest);
+        const navmap = this.world.chunks.generateNavmap(this.data.position, {
+            x: Math.round(dest.x),
+            y: Math.floor(dest.y),
+        });
         const grid = new PF.Grid(navmap.matrix);
 
         const finder = new PF.AStarFinder({

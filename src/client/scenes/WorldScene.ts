@@ -15,11 +15,11 @@ import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
 import {
     PacketHeader, ChatMsgPacket, WorldInfoPacket, DamagePacket, InventorySwapPacket, InventoryUsePacket,
-    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket, ExpDropPacket, LevelupPacket,
+    InventoryPacket, ResponsePacket, InventoryDropPacket, SkillsPacket, ExpDropPacket, LevelupPacket, PointPacket,
 } from '../../common/Packet';
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
-import { WorldPoint } from '../../common/Point';
+import { WorldPoint, TilePoint } from '../../common/Point';
 import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
@@ -220,6 +220,11 @@ export default class WorldScene extends GameScene {
         this.initSplats();
 
         this.minimap = new Minimap(UIParent.get(), this.world);
+        this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
+            NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: pos.x, y: pos.y });
+            Input.playClickMark(Input.mousePos(), 'yellow');
+        });
+
         super.init();
     }
 
