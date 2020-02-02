@@ -37,7 +37,7 @@ export default class Input {
         canvas.addEventListener('mouseup', (ev: MouseEvent) => {
             this.setMouseState(ev, false);
         });
-        canvas.addEventListener('mousemove', (ev: MouseEvent) => {
+        window.addEventListener('mousemove', (ev: MouseEvent) => {
             this.mousePosition.x = ev.clientX;
             this.mousePosition.y = ev.clientY;
         });
