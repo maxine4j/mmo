@@ -34,7 +34,7 @@ export default class Input {
             this.setMouseState(ev, true);
             ev.preventDefault();
         });
-        canvas.addEventListener('mouseup', (ev: MouseEvent) => {
+        window.addEventListener('mouseup', (ev: MouseEvent) => {
             this.setMouseState(ev, false);
         });
         window.addEventListener('mousemove', (ev: MouseEvent) => {

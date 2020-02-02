@@ -9,6 +9,9 @@ import MinimapOrb from './MinimapOrb';
 
 type MinimapEvent = 'click';
 
+const minimapBorder = 5;
+const minimapSize = 256;
+
 export default class Minimap extends Panel {
     private eventEmitter: EventEmitter = new EventEmitter();
     private world: World;
@@ -24,7 +27,7 @@ export default class Minimap extends Panel {
     private dotSize = 4;
     private flagSize = 16;
 
-    private scale: number = 1;
+    private scale: number = 2;
 
     public constructor(parent: Frame, world: World) {
         super(parent);
@@ -33,18 +36,22 @@ export default class Minimap extends Panel {
 
         this.style.top = '0';
         this.style.right = '0';
-        this.style.backgroundColor = 'rgba(0,0,0,1)';
-        this.width = 256;
-        this.height = 256;
+        this.width = minimapSize + minimapBorder * 2;
+        this.height = minimapSize + minimapBorder * 2;
+        this.clickThrough = true;
+        this.style.borderRadius = '100%';
 
         this.canvas = document.createElement('canvas');
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
+        this.canvas.style.position = 'initial';
+        this.canvas.width = minimapSize;
+        this.canvas.height = minimapSize;
+        this.canvas.style.borderRadius = '100%';
+        this.canvas.style.border = `${minimapBorder}px solid rgba(255, 255, 255, 0.8)`;
         this.element.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
         this.canvas.addEventListener('click', this.canvasClick.bind(this));
 
-        const slider = new Slider(this, 1, 10, this.scale, 0.1);
+        const slider = new Slider(this, 2, 10, this.scale, 0.1);
         slider.style.position = 'initial';
         slider.width = this.width;
         slider.addEventListener('input', () => {
