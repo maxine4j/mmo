@@ -3,15 +3,29 @@ import NetClient from './NetClient';
 import {
     PacketHeader, PointPacket, TargetPacket, LootPacket,
 } from '../../common/Packet';
-import LocalUnit from './LocalUnit';
+import LocalUnit, { LocalUnitEvent } from './LocalUnit';
 import Input, { MouseButton } from './Input';
-import { WorldPoint } from '../../common/Point';
+import { WorldPoint, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 import LocalGroundItem from './LocalGroundItem';
 import Graphics from './graphics/Graphics';
 
+type LocalPlayerEvent = LocalUnitEvent | 'moveTargetUpdated';
+
 export default class LocalPlayer extends LocalUnit {
     public data: CharacterDef;
+
+    public on(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    protected emit(event: LocalPlayerEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
+    }
 
     private tryPickUp(intersects: THREE.Intersection[]): boolean {
         if (Input.mouseStartDown(MouseButton.LEFT)) {
@@ -48,16 +62,29 @@ export default class LocalPlayer extends LocalUnit {
         return false;
     }
 
+    public moveTo(pos: TilePoint): void {
+        NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: pos.x, y: pos.y });
+        this.emit('moveTargetUpdated', this, pos);
+    }
+
     private tryMove(mousePoint: THREE.Vector3): boolean {
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             if (mousePoint) {
                 const tilePoint = new WorldPoint(mousePoint, this.world.chunkWorld).toTile();
-                NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: tilePoint.x, y: tilePoint.y });
+                this.moveTo(tilePoint);
                 Input.playClickMark(Input.mousePos(), 'yellow');
                 return true;
             }
         }
         return false;
+    }
+
+    public onTick(data: CharacterDef): void {
+        super.onTick(data);
+
+        if (this.movesThisTick <= 0) {
+            this.emit('moveTargetUpdated', this, null);
+        }
     }
 
     public updateClientPlayer(mousePoint: WorldPoint, intersects: THREE.Intersection[]): void {

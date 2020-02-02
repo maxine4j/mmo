@@ -198,8 +198,8 @@ export default class WorldScene extends GameScene {
     private initMinimap(): void {
         this.minimap = new Minimap(UIParent.get(), this.world);
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
-            NetClient.send(PacketHeader.PLAYER_MOVETO, <PointPacket>{ x: pos.x, y: pos.y });
-            Input.playClickMark(Input.mousePos(), 'yellow');
+            this.world.player.moveTo(pos);
+            // Input.playClickMark(Input.mousePos(), 'yellow');
         });
     }
 

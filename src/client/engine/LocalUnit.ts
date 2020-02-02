@@ -21,7 +21,7 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
-type LocalUnitEvent = 'loaded' | 'death';
+export type LocalUnitEvent = 'loaded' | 'death';
 
 export default class LocalUnit {
     public data: UnitDef;
@@ -32,10 +32,10 @@ export default class LocalUnit {
     private animations: Map<UnitAnimation, AnimationAction> = new Map();
     private currentPosition: TilePoint;
     private targetPosition: TilePoint;
-    private movesThisTick: number;
+    protected movesThisTick: number;
     private moveTimer: number;
     private targetAngle: number = null;
-    private eventEmitter: EventEmitter = new EventEmitter();
+    protected eventEmitter: EventEmitter = new EventEmitter();
     private killed: boolean = false;
     public stale: boolean = false;
 
@@ -57,7 +57,7 @@ export default class LocalUnit {
         this.eventEmitter.off(event, listener);
     }
 
-    private emit(event: LocalUnitEvent, ...args: any[]): void {
+    protected emit(event: LocalUnitEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
     }
 

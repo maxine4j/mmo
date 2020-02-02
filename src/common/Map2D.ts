@@ -8,10 +8,13 @@ class Map2DIterator<K1, K2, V> implements Iterator<[K1, K2, V]> {
         this.data = data;
         this.outerIter = this.data.entries();
         this.outerCurrent = this.outerIter.next();
-        this.innerIter = this.outerCurrent.value[1].entries();
+        if (this.outerCurrent.value) {
+            this.innerIter = this.outerCurrent.value[1].entries();
+        }
     }
 
     public next(): IteratorResult<[K1, K2, V]> {
+        if (!this.innerIter) return { done: true, value: undefined };
         let innerCurrent = this.innerIter.next();
         while (innerCurrent.done) {
             this.outerCurrent = this.outerIter.next(); // move to the next outer

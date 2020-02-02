@@ -3,7 +3,8 @@ import Panel from './components/Panel';
 import { Frame } from './components/Frame';
 import World from '../World';
 import Slider from './components/Slider';
-import { TilePoint } from '../../../common/Point';
+import { TilePoint, Point } from '../../../common/Point';
+import LocalPlayer from '../LocalPlayer';
 
 type MinimapEvent = 'click';
 
@@ -13,6 +14,11 @@ export default class Minimap extends Panel {
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    private flag: HTMLImageElement;
+    private flagPos: TilePoint;
+
+    private dotSize = 4;
+    private flagSize = 16;
 
     private scale: number = 1;
 
@@ -39,6 +45,13 @@ export default class Minimap extends Panel {
         slider.width = this.width;
         slider.addEventListener('input', () => {
             this.scale = slider.value;
+        });
+
+        this.flag = new Image();
+        this.flag.src = 'assets/imgs/flag.png';
+
+        this.world.player.on('moveTargetUpdated', (self: LocalPlayer, target: TilePoint) => {
+            this.flagPos = target;
         });
     }
 
@@ -75,22 +88,30 @@ export default class Minimap extends Panel {
         if (this.world.player && this.world.player.position) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // clear the canvas
 
+            const dw = this.world.chunkWorld.chunkSize * this.scale;
+            const dh = this.world.chunkWorld.chunkSize * this.scale;
+            const px = (this.world.player.position.x * this.scale) + dw - this.canvas.width / 2;
+            const py = (this.world.player.position.y * this.scale) + dh - this.canvas.height / 2;
+
             for (const [ccx, ccy, chunk] of this.world.chunkWorld.chunks) {
                 if (chunk) {
                     // calculate chunk position
-                    const dw = this.world.chunkWorld.chunkSize * this.scale;
-                    const dh = this.world.chunkWorld.chunkSize * this.scale;
                     const x = (dw * ccx) + (dw / 2);
                     const y = (dh * ccy) + (dh / 2);
-                    const px = (this.world.player.position.x * this.scale) + dw - this.canvas.width / 2;
-                    const py = (this.world.player.position.y * this.scale) + dh - this.canvas.height / 2;
-
                     this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
                 }
             }
 
-            this.ctx.fillStyle = 'red';
-            this.ctx.fillRect(this.canvas.width / 2 - 2, this.canvas.height / 2 - 2, 4, 4); // draw player dot
+            // draw player dot
+            this.ctx.fillStyle = 'white';
+            this.ctx.fillRect(this.canvas.width / 2 - this.dotSize / 2, this.canvas.height / 2 - this.dotSize / 2, this.dotSize, this.dotSize);
+
+            // draw flag
+            if (this.flagPos) {
+                const fx = ((this.flagPos.x - this.world.player.position.x) * this.scale) + this.world.chunkWorld.chunkSize;
+                const fy = ((this.flagPos.y - this.world.player.position.y) * this.scale) + this.world.chunkWorld.chunkSize;
+                this.ctx.drawImage(this.flag, fx - this.flagSize / 2, fy - this.flagSize, this.flagSize, this.flagSize);
+            }
         }
     }
 }
