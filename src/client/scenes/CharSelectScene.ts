@@ -17,6 +17,7 @@ import Scene from '../engine/graphics/Scene';
 import Sprite from '../engine/graphics/Sprite';
 import Input, { MouseButton } from '../engine/Input';
 import Engine from '../engine/Engine';
+import AssetManager from '../engine/asset/AssetManager';
 
 export default class CharSelectScene extends GameScene {
     private characters: CharacterDef[];
@@ -155,7 +156,7 @@ export default class CharSelectScene extends GameScene {
         this.background.position.y += 0.5;
         this.scene.add(this.background);
 
-        this.selectedModel = await Model.loadDef('assets/models/units/human/human.model.json');
+        this.selectedModel = await AssetManager.getModel('human');
         this.selectedModel.getAnim('Stand').then((a) => a.play());
 
         this.selectedModel.obj.scale.set(4, 4, 4);

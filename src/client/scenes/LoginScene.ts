@@ -15,6 +15,7 @@ import Camera from '../engine/graphics/Camera';
 import Model from '../engine/graphics/Model';
 import Scene from '../engine/graphics/Scene';
 import Engine from '../engine/Engine';
+import AssetManager from '../engine/asset/AssetManager';
 
 export default class LoginScene extends GameScene {
     private background: Model;
@@ -101,8 +102,10 @@ export default class LoginScene extends GameScene {
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
 
-        this.background = await Model.loadDef('assets/models/ui/mainmenu/mainmenu.model.json');
-        this.background.getAnim('Stand').then((a) => a.play());
+        // this.background = await Model.loadDef('assets/models/ui/mainmenu/mainmenu.model.json');
+        // this.scene.add(this.background.obj);
+
+        this.background = await AssetManager.getModel('mainmenu');
         this.scene.add(this.background.obj);
 
         this.camera.position.set(5.095108853409366, -1.049448850028543, -2.400366781879153);

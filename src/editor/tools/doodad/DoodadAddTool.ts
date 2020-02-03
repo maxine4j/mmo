@@ -23,7 +23,7 @@ export default class DoodadAddTool extends Tool {
     private intialTheta: number;
     private initialElevation: number;
 
-    private libraryModel: string = 'environment/crates.model.json';
+    private libraryModel: string = 'crates';
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(

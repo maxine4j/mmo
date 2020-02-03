@@ -1,16 +1,6 @@
-import { GLTFLoader, GLTF } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
-
-interface AnimsDict {
-    [index: string]: string
-}
-
-interface ModelDef {
-    main: string;
-    animDir: string;
-    anims: AnimsDict;
-}
+import CachedModel, { CachedAnimation } from '../asset/CachedModel';
 
 enum ModelPart {
     HANDS_UARMS_BELT_FACE = 0,
@@ -27,19 +17,26 @@ enum ModelPart {
 }
 
 function _modelPart(model: Model, part: ModelPart): THREE.Object3D {
-    const rootNode = model.gltf.scene.children[0];
+    const rootNode = model.obj.children[0];
     const meshes = rootNode.children[1];
     return meshes.children[part];
 }
 
 export default class Model {
-    public mixer: THREE.AnimationMixer;
-    private lazyAnims: Map<string, string> = new Map();
+    private cache: CachedModel;
     private animations: Map<string, AnimationAction> = new Map();
-    public gltf: GLTF;
+    public obj: THREE.Object3D;
+    public mixer: THREE.AnimationMixer;
 
-    public constructor(gltf: GLTF) {
-        this.gltf = gltf;
+    private animLoadedListender: (anim: CachedAnimation) => void = (anim: CachedAnimation) => {
+        this.addAnim(anim);
+    };
+
+    public constructor(cache: CachedModel) {
+        this.cache = cache;
+
+        // set up mesh from cache
+        this.obj = this.cache.cloneObject3D();
         this.obj.receiveShadow = true;
         this.obj.castShadow = true;
         this.obj.traverse((o) => { // make fbx converted models look normal
@@ -48,110 +45,36 @@ export default class Model {
                 o.material.metalness = 0;
             }
         });
+
+        // set up animations from cache
         this.mixer = new THREE.AnimationMixer(this.obj);
-        this.initObj();
+        for (const [_, anim] of this.cache.animations) {
+            this.addAnim(anim);
+        }
+        // ensure we get new animations as they are laoded
+        this.cache.on('animLoaded', this.animLoadedListender);
     }
 
-    private initObj(): void {
-        this.obj.receiveShadow = true;
-        this.obj.castShadow = true;
+    public dispose(): void {
+        this.cache.off('animLoaded', this.animLoadedListender);
+        if (this.obj.parent) {
+            this.obj.parent.remove(this.obj);
+        }
     }
 
-    public lazyLoadAnims(nameSrc: [string, string][]): void {
-        nameSrc.forEach((ns) => this.lazyLoadAnim(ns[0], ns[1]));
+    private addAnim(anim: CachedAnimation): void {
+        this.animations.set(anim.id, this.mixer.clipAction(anim.clip));
     }
 
-    public loadAnims(nameSrc: [string, string][]): Promise<AnimationAction[]> {
-        return Promise.all(nameSrc.map((ns) => this.loadAnim(ns[0], ns[1])));
-    }
-
-    public lazyLoadAnim(name: string, src: string): void {
-        this.lazyAnims.set(name, src);
-    }
-
-    public loadAnim(name: string, src: string): Promise<AnimationAction> {
+    public getAnim(id: string): Promise<AnimationAction> {
         return new Promise((resolve, reject) => {
-            const loader = new GLTFLoader();
-            try {
-                loader.load(src, (gltf) => {
-                    const action = this.mixer.clipAction(gltf.animations[0]);
-                    this.animations.set(name, action);
-                    resolve(action);
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
-
-    public static load(src: string): Promise<Model> {
-        return new Promise((resolve, reject) => {
-            const loader = new GLTFLoader();
-            try {
-                loader.load(src, (gltf) => {
-                    resolve(new Model(gltf));
-                });
-            } catch (err) {
-                reject(err);
-            }
-        });
-    }
-
-    public static loadDef(src: string, lazy: boolean = true): Promise<Model> {
-        return new Promise((resolve, reject) => {
-            fetch(src)
-                .then((resp) => resp.json())
-                .then((data: ModelDef) => { // parse it
-                    // get absolute main model path
-                    const rootDirParts = src.split('.')[0].split('/');
-                    rootDirParts.pop();
-                    const rootDir = rootDirParts.join('/');
-                    const modelSrc = `${rootDir}/${data.main}`;
-                    // get absolute anim paths
-                    const animSrcs: [string, string][] = [];
-                    for (const animName in data.anims) {
-                        const animSrc = `${rootDir}/${data.animDir}/${data.anims[animName]}`;
-                        animSrcs.push([animName, animSrc]);
-                    }
-
-                    // load the main model
-                    const loader = new GLTFLoader();
-                    try {
-                        loader.load(modelSrc, (gltf) => {
-                            const model = new Model(gltf);
-                            // load all anims
-                            if (lazy) {
-                                model.lazyLoadAnims(animSrcs);
-                                resolve(model);
-                            } else {
-                                model.loadAnims(animSrcs).then(() => resolve(model));
-                            }
-                        });
-                    } catch (err) {
-                        reject(err);
-                    }
-                }).catch((err) => reject(err));
-        });
-    }
-
-    public get obj(): THREE.Object3D {
-        return this.gltf.scene;
-    }
-
-    public update(delta: number): void {
-        this.mixer.update(delta);
-    }
-
-    public getAnim(name: string): Promise<AnimationAction> {
-        return new Promise((resolve, reject) => {
-            const anim = this.animations.get(name);
-            if (anim) {
-                resolve(anim);
+            const existing = this.animations.get(id);
+            if (existing) {
+                resolve(existing);
             } else {
-                const animSrc = this.lazyAnims.get(name);
-                this.loadAnim(name, animSrc)
-                    .then((a) => resolve(a))
-                    .catch((e) => reject(e));
+                this.cache.loadAnim(id)
+                    .then((anim) => resolve(this.animations.get(id)))
+                    .catch((err) => reject(err));
             }
         });
     }
@@ -167,5 +90,9 @@ export default class Model {
         this.getAnim(name).then((a) => {
             a.play();
         });
+    }
+
+    public update(delta: number): void {
+        this.mixer.update(delta);
     }
 }

@@ -40,7 +40,7 @@ export default class Player extends Unit implements IModel {
 
         this.data.autoRetaliate = this.entity.autoRetaliate;
         this.socket = client.socket;
-        this.data.model = 'assets/models/units/human/human.model.json'; // TODO: get from race
+        this.data.model = 'human'; // TODO: get from race
         this.data.running = this.entity.running;
         this.bags = new InventoryManager(this.world, entity.bags);
         this.bank = new InventoryManager(this.world, entity.bank);

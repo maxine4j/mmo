@@ -3,6 +3,7 @@ import { DoodadDef } from '../../common/ChunkDef';
 import Model from './graphics/Model';
 import Chunk from './Chunk';
 import { ChunkPoint } from '../../common/Point';
+import AssetManager from './asset/AssetManager';
 
 export default class Doodad {
     public def: DoodadDef;
@@ -30,7 +31,7 @@ export default class Doodad {
 
     public static load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
         return new Promise((resolve, reject) => {
-            Model.loadDef(`assets/models/${def.model}`)
+            AssetManager.getModel(def.model)
                 .then((model) => {
                     resolve(new Doodad(def, model, chunk));
                 })

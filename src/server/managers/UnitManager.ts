@@ -53,7 +53,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
         unit: {
             id: 'skeleton',
             name: 'Skeleton',
-            model: 'assets/models/units/skeleton/skeleton.model.json',
+            model: 'skeleton',
             combatStyle: CombatStyle.MELEE_AGGRESSIVE,
             stats: {
                 attack: 1,
@@ -81,7 +81,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
         unit: {
             id: 'chicken',
             name: 'Chicken',
-            model: 'assets/models/units/chicken/chicken.model.json',
+            model: 'chicken',
             combatStyle: CombatStyle.MELEE_AGGRESSIVE,
             stats: {
                 attack: 1,

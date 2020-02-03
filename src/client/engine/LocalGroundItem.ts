@@ -2,6 +2,7 @@ import { GroundItemDef } from '../../common/ItemDef';
 import World from './World';
 import Model from './graphics/Model';
 import { TilePoint } from '../../common/Point';
+import AssetManager from './asset/AssetManager';
 
 export default class LocalGroundItem {
     public def: GroundItemDef;
@@ -15,17 +16,18 @@ export default class LocalGroundItem {
         this.world = world;
         this.def = def;
         this._position = new TilePoint(def.position.x, def.position.y, world.chunkWorld);
-        Model.loadDef('assets/models/environment/sack.model.json').then((model) => {
-            this.model = model;
-            this.model.obj.traverse((o) => {
-                o.name = 'groundItem';
-                o.userData = {
-                    groundItem: this,
-                };
+        AssetManager.getModel('sack')
+            .then((model) => {
+                this.model = model;
+                this.model.obj.traverse((o) => {
+                    o.name = 'groundItem';
+                    o.userData = {
+                        groundItem: this,
+                    };
+                });
+                this.model.obj.position.copy(this.position.toWorld());
+                this.world.scene.add(this.model.obj);
             });
-            this.model.obj.position.copy(this.position.toWorld());
-            this.world.scene.add(this.model.obj);
-        });
     }
 
     public dispose(): void {

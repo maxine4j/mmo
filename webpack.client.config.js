@@ -10,7 +10,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.tsx?$/,
+                test: /\.ts$/,
                 use: 'awesome-typescript-loader?configFileName=./tsconfig.client.json',
                 exclude: /node_modules/,
             },

@@ -5,6 +5,7 @@ import Model from './graphics/Model';
 import World from './World';
 import UnitDef from '../../common/UnitDef';
 import { TilePoint, Point } from '../../common/Point';
+import AssetManager from './asset/AssetManager';
 
 export enum UnitAnimation {
     WALK,
@@ -21,7 +22,7 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
-export type LocalUnitEvent = 'loaded' | 'death';
+export type LocalUnitEvent = 'loaded' | 'death' | 'disposed';
 
 export default class LocalUnit {
     public data: UnitDef;
@@ -48,7 +49,9 @@ export default class LocalUnit {
     }
 
     public dispose(): void {
-        this.world.scene.remove(this.model.obj);
+        this.model.dispose();
+        this.emit('disposed', this);
+        this.eventEmitter.removeAllListeners();
     }
 
     public on(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
@@ -67,7 +70,7 @@ export default class LocalUnit {
 
     private loadModel(): void {
         if (this.data) {
-            Model.loadDef(this.data.model)
+            AssetManager.getModel(this.data.model)
                 .then((model) => {
                     this.model = model;
                     this.model.obj.castShadow = true;
