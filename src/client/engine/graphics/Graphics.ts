@@ -33,6 +33,11 @@ export default class Graphics {
 
         this.outlinePass = new OutlinePass(new THREE.Vector2(this.viewportWidth, this.viewportHeight), scene, camera);
         this.composer.addPass(this.outlinePass);
+
+        // for three.js inspector support
+        // @ts-ignore
+        window.scene = scene;
+        window.THREE = THREE;
     }
 
     public static addPass(pass: Pass): void {
