@@ -1060,7 +1060,7 @@
         "atlases": {
             "items": {
                 "id": "items",
-                "src": "assets/icons/items.png",
+                "src": "assets/atlases/items.png",
                 "sprites": {
                     "skull": {
                         "id": "skull",
@@ -1129,7 +1129,7 @@
             },
             "skills": {
                 "id": "skills",
-                "src": "assets/icons/skills.png",
+                "src": "assets/atlases/skills.png",
                 "sprites": {
                     "attack": {
                         "id": "attack",
@@ -1342,7 +1342,7 @@
             },
             "tabs": {
                 "id": "tabs",
-                "src": "assets/icons/tabs.png",
+                "src": "assets/atlases/tabs.png",
                 "sprites": {
                     "combat": {
                         "id": "combat",
