@@ -2,17 +2,13 @@ import ContentDef from './AssetDef';
 import Model from '../graphics/Model';
 import CachedModel from './CachedModel';
 import _content from '../../assets/content.json';
+import SpriteAtlas from './SpriteAtlas';
 
-const contentDef = <ContentDef>_content;
+export const contentDef = <ContentDef>_content;
 
 export default class AssetManager {
     private static modelCache: Map<string, CachedModel> = new Map();
-
-    public static loadAnim(modelID: string, animID: string): void {
-        const def = contentDef.content.models[modelID];
-        const cm = this.modelCache.get(def.id);
-        cm.loadAnim(animID);
-    }
+    private static atlasCache: Map<string, SpriteAtlas> = new Map();
 
     public static getModel(id: string): Promise<Model> {
         return new Promise((resolve, reject) => {
@@ -41,5 +37,19 @@ export default class AssetManager {
                 }
             }
         });
+    }
+
+    public static getAtlas(id: string): SpriteAtlas {
+        const existing = this.atlasCache.get(id);
+        if (existing) {
+            return existing;
+        }
+        const def = contentDef.content.atlases[id];
+        if (def) {
+            const atlas = new SpriteAtlas(def);
+            this.atlasCache.set(def.id, atlas);
+            return atlas;
+        }
+        throw new Error(`Atlas not found in content definition: ${id}`);
     }
 }

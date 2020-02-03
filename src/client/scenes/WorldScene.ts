@@ -24,7 +24,6 @@ import HitSplat from '../engine/interface/HitSplat';
 import BagsTab, { InventorySlot } from '../engine/interface/tabs/BagsTab';
 import SkillsTab from '../engine/interface/tabs/SkillsTab';
 import TabContainer from '../engine/interface/TabContainer';
-import Rectangle from '../../common/Rectangle';
 import Engine from '../engine/Engine';
 import Minimap from '../engine/interface/Minimap';
 import MinimapOrb from '../engine/interface/MinimapOrb';
@@ -55,11 +54,10 @@ export default class WorldScene extends GameScene {
     }
 
     private initGUITabs(): void {
-        const tabIconSize = 30;
         this.tabContainer = new TabContainer(UIParent.get(), 320, 320);
 
         const bagsTab = new BagsTab(this.tabContainer);
-        this.tabContainer.addTab(bagsTab, new Rectangle(tabIconSize * 2, tabIconSize * 0, tabIconSize, tabIconSize));
+        this.tabContainer.addTab(bagsTab, 'backpack');
         bagsTab.on('swap', (a: InventorySlot, b: InventorySlot) => {
             NetClient.send(PacketHeader.INVENTORY_SWAP, <InventorySwapPacket>{
                 slotA: a.slot,
@@ -90,13 +88,13 @@ export default class WorldScene extends GameScene {
         });
 
         const skillsTab = new SkillsTab(this.tabContainer);
-        this.tabContainer.addTab(skillsTab, new Rectangle(tabIconSize * 1, tabIconSize * 2, tabIconSize, tabIconSize));
+        this.tabContainer.addTab(skillsTab, 'skills');
         NetClient.on(PacketHeader.PLAYER_SKILLS, (packet: SkillsPacket) => {
             skillsTab.setSkills(packet.skills);
         });
 
         const logoutTab = new LogoutTab(this.tabContainer);
-        this.tabContainer.addTab(logoutTab, new Rectangle(tabIconSize * 0, tabIconSize * 1, tabIconSize, tabIconSize));
+        this.tabContainer.addTab(logoutTab, 'logout');
     }
 
     private initGUI(): void {

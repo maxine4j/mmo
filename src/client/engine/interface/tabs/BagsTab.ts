@@ -1,17 +1,20 @@
 import { EventEmitter } from 'events';
-import Rectangle from '../../../../common/Rectangle';
 import Panel from '../components/Panel';
 import LocalItem from '../../LocalItem';
-import SpriteAtlas from '../components/SpriteAtlas';
-import SpriteAtlasImage from '../components/SpriteAtlasImage';
+import AtlasSprite from '../components/AtlasSprite';
 import InventoryDef from '../../../../common/InventoryDef';
 import Input from '../../Input';
 import { Point } from '../../../../common/Point';
 import TabContainer from '../TabContainer';
 import BaseTab, { setUpTabPanel } from '../BaseTab';
+import AssetManager from '../../asset/AssetManager';
 
 const slotSize = 32;
-const atlas = new SpriteAtlas('assets/icons/items.png');
+const slotCount = 28;
+const slotsPerRow = 4;
+const margin = 5;
+const itemIconAtlas = AssetManager.getAtlas('items');
+
 
 const slotBg = 'rgba(255,255,255,0.0)';
 const slotBgOver = 'rgba(255,255,255,0.2)';
@@ -20,12 +23,12 @@ const slotBgSelected = 'rgba(255,255,255,0.4)';
 type InventoryEvent = 'swap' | 'use' | 'drop';
 
 export class InventorySlot extends Panel {
-    public icon: SpriteAtlasImage;
+    public icon: AtlasSprite;
     private _item: LocalItem;
     public slot: number;
     public inventory: BagsTab;
 
-    public constructor(item: LocalItem, slot: number, parent: BagsTab, margin: number) {
+    public constructor(item: LocalItem, slot: number, parent: BagsTab) {
         super(parent);
         this.inventory = parent;
         this.element.draggable = true;
@@ -98,37 +101,19 @@ export class InventorySlot extends Panel {
         this.element.addEventListener('dragover', (ev: DragEvent) => ev.preventDefault());
     }
 
-    private getIconOffset(id: number): [number, number] {
-        const stride = 16;
-        const x = id % stride;
-        const y = Math.floor(id / stride);
-        return [x, y];
-    }
-
     public updateIcon(): void {
         if (this.icon) this.icon.dispose();
-        let x = 0;
-        let y = 0;
-        let w = 1;
-        let h = 1;
         if (this.item) {
-            [x, y] = this.getIconOffset(this.item.data.icon);
-            w = 32;
-            h = 32;
+            this.icon = itemIconAtlas.getSprite(this.item.data.icon, this);
+            this.icon.style.position = 'initial';
+            this.icon.width = slotSize;
+            this.icon.height = slotSize;
         }
-        this.icon = new SpriteAtlasImage(this, atlas, new Rectangle(x * w, y * h, w, h));
-        this.icon.style.position = 'initial';
-        this.icon.width = slotSize;
-        this.icon.height = slotSize;
     }
 }
 
 export default class BagsTab extends BaseTab {
     public get name(): string { return 'Inventory'; }
-    private readonly slotCount: number = 28;
-    private readonly slotsPerRow: number = 4;
-    private readonly margin: number = 5;
-    private readonly slotSize: number = 32;
     private slots: Map<number, InventorySlot> = new Map();
     private selectedSlot: InventorySlot = null;
     private eventEmitter: EventEmitter = new EventEmitter();
@@ -136,12 +121,12 @@ export default class BagsTab extends BaseTab {
     public constructor(parent: TabContainer) {
         super(parent);
         setUpTabPanel(this);
-        this.width = this.slotsPerRow * (this.slotSize + 2 * this.margin);
+
+        this.width = slotsPerRow * (slotSize + 2 * margin);
         this.height = parent.height;
 
-
-        for (let i = 0; i < this.slotCount; i++) {
-            this.slots.set(i, new InventorySlot(null, i, this, 5));
+        for (let i = 0; i < slotCount; i++) {
+            this.slots.set(i, new InventorySlot(null, i, this));
         }
     }
 

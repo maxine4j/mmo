@@ -13,5 +13,5 @@ export default class ItemTypeEntity extends BaseEntity {
     public name: string;
 
     @Column()
-    public icon: number;
+    public icon: string;
 }

@@ -1,21 +1,20 @@
 import Panel from './components/Panel';
-import SpriteAtlasImage from './components/SpriteAtlasImage';
+import AtlasSprite from './components/AtlasSprite';
 import { Frame } from './components/Frame';
-import SpriteAtlas from './components/SpriteAtlas';
-import Rectangle from '../../../common/Rectangle';
 import Button from './components/Button';
 import BaseTab from './BaseTab';
+import AssetManager from '../asset/AssetManager';
 
-const atlas = new SpriteAtlas('assets/icons/tabs.png');
+const tabIconAtlas = AssetManager.getAtlas('tabs');
 const menuButtonSize = 32;
 
 class Tab {
     public container: TabContainer;
     public panel: Frame;
     public btn: Button;
-    public icon: SpriteAtlasImage;
+    public icon: AtlasSprite;
 
-    public constructor(container: TabContainer, menuBar: Panel, panel: Frame, iconSrc: Rectangle) {
+    public constructor(container: TabContainer, menuBar: Panel, panel: Frame, icon: string) {
         this.container = container;
         this.panel = panel;
 
@@ -29,7 +28,7 @@ class Tab {
         this.btn.width = menuButtonSize;
         this.btn.height = menuButtonSize;
 
-        this.icon = new SpriteAtlasImage(this.btn, atlas, iconSrc);
+        this.icon = tabIconAtlas.getSprite(icon, this.btn);
         this.icon.style.position = 'initial';
 
         this.btn.addEventListener('click', () => {
@@ -62,8 +61,8 @@ export default class TabContainer extends Panel {
         this.menuBar.style.right = '0';
     }
 
-    public addTab(panel: BaseTab, iconSrc: Rectangle): void {
-        const tab = new Tab(this, this.menuBar, panel, iconSrc);
+    public addTab(panel: BaseTab, icon: string): void {
+        const tab = new Tab(this, this.menuBar, panel, icon);
         this.tabs.set(panel.id, tab);
         panel.hide();
         this.menuBar.width += menuButtonSize;

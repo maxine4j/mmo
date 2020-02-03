@@ -2,10 +2,7 @@ import * as THREE from 'three';
 import { EventEmitter } from 'events';
 import { GLTF, GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { SkeletonUtils } from 'three/examples/jsm/utils/SkeletonUtils';
-import ContentDef, { ModelAssetDef } from './AssetDef';
-import _content from '../../assets/content.json';
-
-const contentDef = <ContentDef>_content;
+import { ModelAssetDef } from './AssetDef';
 
 type CachedModelEvent = 'loaded' | 'loadError' | 'animLoaded' | 'animLoadError';
 
@@ -60,7 +57,7 @@ export default class CachedModel {
 
     public loadAnim(id: string): Promise<CachedAnimation> {
         return new Promise((resolve, reject) => {
-            const animSrc = contentDef.content.models[this.def.id].anims[id];
+            const animSrc = this.def.anims[id];
             if (animSrc == null) {
                 reject(new Error(`Animation not found in model definition: ${id}`));
             } else {

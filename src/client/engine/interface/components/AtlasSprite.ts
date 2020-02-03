@@ -1,20 +1,20 @@
 import { Frame } from './Frame';
-import SpriteAtlas from './SpriteAtlas';
-import Rectangle from '../../../../common/Rectangle';
+import SpriteAtlas from '../../asset/SpriteAtlas';
+import { RectangleDef } from '../../../../common/Rectangle';
 
-export default class SpriteAtlasImage extends Frame {
+export default class AtlasSprite extends Frame {
     protected element: HTMLDivElement;
     private atlas: SpriteAtlas;
-    private _src: Rectangle;
+    private _src: RectangleDef;
     private _width: number;
     private _height: number;
-    public get src(): Rectangle { return this._src; }
-    public set src(src: Rectangle) {
+    public get src(): RectangleDef { return this._src; }
+    public set src(src: RectangleDef) {
         this._src = src;
         this.updateSizePos();
     }
 
-    public constructor(parent: Frame, atlas: SpriteAtlas, src: Rectangle) {
+    public constructor(parent: Frame, atlas: SpriteAtlas, src: RectangleDef) {
         super('div', parent);
         this.atlas = atlas;
         this._src = src;

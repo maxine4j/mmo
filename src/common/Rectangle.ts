@@ -1,6 +1,13 @@
 import { Point } from './Point';
 
-export default class Rectangle {
+export interface RectangleDef {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
+export default class Rectangle implements RectangleDef {
     public x: number;
     public y: number;
     public w: number;
@@ -11,6 +18,10 @@ export default class Rectangle {
         this.y = y;
         this.w = w;
         this.h = h;
+    }
+
+    public static fromDef(def: RectangleDef): Rectangle {
+        return new Rectangle(def.x, def.y, def.w, def.h);
     }
 
     public contains(point: Point): boolean {

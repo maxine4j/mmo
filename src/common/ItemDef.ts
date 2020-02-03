@@ -5,7 +5,7 @@ export default interface ItemDef extends IDefinition {
     uuid: string;
     itemid: number;
     name: string;
-    icon: number;
+    icon: string;
     slot: number;
 }
 
