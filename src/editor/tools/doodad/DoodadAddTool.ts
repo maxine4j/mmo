@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
 import uuid from 'uuid/v4';
 import Tool from '../../Tool';
@@ -9,6 +10,10 @@ import { Point } from '../../../common/Point';
 import DoodadMoveTool from './DoodadMoveTool';
 import { DoodadDef } from '../../../common/ChunkDef';
 import Doodad from '../../../client/engine/Doodad';
+import LibraryProp, { BookCover } from '../../panelprops/LibraryProp';
+import { contentDef } from '../../EditorScene';
+import { ModelAssetDef } from '../../../client/engine/asset/AssetDef';
+import AssetManager from '../../../client/engine/asset/AssetManager';
 
 enum DoodadToolMode {
     PLACE,
@@ -22,8 +27,7 @@ export default class DoodadAddTool extends Tool {
     private mouseStart: Point;
     private intialTheta: number;
     private initialElevation: number;
-
-    private libraryModel: string = 'crates';
+    private librarySelectedModelID: string;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -35,6 +39,97 @@ export default class DoodadAddTool extends Tool {
             'assets/icons/doodad_add.png',
             props, panel,
         );
+
+        this.loadLibrary();
+    }
+
+    private renderIcon(modelDef: ModelAssetDef, renderer: THREE.WebGLRenderer, camera: THREE.Camera, scene: THREE.Scene): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            // load the 3d model
+            AssetManager.getModel(modelDef.id)
+                .then((model) => {
+                    // scale the model to fit nicely within the camera
+                    const aabb = new THREE.Box3().setFromObject(model.obj);
+                    const dx = aabb.max.x - aabb.min.x;
+                    const dy = aabb.max.y - aabb.min.y;
+                    const dz = aabb.max.z - aabb.min.z;
+                    const maxDiff = Math.max(dx, dy, dz);
+                    const mscale = (1 / maxDiff);
+                    model.obj.scale.set(mscale, mscale, mscale);
+
+                    // render the scene
+                    scene.add(model.obj);
+                    renderer.render(scene, camera);
+
+                    // clean up
+                    scene.remove(model.obj);
+                    model.dispose();
+
+                    // image tag to give to the book cover
+                    const img = document.createElement('img');
+                    img.addEventListener('load', () => {
+                        resolve(img);
+                    });
+                    img.src = renderer.domElement.toDataURL(); // save the rendered scene to an image tag
+                })
+                .catch((err) => reject(err));
+        });
+    }
+
+    private async loadLibrary(): Promise<void> {
+        // create a separate renderer to render our icons
+        const vpw = 64;
+        const vph = 64;
+        const renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
+        // renderer.setClearColor(0x00ff00);
+        renderer.setClearColor(0x87CEEB);
+        renderer.setSize(vpw, vph);
+
+        // create a camera and scene used to render our icons
+        const camera = new THREE.PerspectiveCamera(45, vpw / vph, 0.1, 100);
+        camera.position.set(2, 1, 1);
+        camera.lookAt(0, 0.5, 0);
+        const scene = new THREE.Scene();
+        const light = new THREE.AmbientLight(0xFFFFFF, 2);
+        scene.add(light);
+
+        // render icons
+        const iconPromies: Promise<HTMLImageElement>[] = [];
+        const modelDefs: ModelAssetDef[] = [];
+        for (const id in contentDef.content.models) {
+            const def = contentDef.content.models[id];
+            modelDefs.push(def);
+            iconPromies.push(this.renderIcon(def, renderer, camera, scene));
+        }
+        const icons = await Promise.all(iconPromies);
+
+        // clean up
+        scene.dispose();
+        renderer.dispose();
+
+        // create items
+        const items: { item: ModelAssetDef, cover: BookCover }[] = [];
+        for (let i = 0; i < icons.length; i++) {
+            const def = modelDefs[i];
+            const icon = icons[i];
+            items.push({
+                item: def,
+                cover: {
+                    name: def.id,
+                    icon,
+                },
+            });
+        }
+
+        // create the library
+        const library = new LibraryProp<ModelAssetDef>(
+            this.propsPanel,
+            items,
+            (item) => {
+                this.librarySelectedModelID = item.id;
+            },
+        );
+        this.propsPanel.addProp(library);
     }
 
     private usePosition(): void {
@@ -66,30 +161,32 @@ export default class DoodadAddTool extends Tool {
     }
 
     private placeDoodad(): void {
+        if (this.librarySelectedModelID != null) {
         // make a new doodad and place it at the mouse point
         // select the dooddad
-        const chunkPoint = this.props.point.toChunk();
-        const chunk = chunkPoint.chunk;
+            const chunkPoint = this.props.point.toChunk();
+            const chunk = chunkPoint.chunk;
 
-        const def = <DoodadDef>{
-            uuid: uuid(),
-            elevation: 0,
-            rotation: 0,
-            scale: 1,
-            walkable: false,
-            navblocks: [], // TODO: maybe load defaults? have library be more than list of models? navlbock copy tool?
-            model: this.libraryModel,
-            x: chunkPoint.x,
-            y: chunkPoint.y,
-        };
-        chunk.def.doodads.push(def); // save the doodad to the chunk def so it exports
+            const def = <DoodadDef>{
+                uuid: uuid(),
+                elevation: 0,
+                rotation: 0,
+                scale: 1,
+                walkable: false,
+                navblocks: [], // TODO: maybe load defaults? have library be more than list of models? navlbock copy tool?
+                model: this.librarySelectedModelID,
+                x: chunkPoint.x,
+                y: chunkPoint.y,
+            };
+            chunk.def.doodads.push(def); // save the doodad to the chunk def so it exports
 
-        Doodad.load(def, chunk).then((doodad) => {
+            Doodad.load(def, chunk).then((doodad) => {
             // add the doodad the the world and position it
-            chunk.doodads.set(doodad.def.uuid, doodad);
-            doodad.positionInWorld();
-            this.props.selectedDoodad = doodad; // select it so we can further edit
-        });
+                chunk.doodads.set(doodad.def.uuid, doodad);
+                doodad.positionInWorld();
+                this.props.selectedDoodad = doodad; // select it so we can further edit
+            });
+        }
     }
 
     public use(delta: number): void {

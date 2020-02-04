@@ -26,8 +26,11 @@ import EditorChunkWorld from './EditorChunkWorld';
 import Chunk from '../client/engine/Chunk';
 import SliderProp from './panelprops/SliderProp';
 import DoodadAddTool from './tools/doodad/DoodadAddTool';
+import _content from '../client/assets/content.json';
+import ContentDef from '../client/engine/asset/AssetDef';
 
-const overworldDef = <WorldJsonDef>_overworldDef;
+export const contentDef = <ContentDef>_content;
+export const overworldDef = <WorldJsonDef>_overworldDef;
 
 /*
 
