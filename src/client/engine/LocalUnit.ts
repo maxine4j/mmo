@@ -80,6 +80,7 @@ export default class LocalUnit {
                             unit: this,
                         };
                     });
+                    this.world.scene.add(this.model.obj);
 
                     this.model.mixer.addEventListener('finished', this.onMixerFinished.bind(this));
 
@@ -132,7 +133,6 @@ export default class LocalUnit {
                         a.loop = THREE.LoopOnce;
                         this.animations.set(UnitAnimation.LOOT, a);
                     }).catch(() => {});
-                    this.world.scene.add(this.model.obj);
 
                     this.emit('loaded', this);
                 });
