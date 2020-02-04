@@ -6,6 +6,7 @@ import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
 import DoodadMoveTool from './DoodadMoveTool';
+import BaseDoodadTool from './BaseDoodadTool';
 
 enum DoodadToolMode {
     SELECT,
@@ -102,6 +103,10 @@ export default class DoodadSelectTool extends Tool {
                 this.intialTheta = this.props.selectedDoodad.def.rotation;
                 this.initialElevation = this.props.selectedDoodad.def.elevation;
             }
+        }
+
+        if (Input.wasKeyPressed(Key.Delete)) {
+            BaseDoodadTool.deleteSelected(this.props);
         }
     }
 }

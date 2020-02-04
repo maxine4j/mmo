@@ -29,6 +29,10 @@ export default class Doodad {
         });
     }
 
+    public dispose(): void {
+        this.model.dispose();
+    }
+
     public static load(def: DoodadDef, chunk: Chunk): Promise<Doodad> {
         return new Promise((resolve, reject) => {
             AssetManager.getModel(def.model)
@@ -45,6 +49,7 @@ export default class Doodad {
 
     public unload(): void {
         this.chunk.world.scene.remove(this.model.obj);
+        this.model.dispose();
     }
 
     public positionInWorld(): void {

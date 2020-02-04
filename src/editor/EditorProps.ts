@@ -17,7 +17,9 @@ export default class EditorProps {
     public get selectedDoodad(): Doodad { return this._selectedDoodad; }
     public set selectedDoodad(doodad: Doodad) {
         this._selectedDoodad = doodad;
-        Graphics.setOutlines([this.selectedDoodad.model.obj]);
+        if (this.selectedDoodad != null) {
+            Graphics.setOutlines([this.selectedDoodad.model.obj]);
+        }
         this.onSelectedDoodadChanged.forEach((cb) => cb(this.selectedDoodad));
     }
 

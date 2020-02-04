@@ -3,7 +3,6 @@ import { Key } from 'ts-key-enum';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
-import { Point } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Doodad from '../../../client/engine/Doodad';
 import { DoodadDef, NavblockDef } from '../../../common/ChunkDef';
@@ -32,12 +31,12 @@ export default class DoodadCloneTool extends BaseDoodadTool {
 
     private cloneDoodad(): void {
         if (this.props.selectedDoodad != null) {
-        // clone the selcted doodad and place it at the mouse point
+            // clone the selcted doodad and place it at the mouse point
             const chunkPoint = this.props.point.toChunk();
             const chunk = chunkPoint.chunk;
 
             const def = <DoodadDef>{
-            // new
+                // new
                 uuid: uuid(),
                 x: chunkPoint.x,
                 y: chunkPoint.y,
@@ -53,7 +52,7 @@ export default class DoodadCloneTool extends BaseDoodadTool {
             chunk.def.doodads.push(def); // save the doodad to the chunk def so it exports
 
             Doodad.load(def, chunk).then((doodad) => {
-            // add the doodad the the world and position it
+                // add the doodad the the world and position it
                 chunk.doodads.set(doodad.def.uuid, doodad);
                 doodad.positionInWorld();
             });
