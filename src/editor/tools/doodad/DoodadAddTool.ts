@@ -162,8 +162,8 @@ export default class DoodadAddTool extends Tool {
 
     private placeDoodad(): void {
         if (this.librarySelectedModelID != null) {
-        // make a new doodad and place it at the mouse point
-        // select the dooddad
+            // make a new doodad and place it at the mouse point
+            // select the dooddad
             const chunkPoint = this.props.point.toChunk();
             const chunk = chunkPoint.chunk;
 
@@ -173,7 +173,7 @@ export default class DoodadAddTool extends Tool {
                 rotation: 0,
                 scale: 1,
                 walkable: false,
-                navblocks: [], // TODO: maybe load defaults? have library be more than list of models? navlbock copy tool?
+                navblocks: [],
                 model: this.librarySelectedModelID,
                 x: chunkPoint.x,
                 y: chunkPoint.y,
@@ -181,7 +181,7 @@ export default class DoodadAddTool extends Tool {
             chunk.def.doodads.push(def); // save the doodad to the chunk def so it exports
 
             Doodad.load(def, chunk).then((doodad) => {
-            // add the doodad the the world and position it
+                // add the doodad the the world and position it
                 chunk.doodads.set(doodad.def.uuid, doodad);
                 doodad.positionInWorld();
                 this.props.selectedDoodad = doodad; // select it so we can further edit

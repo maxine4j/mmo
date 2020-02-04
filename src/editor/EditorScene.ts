@@ -28,6 +28,7 @@ import SliderProp from './panelprops/SliderProp';
 import DoodadAddTool from './tools/doodad/DoodadAddTool';
 import _content from '../client/assets/content.json';
 import ContentDef from '../client/engine/asset/AssetDef';
+import DoodadCloneTool from './tools/doodad/DoodadCloneTool';
 
 export const contentDef = <ContentDef>_content;
 export const overworldDef = <WorldJsonDef>_overworldDef;
@@ -94,6 +95,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new DoodadRotateTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadScaleTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadNavigationTool(this.props, this.toolPanel));
+        this.toolPanel.add(new DoodadCloneTool(this.props, this.toolPanel));
         this.toolPanel.add(new ChunkTool(this.props, this.toolPanel));
     }
 

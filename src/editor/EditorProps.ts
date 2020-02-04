@@ -26,7 +26,7 @@ export default class EditorProps {
         let idx = 0;
         while (idx < intersects.length) {
             const int = intersects[idx++];
-            if (int.object.name !== 'brush') {
+            if (int.object.name === 'terrain') {
                 this.point = new WorldPoint(int.point, this.world.w);
                 break;
             }
