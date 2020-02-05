@@ -49,8 +49,7 @@ export default class Chunk {
         return new Promise((resolve, reject) => {
             const loader = new THREE.TextureLoader();
             try {
-                // loader.load(def.texture, (texture) => { // load the texture
-                loader.load('assets/texturemap.png', (texture) => { // load the texture
+                loader.load(def.texture, (texture) => { // load the texture
                     resolve(new Chunk(def, world, texture));
                 });
             } catch (err) {

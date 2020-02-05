@@ -8,14 +8,49 @@ import { Point, ChunkPoint } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Chunk from '../../../client/engine/Chunk';
 
+const chunkTextureSize = 2048;
+
+class ChunkCanvas {
+    public chunk: Chunk;
+    public canvas: HTMLCanvasElement;
+    public ctx: CanvasRenderingContext2D;
+
+    public texture: THREE.Texture;
+
+    public constructor(chunk: Chunk) {
+        this.chunk = chunk;
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = chunkTextureSize;
+        this.canvas.height = chunkTextureSize;
+        this.ctx = this.canvas.getContext('2d');
+        this.texture = (<THREE.MeshLambertMaterial>chunk.terrain.material).map;
+        this.ctx.drawImage(this.texture.image, 0, 0, chunkTextureSize, chunkTextureSize);
+        this.texture.image.src = this.canvas.toDataURL();
+        this.texture.needsUpdate = true;
+
+        this.canvas.style.width = '128px';
+        this.canvas.style.height = '128px';
+        this.canvas.style.position = 'fixed';
+        this.canvas.style.top = '0';
+        this.canvas.style.right = '0';
+        this.canvas.style.zIndex = '99999';
+        document.body.append(this.canvas);
+    }
+
+    public updateTexture(): void {
+        this.texture.image.src = this.canvas.toDataURL();
+        this.texture.needsUpdate = true;
+    }
+
+    public drawDot(x: number, y: number, w: number = 20, h: number = 20): void {
+        this.ctx.fillStyle = 'red';
+        this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
+    }
+}
+
 export default class PaintTool extends Tool {
     private brush: Brush;
-
-    private lastPos: ChunkPoint;
-    private lastChunk: Chunk;
-
-    private canvas = document.createElement('canvas');
-    private ctx = this.canvas.getContext('2d');
+    private canvases: Map<string, ChunkCanvas> = new Map();
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -26,15 +61,6 @@ export default class PaintTool extends Tool {
         );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
-
-        this.canvas.width = 128;
-        this.canvas.height = 128;
-
-        this.canvas.style.position = 'fixed';
-        this.canvas.style.top = '0';
-        this.canvas.style.right = '0';
-        this.canvas.style.zIndex = '999999';
-        document.body.append(this.canvas);
     }
 
     public onSelected(): void {
@@ -48,35 +74,24 @@ export default class PaintTool extends Tool {
     }
 
     public use(delta: number): void {
-        // get the current chunk
-        const chunk = this.brush.point.toChunk().chunk;
+        // draw a dot on the canvas
+        const updatedChunks: Set<ChunkCanvas> = new Set();
+        for (const point of this.brush.pointsIn()) {
+            // get the current chunk canvas
+            const chunkPoint = point.toChunk();
+            let chunkCanvas = this.canvases.get(chunkPoint.chunk.def.id);
+            if (chunkCanvas == null) { // make a new chunk canvas if we dont already have one for this chunk
+                chunkCanvas = new ChunkCanvas(chunkPoint.chunk);
+                this.canvases.set(chunkPoint.chunk.def.id, chunkCanvas);
+            }
 
-        // get 2 points to draw a line between
-        const nextPos = this.brush.point.toChunk();
-        if (this.lastPos == null || chunk !== this.lastChunk) {
-            // if we change chunk then start from a point on the new chunk
-            this.lastPos = nextPos;
+            chunkCanvas.drawDot((chunkPoint.x / this.props.world.chunkSize) * chunkTextureSize, (chunkPoint.y / this.props.world.chunkSize) * chunkTextureSize);
+            updatedChunks.add(chunkCanvas);
         }
 
-        // draw the current chunks texture to the canvas
-        const tex = (<THREE.MeshLambertMaterial>chunk.terrain.material).map;
-        this.ctx.drawImage(tex.image, 0, 0, 128, 128);
-
-        // draw the line on the canvas
-        this.ctx.beginPath();
-        this.ctx.lineWidth = 10;
-        this.ctx.strokeStyle = 'red';
-        this.ctx.moveTo(this.lastPos.x, this.lastPos.y);
-        this.ctx.lineTo(nextPos.x, nextPos.y);
-        this.ctx.stroke();
-
-        // update last chunk and last pos
-        this.lastPos = nextPos;
-        this.lastChunk = chunk;
-
-        // tell the terrain material to update
-        tex.image.src = this.canvas.toDataURL();
-        tex.needsUpdate = true;
+        for (const updated of updatedChunks) {
+            updated.updateTexture();
+        }
 
 
         // for (const point of this.brush.pointsIn()) {
@@ -100,10 +115,5 @@ export default class PaintTool extends Tool {
     public update(delta: number): void {
         super.update(delta);
         this.brush.update();
-
-        // if we mouse up we will need a new last pos
-        if (!Input.isMouseDown(MouseButton.LEFT)) {
-            this.lastPos = null;
-        }
     }
 }
