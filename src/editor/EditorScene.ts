@@ -29,9 +29,27 @@ import DoodadAddTool from './tools/doodad/DoodadAddTool';
 import _content from '../client/assets/content.json';
 import ContentDef from '../client/engine/asset/AssetDef';
 import DoodadCloneTool from './tools/doodad/DoodadCloneTool';
+import PaintTool from './tools/terrain/PaintTool';
 
 export const contentDef = <ContentDef>_content;
 export const overworldDef = <WorldJsonDef>_overworldDef;
+
+// const cSize = 128;
+// export const overworldDef = <WorldJsonDef>{
+//     id: 'testmap',
+//     chunkSize: cSize,
+//     chunks: {
+//         0: {
+//             id: '0',
+//             x: 0,
+//             y: 0,
+//             texture: 'assets/texturemap.png',
+//             heightmap: Array.from({ length: cSize * cSize }, () => 0),
+//             texturemap: Array.from({ length: (cSize * cSize) * 2 }, () => 0),
+//             doodads: [],
+//         },
+//     },
+// };
 
 /*
 
@@ -39,7 +57,7 @@ TODO:
     - Make wireframe updating perform better
 
 TODO NEW FEATURES:
-    - Doodad add from library (include invisible doodad)
+    - Invisible doodad in library
     - Doodad info panel, edit props
     - Place lights, maybe as part of doodads
     - Texture painting
@@ -73,6 +91,8 @@ export default class EditorScene extends GameScene {
         };
         for (const [_x, _y, chunk] of this.props.world.chunks) {
             world.chunks[chunk.def.id] = chunk.def;
+            // @ts-ignore
+            world.chunks[chunk.def.id].texturemap = Array.from({ length: (world.chunkSize * world.chunkSize) * 2 }, () => 0);
         }
         const data = JSON.stringify(world);
         const file = new Blob([data], { type: 'application/json' });
@@ -89,6 +109,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new SubTool(this.props, this.toolPanel));
         this.toolPanel.add(new SetTool(this.props, this.toolPanel));
         this.toolPanel.add(new SmoothTool(this.props, this.toolPanel));
+        this.toolPanel.add(new PaintTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadSelectTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadAddTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadMoveTool(this.props, this.toolPanel));

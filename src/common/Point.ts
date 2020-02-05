@@ -143,6 +143,10 @@ export class TilePoint implements IPoint<TilePoint> {
         );
     }
 
+    public toNaive(): Point {
+        return new Point(this.x, this.y);
+    }
+
     public get elevation(): number {
         const chunkPoint = this.toChunk();
         if (chunkPoint) return chunkPoint.elevation;
@@ -197,6 +201,10 @@ export class ChunkPoint implements IPoint<ChunkPoint> {
 
     public toChunk(): ChunkPoint {
         return this;
+    }
+
+    public toNaive(): Point {
+        return new Point(this.x, this.y);
     }
 
     public get singlePointElevation(): number { // used in editor as average is not good for terrain editing

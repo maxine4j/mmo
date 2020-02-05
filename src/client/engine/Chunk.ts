@@ -49,7 +49,8 @@ export default class Chunk {
         return new Promise((resolve, reject) => {
             const loader = new THREE.TextureLoader();
             try {
-                loader.load(def.texture, (texture) => { // load the texture
+                // loader.load(def.texture, (texture) => { // load the texture
+                loader.load('assets/texturemap.png', (texture) => { // load the texture
                     resolve(new Chunk(def, world, texture));
                 });
             } catch (err) {
@@ -200,8 +201,12 @@ export default class Chunk {
             const z = iz * tileHeight - (size / 2);
             for (let ix = 0; ix < size; ix++) {
                 const x = ix * tileWidth - (size / 2);
-                const y = this.def.heightmap[iz * size + ix];
+                const y = this.def.heightmap[iz * size + ix] || 0;
                 vertices.push(x, y, z);
+                // const uvidx = (iz * size + ix) * 2;
+                // const u = this.def.texturemap[uvidx];
+                // const v = this.def.texturemap[uvidx + 1];
+                // uvs.push(u, v);
                 uvs.push(ix / size);
                 uvs.push(1 - (iz / size));
             }

@@ -23,5 +23,6 @@ export default interface ChunkDef extends IDefinition {
     y: number;
     texture: string;
     heightmap: number[];
+    texturemap: number[];
     doodads: DoodadDef[];
 }

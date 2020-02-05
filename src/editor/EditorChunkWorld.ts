@@ -34,6 +34,7 @@ export default class EditorChunkWorld {
             y,
             size: this.chunkSize,
             heightmap: Array.from({ length: size * size }, () => 0),
+            texturemap: Array.from({ length: size * size * 2 }, () => 0),
             doodads: [],
             texture: 'assets/chunks/default.png', // TODO: terrain texture painting
         };

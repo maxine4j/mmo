@@ -13,6 +13,7 @@ export default class ToolPanel extends Panel {
     private selected: Tool;
     private infoPanel: Panel;
     private infoLabel: Label;
+    private infoHeader: Label;
 
     public constructor() {
         super(UIParent.get());
@@ -32,9 +33,9 @@ export default class ToolPanel extends Panel {
         this.infoPanel.style.bottom = '0';
         this.infoPanel.style.backgroundColor = panelBg;
 
-        const lblHeader = new Label(this.infoPanel, 'Tool Description:');
-        lblHeader.style.position = 'initial';
-        lblHeader.style.fontSize = '120%';
+        this.infoHeader = new Label(this.infoPanel, 'Tool Description:');
+        this.infoHeader.style.position = 'initial';
+        this.infoHeader.style.fontSize = '120%';
 
         this.infoPanel.addBreak();
         this.infoPanel.addBreak();
@@ -57,6 +58,7 @@ export default class ToolPanel extends Panel {
         }
         this.selected = selected;
         this.infoLabel.text = this.selected.description;
+        this.infoHeader.text = `Selected Tool: ${this.selected.name}`;
         this.selected.onSelected();
     }
 

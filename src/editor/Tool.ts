@@ -10,7 +10,7 @@ const selectedBg = 'rgba(84, 84, 84,0.8)';
 const unselectedBg = 'rgba(255,255,255,0.8)';
 
 export default class Tool {
-    private name: string;
+    private _name: string;
     private _description: string;
     private icon: string;
     protected props: EditorProps;
@@ -20,7 +20,7 @@ export default class Tool {
     private panel: ToolPanel;
 
     public constructor(name: string, description: string, icon: string, props: EditorProps, panel: ToolPanel) {
-        this.name = name;
+        this._name = name;
         this._description = description;
         this.icon = icon;
         this.props = props;
@@ -42,6 +42,7 @@ export default class Tool {
     }
 
     public get description(): string { return this._description; }
+    public get name(): string { return this._name; }
 
     protected addBrushSizeProp(brush: Brush): void {
         const propBrushSize = new SliderProp(this.propsPanel, 'Brush Size:', 1, 30, 1, brush.size + 1, (value) => {
