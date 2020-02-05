@@ -39,8 +39,7 @@ export default class Chunk {
 
 
         const mat0 = new THREE.MeshLambertMaterial({ map: textures[0] });
-        mat0.transparent = true;
-        mat0.alphaMap = textures[1];
+        mat0.transparent = false;
         geometry.addGroup(0, vertexCount, 0);
         materials.push(mat0);
 

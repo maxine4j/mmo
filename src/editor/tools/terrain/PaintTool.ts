@@ -23,7 +23,7 @@ class ChunkCanvas {
         this.canvas.width = chunkTextureSize;
         this.canvas.height = chunkTextureSize;
         this.ctx = this.canvas.getContext('2d');
-        this.texture = (<THREE.MeshLambertMaterial>chunk.terrain.material).map;
+        this.texture = (<THREE.MeshLambertMaterial[]>chunk.terrain.material)[1].alphaMap;
         this.ctx.drawImage(this.texture.image, 0, 0, chunkTextureSize, chunkTextureSize);
         this.texture.image.src = this.canvas.toDataURL();
         this.texture.needsUpdate = true;
@@ -43,7 +43,7 @@ class ChunkCanvas {
     }
 
     public drawDot(x: number, y: number, w: number = 20, h: number = 20): void {
-        this.ctx.fillStyle = 'red';
+        this.ctx.fillStyle = 'white';
         this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
     }
 }
