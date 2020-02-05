@@ -63,8 +63,10 @@ export default class Brush {
     }
 
     private updatePoint(): void {
-        this.point = this.props.point.toTile();
-        this.mesh.position.copy(this.point.toWorld());
+        if (this.props.point) {
+            this.point = this.props.point.toTile();
+            this.mesh.position.copy(this.point.toWorld());
+        }
     }
 
     private updateSize(): void {

@@ -3,6 +3,20 @@ import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 
+function loadTexture(src: string): Promise<THREE.Texture> {
+    return new Promise((resolve, reject) => {
+        const loader = new THREE.TextureLoader();
+        loader.load(
+            src,
+            (texture) => {
+                resolve(texture);
+            },
+            (prog) => {},
+            (err) => reject(err),
+        );
+    });
+}
+
 export default class Chunk {
     public def: ChunkDef;
     public doodads: Map<string, Doodad> = new Map();
@@ -11,23 +25,47 @@ export default class Chunk {
     public wireframe: THREE.LineSegments;
     private wireframeVisible: boolean;
     private _isLoaded: boolean;
-    public texture: THREE.Texture;
+    public textures: THREE.Texture[];
 
-    public constructor(def: ChunkDef, world: ChunkWorld, texture?: THREE.Texture) {
+    public constructor(def: ChunkDef, world: ChunkWorld, textures?: THREE.Texture[]) {
         this.def = def;
         this.world = world;
-        this.texture = texture;
+        this.textures = textures;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
+        const vertexCount = geometry.index.count;
         geometry.computeVertexNormals();
-        let material;
-        if (texture) material = new THREE.MeshLambertMaterial({ map: texture });
-        else material = new THREE.MeshBasicMaterial({ wireframe: true, color: 0xffffff });
-        this.terrain = new THREE.Mesh(geometry, material);
+        const materials: THREE.MeshLambertMaterial[] = [];
+
+
+        const mat0 = new THREE.MeshLambertMaterial({ map: textures[0] });
+        mat0.transparent = true;
+        mat0.alphaMap = textures[1];
+        geometry.addGroup(0, vertexCount, 0);
+        materials.push(mat0);
+
+        const mat1 = new THREE.MeshLambertMaterial({ map: textures[2] });
+        mat1.transparent = true;
+        mat1.alphaMap = textures[3];
+        geometry.addGroup(0, vertexCount, 1);
+        materials.push(mat1);
+
+
+        // for (let i = 0; i < textures.length - 2; i += 2) {
+        //     const mat = new THREE.MeshLambertMaterial({ map: textures[i] });
+        //     mat.alphaMap = textures[i + 1];
+        //     // mat.blending = THREE.SubtractiveBlending;
+        //     materials.push(mat);
+        //     geometry.addGroup(0, vertexCount, i - 1);
+        // }
+
+        this.terrain = new THREE.Mesh(geometry, materials);
         this.terrain.name = 'terrain';
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
-        // this.terrain.name = `terrain[${def.x},${def.y}]`;
+        this.terrain.userData = {
+            chunk: def,
+        };
         this.loadDoodads();
         this.positionInWorld();
         this.positionDoodads();
@@ -47,14 +85,14 @@ export default class Chunk {
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
-            const loader = new THREE.TextureLoader();
-            try {
-                loader.load(def.texture, (texture) => { // load the texture
-                    resolve(new Chunk(def, world, texture));
-                });
-            } catch (err) {
-                reject(err);
-            }
+            Promise.all([
+                loadTexture('assets/terrain/dirt.png'),
+                loadTexture('assets/terrain/alphamap2.png'),
+                loadTexture('assets/terrain/grass.png'),
+                loadTexture('assets/terrain/alphamap.png'),
+            ]).then((textures) => {
+                resolve(new Chunk(def, world, textures));
+            }).catch((err) => reject(err));
         });
     }
 
