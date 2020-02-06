@@ -2,46 +2,8 @@ import * as THREE from 'three';
 import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
-
-import terrainVertex from './shaders/terrain.v.glsl';
-import terrainFrag from './shaders/terrain.f.glsl';
-
-function loadTexture(src: string): Promise<THREE.Texture> {
-    return new Promise((resolve, reject) => {
-        const loader = new THREE.TextureLoader();
-        loader.load(
-            src,
-            (texture) => {
-                resolve(texture);
-            },
-            (prog) => {},
-            (err) => reject(err),
-        );
-    });
-}
-
-interface Texture3D {
-    diffuse: THREE.Texture;
-    depth: THREE.Texture;
-    // normal: THREE.Texture;
-    // ao: THREE.Texture;
-    // roughness: THREE.Texture;
-}
-
-class TerrainMaterial extends THREE.ShaderMaterial {
-    public constructor(textures: Texture3D[]) {
-        super({
-            uniforms: {
-                u_diffuse0: { value: textures[0].diffuse },
-                u_depth0: { value: textures[0].depth },
-                u_diffuse1: { value: textures[1].diffuse },
-                u_depth1: { value: textures[1].depth },
-            },
-            vertexShader: terrainVertex,
-            fragmentShader: terrainFrag,
-        });
-    }
-}
+import TerrainMaterial from './graphics/materials/TerrainMaterial';
+import { loadTexture3D } from './graphics/Texture';
 
 export default class Chunk {
     public def: ChunkDef;
@@ -51,17 +13,16 @@ export default class Chunk {
     public wireframe: THREE.LineSegments;
     private wireframeVisible: boolean;
     private _isLoaded: boolean;
-    public texture: THREE.Texture;
+    public material: TerrainMaterial;
+    public get texture(): THREE.Texture { return this.material.textures[0].diffuse; } // TODO: this is used for minimap
 
-    public constructor(def: ChunkDef, world: ChunkWorld, textures: Texture3D[]) {
+    public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial) {
         this.def = def;
         this.world = world;
-        this.texture = textures[0].diffuse;
+        this.material = material;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
         geometry.computeVertexNormals();
-
-        const material = new TerrainMaterial(textures);
 
         this.terrain = new THREE.Mesh(geometry, material);
         this.terrain.name = 'terrain';
@@ -90,21 +51,10 @@ export default class Chunk {
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
             Promise.all([
-                loadTexture('assets/terrain/stone_path/diffuse.jpg'),
-                loadTexture('assets/terrain/stone_path/depth.png'),
-                loadTexture('assets/terrain/dirt/diffuse.jpg'),
-                loadTexture('assets/terrain/dirt/depth.png'),
-            ]).then((textures) => {
-                resolve(new Chunk(def, world, [
-                    {
-                        diffuse: textures[0],
-                        depth: textures[1],
-                    },
-                    {
-                        diffuse: textures[2],
-                        depth: textures[3],
-                    },
-                ]));
+                loadTexture3D('assets/terrain/stone_path'),
+                loadTexture3D('assets/terrain/dirt'),
+            ]).then((tex3Ds) => {
+                resolve(new Chunk(def, world, new TerrainMaterial(tex3Ds)));
             }).catch((err) => reject(err));
         });
     }
