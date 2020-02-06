@@ -15,6 +15,8 @@ export default class EditorCamera extends Camera {
         this.minZoom = 5;
         this.zoomRate = 4;
 
+        this.zoomLevel = 100;
+
         this.props = props;
         this.pointLight = new THREE.PointLight(0xFFFFFF, 1);
         this.pointLight.castShadow = true;

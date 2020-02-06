@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { text } from 'express';
 import Tool from '../../Tool';
 import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';
@@ -10,11 +9,12 @@ import Chunk from '../../../client/engine/Chunk';
 
 const chunkTextureSize = 2048;
 
+let lastZIndex = 1;
+
 class ChunkCanvas {
     public chunk: Chunk;
     public canvas: HTMLCanvasElement;
     public ctx: CanvasRenderingContext2D;
-
     public texture: THREE.Texture;
 
     public constructor(chunk: Chunk) {
@@ -33,7 +33,7 @@ class ChunkCanvas {
         this.canvas.style.position = 'fixed';
         this.canvas.style.top = '0';
         this.canvas.style.right = '0';
-        this.canvas.style.zIndex = '99999';
+        this.canvas.style.zIndex = '0';
         document.body.append(this.canvas);
     }
 
@@ -45,6 +45,7 @@ class ChunkCanvas {
     public drawDot(x: number, y: number, w: number = 20, h: number = 20): void {
         this.ctx.fillStyle = 'white';
         this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
+        this.canvas.style.zIndex = `${lastZIndex++}`;
     }
 }
 

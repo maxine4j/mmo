@@ -3,6 +3,9 @@ import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 
+import terrainVertex from './shaders/terrain.v.glsl';
+import terrainFrag from './shaders/terrain.f.glsl';
+
 function loadTexture(src: string): Promise<THREE.Texture> {
     return new Promise((resolve, reject) => {
         const loader = new THREE.TextureLoader();
@@ -17,6 +20,29 @@ function loadTexture(src: string): Promise<THREE.Texture> {
     });
 }
 
+interface Texture3D {
+    diffuse: THREE.Texture;
+    depth: THREE.Texture;
+    // normal: THREE.Texture;
+    // ao: THREE.Texture;
+    // roughness: THREE.Texture;
+}
+
+class TerrainMaterial extends THREE.ShaderMaterial {
+    public constructor(textures: Texture3D[]) {
+        super({
+            uniforms: {
+                u_diffuse0: { value: textures[0].diffuse },
+                u_depth0: { value: textures[0].depth },
+                u_diffuse1: { value: textures[1].diffuse },
+                u_depth1: { value: textures[1].depth },
+            },
+            vertexShader: terrainVertex,
+            fragmentShader: terrainFrag,
+        });
+    }
+}
+
 export default class Chunk {
     public def: ChunkDef;
     public doodads: Map<string, Doodad> = new Map();
@@ -25,40 +51,19 @@ export default class Chunk {
     public wireframe: THREE.LineSegments;
     private wireframeVisible: boolean;
     private _isLoaded: boolean;
-    public textures: THREE.Texture[];
+    public texture: THREE.Texture;
 
-    public constructor(def: ChunkDef, world: ChunkWorld, textures?: THREE.Texture[]) {
+    public constructor(def: ChunkDef, world: ChunkWorld, textures: Texture3D[]) {
         this.def = def;
         this.world = world;
-        this.textures = textures;
+        this.texture = textures[0].diffuse;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
-        const vertexCount = geometry.index.count;
         geometry.computeVertexNormals();
-        const materials: THREE.MeshLambertMaterial[] = [];
 
+        const material = new TerrainMaterial(textures);
 
-        const mat0 = new THREE.MeshLambertMaterial({ map: textures[0] });
-        mat0.transparent = false;
-        geometry.addGroup(0, vertexCount, 0);
-        materials.push(mat0);
-
-        const mat1 = new THREE.MeshLambertMaterial({ map: textures[2] });
-        mat1.transparent = true;
-        mat1.alphaMap = textures[3];
-        geometry.addGroup(0, vertexCount, 1);
-        materials.push(mat1);
-
-
-        // for (let i = 0; i < textures.length - 2; i += 2) {
-        //     const mat = new THREE.MeshLambertMaterial({ map: textures[i] });
-        //     mat.alphaMap = textures[i + 1];
-        //     // mat.blending = THREE.SubtractiveBlending;
-        //     materials.push(mat);
-        //     geometry.addGroup(0, vertexCount, i - 1);
-        // }
-
-        this.terrain = new THREE.Mesh(geometry, materials);
+        this.terrain = new THREE.Mesh(geometry, material);
         this.terrain.name = 'terrain';
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
@@ -85,12 +90,21 @@ export default class Chunk {
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
             Promise.all([
-                loadTexture('assets/terrain/dirt.png'),
-                loadTexture('assets/terrain/alphamap2.png'),
-                loadTexture('assets/terrain/grass.png'),
-                loadTexture('assets/terrain/alphamap.png'),
+                loadTexture('assets/terrain/stone_path/diffuse.jpg'),
+                loadTexture('assets/terrain/stone_path/depth.png'),
+                loadTexture('assets/terrain/dirt/diffuse.jpg'),
+                loadTexture('assets/terrain/dirt/depth.png'),
             ]).then((textures) => {
-                resolve(new Chunk(def, world, textures));
+                resolve(new Chunk(def, world, [
+                    {
+                        diffuse: textures[0],
+                        depth: textures[1],
+                    },
+                    {
+                        diffuse: textures[2],
+                        depth: textures[3],
+                    },
+                ]));
             }).catch((err) => reject(err));
         });
     }

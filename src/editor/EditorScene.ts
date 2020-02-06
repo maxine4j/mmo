@@ -195,8 +195,6 @@ export default class EditorScene extends GameScene {
         this.props.scene = this.scene;
 
         this.camera = new EditorCamera(this.props, 60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
-        this.camera.position.set(0, 10, 0);
-        this.camera.lookAt(0, 0, 0);
         this.props.camera = this.camera;
 
         this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);

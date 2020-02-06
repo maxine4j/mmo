@@ -19,6 +19,10 @@ module.exports = {
                 use: ['style-loader', 'css-loader', 'sass-loader'],
             },
             {
+                test: /\.glsl$/,
+                loader: 'ts-shader-loader',
+            },
+            {
                 test: /\.(png|jpe?g|gif|obj|mtl|dae|gltf|bin|glb|fbx)$/i,
                 use: [
                     {
@@ -49,6 +53,7 @@ module.exports = {
             title: 'MMO',
             template: './src/client/index.html',
             filename: 'index.html',
+            favicon: './src/client/favicon.ico',
         }),
         new CopyPlugin([
             {
@@ -61,6 +66,6 @@ module.exports = {
         contentBase: path.join(__dirname, 'dist/client'),
         compress: true,
         port: 9000,
-        // writeToDisk: true,
+        writeToDisk: true,
     },
 };

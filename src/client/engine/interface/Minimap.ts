@@ -149,7 +149,7 @@ export default class Minimap extends Panel {
                     // calculate chunk position
                     const x = (dw * ccx) + (dw / 2);
                     const y = (dh * ccy) + (dh / 2);
-                    this.ctx.drawImage(chunk.textures[0].image, x - px, y - py, dw, dh);
+                    this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
                 }
             }
 
