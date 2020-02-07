@@ -51,8 +51,8 @@ export default class Chunk {
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
             loadTerrainTextures([
-                'assets/terrain/stone_path',
-                'assets/terrain/dirt',
+                'assets/terrain/dirt_hq',
+                'assets/terrain/grass_hq',
                 'assets/terrain/pink',
             ]).then((tex3d) => {
                 resolve(new Chunk(def, world, new TerrainMaterial(tex3d)));

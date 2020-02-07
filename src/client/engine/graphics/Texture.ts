@@ -74,7 +74,7 @@ async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2D
 }
 
 const exts = [
-    '/diffuse.jpg',
+    '/diffuse.png',
     '/depth.png',
     '/blend.png',
 ];

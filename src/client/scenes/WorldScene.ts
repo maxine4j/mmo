@@ -226,7 +226,7 @@ export default class WorldScene extends GameScene {
         this.scene = new Scene();
 
         // TODO: lights in world/chunk def
-        const light = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
+        const light = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1);
         light.position.set(0, 50, 0);
         this.scene.add(light);
 

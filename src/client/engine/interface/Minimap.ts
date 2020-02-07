@@ -149,7 +149,8 @@ export default class Minimap extends Panel {
                     // calculate chunk position
                     const x = (dw * ccx) + (dw / 2);
                     const y = (dh * ccy) + (dh / 2);
-                    this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
+                    // TODO: need a function that will paint texture to canvas2d using blend map as alpha
+                    // this.ctx.drawImage(chunk.texture.image, x - px, y - py, dw, dh);
                 }
             }
 

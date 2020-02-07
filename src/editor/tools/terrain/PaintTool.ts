@@ -1,11 +1,8 @@
-import * as THREE from 'three';
 import { DataTexture2DArray } from 'three/src/textures/DataTexture2DArray';
 import Tool from '../../Tool';
 import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
-import { Point, ChunkPoint } from '../../../common/Point';
-import Input, { MouseButton } from '../../../client/engine/Input';
 import Chunk from '../../../client/engine/Chunk';
 import SliderProp from '../../panelprops/SliderProp';
 
@@ -101,6 +98,7 @@ export default class PaintTool extends Tool {
                     c.updateCanvas();
                 }
             });
+        this.propsPanel.addProp(layerSlider);
         const strengthSlider = new SliderProp(this.propsPanel, 'Strength', 0, 1, 0.01, 1,
             (val) => {
                 this.strength = val;
@@ -108,6 +106,7 @@ export default class PaintTool extends Tool {
                     c.updateCanvas();
                 }
             });
+        this.propsPanel.addProp(strengthSlider);
     }
 
     public onSelected(): void {

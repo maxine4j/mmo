@@ -149,7 +149,7 @@ export default class EditorScene extends GameScene {
             }));
         this.worldPropsPanel.addBreak();
 
-        this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Ambient Light',
+        this.worldPropsPanel.addProp(new CheckBoxProp(this.worldPropsPanel, 'Hemisphere Light',
             (value) => {
                 if (value) this.scene.add(this.hemisphereLight);
                 else this.scene.remove(this.hemisphereLight);
@@ -197,7 +197,7 @@ export default class EditorScene extends GameScene {
         this.camera = new EditorCamera(this.props, 60, Graphics.viewportWidth / Graphics.viewportHeight, 0.1, 1000);
         this.props.camera = this.camera;
 
-        this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
+        this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1);
 
         this.props.world = new EditorChunkWorld(this.props.scene, overworldDef);
         const chunkLoads: Promise<Chunk>[] = [];
