@@ -1,4 +1,6 @@
-varying vec2 v_uv;
+#version 300 es
+
+out vec2 v_uv;
 
 void main() {
     v_uv = uv;

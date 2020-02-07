@@ -4,20 +4,21 @@ import terrainVertex from './shaders/terrain.v.glsl';
 import terrainFrag from './shaders/terrain.f.glsl';
 
 export default class TerrainMaterial extends THREE.ShaderMaterial {
-    public textures: Texture3D[];
+    public texture: Texture3D;
 
-    public constructor(textures: Texture3D[]) {
+    public constructor(texture: Texture3D) {
         super({
             uniforms: {
-                u_diffuse0: { value: textures[0].diffuse },
-                u_depth0: { value: textures[0].depth },
-                u_diffuse1: { value: textures[1].diffuse },
-                u_depth1: { value: textures[1].depth },
+                u_tiling: { value: new THREE.Vector2(1, 1) }, // how many times to repeat texture over mesh
+                u_mapCount: { value: texture.count }, // number of maps to blend
+                u_diffuseMaps: { value: texture.diffuse },
+                u_depthMaps: { value: texture.depth },
             },
             vertexShader: terrainVertex,
             fragmentShader: terrainFrag,
+
         });
 
-        this.textures = textures;
+        this.texture = texture;
     }
 }

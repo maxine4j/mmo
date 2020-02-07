@@ -3,6 +3,8 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass';
 import { Pass } from 'three/examples/jsm/postprocessing/Pass';
+// @ts-ignore
+import { WEBGL } from 'three/examples/jsm/WebGL.js';
 import Scene from './Scene';
 import Camera from './Camera';
 
@@ -16,7 +18,15 @@ export default class Graphics {
     private static _clearColor: number = 0xccccff;
 
     public static init(): void {
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        if (WEBGL.isWebGL2Available() === false) {
+            console.log('WebGL2 is not supported in this browser');
+            document.body.appendChild(WEBGL.getWebGL2ErrorMessage());
+        }
+
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('webgl2', { alpha: false });
+        this.renderer = new THREE.WebGLRenderer({ canvas, context });
+        // this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setClearColor(this.clearColor);
         this.renderer.shadowMap.enabled = true;
         document.body.appendChild(this.renderer.domElement);

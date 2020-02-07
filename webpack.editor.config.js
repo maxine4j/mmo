@@ -53,7 +53,7 @@ module.exports = {
             title: 'MMO Editor',
             template: './src/editor/index.html',
             filename: 'index.html',
-            // favicon: './src/editor/favicon.ico',
+            favicon: './src/editor/favicon.ico',
         }),
         new CopyPlugin([
             {

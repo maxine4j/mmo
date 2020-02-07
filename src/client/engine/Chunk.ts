@@ -3,7 +3,7 @@ import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 import TerrainMaterial from './graphics/materials/TerrainMaterial';
-import { loadTexture3D } from './graphics/Texture';
+import { loadTerrainTextures } from './graphics/Texture';
 
 export default class Chunk {
     public def: ChunkDef;
@@ -14,7 +14,7 @@ export default class Chunk {
     private wireframeVisible: boolean;
     private _isLoaded: boolean;
     public material: TerrainMaterial;
-    public get texture(): THREE.Texture { return this.material.textures[0].diffuse; } // TODO: this is used for minimap
+    public get texture(): THREE.Texture { return this.material.texture.diffuse; } // TODO: this is used for minimap
 
     public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial) {
         this.def = def;
@@ -50,11 +50,11 @@ export default class Chunk {
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
-            Promise.all([
-                loadTexture3D('assets/terrain/stone_path'),
-                loadTexture3D('assets/terrain/dirt'),
-            ]).then((tex3Ds) => {
-                resolve(new Chunk(def, world, new TerrainMaterial(tex3Ds)));
+            loadTerrainTextures([
+                'assets/terrain/stone_path',
+                'assets/terrain/dirt',
+            ]).then((tex3d) => {
+                resolve(new Chunk(def, world, new TerrainMaterial(tex3d)));
             }).catch((err) => reject(err));
         });
     }

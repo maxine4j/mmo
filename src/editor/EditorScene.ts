@@ -200,9 +200,12 @@ export default class EditorScene extends GameScene {
         this.hemisphereLight = new THREE.HemisphereLight(0xffffff, 0x3d394d, 1.5);
 
         this.props.world = new EditorChunkWorld(this.props.scene, overworldDef);
-        const chunkLoads: Promise<Chunk>[] = [];
-        for (const key in overworldDef.chunks) { chunkLoads.push(this.props.world.loadChunk(overworldDef.chunks[key])); }
-        await Promise.all(chunkLoads);
+        // const chunkLoads: Promise<Chunk>[] = [];
+        // for (const key in overworldDef.chunks) { chunkLoads.push(this.props.world.loadChunk(overworldDef.chunks[key])); }
+        // await Promise.all(chunkLoads);
+
+        await this.props.world.loadChunk(overworldDef.chunks['0']);
+
         this.props.world.stitchChunks();
         this.props.world.stitchChunks(); // calling this twice on init allows us to have chunks be unordered
 
