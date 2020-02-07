@@ -53,6 +53,7 @@ export default class Chunk {
             loadTerrainTextures([
                 'assets/terrain/stone_path',
                 'assets/terrain/dirt',
+                'assets/terrain/pink',
             ]).then((tex3d) => {
                 resolve(new Chunk(def, world, new TerrainMaterial(tex3d)));
             }).catch((err) => reject(err));
