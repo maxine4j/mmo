@@ -25,6 +25,7 @@ export interface Texture3D {
 //     });
 // }
 
+// TODO: blend texture only needs one channel, support loading with different strides
 async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2DArray> {
     // load all the images as <img> tags
     const promises: Promise<HTMLImageElement>[] = [];

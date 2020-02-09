@@ -15,7 +15,6 @@ export default class TerrainMaterial extends THREE.ShaderMaterial {
                 u_diffuseMaps: { value: texture.diffuse },
                 u_depthMaps: { value: texture.depth },
                 u_blendMaps: { value: texture.blend },
-                map: { value: texture.diffuse },
 
                 emissive: { value: new THREE.Vector3(0.0, 0.0, 0.0) },
                 opacity: { value: 1.0 },
