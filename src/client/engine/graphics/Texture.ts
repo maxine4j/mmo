@@ -1,32 +1,24 @@
 import * as THREE from 'three';
 import { DataTexture2DArray } from 'three/src/textures/DataTexture2DArray';
+import ChunkDef from '../../../common/ChunkDef';
 
-export interface Texture3D {
-    count: number;
-    diffuse: DataTexture2DArray;
-    depth: DataTexture2DArray;
-    blend: DataTexture2DArray;
-    // normal: DataTexture2DArray;
-    // ao: DataTexture2DArray;
-    // roughness: DataTexture2DArray;
+const strideRBGA = 4;
+export const defaultBlendSize = 1024;
+
+export type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
+
+export class Texture3D extends DataTexture2DArray {
+    public srcs: string[];
 }
 
-// export function loadTexture(src: string): Promise<THREE.Texture> {
-//     return new Promise((resolve, reject) => {
-//         const loader = new THREE.TextureLoader();
-//         loader.load(
-//             src,
-//             (texture) => {
-//                 resolve(texture);
-//             },
-//             (prog) => {},
-//             (err) => reject(err),
-//         );
-//     });
-// }
+export interface TerrainTexture {
+    count: number;
+    diffuse: Texture3D;
+    depth: Texture3D;
+    blend: Texture3D;
+}
 
-// TODO: blend texture only needs one channel, support loading with different strides
-async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2DArray> {
+async function load3Dtexture(srcs: string[]): Promise<Texture3D> {
     // load all the images as <img> tags
     const promises: Promise<HTMLImageElement>[] = [];
     for (const src of srcs) {
@@ -34,20 +26,19 @@ async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2D
             const img = document.createElement('img');
             img.onload = () => resolve(img);
             img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-            img.src = src + ext;
+            img.src = src; // this supports data uri too
         }));
     }
     const imgs = await Promise.all(promises);
 
     // size of the 3d texture
-    const width = imgs[0].width;
-    const height = imgs[0].height;
+    const width = imgs.length > 0 ? imgs[0].width : defaultBlendSize;
+    const height = imgs.length > 0 ? imgs[0].height : defaultBlendSize;
     const size = width * height;
     const depth = imgs.length;
-    const stride = 4; // RGBA stride
 
     // create buffer to hold all pixel data
-    const data: Uint8Array = new Uint8Array(size * depth * stride);
+    const data: Uint8Array = new Uint8Array(size * depth * strideRBGA);
     let offset = 0;
 
     // create a canvas to extract pixel data with
@@ -61,11 +52,10 @@ async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2D
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(img, 0, 0, width, height);
         data.set(ctx.getImageData(0, 0, width, height).data, offset);
-        offset += size * stride;
+        offset += size * strideRBGA;
     }
 
-    // const texture = new THREE.DataTexture3D(data, width, height, depth);
-    const texture: DataTexture2DArray = new DataTexture2DArray(data, width, height, depth);
+    const texture = new Texture3D(data, width, height, depth);
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.format = THREE.RGBAFormat; // these might be defaults?
@@ -74,23 +64,31 @@ async function load3Dtexture(srcs: string[], ext: string): Promise<DataTexture2D
     return texture;
 }
 
-const exts = [
-    '/diffuse.png',
-    '/depth.png',
-    '/blend.png',
-];
-
-export async function loadTerrainTextures(srcs: string[]): Promise<Texture3D> {
-    const promises: Promise<THREE.DataTexture3D>[] = [];
-    for (const ext of exts) {
-        promises.push(load3Dtexture(srcs, ext));
+export async function loadTerrainTexture(def: ChunkDef): Promise<TerrainTexture> {
+    // change group by to type from layer
+    const diffuseSrcs: string[] = [];
+    const depthSrcs: string[] = [];
+    const blendData: string[] = [];
+    for (const texDef of def.textures) {
+        diffuseSrcs.push(texDef.diffuse);
+        depthSrcs.push(texDef.depth);
+        blendData.push(texDef.blend);
     }
-    const textures = await Promise.all(promises);
 
-    return <Texture3D>{
-        count: srcs.length,
-        diffuse: textures[0], // TODO: this indexing isnt good
-        depth: textures[1],
-        blend: textures[2],
+    // load the textures
+    const [diffuse, depth, blend] = await Promise.all([
+        load3Dtexture(diffuseSrcs),
+        load3Dtexture(depthSrcs),
+        load3Dtexture(blendData),
+    ]);
+
+    diffuse.srcs = diffuseSrcs;
+    depth.srcs = depthSrcs;
+
+    return <TerrainTexture>{
+        count: diffuseSrcs.length,
+        diffuse,
+        depth,
+        blend,
     };
 }

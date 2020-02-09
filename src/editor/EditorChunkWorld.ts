@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import { defaultBlendSize } from '../client/engine/graphics/Texture';
 import WorldJsonDef from '../server/data/WorldsJsonDef';
 import ChunkDef from '../common/ChunkDef';
 import ChunkWorld from '../client/engine/ChunkWorld';
@@ -6,6 +7,16 @@ import { TilePoint, ChunkPoint } from '../common/Point';
 import Scene from '../client/engine/graphics/Scene';
 import Chunk from '../client/engine/Chunk';
 import Map2D from '../common/Map2D';
+
+function generateTexture(w: number, h: number, fillStyle: string): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = fillStyle;
+    ctx.fillRect(0, 0, w, h);
+    return canvas.toDataURL();
+}
 
 export default class EditorChunkWorld {
     private def: WorldJsonDef;
@@ -34,9 +45,15 @@ export default class EditorChunkWorld {
             y,
             size: this.chunkSize,
             heightmap: Array.from({ length: size * size }, () => 0),
-            texturemap: Array.from({ length: size * size * 2 }, () => 0),
             doodads: [],
-            texture: 'assets/chunks/default.png', // TODO: terrain texture painting
+            textures: [
+                { // create a default texture
+                    id: uuid(),
+                    diffuse: 'assets/terrain/dirt_hq/diffuse.png',
+                    depth: 'assets/terrain/dirt_hq/depth.png',
+                    blend: generateTexture(defaultBlendSize, defaultBlendSize, 'white'),
+                },
+            ],
         };
         await this.loadChunk(def);
         this.stitchChunks();

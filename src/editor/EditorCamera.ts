@@ -11,7 +11,7 @@ export default class EditorCamera extends Camera {
 
     public constructor(props: EditorProps, fov?: number, aspect?: number, near?: number, far?: number) {
         super(fov, aspect, near, far);
-        this.maxZoom = 200;
+        this.maxZoom = 400;
         this.minZoom = 5;
         this.zoomRate = 4;
 

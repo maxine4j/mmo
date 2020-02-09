@@ -30,9 +30,11 @@ import _content from '../client/assets/content.json';
 import ContentDef from '../client/engine/asset/AssetDef';
 import DoodadCloneTool from './tools/doodad/DoodadCloneTool';
 import PaintTool from './tools/terrain/PaintTool';
+import { ImageData3D } from '../client/engine/graphics/Texture';
+import { ChunkTexture } from '../common/ChunkDef';
 
 export const contentDef = <ContentDef>_content;
-export const overworldDef = <WorldJsonDef>_overworldDef;
+export const overworldDef = <WorldJsonDef><any>_overworldDef;
 
 // const cSize = 128;
 // export const overworldDef = <WorldJsonDef>{
@@ -60,7 +62,6 @@ TODO NEW FEATURES:
     - Invisible doodad in library
     - Doodad info panel, edit props
     - Place lights, maybe as part of doodads
-    - Texture painting
     - Skybox and amibent light for caves
     - Multiple world support, maybe have WorldListJsonDef or something, ability to switch between worlds
     - Interactables like ladders/caves between worlds
@@ -83,6 +84,43 @@ export default class EditorScene extends GameScene {
         super('editor');
     }
 
+    private getBlendMapData(chunk: Chunk): ChunkTexture[] {
+        const img = <ImageData3D>chunk.material.texture.blend.image;
+        const strideRGBA = 4;
+        const canvas = document.createElement('canvas'); // TODO: re use this
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        const layers: ChunkTexture[] = [];
+        for (let layer = 0; layer < img.depth; layer++) {
+            const imgData = new ImageData(img.width, img.height);
+            const depthOffset = img.width * img.height * layer;
+            for (let yi = 0; yi < img.height; yi++) {
+                for (let xi = 0; xi < img.width; xi++) {
+                    const xyOffset = yi * img.width + xi;
+                    const srcIdx = (depthOffset + xyOffset) * strideRGBA;
+                    const destIdx = xyOffset * strideRGBA;
+                    const grey = img.data[srcIdx];
+                    imgData.data[destIdx] = grey; // R
+                    imgData.data[destIdx + 1] = grey; // G
+                    imgData.data[destIdx + 2] = grey; // B
+                    imgData.data[destIdx + 3] = 255; // A
+                }
+            }
+            ctx.putImageData(imgData, 0, 0);
+            layers.push({
+                id: layer.toString(),
+                diffuse: chunk.material.texture.diffuse.srcs[layer],
+                depth: chunk.material.texture.depth.srcs[layer],
+                blend: canvas.toDataURL('image/png'),
+            });
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        return layers;
+    }
+
     private downloadWorld(): void {
         const world = <WorldJsonDef>{
             id: overworldDef.id,
@@ -91,8 +129,7 @@ export default class EditorScene extends GameScene {
         };
         for (const [_x, _y, chunk] of this.props.world.chunks) {
             world.chunks[chunk.def.id] = chunk.def;
-            // @ts-ignore
-            world.chunks[chunk.def.id].texturemap = Array.from({ length: (world.chunkSize * world.chunkSize) * 2 }, () => 0);
+            world.chunks[chunk.def.id].textures = this.getBlendMapData(chunk); // TODO: this needs to be set up on the chunk def in the paint tool
         }
         const data = JSON.stringify(world);
         const file = new Blob([data], { type: 'application/json' });

@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { Texture3D } from '../Texture';
+import { TerrainTexture } from '../Texture';
 import terrainVertex from './shaders/terrain.v.glsl';
 import terrainFrag from './shaders/terrain.f.glsl';
 
 export default class TerrainMaterial extends THREE.ShaderMaterial {
-    public texture: Texture3D;
+    public texture: TerrainTexture;
 
-    public constructor(texture: Texture3D) {
+    public constructor(texture: TerrainTexture) {
         super({
             lights: true,
             uniforms: {

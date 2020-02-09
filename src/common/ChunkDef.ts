@@ -17,12 +17,18 @@ export interface DoodadDef extends IDefinition {
     walkable: boolean,
 }
 
+export interface ChunkTexture extends IDefinition {
+    id: string;
+    diffuse: string;
+    depth: string;
+    blend: string;
+}
+
 export default interface ChunkDef extends IDefinition {
     id: string;
     x: number;
     y: number;
-    texture: string;
     heightmap: number[];
-    texturemap: number[];
+    textures: ChunkTexture[];
     doodads: DoodadDef[];
 }

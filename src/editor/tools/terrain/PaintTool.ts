@@ -4,13 +4,12 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import SliderProp from '../../panelprops/SliderProp';
 import { ChunkPoint } from '../../../common/Point';
+import { ImageData3D } from '../../../client/engine/graphics/Texture';
 
 const numLayers = 3;
 const strideRGBA = 4;
 const colourChannelMax = 255; // max uint8 - 1
 const paintRate = 15;
-
-type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
 
 export default class PaintTool extends Tool {
     private brush: Brush;

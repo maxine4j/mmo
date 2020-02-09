@@ -3,7 +3,7 @@ import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 import TerrainMaterial from './graphics/materials/TerrainMaterial';
-import { loadTerrainTextures } from './graphics/Texture';
+import { loadTerrainTexture } from './graphics/Texture';
 
 export default class Chunk {
     public def: ChunkDef;
@@ -50,12 +50,8 @@ export default class Chunk {
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
-            loadTerrainTextures([
-                'assets/terrain/dirt_hq',
-                'assets/terrain/grass_hq',
-                'assets/terrain/pink',
-            ]).then((tex3d) => {
-                resolve(new Chunk(def, world, new TerrainMaterial(tex3d)));
+            loadTerrainTexture(def).then((tex) => {
+                resolve(new Chunk(def, world, new TerrainMaterial(tex)));
             }).catch((err) => reject(err));
         });
     }
