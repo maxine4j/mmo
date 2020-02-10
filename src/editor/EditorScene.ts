@@ -29,8 +29,7 @@ import DoodadAddTool from './tools/doodad/DoodadAddTool';
 import _content from '../client/assets/content.json';
 import ContentDef from '../client/engine/asset/AssetDef';
 import DoodadCloneTool from './tools/doodad/DoodadCloneTool';
-import PaintTool, { ImageData3D, getBlendMapData } from './tools/terrain/PaintTool';
-import { ChunkTexture } from '../common/ChunkDef';
+import PaintTool, { getBlendMapData } from './tools/terrain/PaintTool';
 
 export const contentDef = <ContentDef>_content;
 export const overworldDef = <WorldJsonDef>_overworldDef;
