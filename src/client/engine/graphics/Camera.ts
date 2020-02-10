@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { Key } from 'ts-key-enum';
 import Graphics from './Graphics';
 import { Point } from '../../../common/Point';
 import Scene from './Scene';
@@ -19,6 +20,7 @@ export default class Camera extends THREE.PerspectiveCamera {
     protected azimuth: number = 0;
     protected followSpeed: number = 4;
     protected lastMouse: Point;
+    protected rotateRate: number = 2;
 
     public constructor(fov?: number, aspect?: number, near?: number, far?: number) {
         super(fov, aspect, near, far);
@@ -72,6 +74,22 @@ export default class Camera extends THREE.PerspectiveCamera {
         this.target = pos;
     }
 
+    private updateKeys(delta: number): void {
+        if (Input.isKeyDown('w')) {
+            this.polar -= this.rotateRate * delta;
+            this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
+        } else if (Input.isKeyDown('s')) {
+            this.polar += this.rotateRate * delta;
+            this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
+        }
+
+        if (Input.isKeyDown('a')) {
+            this.azimuth -= this.rotateRate * delta;
+        } else if (Input.isKeyDown('d')) {
+            this.azimuth += this.rotateRate * delta;
+        }
+    }
+
     public update(delta: number): void {
         // lerp current position towards the target
         this.currentPos.lerp(this.target, this.followSpeed * delta);
@@ -107,6 +125,9 @@ export default class Camera extends THREE.PerspectiveCamera {
             this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
             this.azimuth += 2 * Math.PI * -(this.rotateDelta.x / Graphics.viewportWidth);
         }
+
+        this.updateKeys(delta);
+
         this.lastMouse = Input.mousePos();
     }
 }
