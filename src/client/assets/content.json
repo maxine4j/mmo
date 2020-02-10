@@ -1432,13 +1432,13 @@
 
         },
         "terrain": {
-            "dirt": {
-                "id": "dirt",
+            "dirt_hq": {
+                "id": "dirt_hq",
                 "diffuse": "assets/terrain/dirt_hq/diffuse.png",
                 "depth": "assets/terrain/dirt_hq/depth.png"
             },
-            "grass": {
-                "id": "grass",
+            "grass_hq": {
+                "id": "grass_hq",
                 "diffuse": "assets/terrain/grass_hq/diffuse.png",
                 "depth": "assets/terrain/grass_hq/depth.png"
             },
@@ -1446,6 +1446,31 @@
                 "id": "pink",
                 "diffuse": "assets/terrain/pink/diffuse.png",
                 "depth": "assets/terrain/pink/depth.png"
+            },
+            "dirt": {
+                "id": "dirt",
+                "diffuse": "assets/terrain/dirt/diffuse.png",
+                "depth": "assets/terrain/dirt/depth.png"
+            },
+            "grass": {
+                "id": "grass",
+                "diffuse": "assets/terrain/grass/diffuse.png",
+                "depth": "assets/terrain/grass/depth.png"
+            },
+            "water": {
+                "id": "water",
+                "diffuse": "assets/terrain/water/diffuse.png",
+                "depth": "assets/terrain/water/depth.png"
+            },
+            "sand": {
+                "id": "sand",
+                "diffuse": "assets/terrain/sand/diffuse.png",
+                "depth": "assets/terrain/sand/depth.png"
+            },
+            "snow": {
+                "id": "snow",
+                "diffuse": "assets/terrain/snow/diffuse.png",
+                "depth": "assets/terrain/snow/depth.png"
             }
         }
     }

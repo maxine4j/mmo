@@ -22,7 +22,7 @@ export default class SetTool extends Tool {
         );
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
-        this.heightSlider = new SliderProp(this.propsPanel, 'Height: ', -5, 15, 0.01, this.height,
+        this.heightSlider = new SliderProp(this.propsPanel, 'Height: ', -10, 50, 0.01, this.height,
             (value) => {
                 this.height = value;
             });

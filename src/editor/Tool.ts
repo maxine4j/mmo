@@ -45,7 +45,7 @@ export default class Tool {
     public get name(): string { return this._name; }
 
     protected addBrushSizeProp(brush: Brush): void {
-        const propBrushSize = new SliderProp(this.propsPanel, 'Brush Size:', 1, 30, 1, brush.size + 1, (value) => {
+        const propBrushSize = new SliderProp(this.propsPanel, 'Brush Size:', 1, 60, 1, brush.size + 1, (value) => {
             brush.size = value - 1;
         });
         brush.onSizeChange = (value) => { propBrushSize.value = value + 1; };

@@ -26,7 +26,7 @@ export default class CachedModel {
 
     public constructor(def: ModelAssetDef) {
         this.def = def;
-        this.eventEmitter.setMaxListeners(256);
+        this.eventEmitter.setMaxListeners(2048);
 
         // load the model from file
         const loader = new GLTFLoader();
