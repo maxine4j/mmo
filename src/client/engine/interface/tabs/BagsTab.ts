@@ -39,6 +39,8 @@ export class InventorySlot extends Panel {
         this.style.display = 'inline-block';
         this.style.margin = `${margin}px`;
         this.style.backgroundColor = slotBg;
+        this.width = slotSize;
+        this.height = slotSize;
 
         this.initDragging();
         this.element.addEventListener('click', (ev: MouseEvent) => {
