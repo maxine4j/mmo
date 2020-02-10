@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import ChunkDef from '../../common/ChunkDef';
 import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
-import TerrainMaterial from './graphics/materials/TerrainMaterial';
+import TerrainMaterial, { ImageData3D } from './graphics/materials/TerrainMaterial';
 import AssetManager from './asset/AssetManager';
 
 export default class Chunk {
@@ -15,6 +15,8 @@ export default class Chunk {
     private _isLoaded: boolean;
     public material: TerrainMaterial;
     public get texture(): THREE.Texture { return this.material.texture.diffuse; } // TODO: this is used for minimap
+    private minimapCanvas: OffscreenCanvas;
+    public get minimap(): OffscreenCanvas { return this.minimapCanvas; }
 
     public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial) {
         this.def = def;
@@ -34,6 +36,10 @@ export default class Chunk {
         this.loadDoodads();
         this.positionInWorld();
         this.positionDoodads();
+
+        const diffuseImg = <ImageData3D> this.material.texture.diffuse.image;
+        this.minimapCanvas = new OffscreenCanvas(diffuseImg.width, diffuseImg.height);
+        this.updateMinimapRender();
     }
 
     public get isLoaded(): boolean {
@@ -46,6 +52,46 @@ export default class Chunk {
             this.unload(); // unload the chunk if val is false and chunk is currently loaded
         }
         this._isLoaded = val;
+    }
+
+    private getAlphaFromBlend(diffuse: ImageData3D, blend: ImageData3D, layer: number, x: number, y: number): number {
+        // scale index
+        const bx = Math.floor((blend.width / diffuse.width) * x);
+        const by = Math.floor((blend.height / diffuse.height) * y);
+        const depthOffset = blend.width * blend.height * 4 * layer;
+        const idx = (by * blend.width + bx) * 4;
+        return blend.data[depthOffset + idx];
+    }
+
+    public updateMinimapRender(): void {
+        const diffuseImg = <ImageData3D> this.material.texture.diffuse.image;
+        const blendImg = <ImageData3D> this.material.texture.blend.image;
+        const strideRGBA = 4;
+
+        const layerCanvas = new OffscreenCanvas(diffuseImg.width, diffuseImg.height);
+        const mainCtx = this.minimapCanvas.getContext('2d');
+        const layerCtx = layerCanvas.getContext('2d');
+        mainCtx.clearRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
+
+        // build an image data for each layer, with blend map applied to alpha channel
+        for (let layer = 0; layer < this.material.texture.layerIDs.length - 1; layer++) {
+            const depthOffset = diffuseImg.width * diffuseImg.height * strideRGBA * layer;
+            const data = new ImageData(diffuseImg.width, diffuseImg.height);
+            // get layer image with alpha
+            for (let yi = 0; yi < diffuseImg.height; yi++) {
+                for (let xi = 0; xi < diffuseImg.width; xi++) {
+                    const idx = (yi * diffuseImg.width + xi) * strideRGBA;
+                    data.data[idx] = diffuseImg.data[depthOffset + idx];
+                    data.data[idx + 1] = diffuseImg.data[depthOffset + idx + 1];
+                    data.data[idx + 2] = diffuseImg.data[depthOffset + idx + 2];
+                    if (layer === 0) data.data[idx + 3] = 255; // always have the first layer at full opacity
+                    else data.data[idx + 3] = this.getAlphaFromBlend(diffuseImg, blendImg, layer, xi, yi);
+                }
+            }
+            // draw image to the canvas
+            layerCtx.putImageData(data, 0, 0);
+            mainCtx.drawImage(layerCanvas, 0, 0);
+        }
     }
 
     public reloadMaterial(): void {

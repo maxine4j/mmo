@@ -33,9 +33,7 @@ function load3Dtexture(imgs: HTMLImageElement[]): DataTexture2DArray {
     let offset = 0;
 
     // create a canvas to extract pixel data with
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
+    const canvas = new OffscreenCanvas(width, height);
     const ctx = canvas.getContext('2d');
 
     for (const img of imgs) {
