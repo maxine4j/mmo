@@ -111,8 +111,6 @@ export default class EditorScene extends GameScene {
             ctx.putImageData(imgData, 0, 0);
             layers.push({
                 id: layer.toString(),
-                diffuse: chunk.material.texture.diffuse.srcs[layer],
-                depth: chunk.material.texture.depth.srcs[layer],
                 blend: canvas.toDataURL('image/png'),
             });
             ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { DataTexture2DArray } from 'three/src/textures/DataTexture2DArray';
 import ChunkDef from '../../../common/ChunkDef';
+import AssetManager from '../asset/AssetManager';
 
 const strideRBGA = 4;
 export const defaultBlendSize = 1024;
@@ -11,26 +12,31 @@ export class Texture3D extends DataTexture2DArray {
     public srcs: string[];
 }
 
+export interface TerrainTextureDef {
+    id: string;
+    diffuse: HTMLImageElement;
+    depth: HTMLImageElement;
+}
+
 export interface TerrainTexture {
+    id: string;
     count: number;
+    layerIDs: string[];
     diffuse: Texture3D;
     depth: Texture3D;
     blend: Texture3D;
 }
 
-async function load3Dtexture(srcs: string[]): Promise<Texture3D> {
-    // load all the images as <img> tags
-    const promises: Promise<HTMLImageElement>[] = [];
-    for (const src of srcs) {
-        promises.push(new Promise((resolve, reject) => {
-            const img = document.createElement('img');
-            img.onload = () => resolve(img);
-            img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
-            img.src = src; // this supports data uri too
-        }));
-    }
-    const imgs = await Promise.all(promises);
+function loadImage(src: string): Promise<HTMLImageElement> {
+    return new Promise((resolve, reject) => {
+        const img = document.createElement('img');
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+        img.src = src; // this supports data uri too
+    });
+}
 
+function load3Dtexture(imgs: HTMLImageElement[]): Texture3D {
     // size of the 3d texture
     const width = imgs.length > 0 ? imgs[0].width : defaultBlendSize;
     const height = imgs.length > 0 ? imgs[0].height : defaultBlendSize;
@@ -66,27 +72,38 @@ async function load3Dtexture(srcs: string[]): Promise<Texture3D> {
 
 export async function loadTerrainTexture(def: ChunkDef): Promise<TerrainTexture> {
     // change group by to type from layer
-    const diffuseSrcs: string[] = [];
-    const depthSrcs: string[] = [];
-    const blendData: string[] = [];
+    const blendImgPromises: Promise<HTMLImageElement>[] = [];
+    const texturePromises: Promise<TerrainTextureDef>[] = [];
     for (const texDef of def.textures) {
-        diffuseSrcs.push(texDef.diffuse);
-        depthSrcs.push(texDef.depth);
-        blendData.push(texDef.blend);
+        texturePromises.push(AssetManager.getTerrain(texDef.id));
+        blendImgPromises.push(loadImage(texDef.blend));
     }
+    const textures = await Promise.all(texturePromises);
+    const blendImgs = await Promise.all(blendImgPromises);
+
+    const diffuseImgs: HTMLImageElement[] = [];
+    const depthImgs: HTMLImageElement[] = [];
+    const layerIDs: string[] = [];
+    for (const texDef of textures) {
+        diffuseImgs.push(texDef.diffuse);
+        depthImgs.push(texDef.depth);
+        layerIDs.push(texDef.id);
+    }
+
 
     // load the textures
     const [diffuse, depth, blend] = await Promise.all([
-        load3Dtexture(diffuseSrcs),
-        load3Dtexture(depthSrcs),
-        load3Dtexture(blendData),
+        load3Dtexture(diffuseImgs),
+        load3Dtexture(depthImgs),
+        load3Dtexture(blendImgs),
     ]);
 
-    diffuse.srcs = diffuseSrcs;
-    depth.srcs = depthSrcs;
+    // diffuse.srcs = diffuseSrcs;
+    // depth.srcs = depthSrcs;
 
     return <TerrainTexture>{
-        count: diffuseSrcs.length,
+        count: def.textures.length,
+        layerIDs,
         diffuse,
         depth,
         blend,

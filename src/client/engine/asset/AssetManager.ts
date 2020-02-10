@@ -3,6 +3,7 @@ import Model from '../graphics/Model';
 import CachedModel from './CachedModel';
 import _content from '../../assets/content.json';
 import SpriteAtlas from './SpriteAtlas';
+import { TerrainTexture, TerrainTextureDef } from '../graphics/Texture';
 
 export const contentDef = <ContentDef>_content;
 
@@ -51,5 +52,29 @@ export default class AssetManager {
             return atlas;
         }
         throw new Error(`Atlas not found in content definition: ${id}`);
+    }
+
+    public static loadImage(src: string): Promise<HTMLImageElement> {
+        return new Promise((resolve, reject) => {
+            const img = document.createElement('img');
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+            img.src = src;
+        });
+    }
+
+    public static async getTerrain(id: string): Promise<TerrainTextureDef> {
+        const def = contentDef.content.terrain[id];
+
+        const [diffuse, depth] = await Promise.all([
+            this.loadImage(def.diffuse),
+            this.loadImage(def.depth),
+        ]);
+
+        return <TerrainTextureDef>{
+            id,
+            diffuse,
+            depth,
+        };
     }
 }

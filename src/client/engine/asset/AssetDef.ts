@@ -17,6 +17,13 @@ export interface ImageAssetDef extends AssetDef {
     src: string;
 }
 
+// terrain texture
+export interface TerrainTextureAssetDef {
+    id: string;
+    diffuse: string;
+    depth: string;
+}
+
 // atlas
 export interface AtlasSpriteAssetDef extends AssetDef {
     src: {
@@ -51,6 +58,9 @@ interface ContentAtlasesDict {
 interface ContentSoundsDict {
     [index: string]: SoundAssetDef
 }
+interface TerrainTexturesDef {
+    [index: string]: TerrainTextureAssetDef
+}
 export default interface ContentDef {
     version: number,
     content: {
@@ -58,5 +68,6 @@ export default interface ContentDef {
         images: ContentImagesDict,
         atlases: ContentAtlasesDict,
         sounds: ContentSoundsDict,
+        terrain: TerrainTexturesDef,
     }
 }

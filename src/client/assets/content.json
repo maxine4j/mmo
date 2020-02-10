@@ -1430,6 +1430,23 @@
         },
         "sounds": {
 
+        },
+        "terrain": {
+            "dirt": {
+                "id": "dirt",
+                "diffuse": "assets/terrain/dirt_hq/diffuse.png",
+                "depth": "assets/terrain/dirt_hq/depth.png"
+            },
+            "grass": {
+                "id": "grass",
+                "diffuse": "assets/terrain/grass_hq/diffuse.png",
+                "depth": "assets/terrain/grass_hq/depth.png"
+            },
+            "pink": {
+                "id": "pink",
+                "diffuse": "assets/terrain/pink/diffuse.png",
+                "depth": "assets/terrain/pink/depth.png"
+            }
         }
     }
 }

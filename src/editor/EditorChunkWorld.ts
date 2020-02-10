@@ -47,10 +47,8 @@ export default class EditorChunkWorld {
             heightmap: Array.from({ length: size * size }, () => 0),
             doodads: [],
             textures: [
-                { // create a default texture
-                    id: uuid(),
-                    diffuse: 'assets/terrain/dirt_hq/diffuse.png',
-                    depth: 'assets/terrain/dirt_hq/depth.png',
+                {
+                    id: 'dirt',
                     blend: generateTexture(defaultBlendSize, defaultBlendSize, 'white'),
                 },
             ],

@@ -19,8 +19,6 @@ export interface DoodadDef extends IDefinition {
 
 export interface ChunkTexture extends IDefinition {
     id: string;
-    diffuse: string;
-    depth: string;
     blend: string;
 }
 

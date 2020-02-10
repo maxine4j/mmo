@@ -5,16 +5,24 @@ import ToolPanel from '../../ToolPanel';
 import SliderProp from '../../panelprops/SliderProp';
 import { ChunkPoint } from '../../../common/Point';
 import { ImageData3D } from '../../../client/engine/graphics/Texture';
+import LibraryProp, { BookCover } from '../../panelprops/LibraryProp';
+import { TerrainTextureAssetDef } from '../../../client/engine/asset/AssetDef';
+import AssetManager, { contentDef } from '../../../client/engine/asset/AssetManager';
+import Chunk from '../../../client/engine/Chunk';
 
 const numLayers = 3;
 const strideRGBA = 4;
 const colourChannelMax = 255; // max uint8 - 1
 const paintRate = 15;
 
+// TODO: if a texture does not exist on a chunk we should add it when painting
+
 export default class PaintTool extends Tool {
     private brush: Brush;
     public depth: number = 0;
     public strength: number = 1;
+
+    private librarySelectedTerrainID: string;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -26,17 +34,48 @@ export default class PaintTool extends Tool {
         this.brush = new Brush(this.props);
         this.addBrushSizeProp(this.brush);
 
-        const layerSlider = new SliderProp(this.propsPanel, 'Layer', 0, numLayers - 1, 1, this.depth,
-            (val) => {
-                this.depth = val;
-            });
-        this.propsPanel.addProp(layerSlider);
-        this.propsPanel.addBreak();
         const strengthSlider = new SliderProp(this.propsPanel, 'Strength', 0, 1, 0.01, this.strength,
             (val) => {
                 this.strength = val;
             });
         this.propsPanel.addProp(strengthSlider);
+
+        this.loadLibrary();
+    }
+
+    private async loadLibrary(): Promise<void> {
+        const defs: TerrainTextureAssetDef[] = [];
+        const iconPromises: Promise<HTMLImageElement>[] = [];
+        for (const id in contentDef.content.terrain) {
+            const def = contentDef.content.terrain[id];
+            defs.push(def);
+            iconPromises.push(AssetManager.loadImage(def.diffuse));
+        }
+        const icons = await Promise.all(iconPromises);
+
+        // create items
+        const items: { item: TerrainTextureAssetDef, cover: BookCover }[] = [];
+        for (let i = 0; i < icons.length; i++) {
+            const def = defs[i];
+            const icon = icons[i];
+            items.push({
+                item: def,
+                cover: {
+                    name: def.id,
+                    icon,
+                },
+            });
+        }
+
+        // create the library
+        const library = new LibraryProp<TerrainTextureAssetDef>(
+            this.propsPanel,
+            items,
+            (item) => {
+                this.librarySelectedTerrainID = item.id;
+            },
+        );
+        this.propsPanel.addProp(library);
     }
 
     public onSelected(): void {
@@ -89,10 +128,20 @@ export default class PaintTool extends Tool {
         texture.needsUpdate = true;
     }
 
+    private getLayerDepth(chunk: Chunk, layerID: string): number {
+        // return the depth of the given layer id
+        for (let i = 0; i < chunk.material.texture.layerIDs.length; i++) {
+            if (chunk.material.texture.layerIDs[i] === layerID) {
+                return i;
+            }
+        }
+        return null;
+    }
+
     public use(delta: number): void {
         for (const point of this.brush.pointsIn()) {
             const chunkPoint = point.toChunk();
-            this.directDraw(chunkPoint, this.depth, this.strength);
+            this.directDraw(chunkPoint, this.getLayerDepth(chunkPoint.chunk, this.librarySelectedTerrainID), this.strength);
         }
     }
 
