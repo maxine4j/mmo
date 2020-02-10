@@ -1,6 +1,8 @@
 import uuid from 'uuid/v4';
 import { EventEmitter } from 'events';
-import { PointDef, Point } from '../../common/Point';
+import {
+    PointDef, Point, TilePoint, ChunkPoint,
+} from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import Unit, { UnitState } from './Unit';
@@ -8,6 +10,7 @@ import LootTable from './LootTable';
 import LootTableEntity from '../entities/LootTable.entity';
 
 type SpawnerEvent = 'spawn';
+const maxSpawnRetries = 10;
 
 export default class Spawner {
     private eventEmitter: EventEmitter = new EventEmitter();
@@ -52,6 +55,19 @@ export default class Spawner {
     }
 
     private spawnUnit(): void {
+        let retries = 0;
+        let position;
+        let spawnChunk = null;
+        while (spawnChunk == null && retries < maxSpawnRetries) {
+            position = this.getRandomPoint(this.data.center, this.data.spawnRadius);
+            spawnChunk = this.world.chunks.getChunkContaining(Point.fromDef(position));
+            retries++;
+        }
+        if (spawnChunk == null) {
+            console.log(`Warning: Unable to spawn unit from spawner "${this.data.id}" after ${retries} retries`);
+            return;
+        }
+
         const id = uuid();
         const unit = new Unit(
             this.world,
@@ -65,7 +81,7 @@ export default class Spawner {
                 level: null,
                 model: this.data.unit.model,
                 running: false,
-                position: this.getRandomPoint(this.data.center, this.data.spawnRadius),
+                position,
                 moveQueue: [],
                 combatStyle: this.data.unit.combatStyle,
             },
