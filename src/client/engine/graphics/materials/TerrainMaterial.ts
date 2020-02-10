@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TerrainTexture } from '../Texture';
+import { TerrainTexture } from '../../asset/AssetManager';
 import terrainVertex from './shaders/terrain.v.glsl';
 import terrainFrag from './shaders/terrain.f.glsl';
 
@@ -39,5 +39,12 @@ export default class TerrainMaterial extends THREE.ShaderMaterial {
         });
 
         this.texture = texture;
+    }
+
+    public dispose(): void {
+        super.dispose();
+        this.texture.diffuse.dispose();
+        this.texture.depth.dispose();
+        this.texture.blend.dispose();
     }
 }

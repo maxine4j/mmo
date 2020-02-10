@@ -4,18 +4,61 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import SliderProp from '../../panelprops/SliderProp';
 import { ChunkPoint } from '../../../common/Point';
-import { ImageData3D } from '../../../client/engine/graphics/Texture';
 import LibraryProp, { BookCover } from '../../panelprops/LibraryProp';
 import { TerrainTextureAssetDef } from '../../../client/engine/asset/AssetDef';
-import AssetManager, { contentDef } from '../../../client/engine/asset/AssetManager';
+import { contentDef, loadImage, defaultBlendSize } from '../../../client/engine/asset/AssetManager';
 import Chunk from '../../../client/engine/Chunk';
+import { ChunkTexture } from '../../../common/ChunkDef';
 
-const numLayers = 3;
+export type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
+
 const strideRGBA = 4;
 const colourChannelMax = 255; // max uint8 - 1
 const paintRate = 15;
 
-// TODO: if a texture does not exist on a chunk we should add it when painting
+export function generateTexture(w: number, h: number, fillStyle: string): string {
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = fillStyle;
+    ctx.fillRect(0, 0, w, h);
+    return canvas.toDataURL();
+}
+
+export function getBlendMapData(chunk: Chunk): ChunkTexture[] {
+    const img = <ImageData3D>chunk.material.texture.blend.image;
+    const canvas = document.createElement('canvas'); // TODO: re use this
+    const ctx = canvas.getContext('2d');
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    const layers: ChunkTexture[] = [];
+    for (let layer = 0; layer < img.depth; layer++) {
+        const imgData = new ImageData(img.width, img.height);
+        const depthOffset = img.width * img.height * layer;
+        for (let yi = 0; yi < img.height; yi++) {
+            for (let xi = 0; xi < img.width; xi++) {
+                const xyOffset = yi * img.width + xi;
+                const srcIdx = (depthOffset + xyOffset) * strideRGBA;
+                const destIdx = xyOffset * strideRGBA;
+                const grey = img.data[srcIdx];
+                imgData.data[destIdx] = grey; // R
+                imgData.data[destIdx + 1] = grey; // G
+                imgData.data[destIdx + 2] = grey; // B
+                imgData.data[destIdx + 3] = 255; // A
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+        layers.push({
+            id: chunk.material.texture.layerIDs[layer],
+            blend: canvas.toDataURL('image/png'),
+        });
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    return layers;
+}
 
 export default class PaintTool extends Tool {
     private brush: Brush;
@@ -49,7 +92,7 @@ export default class PaintTool extends Tool {
         for (const id in contentDef.content.terrain) {
             const def = contentDef.content.terrain[id];
             defs.push(def);
-            iconPromises.push(AssetManager.loadImage(def.diffuse));
+            iconPromises.push(loadImage(def.diffuse));
         }
         const icons = await Promise.all(iconPromises);
 
@@ -90,7 +133,6 @@ export default class PaintTool extends Tool {
 
     private setGreyscale(img: ImageData3D, layer: number, grey: number, x: number, y: number, w: number, h: number): void {
         const depthOffset = img.width * img.height * layer;
-
         const endx = x + w;
         const endy = y + h;
         for (let yi = y; yi < endy; yi++) {
@@ -138,10 +180,26 @@ export default class PaintTool extends Tool {
         return null;
     }
 
+    private addLayerToChunk(chunk: Chunk, layerID: string): void {
+        chunk.def.textures = getBlendMapData(chunk); // save blend maps to chunk def
+        chunk.def.textures.push(<ChunkTexture>{ // add the new texture layer
+            id: layerID,
+            blend: generateTexture(defaultBlendSize, defaultBlendSize, 'black'),
+        });
+        chunk.reloadMaterial(); // reload the chunk material from def
+    }
+
     public use(delta: number): void {
         for (const point of this.brush.pointsIn()) {
             const chunkPoint = point.toChunk();
-            this.directDraw(chunkPoint, this.getLayerDepth(chunkPoint.chunk, this.librarySelectedTerrainID), this.strength);
+            if (chunkPoint != null) {
+                const layerDepth = this.getLayerDepth(chunkPoint.chunk, this.librarySelectedTerrainID);
+                if (layerDepth == null) {
+                    this.addLayerToChunk(chunkPoint.chunk, this.librarySelectedTerrainID);
+                    break;
+                }
+                this.directDraw(chunkPoint, layerDepth, this.strength);
+            }
         }
     }
 
