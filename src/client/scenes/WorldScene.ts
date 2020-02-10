@@ -100,24 +100,27 @@ export default class WorldScene extends GameScene {
     private initGUI(): void {
         Engine.addFpsLabel();
 
+        let lastOffset = 50;
+        const sep = 15;
+
         this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
-        this.lblMouseWorld.style.top = '15px';
+        this.lblMouseWorld.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseWorld.style.left = '0';
 
         this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
-        this.lblMouseTile.style.top = '30px';
+        this.lblMouseTile.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseTile.style.left = '0';
 
         this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
-        this.lblMouseChunk.style.top = '45px';
+        this.lblMouseChunk.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseChunk.style.left = '0';
 
         this.lblSceneCount = new Label(UIParent.get(), 'Scene Count: ?');
         this.lblSceneCount.style.position = 'fixed';
-        this.lblSceneCount.style.top = '60px';
+        this.lblSceneCount.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblSceneCount.style.left = '0';
 
         this.chatbox = new Chatbox(UIParent.get(), 400, 200);
@@ -125,6 +128,15 @@ export default class WorldScene extends GameScene {
         this.chatbox.style.bottom = '0';
         this.chatbox.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
         this.chatbox.onMessageSend = (message: string) => {
+            if (message === '/tpm') {
+                const tilePoint = this.mousePoint.toTile();
+                if (tilePoint.toChunk().chunk) {
+                    NetClient.send(PacketHeader.CHAT_EVENT, <ChatMsgPacket>{
+                        message: `/tp ${tilePoint.x} ${tilePoint.y}`,
+                    });
+                    return;
+                }
+            }
             NetClient.send(PacketHeader.CHAT_EVENT, <ChatMsgPacket>{ message });
         };
         NetClient.on(PacketHeader.CHAT_EVENT, (p: ChatMsgPacket) => {

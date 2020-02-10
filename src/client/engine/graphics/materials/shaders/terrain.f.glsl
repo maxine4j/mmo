@@ -118,9 +118,16 @@ void main() {
 	// #include <encodings_fragment>
     out_fragColor = linearToOutputTexel( out_fragColor );
 
-	#include <fog_fragment>
+	#ifdef USE_FOG
+		#ifdef FOG_EXP2
+			float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
+		#else
+			float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
+		#endif
+		out_fragColor.rgb = mix( out_fragColor.rgb, fogColor, fogFactor );
+	#endif
+
 	#include <premultiplied_alpha_fragment>
 	#include <dithering_fragment>
     //---------- END THREE JS ----------
-
 }

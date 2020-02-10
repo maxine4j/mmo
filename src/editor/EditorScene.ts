@@ -167,19 +167,22 @@ export default class EditorScene extends GameScene {
     }
 
     private initCoordsGUI(): void {
+        let lastOffset = 50;
+        const sep = 15;
+
         this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
         this.lblMouseWorld.style.position = 'fixed';
-        this.lblMouseWorld.style.top = '15px';
+        this.lblMouseWorld.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseWorld.style.left = '0';
 
         this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
         this.lblMouseTile.style.position = 'fixed';
-        this.lblMouseTile.style.top = '30px';
+        this.lblMouseTile.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseTile.style.left = '0';
 
         this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
         this.lblMouseChunk.style.position = 'fixed';
-        this.lblMouseChunk.style.top = '45px';
+        this.lblMouseChunk.style.top = `${lastOffset}px`; lastOffset += sep;
         this.lblMouseChunk.style.left = '0';
     }
 

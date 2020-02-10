@@ -9,6 +9,8 @@ export default class TerrainMaterial extends THREE.ShaderMaterial {
     public constructor(texture: TerrainTexture) {
         super({
             lights: true,
+            fog: true,
+
             uniforms: {
                 u_tiling: { value: new THREE.Vector2(8, 8) }, // how many times to repeat texture over mesh
                 u_mapCount: { value: texture.count }, // number of maps to blend
@@ -33,6 +35,12 @@ export default class TerrainMaterial extends THREE.ShaderMaterial {
                 spotShadowMatrix: { value: null },
                 pointShadowMap: { value: null },
                 pointShadowMatrix: { value: null },
+
+                // required for 'fog: true'
+                fogColor: { value: new THREE.Color() },
+                fogNear: { value: null },
+                fogFar: { value: null },
+                fogDensity: { value: null },
             },
             vertexShader: terrainVertex,
             fragmentShader: terrainFrag,
