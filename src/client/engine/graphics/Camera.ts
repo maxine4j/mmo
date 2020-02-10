@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { Key } from 'ts-key-enum';
 import Graphics from './Graphics';
 import { Point } from '../../../common/Point';
 import Scene from './Scene';

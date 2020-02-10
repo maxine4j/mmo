@@ -3,6 +3,8 @@ import { TerrainTexture } from '../../asset/AssetManager';
 import terrainVertex from './shaders/terrain.v.glsl';
 import terrainFrag from './shaders/terrain.f.glsl';
 
+export type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
+
 export default class TerrainMaterial extends THREE.ShaderMaterial {
     public texture: TerrainTexture;
 

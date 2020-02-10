@@ -9,8 +9,7 @@ import { TerrainTextureAssetDef } from '../../../client/engine/asset/AssetDef';
 import { contentDef, loadImage, defaultBlendSize } from '../../../client/engine/asset/AssetManager';
 import Chunk from '../../../client/engine/Chunk';
 import { ChunkTexture } from '../../../common/ChunkDef';
-
-export type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
+import { ImageData3D } from '../../../client/engine/graphics/materials/TerrainMaterial';
 
 const strideRGBA = 4;
 const colourChannelMax = 255; // max uint8 - 1
