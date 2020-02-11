@@ -27,6 +27,7 @@ export default class EditorChunkWorld {
     public setWireframeVisibility(visible: boolean): void { this.world.setWireframeVisibility(visible); }
     public positionDoodads(): void { this.world.positionDoodads(); }
     public stitchChunks(): void { this.world.stitchChunks(); }
+    public update(delta: number): void { this.world.update(delta); }
 
     public async createNewChunk(x: number, y: number): Promise<void> {
         const size = this.chunkSize + 1;

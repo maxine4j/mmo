@@ -81,4 +81,10 @@ export default class ChunkWorld {
             chunk.positionDoodads();
         }
     }
+
+    public update(delta: number): void {
+        for (const [_x, _y, chunk] of this.chunks) {
+            chunk.update(delta);
+        }
+    }
 }

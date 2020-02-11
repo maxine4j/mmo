@@ -23,16 +23,12 @@ varying vec3 vIndirectFront;
 #include <clipping_planes_pars_vertex>
 //---------- END THREE JS ----------
 
-
 out vec2 v_uv;
-out vec3 v_position;
 out vec3 v_normal;
 
 void main() {
     v_uv = vec2(uv.x, -uv.y);
-    v_position = position;
     v_normal = normal;
-    // gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
 
     //---------- THREE JS MESH LAMBERT SHADER LIB ----------
     #include <uv_vertex>

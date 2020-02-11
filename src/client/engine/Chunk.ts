@@ -4,6 +4,7 @@ import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 import TerrainMaterial, { ImageData3D } from './graphics/materials/TerrainMaterial';
 import AssetManager from './asset/AssetManager';
+import WaterMaterial from './graphics/materials/WaterMaterial';
 
 export default class Chunk {
     public def: ChunkDef;
@@ -18,15 +19,19 @@ export default class Chunk {
     private minimapCanvas: OffscreenCanvas;
     public get minimap(): OffscreenCanvas { return this.minimapCanvas; }
 
-    public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial) {
+    private waterMaterial: WaterMaterial;
+
+    public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial, waterMat: WaterMaterial) {
         this.def = def;
         this.world = world;
         this.material = material;
+        this.waterMaterial = waterMat;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
         geometry.computeVertexNormals();
 
-        this.terrain = new THREE.Mesh(geometry, material);
+        // this.terrain = new THREE.Mesh(geometry, material);
+        this.terrain = new THREE.Mesh(geometry, waterMat);
         this.terrain.name = 'terrain';
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
@@ -105,8 +110,11 @@ export default class Chunk {
 
     public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
         return new Promise((resolve, reject) => {
-            AssetManager.loadTerrainTexture(def).then((tex) => {
-                resolve(new Chunk(def, world, new TerrainMaterial(tex)));
+            Promise.all([
+                AssetManager.loadTerrainTexture(def),
+                AssetManager.loadTexture('assets/terrain/water/diffuse.png'),
+            ]).then(([tex, waterTex]) => {
+                resolve(new Chunk(def, world, new TerrainMaterial(tex), new WaterMaterial(waterTex)));
             }).catch((err) => reject(err));
         });
     }
@@ -254,7 +262,7 @@ export default class Chunk {
             for (let ix = 0; ix < size; ix++) {
                 const x = ix * tileWidth - (size / 2);
                 const y = this.def.heightmap[iz * size + ix] || 0;
-                vertices.push(x, y, z);
+                vertices.push(x, 0.0, z); // FIXME
                 // const uvidx = (iz * size + ix) * 2;
                 // const u = this.def.texturemap[uvidx];
                 // const v = this.def.texturemap[uvidx + 1];
@@ -284,5 +292,9 @@ export default class Chunk {
         geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
 
         return geom;
+    }
+
+    public update(delta: number): void {
+        this.waterMaterial.update(delta);
     }
 }

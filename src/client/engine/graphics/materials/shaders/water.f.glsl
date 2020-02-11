@@ -37,45 +37,19 @@ varying vec3 vIndirectFront;
 //---------- END THREE JS ----------
 
 
-uniform highp sampler2DArray u_diffuseMaps;
-uniform highp sampler2DArray u_depthMaps;
-uniform highp sampler2DArray u_blendMaps;
-uniform int u_mapCount;
+uniform highp float u_time;
+uniform highp sampler2D u_diffuseMap;
 uniform vec2 u_tiling;
+uniform vec2 u_flowRate;
 
 in vec2 v_uv;
 in vec3 v_normal;
 
 out vec4 out_fragColor;
 
-vec3 terrainBlend(vec2 tiledUV) {
-    float maxDepth = -100.0;
-    for (int i = 0; i < MAX_MAPS; i++) {
-        float depth = DEPTH_MAP_STR * texture(u_depthMaps, vec3(tiledUV, i)).r;
-        float blend = texture(u_blendMaps, vec3(v_uv, i)).r;
-        maxDepth = max(maxDepth, depth * blend);
-        if (i >= u_mapCount) break;
-    }
-    maxDepth -= DEPTH_ADJ;
-
-    vec3 numer = vec3(0, 0, 0);
-    float denom = 0.0;
-    for (int i = 0; i < MAX_MAPS; i++) {
-        float depth = DEPTH_MAP_STR * texture(u_depthMaps, vec3(tiledUV, i)).r;
-        float blend = texture(u_blendMaps, vec3(v_uv, i)).r;
-        vec3 diffuse = texture(u_diffuseMaps, vec3(tiledUV, i)).rgb;
-        blend = max((depth) - maxDepth, 0.0) * blend;
-        numer += diffuse * blend;
-        denom += blend;
-        if (i >= u_mapCount) break;
-    }
- 
-    return numer / denom;
-}
-
 void main() {
-    vec2 tiledUV = v_uv * u_tiling;
-    vec3 diffuse = terrainBlend(tiledUV);
+    vec2 tiledUV = v_uv * u_tiling + vec2(u_time, u_time) * u_flowRate;
+    vec3 diffuse = texture(u_diffuseMap, tiledUV).rgb;
 
     //---------- THREE JS MESH LAMBERT SHADER LIB ----------
 	#include <clipping_planes_fragment>

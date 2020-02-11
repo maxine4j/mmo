@@ -192,6 +192,7 @@ export default class World {
     }
 
     public update(delta: number, mousePoint: WorldPoint, intersects: THREE.Intersection[]): void {
+        this.chunkWorld.update(delta);
         this.player.update(delta);
         this.player.updateClientPlayer(mousePoint, intersects);
         this.updateUnits(delta);

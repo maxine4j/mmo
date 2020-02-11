@@ -62,7 +62,6 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
     });
 }
 
-
 export default class AssetManager {
     private static modelCache: Map<string, CachedModel> = new Map();
     private static atlasCache: Map<string, SpriteAtlas> = new Map();
@@ -108,6 +107,22 @@ export default class AssetManager {
             return atlas;
         }
         throw new Error(`Atlas not found in content definition: ${id}`);
+    }
+
+    public static loadTexture(src: string): Promise<THREE.Texture> {
+        return new Promise((resolve, reject) => {
+            const loader = new THREE.TextureLoader();
+            loader.load(
+                src,
+                (tex) => {
+                    tex.wrapS = THREE.RepeatWrapping;
+                    tex.wrapT = THREE.RepeatWrapping;
+                    resolve(tex);
+                },
+                (prog) => {},
+                (err) => reject(err),
+            );
+        });
     }
 
     public static async loadTerrainTexture(def: ChunkDef): Promise<TerrainTexture> {

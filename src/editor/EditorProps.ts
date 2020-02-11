@@ -33,5 +33,6 @@ export default class EditorProps {
                 break;
             }
         }
+        this.world.update(delta);
     }
 }
