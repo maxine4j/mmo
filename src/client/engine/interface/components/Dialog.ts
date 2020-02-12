@@ -29,6 +29,10 @@ export default class Dialog extends Frame {
         if (buttons) {
             for (let i = 0; i < buttons.length; i++) {
                 const btn = new Button(this, buttons[i]);
+                btn.style.position = 'initial';
+                btn.style.margin = 'auto';
+                btn.style.display = 'block';
+                btn.style.bottom = '0';
                 if (callbacks) {
                     btn.addEventListener('click', (self: Button, ev: MouseEvent) => {
                         const cb = callbacks[i];
@@ -39,6 +43,7 @@ export default class Dialog extends Frame {
                                 cb(self, ev);
                             }
                         }
+                        this.hide();
                     });
                 }
             }
@@ -64,7 +69,7 @@ export default class Dialog extends Frame {
         this.element.style.display = 'none';
     }
 
-    public setText(text: string): void {
+    public set text(text: string) {
         this.lbl.text = text;
     }
 

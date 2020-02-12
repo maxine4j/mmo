@@ -7,6 +7,7 @@ import ItemDef, { GroundItemDef } from './ItemDef';
 import InventoryDef, { InventoryType } from './InventoryDef';
 
 export enum PacketHeader {
+    AUTH_SIGNUP = 'AUTH_SIGNUP',
     AUTH_LOGIN = 'AUTH_LOGIN',
     AUTH_LOGOUT = 'AUTH_LOGOUT',
 

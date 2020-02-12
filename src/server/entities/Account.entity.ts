@@ -9,19 +9,14 @@ export default class AccountEntity extends BaseEntity {
     @PrimaryGeneratedColumn()
     public id: number;
 
+    @Column()
+    public email: string;
+
+    @Column()
+    public passwordHash: string;
+
     @Column({ nullable: true })
     public session: string;
-
-    @Column()
-    public name: string;
-
-    @Column()
-    // eslint-disable-next-line camelcase
-    public temp_username: string; // TODO: temp plaintext password
-
-    @Column()
-    // eslint-disable-next-line camelcase
-    public temp_password: string; // TODO: temp plaintext password
 
     @OneToMany((type) => CharacterEntity, (character) => character.account)
     public characters: CharacterEntity[];
@@ -29,7 +24,7 @@ export default class AccountEntity extends BaseEntity {
     // converts a db entity to a network account
     public toNet(): AccountDef {
         const a = <AccountDef>{
-            name: this.name,
+            email: this.email,
         };
         return a;
     }

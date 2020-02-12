@@ -23,10 +23,12 @@
     "validate": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/bcrypt": "^3.0.0",
     "@types/pathfinding": "^0.0.4",
     "@types/stats.js": "^0.17.0",
     "@types/three": "^0.103.2",
     "@types/uuid": "^3.4.6",
+    "bcrypt": "^3.0.8",
     "concurrently": "^5.0.2",
     "copy-webpack-plugin": "^5.1.1",
     "events": "^3.1.0",
