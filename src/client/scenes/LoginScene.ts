@@ -16,12 +16,14 @@ import Model from '../engine/graphics/Model';
 import Scene from '../engine/graphics/Scene';
 import Engine from '../engine/Engine';
 import AssetManager from '../engine/asset/AssetManager';
+import CheckBox from '../engine/interface/components/CheckBox';
 
 export default class LoginScene extends GameScene {
     private background: Model;
     private txtUsername: TextBox;
     private txtPassword: TextBox;
     private dialog: Dialog;
+    private cbRememberEmail: CheckBox;
 
     public constructor() {
         super('login');
@@ -33,6 +35,11 @@ export default class LoginScene extends GameScene {
             password: this.txtPassword.text,
         }).then((resp: AccountPacket) => {
             if (resp.success) {
+                if (this.cbRememberEmail.checked) {
+                    localStorage.setItem('rememberedEmail', this.txtUsername.text);
+                } else {
+                    localStorage.removeItem('rememberedEmail');
+                }
                 SceneManager.changeScene('char-select');
             } else {
                 this.dialog.text = resp.message;
@@ -59,10 +66,13 @@ export default class LoginScene extends GameScene {
         lblUsername.style.color = '#e6cc80';
         lblUsername.style.fontSize = '130%';
 
+        const rememberedEmail = localStorage.getItem('rememberedEmail');
+
         this.txtUsername = new TextBox(panel);
         this.txtUsername.style.position = 'initial';
         this.txtUsername.style.width = '100%';
         this.txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        this.txtUsername.text = rememberedEmail != null ? rememberedEmail : '';
         this.txtUsername.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
             if (ev.key === Key.Enter) this.login();
         });
@@ -82,6 +92,14 @@ export default class LoginScene extends GameScene {
         });
 
         this.dialog = new Dialog(UIParent.get(), '', false);
+
+        this.cbRememberEmail = new CheckBox(panel);
+        this.cbRememberEmail.checked = rememberedEmail != null;
+        this.cbRememberEmail.style.position = 'initial';
+        const lblRemember = new Label(panel, 'Remember Email');
+        lblRemember.style.position = 'initial';
+        lblRemember.style.color = '#e6cc80';
+        panel.addBreak();
 
         const btnSignup = new Button(panel, 'Sign up');
         btnSignup.style.position = 'initial';
@@ -106,9 +124,6 @@ export default class LoginScene extends GameScene {
         const light = new AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
-
-        // this.background = await Model.loadDef('assets/models/ui/mainmenu/mainmenu.model.json');
-        // this.scene.add(this.background.obj);
 
         this.background = await AssetManager.getModel('mainmenu');
         this.scene.add(this.background.obj);
