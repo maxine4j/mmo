@@ -4,11 +4,12 @@ import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 import TerrainMaterial, { ImageData3D } from './graphics/materials/TerrainMaterial';
 import AssetManager from './asset/AssetManager';
-import WaterMaterial from './graphics/materials/WaterMaterial';
+import Water from './Water';
 
 export default class Chunk {
     public def: ChunkDef;
     public doodads: Map<string, Doodad> = new Map();
+    public water: Map<string, Water> = new Map();
     public world: ChunkWorld;
     public terrain: THREE.Mesh;
     public wireframe: THREE.LineSegments;
@@ -19,19 +20,14 @@ export default class Chunk {
     private minimapCanvas: OffscreenCanvas;
     public get minimap(): OffscreenCanvas { return this.minimapCanvas; }
 
-    private waterMaterial: WaterMaterial;
-
-    public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial, waterMat: WaterMaterial) {
+    public constructor(def: ChunkDef, world: ChunkWorld, material: TerrainMaterial) {
         this.def = def;
         this.world = world;
         this.material = material;
-        this.waterMaterial = waterMat;
         this._isLoaded = false;
         const geometry = this.generateTerrain();
         geometry.computeVertexNormals();
-
-        // this.terrain = new THREE.Mesh(geometry, material);
-        this.terrain = new THREE.Mesh(geometry, waterMat);
+        this.terrain = new THREE.Mesh(geometry, this.material);
         this.terrain.name = 'terrain';
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
@@ -41,6 +37,10 @@ export default class Chunk {
         this.loadDoodads();
         this.positionInWorld();
         this.positionDoodads();
+
+        for (const wdef of this.def.water) {
+            this.water.set(wdef.id, new Water(wdef, this));
+        }
 
         const diffuseImg = <ImageData3D> this.material.texture.diffuse.image;
         this.minimapCanvas = new OffscreenCanvas(diffuseImg.width, diffuseImg.height);
@@ -108,15 +108,9 @@ export default class Chunk {
         }).catch((err) => console.log(err));
     }
 
-    public static load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
-        return new Promise((resolve, reject) => {
-            Promise.all([
-                AssetManager.loadTerrainTexture(def),
-                AssetManager.loadTexture('assets/terrain/water/diffuse.png'),
-            ]).then(([tex, waterTex]) => {
-                resolve(new Chunk(def, world, new TerrainMaterial(tex), new WaterMaterial(waterTex)));
-            }).catch((err) => reject(err));
-        });
+    public static async load(def: ChunkDef, world: ChunkWorld): Promise<Chunk> {
+        const tex = await AssetManager.loadTerrainTexture(def);
+        return new Chunk(def, world, new TerrainMaterial(tex));
     }
 
     private loadDoodads(): void {
@@ -262,11 +256,7 @@ export default class Chunk {
             for (let ix = 0; ix < size; ix++) {
                 const x = ix * tileWidth - (size / 2);
                 const y = this.def.heightmap[iz * size + ix] || 0;
-                vertices.push(x, 0.0, z); // FIXME
-                // const uvidx = (iz * size + ix) * 2;
-                // const u = this.def.texturemap[uvidx];
-                // const v = this.def.texturemap[uvidx + 1];
-                // uvs.push(u, v);
+                vertices.push(x, y, z);
                 uvs.push(ix / size);
                 uvs.push(1 - (iz / size));
             }
@@ -295,6 +285,8 @@ export default class Chunk {
     }
 
     public update(delta: number): void {
-        this.waterMaterial.update(delta);
+        for (const [_, w] of this.water) {
+            w.update(delta);
+        }
     }
 }

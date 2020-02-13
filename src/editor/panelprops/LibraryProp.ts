@@ -1,12 +1,10 @@
 import { EventEmitter } from 'events';
-import Label from '../../client/engine/interface/components/Label';
 import Panel from '../../client/engine/interface/components/Panel';
 import PanelProp from '../PanelProp';
 import PropsPanel from '../PropsPanel';
 import { Frame } from '../../client/engine/interface/components/Frame';
 import Input from '../../client/engine/Input';
 import { Point } from '../../common/Point';
-import { SkillIcon } from '../../client/engine/interface/tabs/SkillsTab';
 
 export interface BookCover {
     name: string;

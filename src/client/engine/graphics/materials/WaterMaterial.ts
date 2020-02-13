@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import waterVertex from './shaders/water.v.glsl';
 import waterFrag from './shaders/water.f.glsl';
+import { WaterDef } from '../../../../common/ChunkDef';
 
 export type ImageData3D = { data: Uint8Array, width: number, height: number, depth: number };
 
@@ -8,13 +9,22 @@ export default class WaterMaterial extends THREE.ShaderMaterial {
     public texture: THREE.Texture;
     private time: number = 0;
 
+    public get tiling(): THREE.Vector2 { return this.uniforms.u_tiling.value; }
+    public set tiling(t: THREE.Vector2) { this.uniforms.u_tiling.value = t; }
+    public get flowRate(): THREE.Vector2 { return this.uniforms.u_flowRate.value; }
+    public set flowRate(rate: THREE.Vector2) { this.uniforms.u_flowRate.value = rate; }
+    public get amplitude(): number { return this.uniforms.u_amplitude.value; }
+    public set amplitude(amp: number) { this.uniforms.u_amplitude.value = amp; }
+    public get wavelength(): number { return this.uniforms.u_wavelength.value; }
+    public set wavelength(amp: number) { this.uniforms.u_wavelength.value = amp; }
+
     public constructor(texture: THREE.Texture) {
         super({
             lights: true,
             fog: true,
 
             uniforms: {
-                u_tiling: { value: new THREE.Vector2(16, 16) },
+                u_tiling: { value: new THREE.Vector2(8, 8) },
                 u_diffuseMap: { value: texture },
                 u_time: { value: 0 },
                 u_amplitude: { value: 1 },
@@ -60,5 +70,12 @@ export default class WaterMaterial extends THREE.ShaderMaterial {
     public update(delta: number): void {
         this.time += delta;
         this.uniforms.u_time.value = this.time;
+    }
+
+    public setupFromDef(def: WaterDef): void {
+        this.flowRate.x = def.flowx;
+        this.flowRate.y = def.flowz;
+        this.amplitude = def.amplitude;
+        this.wavelength = def.wavelength;
     }
 }

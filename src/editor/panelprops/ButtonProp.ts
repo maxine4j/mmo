@@ -23,4 +23,12 @@ export default class ButtonProp extends PanelProp {
     public click(): void {
         this.button.click();
     }
+
+    public show(): void {
+        this.button.show();
+    }
+
+    public hide(): void {
+        this.button.hide();
+    }
 }

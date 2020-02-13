@@ -103,4 +103,6 @@ void main() {
 	#include <premultiplied_alpha_fragment>
 	#include <dithering_fragment>
     //---------- END THREE JS ----------
+
+	// out_fragColor = texture(u_diffuseMap, tiledUV);
 }

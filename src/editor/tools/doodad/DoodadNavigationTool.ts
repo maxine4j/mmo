@@ -75,7 +75,7 @@ export default class DoodadNavigationTool extends BaseDoodadTool {
             });
         this.propsPanel.addProp(renderOnTopProp);
 
-        this.props.onSelectedDoodadChanged.push((doodad) => {
+        this.props.on('selectedDoodadChanged', (doodad) => {
             if (this.toolSelected) {
                 this.generateNavblocks();
             }

@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import Scene from '../client/engine/graphics/Scene';
 import Doodad from '../client/engine/Doodad';
 import Graphics from '../client/engine/graphics/Graphics';
@@ -6,13 +7,15 @@ import Input from '../client/engine/Input';
 import EditorChunkWorld from './EditorChunkWorld';
 import EditorCamera from './EditorCamera';
 
+type EditorPropsEvent = 'selectedDoodadChanged';
+
 export default class EditorProps {
+    private eventEmitter: EventEmitter = new EventEmitter();
     public point: WorldPoint;
     public world: EditorChunkWorld;
     public scene: Scene;
     public camera: EditorCamera;
     private _selectedDoodad: Doodad;
-    public onSelectedDoodadChanged: ((doodad: Doodad) => void)[] = [];
 
     public get selectedDoodad(): Doodad { return this._selectedDoodad; }
     public set selectedDoodad(doodad: Doodad) {
@@ -20,7 +23,19 @@ export default class EditorProps {
         if (this.selectedDoodad != null) {
             Graphics.setOutlines([this.selectedDoodad.model.obj]);
         }
-        this.onSelectedDoodadChanged.forEach((cb) => cb(this.selectedDoodad));
+        this.emit('selectedDoodadChanged', this, this.selectedDoodad);
+    }
+
+    public on(event: EditorPropsEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: EditorPropsEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    protected emit(event: EditorPropsEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
     }
 
     public update(delta: number): void {

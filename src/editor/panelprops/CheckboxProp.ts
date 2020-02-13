@@ -22,4 +22,12 @@ export default class CheckBoxProp extends PanelProp {
 
     public get checked(): boolean { return this.checkbox.checked; }
     public set checked(checked: boolean) { this.checkbox.checked = checked; }
+
+    public show(): void {
+        this.checkbox.show();
+    }
+
+    public hide(): void {
+        this.checkbox.hide();
+    }
 }

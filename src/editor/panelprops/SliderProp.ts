@@ -40,4 +40,14 @@ export default class SliderProp extends PanelProp {
         this.slider.value = value;
         this.textbox.text = value.toString();
     }
+
+    public show(): void {
+        this.slider.show();
+        this.textbox.show();
+    }
+
+    public hide(): void {
+        this.slider.hide();
+        this.textbox.hide();
+    }
 }

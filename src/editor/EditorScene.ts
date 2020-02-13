@@ -30,6 +30,7 @@ import _content from '../client/assets/content.json';
 import ContentDef from '../client/engine/asset/AssetDef';
 import DoodadCloneTool from './tools/doodad/DoodadCloneTool';
 import PaintTool, { getBlendMapData } from './tools/terrain/PaintTool';
+import WaterTool from './tools/terrain/WaterTool';
 
 export const contentDef = <ContentDef>_content;
 export const overworldDef = <WorldJsonDef>_overworldDef;
@@ -89,6 +90,7 @@ export default class EditorScene extends GameScene {
             chunks: {},
         };
         for (const [_x, _y, chunk] of this.props.world.chunks) {
+            chunk.def.water = [];
             world.chunks[chunk.def.id] = chunk.def;
             world.chunks[chunk.def.id].textures = getBlendMapData(chunk); // TODO: this needs to be set up on the chunk def in the paint tool
         }
@@ -116,6 +118,7 @@ export default class EditorScene extends GameScene {
         this.toolPanel.add(new DoodadNavigationTool(this.props, this.toolPanel));
         this.toolPanel.add(new DoodadCloneTool(this.props, this.toolPanel));
         this.toolPanel.add(new ChunkTool(this.props, this.toolPanel));
+        this.toolPanel.add(new WaterTool(this.props, this.toolPanel));
     }
 
     private initWorldProps(): void {

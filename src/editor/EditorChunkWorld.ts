@@ -44,6 +44,7 @@ export default class EditorChunkWorld {
                     blend: generateTexture(defaultBlendSize, defaultBlendSize, 'white'),
                 },
             ],
+            water: [],
         };
         await this.loadChunk(def);
         this.stitchChunks();

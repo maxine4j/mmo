@@ -34,6 +34,7 @@ export default class DoodadMoveTool extends BaseDoodadTool {
                 if (dd) {
                     oldChunk.doodads.delete(uuid);
                 }
+                break;
             }
         }
     }
