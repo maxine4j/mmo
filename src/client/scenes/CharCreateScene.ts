@@ -35,7 +35,7 @@ export default class CharCreateScene extends GameScene {
                     if (p.success) {
                         SceneManager.changeScene('char-select');
                     } else {
-                        this.dialog.setText(p.message);
+                        this.dialog.text = p.message;
                         this.dialog.show();
                     }
                 });

@@ -1,5 +1,6 @@
 import io from 'socket.io';
 import uuid from 'uuid/v4';
+import bcrypt from 'bcrypt';
 import { expToLevel, Skill } from '../common/CharacterDef';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
@@ -12,14 +13,67 @@ import ItemEntity from './entities/Item.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
 import SkillEntity from './entities/Skill.entity';
 
+const hashRounds = 12;
+const emailRegex = /(?!.*\.\.)(^[^.][^@\s]*@[^@\s]+\.[^@\s.]+$)/;
+
+export async function handleSignup(session: io.Socket, packet: AuthLoginPacket): Promise<ResponsePacket> {
+    console.log(`New signup request from ${session.id} with usename ${packet.username}`);
+    const existingAccount = await AccountEntity.createQueryBuilder()
+        .where('LOWER(email) = LOWER(:username)', { username: packet.username })
+        .getOne();
+
+    // check if an account already exists
+    if (existingAccount) {
+        return <ResponsePacket>{
+            success: false,
+            message: 'A user with that name already exists',
+        };
+    }
+
+    // check if the email is valid
+    if (!packet.username.match(emailRegex)) {
+        return < ResponsePacket > {
+            success: false,
+            message: 'Invalid email',
+        };
+    }
+
+    // check if the password is at least 8 characters in length
+    if (packet.password.length < 8) {
+        return <ResponsePacket>{
+            success: false,
+            message: 'Password must be at least 8 characters long',
+        };
+    }
+
+    try {
+        // create the new account
+        const hash = await bcrypt.hash(packet.password, hashRounds);
+        const newAccount = AccountEntity.create();
+        newAccount.email = packet.username;
+        newAccount.passwordHash = hash;
+        await newAccount.save();
+        return <ResponsePacket>{
+            success: true,
+            message: '',
+        };
+    } catch {
+        return <ResponsePacket>{
+            success: false,
+            message: 'Error creating account',
+        };
+    }
+}
+
 // log a user in with plaintext password (TEMP)
-export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
+export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
     console.log(`User ${packet.username} is attempting to log in`);
     const account = await AccountEntity.createQueryBuilder()
-        .where('LOWER(temp_username) = LOWER(:username)', { username: packet.username })
-        .andWhere('temp_password = :password', { password: packet.password })
+        .where('LOWER(email) = LOWER(:username)', { username: packet.username })
         .getOne();
-    if (account) {
+
+    // check if the account exists and password is correct
+    if (account && await bcrypt.compare(packet.password, account.passwordHash)) {
         if (account.session != null) {
             console.log(`User ${packet.username} is already logged in`);
             return <AccountPacket>{
@@ -33,9 +87,10 @@ export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacke
 
         const ap = <AccountPacket>account.toNet();
         ap.success = true;
-        ap.message = `logged in as ${account.name}`;
+        ap.message = `logged in as ${account.email}`;
         return ap;
     }
+
     console.log(`User ${packet.username} provided incorrect login details`);
     return <AccountPacket>{
         success: false,
@@ -44,10 +99,10 @@ export async function handleAuthLogin(session: io.Socket, packet: AuthLoginPacke
 }
 
 // log a user account out and make sure all of their characters are logged out too
-export async function handleAuthLogout(session: io.Socket): Promise<void> {
+export async function handleLogout(session: io.Socket): Promise<void> {
     const account = await AccountEntity.findOne({ session: session.id });
     if (account) {
-        console.log(`User ${account.temp_username} has logged out`);
+        console.log(`User ${account.email} has logged out`);
         account.session = null;
         account.save();
     }

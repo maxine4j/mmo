@@ -1,6 +1,8 @@
 import { AmbientLight } from 'three';
 import { Key } from 'ts-key-enum';
-import { AccountPacket, PacketHeader, AuthLoginPacket } from '../../common/Packet';
+import {
+    PacketHeader, AuthLoginPacket, ResponsePacket,
+} from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
@@ -14,47 +16,48 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Model from '../engine/graphics/Model';
 import Scene from '../engine/graphics/Scene';
-import Engine from '../engine/Engine';
 import AssetManager from '../engine/asset/AssetManager';
-import CheckBox from '../engine/interface/components/CheckBox';
 
-export default class LoginScene extends GameScene {
+export default class SignupScene extends GameScene {
     private background: Model;
     private txtUsername: TextBox;
     private txtPassword: TextBox;
+    private txtPasswordConfirm: TextBox;
     private dialog: Dialog;
-    private cbRememberEmail: CheckBox;
 
     public constructor() {
-        super('login');
+        super('signup');
     }
 
-    private login(): void {
-        NetClient.sendRecv(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
-            username: this.txtUsername.text,
-            password: this.txtPassword.text,
-        }).then((resp: AccountPacket) => {
-            if (resp.success) {
-                if (this.cbRememberEmail.checked) {
-                    localStorage.setItem('rememberedEmail', this.txtUsername.text);
+    private signup(): void {
+        if (this.txtPassword.text === this.txtPasswordConfirm.text) {
+            NetClient.sendRecv(PacketHeader.AUTH_SIGNUP, <AuthLoginPacket>{
+                username: this.txtUsername.text,
+                password: this.txtPassword.text,
+            }).then((resp: ResponsePacket) => {
+                if (resp.success) {
+                    const successDialog = new Dialog(
+                        UIParent.get(), 'Account successfully created', false,
+                        ['Return to Login'],
+                        [() => SceneManager.changeScene('login')],
+                    );
+                    successDialog.show();
                 } else {
-                    localStorage.removeItem('rememberedEmail');
+                    this.dialog.text = resp.message;
+                    this.dialog.show();
                 }
-                SceneManager.changeScene('char-select');
-            } else {
-                this.dialog.text = resp.message;
-                this.dialog.show();
-            }
-        });
+            });
+        } else {
+            this.dialog.text = 'Passwords do not match';
+            this.dialog.show();
+        }
     }
 
     public initGUI(): void {
-        Engine.addFpsLabel();
-
         const panel = new Panel(UIParent.get());
         panel.style.border = '1px solid white';
         panel.style.width = '300px';
-        panel.style.height = '200px';
+        panel.style.height = '300px';
         panel.style.padding = '20px';
         panel.style.backgroundColor = 'rgba(10, 10, 10, 0.9)';
         panel.centreHorizontal();
@@ -66,16 +69,11 @@ export default class LoginScene extends GameScene {
         lblUsername.style.color = '#e6cc80';
         lblUsername.style.fontSize = '130%';
 
-        const rememberedEmail = localStorage.getItem('rememberedEmail');
-
         this.txtUsername = new TextBox(panel);
         this.txtUsername.style.position = 'initial';
         this.txtUsername.style.width = '100%';
         this.txtUsername.style.backgroundColor = 'rgba(10,10,10,0.8)';
-        this.txtUsername.text = rememberedEmail != null ? rememberedEmail : '';
-        this.txtUsername.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
-            if (ev.key === Key.Enter) this.login();
-        });
+        this.txtUsername.text = '';
 
         const lblPassword = new Label(panel, 'Password');
         lblPassword.style.position = 'initial';
@@ -87,32 +85,37 @@ export default class LoginScene extends GameScene {
         this.txtPassword.style.position = 'initial';
         this.txtPassword.style.width = '100%';
         this.txtPassword.style.backgroundColor = 'rgba(10,10,10,0.8)';
-        this.txtPassword.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
-            if (ev.key === Key.Enter) this.login();
+        this.txtPassword.text = '';
+
+        const lblPasswordConfirm = new Label(panel, 'Confirm Password');
+        lblPasswordConfirm.style.position = 'initial';
+        lblPasswordConfirm.style.width = '100%';
+        lblPasswordConfirm.style.color = '#e6cc80';
+        lblPasswordConfirm.style.fontSize = '130%';
+
+        this.txtPasswordConfirm = new TextBox(panel, 'password');
+        this.txtPasswordConfirm.style.position = 'initial';
+        this.txtPasswordConfirm.style.width = '100%';
+        this.txtPasswordConfirm.style.backgroundColor = 'rgba(10,10,10,0.8)';
+        this.txtPasswordConfirm.text = '';
+        this.txtPasswordConfirm.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
+            if (ev.key === Key.Enter) this.signup();
         });
 
         this.dialog = new Dialog(UIParent.get(), '', false);
 
-        this.cbRememberEmail = new CheckBox(panel);
-        this.cbRememberEmail.checked = rememberedEmail != null;
-        this.cbRememberEmail.style.position = 'initial';
-        const lblRemember = new Label(panel, 'Remember Email');
-        lblRemember.style.position = 'initial';
-        lblRemember.style.color = '#e6cc80';
-        panel.addBreak();
+        const btnBack = new Button(panel, 'Back');
+        btnBack.style.position = 'initial';
+        btnBack.style.width = '145px';
+        btnBack.style.marginTop = '110px';
+        btnBack.style.marginRight = '10px';
+        btnBack.addEventListener('click', () => SceneManager.changeScene('login'));
 
         const btnSignup = new Button(panel, 'Sign up');
         btnSignup.style.position = 'initial';
         btnSignup.style.width = '145px';
-        btnSignup.style.marginTop = '30px';
-        btnSignup.style.marginRight = '10px';
-        btnSignup.addEventListener('click', () => SceneManager.changeScene('signup'));
-
-        const btnLogin = new Button(panel, 'Login');
-        btnLogin.style.position = 'initial';
-        btnLogin.style.width = '145px';
-        btnLogin.style.marginTop = '30px';
-        btnLogin.addEventListener('click', this.login.bind(this));
+        btnSignup.style.marginTop = '110px';
+        btnSignup.addEventListener('click', this.signup.bind(this));
     }
 
     public async init(): Promise<void> {
@@ -124,6 +127,9 @@ export default class LoginScene extends GameScene {
         const light = new AmbientLight(0xffffff, 3);
         light.position.set(0, 0, 1).normalize();
         this.scene.add(light);
+
+        // this.background = await Model.loadDef('assets/models/ui/mainmenu/mainmenu.model.json');
+        // this.scene.add(this.background.obj);
 
         this.background = await AssetManager.getModel('mainmenu');
         this.scene.add(this.background.obj);
