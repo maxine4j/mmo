@@ -19,17 +19,20 @@ export interface DoodadDef extends IDefinition {
 
 export interface WaterDef extends IDefinition {
     id: string;
-    material: string;
+    normals: string,
+    colour: number,
     x: number;
     y: number;
     elevation: number;
     rotation: number;
     sizex: number;
     sizez: number;
-    flowx: number;
-    flowz: number;
-    amplitude: number;
-    wavelength: number;
+
+    // flowx: number;
+    // flowz: number;
+    // amplitude: number;
+    // wavelength: number;
+    // resolution: number;
 }
 
 export interface ChunkTexture extends IDefinition {
@@ -44,5 +47,5 @@ export default interface ChunkDef extends IDefinition {
     heightmap: number[];
     textures: ChunkTexture[];
     doodads: DoodadDef[];
-    water: WaterDef[];
+    waters: WaterDef[];
 }

@@ -6,10 +6,12 @@ import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
-import Water from '../../../client/engine/Water';
+import Water from '../../../client/engine/graphics/Water';
 import Chunk from '../../../client/engine/Chunk';
 import { WaterDef } from '../../../common/ChunkDef';
 import SliderProp from '../../panelprops/SliderProp';
+import CheckBoxProp from '../../panelprops/CheckboxProp';
+
 
 enum WaterToolMode {
     SELECT,
@@ -28,14 +30,12 @@ export default class WaterTool extends Tool {
     private set selected(w: Water) {
         this._selected = w;
         if (w) {
-            Graphics.setOutlines([w.mesh]);
+            Graphics.setOutlines([w]);
         }
         this.updateProps();
     }
     private propSizeX: SliderProp;
     private propSizeZ: SliderProp;
-    private propFlowX: SliderProp;
-    private propFlowZ: SliderProp;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -48,40 +48,22 @@ export default class WaterTool extends Tool {
             props, panel,
         );
 
-        this.propSizeX = new SliderProp(this.propsPanel, 'Size X:', 1, 256, 1, 10,
+        this.propSizeX = new SliderProp(this.propsPanel, 'Size X:', 1, props.world.chunkSize, 1, 10,
             (val) => {
                 if (this.selected) {
                     this.selected.def.sizex = val;
-                    this.selected.rebuild();
+                    this.selected.updateGeometry();
                 }
             });
         this.propsPanel.addProp(this.propSizeX);
-        this.propSizeZ = new SliderProp(this.propsPanel, 'Size Z:', 1, 256, 1, 10,
+        this.propSizeZ = new SliderProp(this.propsPanel, 'Size Z:', 1, props.world.chunkSize, 1, 10,
             (val) => {
                 if (this.selected) {
                     this.selected.def.sizez = val;
-                    this.selected.rebuild();
+                    this.selected.updateGeometry();
                 }
             });
         this.propsPanel.addProp(this.propSizeZ);
-        this.propsPanel.addBreak();
-
-        this.propFlowX = new SliderProp(this.propsPanel, 'Flow X:', -5, 5, 0.01, 0.25,
-            (val) => {
-                if (this.selected) {
-                    this.selected.def.flowx = val;
-                    this.selected.material.flowRate.x = val;
-                }
-            });
-        this.propsPanel.addProp(this.propFlowX);
-        this.propFlowZ = new SliderProp(this.propsPanel, 'Flow Z:', -5, 5, 0.01, 0.25,
-            (val) => {
-                if (this.selected) {
-                    this.selected.def.flowz = val;
-                    this.selected.material.flowRate.y = val;
-                }
-            });
-        this.propsPanel.addProp(this.propFlowZ);
         this.propsPanel.addBreak();
 
         this.updateProps();
@@ -93,13 +75,7 @@ export default class WaterTool extends Tool {
             this.propSizeX.value = this.selected.def.sizex;
             this.propSizeZ.show();
             this.propSizeZ.value = this.selected.def.sizez;
-            this.propFlowX.show();
-            this.propFlowX.value = this.selected.def.flowx;
-            this.propFlowZ.show();
-            this.propFlowZ.value = this.selected.def.flowz;
         } else {
-            this.propFlowX.hide();
-            this.propFlowZ.hide();
             this.propSizeX.hide();
             this.propSizeZ.hide();
         }
@@ -111,36 +87,33 @@ export default class WaterTool extends Tool {
         const def = <WaterDef>{
             id: uuid(),
             elevation: 10,
-            material: 'assets/terrain/water/diffuse.png',
+            colour: 0x37a0b0,
+            normals: 'assets/terrain/water/normal.jpg',
             rotation: 0,
             sizex: 50,
             sizez: 50,
             x: point.x,
             y: point.y,
-            flowx: 0.05,
-            flowz: 0.01,
-            amplitude: 1,
-            wavelength: 2,
         };
-        point.chunk.def.water.push(def);
-        const water = new Water(def, point.chunk);
-        point.chunk.water.set(water.def.id, water);
+        point.chunk.def.waters.push(def);
+        const water = new Water(point.chunk, def);
+        point.chunk.waters.set(water.def.id, water);
         console.log('Created some water');
     }
 
     private transferWater(id: string, oldChunk: Chunk, newChunk: Chunk): void {
-        for (let i = 0; i < oldChunk.def.water.length; i++) {
-            const def = oldChunk.def.water[i];
+        for (let i = 0; i < oldChunk.def.waters.length; i++) {
+            const def = oldChunk.def.waters[i];
             if (def.id === id) { // find the def index
-                const w = oldChunk.water.get(id);
+                const w = oldChunk.waters.get(id);
                 // save the water to the new chunk
-                newChunk.water.set(id, w);
-                newChunk.def.water.push(w.def);
+                newChunk.waters.set(id, w);
+                newChunk.def.waters.push(w.def);
                 w.chunk = newChunk;
                 // remove the def from its old chunk
-                oldChunk.def.water.splice(i, 1);
+                oldChunk.def.waters.splice(i, 1);
                 if (w) {
-                    oldChunk.water.delete(id);
+                    oldChunk.waters.delete(id);
                 }
                 break;
             }
@@ -151,10 +124,10 @@ export default class WaterTool extends Tool {
         if (this.selected != null) {
             const chunk = this.selected.chunk;
             // remove the water def from the chunk def so it exports
-            chunk.def.water = chunk.def.water.filter((w) => w.id !== this.selected.def.id);
+            chunk.def.waters = chunk.def.waters.filter((w) => w.id !== this.selected.def.id);
             // remove the water from the scene
-            // this.selected.unload(); // FIXME: dispose water here
-            chunk.water.delete(this.selected.def.id);
+            this.selected.dispose();
+            chunk.waters.delete(this.selected.def.id);
             this.selected = null;
         }
     }

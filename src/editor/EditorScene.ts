@@ -90,7 +90,6 @@ export default class EditorScene extends GameScene {
             chunks: {},
         };
         for (const [_x, _y, chunk] of this.props.world.chunks) {
-            chunk.def.water = [];
             world.chunks[chunk.def.id] = chunk.def;
             world.chunks[chunk.def.id].textures = getBlendMapData(chunk); // TODO: this needs to be set up on the chunk def in the paint tool
         }

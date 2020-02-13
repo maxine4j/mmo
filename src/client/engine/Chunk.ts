@@ -4,12 +4,12 @@ import ChunkWorld from './ChunkWorld';
 import Doodad from './Doodad';
 import TerrainMaterial, { ImageData3D } from './graphics/materials/TerrainMaterial';
 import AssetManager from './asset/AssetManager';
-import Water from './Water';
+import Water from './graphics/Water';
 
 export default class Chunk {
     public def: ChunkDef;
     public doodads: Map<string, Doodad> = new Map();
-    public water: Map<string, Water> = new Map();
+    public waters: Map<string, Water> = new Map();
     public world: ChunkWorld;
     public terrain: THREE.Mesh;
     public wireframe: THREE.LineSegments;
@@ -38,9 +38,7 @@ export default class Chunk {
         this.positionInWorld();
         this.positionDoodads();
 
-        for (const wdef of this.def.water) {
-            this.water.set(wdef.id, new Water(wdef, this));
-        }
+        this.loadWater();
 
         const diffuseImg = <ImageData3D> this.material.texture.diffuse.image;
         this.minimapCanvas = new OffscreenCanvas(diffuseImg.width, diffuseImg.height);
@@ -57,6 +55,12 @@ export default class Chunk {
             this.unload(); // unload the chunk if val is false and chunk is currently loaded
         }
         this._isLoaded = val;
+    }
+
+    private loadWater(): void {
+        for (const wdef of this.def.waters) {
+            this.waters.set(wdef.id, new Water(this, wdef));
+        }
     }
 
     private getAlphaFromBlend(diffuse: ImageData3D, blend: ImageData3D, layer: number, x: number, y: number): number {
@@ -285,7 +289,7 @@ export default class Chunk {
     }
 
     public update(delta: number): void {
-        for (const [_, w] of this.water) {
+        for (const [_, w] of this.waters) {
             w.update(delta);
         }
     }
