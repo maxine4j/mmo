@@ -228,7 +228,15 @@ export default class Chunk {
                 const westIdx = i * stride + 0;
                 chunkVerts[chunkIdx * 3 + 1] = westVerts[westIdx * 3 + 1];
             }
+        } else {
+            // no chunk to the west, so set these verts to the same as their next eastern neighbour
+            for (let i = 0; i < stride; i++) {
+                const chunkIdx = i * stride + (stride - 1);
+                const vertEastIdx = i * stride + ((stride - 1) - 1);
+                chunkVerts[chunkIdx * 3 + 1] = chunkVerts[vertEastIdx * 3 + 1];
+            }
         }
+
         if (southChunk) {
             // @ts-ignore
             const southVerts = southChunk.terrain.geometry.attributes.position.array;
@@ -238,7 +246,15 @@ export default class Chunk {
                 const westIdx = 0 * stride + j;
                 chunkVerts[chunkIdx * 3 + 1] = southVerts[westIdx * 3 + 1];
             }
+        } else {
+            // no chunk to the south, so set these verts to the same as their next northern neighbour
+            for (let j = 0; j < stride; j++) {
+                const chunkIdx = (stride - 1) * stride + j;
+                const vertNorthIdx = (stride - 2) * stride + j;
+                chunkVerts[chunkIdx * 3 + 1] = chunkVerts[vertNorthIdx * 3 + 1];
+            }
         }
+
         // @ts-ignore
         this.terrain.geometry.attributes.position.needsUpdate = true;
     }
