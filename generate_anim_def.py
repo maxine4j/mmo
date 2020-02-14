@@ -5,20 +5,27 @@ import glob
 import pathlib
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: <root-model>")
+    if len(sys.argv) != 3:
+        print("Usage: <root-model> <out-dir>")
         exit(1)
     
     model_path = sys.argv[1]
+    out_dir = sys.argv[2]
     model_name = pathlib.Path(model_path).resolve().stem
     root_dir = os.path.dirname(model_path)
-    anim_dir = os.path.join(root_dir, "anims")
+    anim_dir = os.path.join(root_dir, model_name + "_Animations_gltf")
     print("Creating definition for \"{}\"".format(model_name))
     print("Anims in \"{}\"".format(anim_dir))
 
+    # model_def = {
+    #     "main": model_name + '.glb',
+    #     "animDir": "anims",
+    #     "anims": {}
+    # }
+
     model_def = {
-        "main": model_name + '.glb',
-        "animDir": "anims",
+        "id": model_name,
+        "src": out_dir + "/" + model_name + "/" + model_name + ".glb",
         "anims": {}
     }
 
@@ -29,7 +36,7 @@ def main():
         anim_name = name_parts[1]
         if anim_name in model_def["anims"]:
             anim_name += name_parts[2].split(".")[0]
-        model_def["anims"][anim_name] = anim_file
+        model_def["anims"][anim_name] = out_dir + "/" + model_name + "/anims/" + anim_file
 
     print("Found {} anims. Added {} to model def".format(anim_count, len(model_def["anims"])))
 

@@ -15,6 +15,8 @@ import { contentDef } from '../../EditorScene';
 import { ModelAssetDef } from '../../../client/engine/asset/AssetDef';
 import AssetManager from '../../../client/engine/asset/AssetManager';
 
+const iconResolution = 64;
+
 enum DoodadToolMode {
     PLACE,
     POSITION,
@@ -78,8 +80,8 @@ export default class DoodadAddTool extends Tool {
 
     private async loadLibrary(): Promise<void> {
         // create a separate renderer to render our icons
-        const vpw = 64;
-        const vph = 64;
+        const vpw = iconResolution;
+        const vph = iconResolution;
         const renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
         // renderer.setClearColor(0x00ff00);
         renderer.setClearColor(0x87CEEB);

@@ -1020,8 +1020,155 @@
                 "id": "wall",
                 "src": "assets/models/environment/wall.glb",
                 "anims": {}
+            },
+            "altar": {
+                "id": "altar",
+                "src": "assets/models/environment/altar.glb",
+                "anims": {}
+            },
+            "barn": {
+                "id": "barn",
+                "src": "assets/models/environment/barn.glb",
+                "anims": {}
+            },
+            "bench": {
+                "id": "bench",
+                "src": "assets/models/environment/bench.glb",
+                "anims": {}
+            },
+            "deadfish": {
+                "id": "deadfish",
+                "src": "assets/models/environment/deadfish.glb",
+                "anims": {}
+            },
+            "dock": {
+                "id": "dock",
+                "src": "assets/models/environment/dock.glb",
+                "anims": {}
+            },
+            "house": {
+                "id": "house",
+                "src": "assets/models/environment/house.glb",
+                "anims": {}
+            },
+            "lighthouse": {
+                "id": "lighthouse",
+                "src": "assets/models/environment/lighthouse.glb",
+                "anims": {}
+            },
+            "lumbermill": {
+                "id": "lumbermill",
+                "src": "assets/models/environment/lumbermill.glb",
+                "anims": {}
+            },
+            "rowboat": {
+                "id": "rowboat",
+                "src": "assets/models/environment/rowboat.glb",
+                "anims": {}
+            },
+            "stables": {
+                "id": "stables",
+                "src": "assets/models/environment/stables.glb",
+                "anims": {}
+            },
+            "target": {
+                "id": "target",
+                "src": "assets/models/environment/target.glb",
+                "anims": {}
+            },
+            "cauldron": {
+                "id": "cauldron",
+                "src": "assets/models/environment/cauldron/cauldron.glb",
+                "anims": {
+                    "Stand": "assets/models/environment/cauldron/anims/cauldron_Stand_0.glb"
+                }
+            },
+            "chest": {
+                "id": "chest", 
+                "src": "assets/models/environment/chest/chest.glb", 
+                "anims": {
+                    "Closed": "assets/models/environment/chest/anims/chest_Closed_4.glb",
+                    "Close": "assets/models/environment/chest/anims/chest_Close_3.glb", 
+                    "Opened": "assets/models/environment/chest/anims/chest_Opened_2.glb", 
+                    "Open": "assets/models/environment/chest/anims/chest_Open_1.glb", 
+                    "Stand": "assets/models/environment/chest/anims/chest_Stand_0.glb"
+                }
+            },
+            "eyesquid": {
+                "id": "eyesquid",
+                "src": "assets/models/units/eyesquid/eyesquid.glb",
+                "anims": {
+                    "AttackUnarmed": "assets/models/units/eyesquid/anims/eyesquid_AttackUnarmed_0.glb",
+                    "CombatWound": "assets/models/units/eyesquid/anims/eyesquid_CombatWound_1.glb",
+                    "Cower": "assets/models/units/eyesquid/anims/eyesquid_Cower_12.glb",
+                    "Drowned": "assets/models/units/eyesquid/anims/eyesquid_Drowned_3.glb",
+                    "Drown": "assets/models/units/eyesquid/anims/eyesquid_Drown_2.glb",
+                    "MountSpecial": "assets/models/units/eyesquid/anims/eyesquid_MountSpecial_17.glb",
+                    "MountSwimBackwards": "assets/models/units/eyesquid/anims/eyesquid_MountSwimBackwards_9.glb",
+                    "MountSwimLeft": "assets/models/units/eyesquid/anims/eyesquid_MountSwimLeft_10.glb",
+                    "MountSwimRight": "assets/models/units/eyesquid/anims/eyesquid_MountSwimRight_11.glb",
+                    "MountSwimRun": "assets/models/units/eyesquid/anims/eyesquid_MountSwimRun_5.glb",
+                    "MountSwimSprint": "assets/models/units/eyesquid/anims/eyesquid_MountSwimSprint_6.glb",
+                    "MountSwimWalkBackwards": "assets/models/units/eyesquid/anims/eyesquid_MountSwimWalkBackwards_8.glb",
+                    "MountSwimWalk": "assets/models/units/eyesquid/anims/eyesquid_MountSwimWalk_7.glb",
+                    "ReadyUnarmed": "assets/models/units/eyesquid/anims/eyesquid_ReadyUnarmed_14.glb",
+                    "Stand": "assets/models/units/eyesquid/anims/eyesquid_Stand_16.glb",
+                    "Stun": "assets/models/units/eyesquid/anims/eyesquid_Stun_13.glb",
+                    "SwimIdle": "assets/models/units/eyesquid/anims/eyesquid_SwimIdle_15.glb",
+                    "Swim": "assets/models/units/eyesquid/anims/eyesquid_Swim_4.glb"
+                }
+            },
+            "fish_blue": {
+                "id": "fish_blue",
+                "src": "assets/models/environment/fish_blue/fish_blue.glb",
+                "anims": {
+                    "CombatCritical": "assets/models/environment/fish_blue/anims/fish_blue_CombatCritical_5.glb",
+                    "CombatWound": "assets/models/environment/fish_blue/anims/fish_blue_CombatWound_6.glb",
+                    "Death": "assets/models/environment/fish_blue/anims/fish_blue_Death_4.glb",
+                    "Run": "assets/models/environment/fish_blue/anims/fish_blue_Run_2.glb",
+                    "Stand": "assets/models/environment/fish_blue/anims/fish_blue_Stand_1.glb",
+                    "Walk": "assets/models/environment/fish_blue/anims/fish_blue_Walk_3.glb"
+                }
+            },
+            "fish_green": {
+                "id": "fish_green",
+                "src": "assets/models/environment/fish_green/fish_green.glb",
+                "anims": {
+                    "CombatCritical": "assets/models/environment/fish_green/anims/fish_green_CombatCritical_5.glb",
+                    "CombatWound": "assets/models/environment/fish_green/anims/fish_green_CombatWound_6.glb",
+                    "Death": "assets/models/environment/fish_green/anims/fish_green_Death_4.glb",
+                    "Run": "assets/models/environment/fish_green/anims/fish_green_Run_2.glb",
+                    "Stand": "assets/models/environment/fish_green/anims/fish_green_Stand_1.glb",
+                    "Walk": "assets/models/environment/fish_green/anims/fish_green_Walk_3.glb"
+                }
+            },
+            "fish_prawns": {
+                "id": "fish_prawns",
+                "src": "assets/models/environment/fish_prawns/fish_prawns.glb",
+                "anims": {
+                    "Stand": "assets/models/environment/fish_prawns/anims/fish_prawns_Stand_0.glb"
+                }
+            },
+            "fish_red": {
+                "id": "fish_red",
+                "src": "assets/models/environment/fish_red/fish_red.glb",
+                "anims": {
+                    "CombatCritical": "assets/models/environment/fish_red/anims/fish_red_CombatCritical_5.glb",
+                    "CombatWound": "assets/models/environment/fish_red/anims/fish_red_CombatWound_6.glb",
+                    "Death": "assets/models/environment/fish_red/anims/fish_red_Death_4.glb",
+                    "Run": "assets/models/environment/fish_red/anims/fish_red_Run_2.glb",
+                    "Stand": "assets/models/environment/fish_red/anims/fish_red_Stand_1.glb",
+                    "Walk": "assets/models/environment/fish_red/anims/fish_red_Walk_3.glb"
+                }
+            },
+            "windmill": {
+                "id": "windmill",
+                "src": "assets/models/environment/windmill/windmill.glb",
+                "anims": {
+                    "Stand": "assets/models/environment/windmill/anims/windmill_Stand_0.glb",
+                    "Stand1": "assets/models/environment/windmill/anims/windmill_Stand_1.glb"
+                }
             }
-
         },
         "images": {
             "flag.png": {
