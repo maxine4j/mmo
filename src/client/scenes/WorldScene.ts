@@ -38,6 +38,7 @@ export default class WorldScene extends GameScene {
     private lblMouseWorld: Label;
     private lblMouseChunk: Label;
     private lblSceneCount: Label;
+    private lblTips: Label;
     private mousePoint: WorldPoint;
     private intersects: THREE.Intersection[] = [];
     private wireframesVisible: boolean = false;
@@ -103,25 +104,23 @@ export default class WorldScene extends GameScene {
         let lastOffset = 50;
         const sep = 15;
 
-        this.lblMouseWorld = new Label(UIParent.get(), 'World: { X, Y, Z }');
-        this.lblMouseWorld.style.position = 'fixed';
-        this.lblMouseWorld.style.top = `${lastOffset}px`; lastOffset += sep;
-        this.lblMouseWorld.style.left = '0';
-
-        this.lblMouseTile = new Label(UIParent.get(), 'Tile: { X, Y }');
-        this.lblMouseTile.style.position = 'fixed';
-        this.lblMouseTile.style.top = `${lastOffset}px`; lastOffset += sep;
-        this.lblMouseTile.style.left = '0';
-
-        this.lblMouseChunk = new Label(UIParent.get(), 'Chunk: { X, Y }');
-        this.lblMouseChunk.style.position = 'fixed';
-        this.lblMouseChunk.style.top = `${lastOffset}px`; lastOffset += sep;
-        this.lblMouseChunk.style.left = '0';
-
-        this.lblSceneCount = new Label(UIParent.get(), 'Scene Count: ?');
-        this.lblSceneCount.style.position = 'fixed';
-        this.lblSceneCount.style.top = `${lastOffset}px`; lastOffset += sep;
-        this.lblSceneCount.style.left = '0';
+        const initLbl = (s: string): Label => {
+            const lbl = new Label(UIParent.get(), s);
+            lbl.style.position = 'fixed';
+            lbl.style.top = `${lastOffset}px`; lastOffset += sep;
+            lbl.style.left = '0';
+            return lbl;
+        };
+        this.lblMouseWorld = initLbl('World: { X, Y, Z }');
+        this.lblMouseTile = initLbl('Tile: { X, Y }');
+        this.lblMouseChunk = initLbl('Chunk: { X, Y }');
+        this.lblSceneCount = initLbl('Scene Count: ?');
+        this.lblTips = initLbl(' ');
+        this.lblTips = initLbl('--- Keybinds ---');
+        this.lblTips = initLbl('Reposition Doodads: <P>');
+        this.lblTips = initLbl('Teleport To Mouse: <T>');
+        this.lblTips = initLbl('Chat: <Enter>');
+        this.lblTips = initLbl('Camera: <W/A/S/D>');
 
         this.chatbox = new Chatbox(UIParent.get(), 400, 200);
         this.chatbox.style.left = '0';
