@@ -8,7 +8,7 @@ export default class Water extends Water3 {
     public def: WaterDef;
     public chunk: Chunk;
 
-    public constructor(chunk: Chunk, def: WaterDef) {
+    public constructor(chunk: Chunk, def: WaterDef, reflections: boolean = true) {
         super(new THREE.PlaneBufferGeometry(def.sizex, def.sizez, 1, 1), {
             textureWidth: 512,
             textureHeight: 512,
@@ -22,6 +22,7 @@ export default class Water extends Water3 {
             waterColor: def.colour,
             distortionScale: 3.7,
             fog: chunk.world.scene.fog !== undefined,
+            clipBias: reflections ? 0 : -1000,
         });
 
         this.rotateX(-Math.PI / 2);

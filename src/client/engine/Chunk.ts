@@ -59,7 +59,7 @@ export default class Chunk {
 
     private loadWater(): void {
         for (const wdef of this.def.waters) {
-            this.waters.set(wdef.id, new Water(this, wdef));
+            this.waters.set(wdef.id, new Water(this, wdef, !this.world.isEditor));
         }
     }
 

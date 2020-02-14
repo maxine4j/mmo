@@ -120,7 +120,7 @@ export default class WaterTool extends Tool {
             flowRate: 1,
         };
         point.chunk.def.waters.push(def);
-        const water = new Water(point.chunk, def);
+        const water = new Water(point.chunk, def, false);
         point.chunk.waters.set(water.def.id, water);
     }
 

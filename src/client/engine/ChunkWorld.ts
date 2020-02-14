@@ -5,16 +5,18 @@ import Map2D from '../../common/Map2D';
 import { TilePoint } from '../../common/Point';
 
 export default class ChunkWorld {
+    public isEditor: boolean;
     public chunks: Map2D<number, number, Chunk> = new Map2D();
     public scene: Scene;
     public chunkSize: number;
     public chunkViewDist: number;
     private wireframeVisibility: boolean;
 
-    public constructor(scene: Scene, chunkSize: number, chunkViewDist: number) {
+    public constructor(scene: Scene, chunkSize: number, chunkViewDist: number, isEditor: boolean = false) {
         this.scene = scene;
         this.chunkSize = chunkSize;
         this.chunkViewDist = chunkViewDist;
+        this.isEditor = isEditor;
     }
 
     public loadChunk(def: ChunkDef): Promise<Chunk> {

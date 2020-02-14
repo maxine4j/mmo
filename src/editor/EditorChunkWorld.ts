@@ -14,7 +14,7 @@ export default class EditorChunkWorld {
     private world: ChunkWorld;
 
     public constructor(scene: Scene, worldDef: WorldJsonDef) {
-        this.world = new ChunkWorld(scene, worldDef.chunkSize, 3);
+        this.world = new ChunkWorld(scene, worldDef.chunkSize, 3, true);
         this.def = worldDef;
     }
 
