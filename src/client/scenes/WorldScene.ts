@@ -323,6 +323,24 @@ export default class WorldScene extends GameScene {
         }
     }
 
+    private updateDebugKeys(): void {
+        if (Input.wasKeyPressed('t')) {
+            const tilePoint = this.mousePoint.toTile();
+            if (tilePoint.toChunk().chunk) {
+                NetClient.send(PacketHeader.CHAT_EVENT, <ChatMsgPacket>{
+                    message: `/tp ${tilePoint.x} ${tilePoint.y}`,
+                });
+            }
+        }
+
+        if (Input.wasKeyPressed('p')) {
+            for (const [_x, _y, chunk] of this.world.chunkWorld.chunks) {
+                chunk.positionInWorld();
+                chunk.positionDoodads();
+            }
+        }
+    }
+
     public update(delta: number): void {
         this.updateMousePoint();
         this.updateTopLeftLabels();
@@ -330,6 +348,8 @@ export default class WorldScene extends GameScene {
         this.updateChatHoverMsgs();
         this.updateNameplates();
         this.updateHitSplats();
+
+        this.updateDebugKeys();
 
         if (this.world.player.data) {
             this.camera.setTarget(this.world.player.getWorldPosition() || new THREE.Vector3(0, 0, 0));
