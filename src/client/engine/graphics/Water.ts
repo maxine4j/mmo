@@ -16,7 +16,7 @@ export default class Water extends Water3 {
                 tex.wrapS = THREE.RepeatWrapping;
                 tex.wrapT = THREE.RepeatWrapping;
             }),
-            alpha: 1.0,
+            alpha: 0.66,
             // sunDirection: light.position.clone().normalize(),
             sunColor: 0xffffff,
             waterColor: def.colour,
@@ -56,6 +56,6 @@ export default class Water extends Water3 {
 
     public update(delta: number): void {
         // @ts-ignore
-        this.material.uniforms.time.value += delta;
+        this.material.uniforms.time.value += delta * this.def.flowRate;
     }
 }

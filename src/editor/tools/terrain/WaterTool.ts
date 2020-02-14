@@ -10,8 +10,6 @@ import Water from '../../../client/engine/graphics/Water';
 import Chunk from '../../../client/engine/Chunk';
 import { WaterDef } from '../../../common/ChunkDef';
 import SliderProp from '../../panelprops/SliderProp';
-import CheckBoxProp from '../../panelprops/CheckboxProp';
-
 
 enum WaterToolMode {
     SELECT,
@@ -36,6 +34,8 @@ export default class WaterTool extends Tool {
     }
     private propSizeX: SliderProp;
     private propSizeZ: SliderProp;
+    private propElevation: SliderProp;
+    private propFlowrate: SliderProp;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -66,6 +66,23 @@ export default class WaterTool extends Tool {
         this.propsPanel.addProp(this.propSizeZ);
         this.propsPanel.addBreak();
 
+        this.propElevation = new SliderProp(this.propsPanel, 'Elevation:', -10, 50, 0.01, 0,
+            (val) => {
+                if (this.selected) {
+                    this.selected.def.elevation = val;
+                    this.selected.positionInWorld();
+                }
+            });
+        this.propsPanel.addProp(this.propElevation);
+        this.propFlowrate = new SliderProp(this.propsPanel, 'Flow Rate:', -10, 10, 0.01, 1,
+            (val) => {
+                if (this.selected) {
+                    this.selected.def.flowRate = val;
+                }
+            });
+        this.propsPanel.addProp(this.propFlowrate);
+        this.propsPanel.addBreak();
+
         this.updateProps();
     }
 
@@ -75,9 +92,15 @@ export default class WaterTool extends Tool {
             this.propSizeX.value = this.selected.def.sizex;
             this.propSizeZ.show();
             this.propSizeZ.value = this.selected.def.sizez;
+            this.propElevation.show();
+            this.propElevation.value = this.selected.def.elevation;
+            this.propFlowrate.show();
+            this.propFlowrate.value = this.selected.def.flowRate;
         } else {
             this.propSizeX.hide();
             this.propSizeZ.hide();
+            this.propElevation.hide();
+            this.propFlowrate.hide();
         }
     }
 
@@ -86,7 +109,7 @@ export default class WaterTool extends Tool {
 
         const def = <WaterDef>{
             id: uuid(),
-            elevation: 10,
+            elevation: point.elevation,
             colour: 0x37a0b0,
             normals: 'assets/terrain/water/normal.jpg',
             rotation: 0,
@@ -94,11 +117,11 @@ export default class WaterTool extends Tool {
             sizez: 50,
             x: point.x,
             y: point.y,
+            flowRate: 1,
         };
         point.chunk.def.waters.push(def);
         const water = new Water(point.chunk, def);
         point.chunk.waters.set(water.def.id, water);
-        console.log('Created some water');
     }
 
     private transferWater(id: string, oldChunk: Chunk, newChunk: Chunk): void {

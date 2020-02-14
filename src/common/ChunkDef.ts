@@ -27,6 +27,7 @@ export interface WaterDef extends IDefinition {
     rotation: number;
     sizex: number;
     sizez: number;
+    flowRate: number;
 
     // flowx: number;
     // flowz: number;
