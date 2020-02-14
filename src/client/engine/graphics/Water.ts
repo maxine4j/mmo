@@ -20,7 +20,7 @@ export default class Water extends Water3 {
             // sunDirection: light.position.clone().normalize(),
             sunColor: 0xffffff,
             waterColor: def.colour,
-            distortionScale: 3.7,
+            distortionScale: 0.5,
             fog: chunk.world.scene.fog !== undefined,
             clipBias: reflections ? 0 : -1000,
         });

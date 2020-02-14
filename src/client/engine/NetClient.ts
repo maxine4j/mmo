@@ -5,6 +5,7 @@ import SceneManager from './scene/SceneManager';
 export default class NetClient {
     private static _client: SocketIOClient.Socket;
 
+    // https://world1.mmo.arwic.io
     public static init(url: string = 'http://localhost:3000'): void {
         this._client = io.connect(url);
         this.initEvents();
