@@ -9,10 +9,7 @@ export default class Water extends Water3 {
     public chunk: Chunk;
 
     public constructor(chunk: Chunk, def: WaterDef) {
-        const geom = new THREE.PlaneBufferGeometry(def.sizex, def.sizez, 1);
-        geom.rotateX(-Math.PI / 2);
-
-        super(geom, {
+        super(new THREE.PlaneBufferGeometry(def.sizex, def.sizez, 1, 1), {
             textureWidth: 512,
             textureHeight: 512,
             waterNormals: new THREE.TextureLoader().load(def.normals, (tex) => {
@@ -26,6 +23,8 @@ export default class Water extends Water3 {
             distortionScale: 3.7,
             fog: chunk.world.scene.fog !== undefined,
         });
+
+        this.rotateX(-Math.PI / 2);
 
         this.def = def;
         this.chunk = chunk;
@@ -46,8 +45,7 @@ export default class Water extends Water3 {
 
     public updateGeometry(): void {
         if (this.geometry) this.geometry.dispose();
-        this.geometry = new THREE.PlaneBufferGeometry(this.def.sizex, this.def.sizez);
-        this.geometry.rotateX(-Math.PI / 2);
+        this.geometry = new THREE.PlaneBufferGeometry(this.def.sizex, this.def.sizez, 1, 1);
     }
 
     public positionInWorld(): void {
