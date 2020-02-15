@@ -323,7 +323,7 @@ export default class WorldScene extends GameScene {
     }
 
     private updateDebugKeys(): void {
-        if (Input.wasKeyPressed('t')) {
+        if (Input.wasKeyPressed('t') && this.mousePoint) {
             const tilePoint = this.mousePoint.toTile();
             if (tilePoint.toChunk().chunk) {
                 NetClient.send(PacketHeader.CHAT_EVENT, <ChatMsgPacket>{
