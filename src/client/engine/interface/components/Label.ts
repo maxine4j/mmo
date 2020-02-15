@@ -7,6 +7,7 @@ export default class Label extends Frame {
     public constructor(parent: Frame, text: string) {
         super('label', parent);
         this.text = text;
+        this.style.fontFamily = 'Arial';
     }
 
     public get text(): string {

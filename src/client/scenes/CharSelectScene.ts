@@ -21,12 +21,21 @@ import AssetManager from '../engine/asset/AssetManager';
 
 export default class CharSelectScene extends GameScene {
     private characters: CharacterDef[];
-    private selectedChar: CharacterDef;
+    private _selectedChar: CharacterDef;
+    private selectedCharButton: Button;
     private panelChars: Panel;
     private selectedModel: Model;
     private background: Sprite;
     private charSpinStartMouse: number = -1;
     private charSpinInitialRot: number = -1;
+    private lblSelectedName: Label;
+
+    private get selectedChar(): CharacterDef { return this._selectedChar; }
+    private set selectedChar(char: CharacterDef) {
+        this._selectedChar = char;
+        this.lblSelectedName.text = char.name;
+        // TODO: load model
+    }
 
     public constructor() {
         super('char-select');
@@ -52,8 +61,22 @@ export default class CharSelectScene extends GameScene {
             btnChar.style.width = '100%';
             btnChar.style.height = '60px';
             btnChar.style.backgroundColor = 'rgba(0, 0, 0, 0)';
-            btnChar.addEventListener('click', () => { this.selectedChar = char; });
-            // this.addGUI(btnChar);
+            btnChar.addEventListener('click', (self: Button, ev: MouseEvent) => {
+                this.selectedChar = char;
+                if (this.selectedCharButton) {
+                    this.selectedCharButton.style.borderColor = 'white';
+                    this.selectedCharButton.style.color = 'white';
+                }
+                self.style.borderColor = 'gold';
+                self.style.color = 'gold';
+                this.selectedCharButton = self;
+            });
+
+            if (this.selectedCharButton == null) {
+                this.selectedCharButton = btnChar;
+                btnChar.style.borderColor = 'gold';
+                btnChar.style.color = 'gold';
+            }
         }
     }
 
@@ -71,7 +94,15 @@ export default class CharSelectScene extends GameScene {
         btnEnterWorld.style.width = '200px';
         btnEnterWorld.centreHorizontal();
         btnEnterWorld.addEventListener('click', () => this.enterWorld());
-        // this.addGUI(btnEnterWorld);
+
+        // build selected char name
+        this.lblSelectedName = new Label(UIParent.get(), '???');
+        this.lblSelectedName.style.bottom = '100px';
+        this.lblSelectedName.width = 400;
+        this.lblSelectedName.style.textAlign = 'center';
+        this.lblSelectedName.style.fontSize = '130%';
+        this.lblSelectedName.centreHorizontal();
+
         // build character list
         this.panelChars = new Panel(UIParent.get());
         this.panelChars.style.display = 'block';
@@ -84,14 +115,12 @@ export default class CharSelectScene extends GameScene {
         this.panelChars.style.backgroundColor = 'rgba(10, 10, 10, 0.6)';
         this.panelChars.style.borderRadius = '5px';
         this.panelChars.style.padding = '10px';
-        // this.addGUI(this.panelChars);
         // realm label
         const charListLabel = new Label(this.panelChars, 'Characters');
         charListLabel.style.position = 'initial';
         charListLabel.style.display = 'block';
         charListLabel.style.fontSize = '180%';
         charListLabel.style.textAlign = 'center';
-        // this.addGUI(charListLabel);
 
         // build new character button
         const btnCreateCharacter = new Button(this.panelChars, 'Create Character');
@@ -102,7 +131,6 @@ export default class CharSelectScene extends GameScene {
         btnCreateCharacter.style.bottom = '75px';
         btnCreateCharacter.style.right = '40px';
         btnCreateCharacter.addEventListener('click', () => SceneManager.changeScene('char-create'));
-        // this.addGUI(btnCreateCharacter);
         // build delete character button
         const btnDeleteChar = new Button(this.panelChars, 'Delete Character');
         btnDeleteChar.style.position = 'fixed';
@@ -115,7 +143,6 @@ export default class CharSelectScene extends GameScene {
         btnDeleteChar.addEventListener('click', () => {
             console.log('Delete Character NYI');
         });
-        // this.addGUI(btnDeleteChar);
         // build back button
         const btnBack = new Button(this.panelChars, 'Back');
         btnBack.style.position = 'fixed';
@@ -128,7 +155,6 @@ export default class CharSelectScene extends GameScene {
             NetClient.send(PacketHeader.AUTH_LOGOUT);
             SceneManager.changeScene('login');
         });
-        // this.addGUI(btnBack);
     }
 
     public async init(): Promise<void> {
@@ -206,6 +232,10 @@ export default class CharSelectScene extends GameScene {
             this.selectedModel.getAnim('EmoteReadLoop').then((a) => {
                 a.play();
             });
+        }
+        if (Input.wasKeyPressed('3')) {
+            this.selectedModel.getAnim('Stand').then((a) => a.stop());
+            this.selectedModel.getAnim('CombatCritical').then((a) => a.play());
         }
     }
 
