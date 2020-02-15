@@ -18,15 +18,18 @@ export default class Doodad {
         this.model.obj.userData = {
             doodad: this,
         };
-        this.positionInWorld();
-        // add the doodad model to the scene
-        chunk.world.scene.add(this.model.obj);
         // add this as userdata to all children so we can access it via raycast
         this.model.obj.traverse((obj) => {
             obj.userData = {
                 doodad: this,
             };
         });
+        // add the doodad model to the scene
+        this.load();
+
+        setTimeout(() => { // this fixes doodads sometimes being positioned at 0 elevation
+            this.positionInWorld();
+        }, 1000);
     }
 
     public dispose(): void {
@@ -44,6 +47,7 @@ export default class Doodad {
     }
 
     public load(): void {
+        this.positionInWorld();
         this.chunk.world.scene.add(this.model.obj);
     }
 
