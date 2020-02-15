@@ -1,3 +1,10 @@
+$cur-default: '../../../assets/cursors/default.cur';
+$cur-select: '../../../assets/cursors/select.cur';
+
+* {
+    cursor: url($cur-default), auto !important;
+}
+
 #canvas {
     position: fixed;
     z-index: 0;
@@ -22,7 +29,7 @@
         border-radius: 5px;
         color: #ffffff;
         font-size: 18px;
-
+        cursor: url($cur-default), auto;
     }
 
     button {
@@ -32,7 +39,7 @@
         color: #ffffff;
         border-radius: 5px;
         padding: 5px 15px;
-        cursor: pointer;
+        cursor: url($cur-default), pointer;
 
         &:hover {
             background-color: lighten($bg-col, 5%);

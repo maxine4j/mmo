@@ -41,6 +41,7 @@ export default class SpriteAtlas {
     public getSprite(id: string, parent: Frame): AtlasSprite {
         const spriteDef = this.def.sprites[id];
         if (spriteDef == null) {
+            console.log('Sprite not found:', id);
             return new AtlasSprite(parent, this, {
                 x: 0, y: 0, w: 0, h: 0,
             });

@@ -23,7 +23,7 @@ module.exports = {
                 loader: 'ts-shader-loader',
             },
             {
-                test: /\.(png|jpe?g|gif|obj|mtl|dae|gltf|bin|glb|fbx)$/i,
+                test: /\.(png|jpe?g|gif|obj|mtl|dae|gltf|bin|glb|fbx|cur)$/i,
                 use: [
                     {
                         loader: 'file-loader',

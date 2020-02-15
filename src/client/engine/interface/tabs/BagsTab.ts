@@ -87,17 +87,23 @@ export class InventorySlot extends Panel {
             this.inventory.swapSlots(this.slot, Number(data));
             // @ts-ignore
             ev.target.style.backgroundColor = slotBg;
+            // @ts-ignore
+            ev.target.style.outline = 'none';
             ev.dataTransfer.clearData();
             ev.preventDefault();
         });
         this.element.addEventListener('dragenter', (ev: DragEvent) => {
             // @ts-ignore
             ev.target.style.backgroundColor = slotBgOver;
+            // @ts-ignore
+            ev.target.style.outline = `2px solid ${slotBgOver}`;
             ev.preventDefault();
         });
         this.element.addEventListener('dragleave', (ev: DragEvent) => {
             // @ts-ignore
             ev.target.style.backgroundColor = slotBg;
+            // @ts-ignore
+            ev.target.style.outline = 'none';
             ev.preventDefault();
         });
         this.element.addEventListener('dragover', (ev: DragEvent) => ev.preventDefault());
