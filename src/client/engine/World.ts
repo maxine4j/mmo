@@ -56,6 +56,7 @@ export default class World {
             Promise.all(chunkLoads).then(() => {
                 this.chunkWorld.pruneChunks(new TilePoint(p.center.x, p.center.y, this.chunkWorld));
                 this.chunkWorld.stitchChunks();
+                this.chunkWorld.stitchChunks(); // this ensures south east corners are stitched
             });
         });
         NetClient.send(PacketHeader.CHUNK_LOAD);
