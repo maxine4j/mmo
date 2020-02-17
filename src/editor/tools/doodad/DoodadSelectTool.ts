@@ -7,6 +7,7 @@ import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
 import DoodadMoveTool from './DoodadMoveTool';
 import BaseDoodadTool from './BaseDoodadTool';
+import DoodadProp from '../../panelprops/DoodadProp';
 
 enum DoodadToolMode {
     SELECT,
@@ -20,6 +21,7 @@ export default class DoodadSelectTool extends Tool {
     private mouseStart: Point;
     private intialTheta: number;
     private initialElevation: number;
+    private doodadProp: DoodadProp;
 
     public constructor(props: EditorProps, panel: ToolPanel) {
         super(
@@ -31,6 +33,14 @@ export default class DoodadSelectTool extends Tool {
             'assets/icons/doodad_select.png',
             props, panel,
         );
+
+        this.doodadProp = new DoodadProp(this.propsPanel, this.props);
+        this.propsPanel.addProp(this.doodadProp);
+    }
+
+    public onSelected(): void {
+        super.onSelected();
+        this.doodadProp.show();
     }
 
     private usePosition(): void {

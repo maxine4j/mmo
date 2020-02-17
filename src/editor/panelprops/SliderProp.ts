@@ -2,13 +2,13 @@ import TextBox from '../../client/engine/interface/components/TextBox';
 import Slider from '../../client/engine/interface/components/Slider';
 import Label from '../../client/engine/interface/components/Label';
 import PanelProp from '../PanelProp';
-import PropsPanel from '../PropsPanel';
+import { Frame } from '../../client/engine/interface/components/Frame';
 
 export default class SliderProp extends PanelProp {
     private textbox: TextBox;
     private slider: Slider;
 
-    public constructor(parent: PropsPanel, label: string, min: number, max: number, step: number, val: number, onChange: (value: number) => void) {
+    public constructor(parent: Frame, label: string, min: number, max: number, step: number, val: number, onChange: (value: number) => void) {
         super(parent);
 
         const lbl = new Label(parent, label);

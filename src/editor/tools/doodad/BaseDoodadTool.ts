@@ -2,8 +2,24 @@ import { Key } from 'ts-key-enum';
 import Tool from '../../Tool';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import EditorProps from '../../EditorProps';
+import DoodadProp from '../../panelprops/DoodadProp';
+import ToolPanel from '../../ToolPanel';
 
 export default class BaseDoodadTool extends Tool {
+    private doodadProp: DoodadProp;
+
+    public constructor(name: string, description: string, icon: string, props: EditorProps, panel: ToolPanel) {
+        super(name, description, icon, props, panel);
+
+        this.doodadProp = new DoodadProp(this.propsPanel, this.props);
+        this.propsPanel.addProp(this.doodadProp);
+    }
+
+    public onSelected(): void {
+        super.onSelected();
+        this.doodadProp.show();
+    }
+
     public doodadUse(delta: number): void {
     }
 

@@ -1,7 +1,6 @@
 import { EventEmitter } from 'events';
 import Panel from '../../client/engine/interface/components/Panel';
 import PanelProp from '../PanelProp';
-import PropsPanel from '../PropsPanel';
 import { Frame } from '../../client/engine/interface/components/Frame';
 import Input from '../../client/engine/Input';
 import { Point } from '../../common/Point';
@@ -96,7 +95,7 @@ class Shelf<T> extends Panel {
 }
 
 export default class LibraryProp<T> extends PanelProp {
-    public constructor(parent: PropsPanel, bookDefs: { item: T, cover: BookCover }[], onSelect: (value: T) => void) {
+    public constructor(parent: Frame, bookDefs: { item: T, cover: BookCover }[], onSelect: (value: T) => void) {
         super(parent);
 
         const shelf = new Shelf(parent, bookDefs);

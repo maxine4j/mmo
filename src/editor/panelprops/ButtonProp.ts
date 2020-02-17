@@ -1,11 +1,11 @@
 import Button from '../../client/engine/interface/components/Button';
 import PanelProp from '../PanelProp';
-import PropsPanel from '../PropsPanel';
+import { Frame } from '../../client/engine/interface/components/Frame';
 
 export default class ButtonProp extends PanelProp {
     private button: Button;
 
-    public constructor(parent: PropsPanel, text: string, onClick: (self: Button, ev: MouseEvent) => void) {
+    public constructor(parent: Frame, text: string, onClick: (self: Button, ev: MouseEvent) => void) {
         super(parent);
         this.button = new Button(parent, text);
         this.button.style.position = 'initial';

@@ -1,9 +1,9 @@
-import PropsPanel from './PropsPanel';
+import { Frame } from '../client/engine/interface/components/Frame';
 
 export default class PanelProp {
-    public parent: PropsPanel;
+    public parent: Frame;
 
-    public constructor(parent: PropsPanel) {
+    public constructor(parent: Frame) {
         this.parent = parent;
     }
 }

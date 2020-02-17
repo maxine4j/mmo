@@ -1,12 +1,12 @@
 import CheckBox from '../../client/engine/interface/components/CheckBox';
 import Label from '../../client/engine/interface/components/Label';
 import PanelProp from '../PanelProp';
-import PropsPanel from '../PropsPanel';
+import { Frame } from '../../client/engine/interface/components/Frame';
 
 export default class CheckBoxProp extends PanelProp {
     private checkbox: CheckBox;
 
-    public constructor(parent: PropsPanel, label: string, onChange: (value: boolean) => void, initial?: boolean) {
+    public constructor(parent: Frame, label: string, onChange: (value: boolean) => void, initial?: boolean) {
         super(parent);
         const lbl = new Label(parent, label);
         lbl.style.position = 'initial';
