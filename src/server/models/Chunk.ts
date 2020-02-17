@@ -8,12 +8,14 @@ import IModel from './IModel';
 import GroundItem from './GroundItem';
 import { Skill } from '../../common/CharacterDef';
 import Interactable from './Interactable';
+import WorldManager from '../managers/WorldManager';
 
 export const WALKABLE = 0;
 export const NOT_WALKABLE = 1;
 
 export default class Chunk implements IModel {
     private def: ChunkDef;
+    public world: WorldManager;
     public navmap: number[][];
     public allUnits: Map<string, Unit> = new Map();
     public units: Map<string, Unit> = new Map();
@@ -26,9 +28,10 @@ export default class Chunk implements IModel {
     public get x(): number { return this.def.x; }
     public get y(): number { return this.def.y; }
 
-    public constructor(def: ChunkDef, size: number) {
+    public constructor(def: ChunkDef, size: number, world: WorldManager) {
         this.def = def;
         this.size = size;
+        this.world = world;
         this.generateNavmap();
 
         // TEMP: skill node from doodad def

@@ -1,0 +1,45 @@
+{
+    "8": {
+        "skill": "fishing",
+        "nodes": {
+            "test-fishing": {
+                "harvestRate": 4,
+                "harvestChance": 0.4,
+                "collapseChance": 0.1,
+                "respawnTime": 10,
+                "lootTableID": 1
+            },
+            "test-fishing-water": {
+                "harvestRate": 4,
+                "harvestChance": 0.4,
+                "collapseChance": 0.1,
+                "respawnTime": 10,
+                "lootTableID": 1
+            }
+        }
+    },
+    "11": {
+        "skill": "cooking",
+        "nodes": {
+            "test-cooking": {
+                "harvestRate": 4,
+                "harvestChance": 0.4,
+                "collapseChance": 0.1,
+                "respawnTime": 10,
+                "lootTableID": 1
+            }
+        }
+    },
+    "17": {
+        "skill": "woodcutting",
+        "nodes": {
+            "test-wc": {
+                "harvestRate": 4,
+                "harvestChance": 0.4,
+                "collapseChance": 0.1,
+                "respawnTime": 10,
+                "lootTableID": 1
+            }
+        }
+    }
+}

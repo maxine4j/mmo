@@ -95,7 +95,7 @@ export default class ChunkManager implements IManager {
     }
 
     private loadChunk(id: string): void {
-        const cm = new Chunk(this.worldDef.chunks[id], this.chunkSize);
+        const cm = new Chunk(this.worldDef.chunks[id], this.chunkSize, this.world);
         this.chunks.set(cm.x, cm.y, cm);
     }
 

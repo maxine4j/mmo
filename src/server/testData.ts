@@ -103,102 +103,168 @@ async function initSkills(): Promise<void> {
 }
 
 async function initItems(): Promise<void> {
-    const item0 = new ItemTypeEntity();
-    item0.id = 0;
-    item0.icon = 'iron-sword';
-    item0.name = 'Iron Sword';
-    await item0.save();
+    let itemID = 0;
+    let tableID = 0;
+    let tableEntryID = 0;
+    let tableEntryItemID = 0;
 
-    const item1 = new ItemTypeEntity();
-    item1.id = 1;
-    item1.icon = 'iron-axe';
-    item1.name = 'Iron Axe';
-    await item1.save();
+    const logItem = (item: ItemTypeEntity): void => console.log(`Created ItemTypeEntity: '${item.id}' '${item.name}'`);
 
-    const item2 = new ItemTypeEntity();
-    item2.id = 2;
-    item2.icon = 'flail';
-    item2.name = 'Flail';
-    await item2.save();
+    const itemIronSword = new ItemTypeEntity();
+    itemIronSword.id = itemID++;
+    itemIronSword.icon = 'iron-sword';
+    itemIronSword.name = 'Iron Sword';
+    await itemIronSword.save();
+    logItem(itemIronSword);
 
-    const item3 = new ItemTypeEntity();
-    item3.id = 3;
-    item3.icon = 'whip';
-    item3.name = 'Whip';
-    await item3.save();
+    const itemIronAxe = new ItemTypeEntity();
+    itemIronAxe.id = itemID++;
+    itemIronAxe.icon = 'iron-axe';
+    itemIronAxe.name = 'Iron Axe';
+    await itemIronAxe.save();
+    logItem(itemIronAxe);
 
-    const item4 = new ItemTypeEntity();
-    item4.id = 4;
-    item4.icon = 'wooden-shield';
-    item4.name = 'Wooden Shield';
-    await item4.save();
+    const itemFlail = new ItemTypeEntity();
+    itemFlail.id = itemID++;
+    itemFlail.icon = 'flail';
+    itemFlail.name = 'Flail';
+    await itemFlail.save();
+    logItem(itemFlail);
 
-    const item5 = new ItemTypeEntity();
-    item5.id = 5;
-    item5.icon = 'health-potion';
-    item5.name = 'Health Potion';
-    await item5.save();
+    const itemWhip = new ItemTypeEntity();
+    itemWhip.id = itemID++;
+    itemWhip.icon = 'whip';
+    itemWhip.name = 'Whip';
+    await itemWhip.save();
+    logItem(itemWhip);
 
-    // loot table
+    const itemWoodenShield = new ItemTypeEntity();
+    itemWoodenShield.id = itemID++;
+    itemWoodenShield.icon = 'wooden-shield';
+    itemWoodenShield.name = 'Wooden Shield';
+    await itemWoodenShield.save();
+    logItem(itemWoodenShield);
 
-    // weapons entry
-    const tableItems0: LootTableItemEntity[] = [];
-    tableItems0.push(LootTableItemEntity.create({
-        id: 0,
-        itemType: item0, // iron sword
-        weight: 40,
-    }));
-    tableItems0.push(LootTableItemEntity.create({
-        id: 1,
-        itemType: item1, // iron axe
-        weight: 10,
-    }));
-    tableItems0.push(LootTableItemEntity.create({
-        id: 2,
-        itemType: item2, // flail
-        weight: 5,
-    }));
-    tableItems0.push(LootTableItemEntity.create({
-        id: 3,
-        itemType: item3, // whip
-        weight: 5,
-    }));
+    const itemHealthPot = new ItemTypeEntity();
+    itemHealthPot.id = itemID++;
+    itemHealthPot.icon = 'health-potion';
+    itemHealthPot.name = 'Health Potion';
+    await itemHealthPot.save();
+    logItem(itemHealthPot);
 
-    // other entry
-    const tableItems1: LootTableItemEntity[] = [];
-    tableItems1.push(LootTableItemEntity.create({
-        id: 4,
-        itemType: item4, // wooden shield
-        weight: 20,
-    }));
-    tableItems1.push(LootTableItemEntity.create({
-        id: 5,
-        itemType: item5, // health potion
-        weight: 50,
-    }));
+    const itemLogs = new ItemTypeEntity();
+    itemLogs.id = itemID++;
+    itemLogs.icon = 'logs';
+    itemLogs.name = 'Logs';
+    await itemLogs.save();
+    logItem(itemLogs);
+
+    const itemApple = new ItemTypeEntity();
+    itemApple.id = itemID++;
+    itemApple.icon = 'apple';
+    itemApple.name = 'Apple';
+    await itemApple.save();
+    logItem(itemApple);
+
+    const logTable = (table: LootTableEntity): void => {
+        console.log(`Created LootTableEntity: '${table.id}' with ${table.entries.length} entries:`);
+        for (const entry of table.entries) {
+            console.log(`\tCreated LootTableEntryEntity: '${entry.id}' with ${entry.items.length} items`);
+            for (const item of entry.items) {
+                console.log(`\t\tCreated LootTableItemEntity: '${item.id}' pointing to '${item.itemType.name}'`);
+            }
+        }
+    };
 
     // table entries
-    const entries0: LootTableEntryEntity[] = [];
-    entries0.push(LootTableEntryEntity.create({
-        id: 0,
-        items: tableItems0,
-        chance: 1,
-        minCount: 1,
-        maxCount: 3,
-    }));
-    entries0.push(LootTableEntryEntity.create({
-        id: 1,
-        items: tableItems1,
-        chance: 0.3,
-        minCount: 1,
-        maxCount: 1,
-    }));
-
-    const table0 = LootTableEntity.create({
-        id: 0,
-        entries: entries0,
+    const table0Skele = LootTableEntity.create({
+        id: tableID++,
+        entries: [
+            LootTableEntryEntity.create({
+                id: tableEntryID++,
+                chance: 1,
+                minCount: 1,
+                maxCount: 3,
+                items: [
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemIronSword,
+                        weight: 40,
+                    }),
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemIronAxe,
+                        weight: 10,
+                    }),
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemFlail,
+                        weight: 5,
+                    }),
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemWhip,
+                        weight: 5,
+                    }),
+                ],
+            }),
+            LootTableEntryEntity.create({
+                id: tableEntryID++,
+                chance: 0.3,
+                minCount: 1,
+                maxCount: 1,
+                items: [
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemWoodenShield,
+                        weight: 20,
+                    }),
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemHealthPot,
+                        weight: 50,
+                    }),
+                ],
+            }),
+        ],
     });
-    await table0.save();
+    await table0Skele.save();
+    logTable(table0Skele);
+
+    // wooductting table
+    const table1Woodcutting = LootTableEntity.create({
+        id: tableID++,
+        entries: [
+            LootTableEntryEntity.create({
+                id: tableEntryID++,
+                chance: 1,
+                minCount: 1,
+                maxCount: 1,
+                items: [
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemLogs,
+                        weight: 100,
+                    }),
+                ],
+            }),
+            LootTableEntryEntity.create({
+                id: tableEntryID++,
+                chance: 0.1,
+                minCount: 1,
+                maxCount: 1,
+                items: [
+                    LootTableItemEntity.create({
+                        id: tableEntryItemID++,
+                        itemType: itemApple,
+                        weight: 100,
+                    }),
+                ],
+            }),
+        ],
+    });
+    await table1Woodcutting.save();
+    logTable(table1Woodcutting);
 }
 
 export default async function initTestDatabase(): Promise<void> {

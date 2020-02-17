@@ -33,6 +33,7 @@ export default class Player extends Unit implements IModel {
     private lootTarget: GroundItem;
     private interactTarget: Interactable;
     public get skills(): SkillEntity[] { return this.entity.skills; }
+    public lastHarvestTick: number = 0;
 
     public constructor(world: WorldManager, entity: CharacterEntity, client: Client) {
         super(world, entity.toNet());
@@ -166,6 +167,10 @@ export default class Player extends Unit implements IModel {
                 this.loadedChunks.delete(x, y);
             }
         }
+    }
+
+    public sendBagData(): void {
+        this.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket> this.bags.toNet());
     }
 
     public sendSurroundingChunks(): void {
@@ -309,10 +314,17 @@ export default class Player extends Unit implements IModel {
             if (this.world.ground.groundItemExists(this.lootTarget)) {
                 if (this.bags.tryAddItem(this.lootTarget.item)) {
                     this.world.ground.removeItem(this.lootTarget.uuid);
-                    this.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket> this.bags.toNet());
+                    this.sendBagData();
                 }
             }
             this._state = UnitState.IDLE;
+        }
+    }
+
+    private tickInteracting(): void {
+        if (this.position.dist(this.interactTarget.position) < 2) {
+            console.log('Ticking interact');
+            this.interactTarget.tickAction(this);
         }
     }
 
@@ -334,6 +346,7 @@ export default class Player extends Unit implements IModel {
 
         switch (this.state) {
         case UnitState.LOOTING: this.tickLooting(); break;
+        case UnitState.INTERACTING: this.tickInteracting(); break;
         default: break;
         }
     }
