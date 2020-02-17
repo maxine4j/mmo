@@ -1,3 +1,4 @@
+import InteractableDef from '../../common/InteractableDef';
 import ChunkDef from '../../common/ChunkDef';
 import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
@@ -5,6 +6,8 @@ import Unit from './Unit';
 import Player from './Player';
 import IModel from './IModel';
 import GroundItem from './GroundItem';
+import { Skill } from '../../common/CharacterDef';
+import Interactable from './Interactable';
 
 export const WALKABLE = 0;
 export const NOT_WALKABLE = 1;
@@ -16,6 +19,7 @@ export default class Chunk implements IModel {
     public units: Map<string, Unit> = new Map();
     public players: Map<string, Player> = new Map();
     public groundItems: Map<string, GroundItem> = new Map();
+    public interactables: Map<String, Interactable> = new Map();
     public size: number;
     public get worldOffset(): Point { return new Point((this.def.x * this.size) - this.size / 2, (this.def.y * this.size) - this.size / 2); }
     public get id(): string { return this.def.id; }
@@ -26,6 +30,41 @@ export default class Chunk implements IModel {
         this.def = def;
         this.size = size;
         this.generateNavmap();
+
+        // TEMP: skill node from doodad def
+        for (const dd of this.def.doodads) {
+            if (dd.uuid.startsWith('test-')) {
+                if (dd.uuid.includes('fishing')) {
+                    dd.interact = <InteractableDef> {
+                        uuid: dd.uuid,
+                        nodeType: 'prawns',
+                        skill: Skill.FISHING,
+                    };
+                    const interactable = new Interactable(dd, this);
+                    this.interactables.set(dd.interact.uuid, interactable);
+                }
+
+                if (dd.uuid.includes('wc')) {
+                    dd.interact = <InteractableDef> {
+                        uuid: dd.uuid,
+                        nodeType: 'tree',
+                        skill: Skill.WOODCUTTING,
+                    };
+                    const interactable = new Interactable(dd, this);
+                    this.interactables.set(dd.interact.uuid, interactable);
+                }
+
+                if (dd.uuid.includes('cooking')) {
+                    dd.interact = <InteractableDef> {
+                        uuid: dd.uuid,
+                        nodeType: 'fire',
+                        skill: Skill.COOKING,
+                    };
+                    const interactable = new Interactable(dd, this);
+                    this.interactables.set(dd.interact.uuid, interactable);
+                }
+            }
+        }
     }
 
     public addGroundItem(item: GroundItem): void {

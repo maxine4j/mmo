@@ -9,7 +9,7 @@ import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
-    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket,
+    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket, InteractPacket,
 } from '../../common/Packet';
 import ChunkDef from '../../common/ChunkDef';
 import IModel from './IModel';
@@ -18,6 +18,7 @@ import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
 import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
+import Interactable from './Interactable';
 
 type PlayerManagerEvent = UnitManagerEvent | 'saved' | 'levelup';
 
@@ -30,6 +31,7 @@ export default class Player extends Unit implements IModel {
     public loadedChunks: Map2D<number, number, Chunk> = new Map2D();
     public visibleGroundItems: Map<string, GroundItem> = new Map();
     private lootTarget: GroundItem;
+    private interactTarget: Interactable;
     public get skills(): SkillEntity[] { return this.entity.skills; }
 
     public constructor(world: WorldManager, entity: CharacterEntity, client: Client) {
@@ -54,7 +56,8 @@ export default class Player extends Unit implements IModel {
         this.socket.on(PacketHeader.INVENTORY_SWAP, this.handleInventorySwap.bind(this));
         this.socket.on(PacketHeader.INVENTORY_USE, this.handleInventoryUse.bind(this));
         this.socket.on(PacketHeader.INVENTORY_DROP, this.handleInventoryDrop.bind(this));
-        this.socket.on(PacketHeader.PLAYERL_SET_RUN, this.handleSetRun.bind(this));
+        this.socket.on(PacketHeader.PLAYER_SET_RUN, this.handleSetRun.bind(this));
+        this.socket.on(PacketHeader.PLAYER_INTERACT, this.handleInteract.bind(this));
     }
 
     public async dispose(): Promise<void> {
@@ -128,6 +131,17 @@ export default class Player extends Unit implements IModel {
 
     private handleSetRun(packet: BooleanPacket): void {
         this.data.running = packet.value;
+    }
+
+    private handleInteract(packet: InteractPacket): void {
+        const chunk = this.world.chunks.getChunk(packet.ccx, packet.ccy);
+
+        this.interactTarget = chunk.interactables.get(packet.uuid);
+        if (this.interactTarget) {
+            this._state = UnitState.INTERACTING;
+            console.log('Pathing to interact at:', this.interactTarget.position);
+            this.path = this.findPath(this.interactTarget.position);
+        }
     }
 
     protected addToNewChunk(chunk: Chunk): void {
@@ -212,7 +226,7 @@ export default class Player extends Unit implements IModel {
         if (newLevel > oldLevel) { // level up has occured
             this.updateCombatStats();
             skill.current += 1;
-            this.send(PacketHeader.PLAYERL_LEVELUP, <LevelupPacket>skill.toNet());
+            this.send(PacketHeader.PLAYER_LEVELUP, <LevelupPacket>skill.toNet());
             this.emit('levelup', skill);
         }
         // update the clients skills tab

@@ -149,7 +149,7 @@ export default class WorldScene extends GameScene {
             }
         });
 
-        NetClient.on(PacketHeader.PLAYERL_LEVELUP, (p: LevelupPacket) => {
+        NetClient.on(PacketHeader.PLAYER_LEVELUP, (p: LevelupPacket) => {
             this.chatbox.addRawMessage(`You have advanced a level in ${skillName(p.id)}. You are now level ${expToLevel(p.experience)}!`);
         });
     }
@@ -216,7 +216,7 @@ export default class WorldScene extends GameScene {
 
         const runOrb = new MinimapOrb(this.minimap, this.world.player.data.running, -1, 'assets/imgs/orbs/orb_run.png');
         runOrb.on('click', (self: MinimapOrb, active: boolean) => {
-            NetClient.send(PacketHeader.PLAYERL_SET_RUN, <BooleanPacket>{
+            NetClient.send(PacketHeader.PLAYER_SET_RUN, <BooleanPacket>{
                 value: active,
             });
         });

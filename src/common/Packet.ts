@@ -23,8 +23,9 @@ export enum PacketHeader {
     PLAYER_LOOT = 'PLAYER_LOOT',
     PLAYER_SKILLS = 'PLAYER_SKILLS',
     PLAYER_EXP_DROP = 'PLAYER_EXP_DROP',
-    PLAYERL_LEVELUP = 'PLAYERL_LEVELUP',
-    PLAYERL_SET_RUN = 'PLAYERL_SET_RUN',
+    PLAYER_LEVELUP = 'PLAYER_LEVELUP',
+    PLAYER_SET_RUN = 'PLAYER_SET_RUN',
+    PLAYER_INTERACT = 'PLAYER_INTERACT',
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_USE = 'INVENTORY_USE',
@@ -133,6 +134,12 @@ export interface InventoryPacket extends Packet, InventoryDef { }
 
 export interface LootPacket extends Packet {
     uuid: string;
+}
+
+export interface InteractPacket extends Packet {
+    uuid: string;
+    ccx: number,
+    ccy: number,
 }
 
 export interface SkillsPacket extends Packet {

@@ -14,6 +14,7 @@ export enum UnitState {
     FOLLOWING,
     ATTACKING,
     LOOTING,
+    INTERACTING,
 }
 
 export default class Unit implements IModel {
@@ -156,6 +157,7 @@ export default class Unit implements IModel {
             allowDiagonal: true,
             dontCrossCorners: true,
             heuristic: PF.Heuristic.chebyshev,
+            closest: true,
         });
 
         // transform the path to world coords

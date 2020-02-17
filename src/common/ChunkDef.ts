@@ -1,4 +1,5 @@
 import IDefinition from './IDefinition';
+import InteractableDef from './InteractableDef';
 
 export interface NavblockDef extends IDefinition {
     x: number,
@@ -15,6 +16,7 @@ export interface DoodadDef extends IDefinition {
     scale: number,
     rotation: number,
     walkable: boolean,
+    interact: InteractableDef,
 }
 
 export interface WaterDef extends IDefinition {
@@ -28,12 +30,6 @@ export interface WaterDef extends IDefinition {
     sizex: number;
     sizez: number;
     flowRate: number;
-
-    // flowx: number;
-    // flowz: number;
-    // amplitude: number;
-    // wavelength: number;
-    // resolution: number;
 }
 
 export interface ChunkTexture extends IDefinition {

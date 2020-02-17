@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import NetClient from './NetClient';
 import {
-    PacketHeader, PointPacket, TargetPacket, LootPacket,
+    PacketHeader, PointPacket, TargetPacket, LootPacket, InteractPacket,
 } from '../../common/Packet';
 import LocalUnit, { LocalUnitEvent } from './LocalUnit';
 import Input, { MouseButton } from './Input';
@@ -10,6 +10,7 @@ import CharacterDef from '../../common/CharacterDef';
 import LocalGroundItem from './LocalGroundItem';
 import Graphics from './graphics/Graphics';
 import World from './World';
+import Doodad from './Doodad';
 
 type LocalPlayerEvent = LocalUnitEvent | 'moveTargetUpdated';
 
@@ -32,6 +33,24 @@ export default class LocalPlayer extends LocalUnit {
 
     protected emit(event: LocalPlayerEvent, ...args: any[]): void {
         this.eventEmitter.emit(event, ...args);
+    }
+
+    private tryInteract(intersects: THREE.Intersection[]): boolean {
+        if (Input.mouseStartDown(MouseButton.LEFT)) {
+            for (const int of intersects) {
+                if (int.object.userData.interactable) {
+                    const clickedDoodad = <Doodad>int.object.userData.doodad;
+                    Input.playClickMark(Input.mousePos(), 'red');
+                    NetClient.send(PacketHeader.PLAYER_INTERACT, <InteractPacket>{
+                        uuid: clickedDoodad.def.interact.uuid,
+                        ccx: clickedDoodad.chunk.def.x,
+                        ccy: clickedDoodad.chunk.def.y,
+                    });
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private tryPickUp(intersects: THREE.Intersection[]): boolean {
@@ -98,6 +117,7 @@ export default class LocalPlayer extends LocalUnit {
         if (this.data) {
             if (this.tryTarget(intersects)) return;
             if (this.tryPickUp(intersects)) return;
+            if (this.tryInteract(intersects)) return;
             if (this.tryMove(mousePoint)) return;
         }
     }

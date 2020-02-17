@@ -4556,10 +4556,9 @@ path@^0.11.14:
   resolved "https://registry.yarnpkg.com/path/-/path-0.11.14.tgz#cbc7569355cb3c83afeb4ace43ecff95231e5a7d"
   integrity sha1-y8dWk1XLPIOv60rOQ+z/lSMeWn0=
 
-pathfinding@^0.4.18:
+"pathfinding@https://github.com/tim-ings/PathFinding.js/":
   version "0.4.18"
-  resolved "https://registry.yarnpkg.com/pathfinding/-/pathfinding-0.4.18.tgz#a9990f6fa22b7ef196e5651b049165403a045fe8"
-  integrity sha1-qZkPb6IrfvGW5WUbBJFlQDoEX+g=
+  resolved "https://github.com/tim-ings/PathFinding.js/#30a815b399a693e5283b363878c7b1fa6599c846"
   dependencies:
     heap "0.2.5"
 

@@ -19,10 +19,12 @@ export default class Doodad {
             doodad: this,
         };
         // add this as userdata to all children so we can access it via raycast
+        const userData = {
+            doodad: this,
+            interactable: this.def.interact != null,
+        };
         this.model.obj.traverse((obj) => {
-            obj.userData = {
-                doodad: this,
-            };
+            obj.userData = userData;
         });
         // add the doodad model to the scene
         this.load();
