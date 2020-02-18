@@ -75,10 +75,10 @@ export default class Camera extends THREE.PerspectiveCamera {
 
     private updateKeys(delta: number): void {
         if (Input.isKeyDown('w')) {
-            this.polar -= this.rotateRate * delta;
+            this.polar -= this.rotateRate * delta * 0.8;
             this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
         } else if (Input.isKeyDown('s')) {
-            this.polar += this.rotateRate * delta;
+            this.polar += this.rotateRate * delta * 0.8;
             this.polar = this.clamp(this.polar, this.minPolar, this.maxPolar);
         }
 
