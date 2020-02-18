@@ -212,6 +212,14 @@ export default class LocalUnit {
         if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
         if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
         if (this.movesThisTick > 0) this.targetPosition = Point.fromDef(this.data.moveQueue.shift()).toTile(this.world.chunkWorld);
+
+        // ensure we update out local position fully incase we desync
+        const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
+        if (this.movesThisTick === 0 && !this.currentPosition.eq(dataPos)) {
+            this.targetPosition = dataPos;
+            this.movesThisTick = 1;
+        }
+
         this.moveTimer = 0;
         this.updateModel();
         this.updateAnimation();
@@ -277,7 +285,7 @@ export default class LocalUnit {
     private updateTeleport(): void {
         if (this.currentPosition) {
             const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-            if (this.position.dist(dataPos) > 10) {
+            if (this.position.dist(dataPos) > 3) {
                 this.currentPosition = dataPos;
             }
         }
