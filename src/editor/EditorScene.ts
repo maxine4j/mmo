@@ -33,7 +33,7 @@ import PaintTool, { getBlendMapData } from './tools/terrain/PaintTool';
 import WaterTool from './tools/terrain/WaterTool';
 
 export const contentDef = <ContentDef>_content;
-export const overworldDef = <WorldJsonDef>_overworldDef;
+export const overworldDef = <WorldJsonDef><any>_overworldDef; // FIXME: remove any when interactables fully implemented
 
 // const cSize = 128;
 // export const overworldDef = <WorldJsonDef>{
@@ -59,7 +59,6 @@ TODO:
 
 TODO NEW FEATURES:
     - Invisible doodad in library
-    - Doodad info panel, edit props
     - Place lights, maybe as part of doodads
     - Skybox and amibent light for caves
     - Multiple world support, maybe have WorldListJsonDef or something, ability to switch between worlds

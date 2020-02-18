@@ -1,8 +1,6 @@
 import uuid from 'uuid/v4';
 import { EventEmitter } from 'events';
-import {
-    PointDef, Point, TilePoint, ChunkPoint,
-} from '../../common/Point';
+import { PointDef, Point } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import Unit, { UnitState } from './Unit';
@@ -84,6 +82,7 @@ export default class Spawner {
                 position,
                 moveQueue: [],
                 combatStyle: this.data.unit.combatStyle,
+                interacting: false,
             },
         );
         unit.setStats(this.data.unit.stats);

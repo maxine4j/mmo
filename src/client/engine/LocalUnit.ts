@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { AnimationAction } from 'three/src/animation/AnimationAction';
 import { EventEmitter } from 'events';
 import Model from './graphics/Model';
 import World from './World';
@@ -96,8 +95,17 @@ export default class LocalUnit {
                     this.animController.load(UnitAnimation.FLINCH, 'CombatCritical', THREE.LoopOnce);
                     this.animController.load(UnitAnimation.LOOT, 'Loot', THREE.LoopOnce);
 
+                    this.animController.on('finished', this.animControllerFinished.bind(this));
+
                     this.emit('loaded', this);
                 });
+        }
+    }
+
+    private animControllerFinished(): void {
+        this.targetAngle = null;
+        if (this.killed) { // only mark as stale after death animation has played
+            this.stale = true;
         }
     }
 

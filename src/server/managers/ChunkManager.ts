@@ -9,7 +9,7 @@ import WorldManager from './WorldManager';
 import ChunkDef from '../../common/ChunkDef';
 import IManager from './IManager';
 
-const overworldDef = <WorldJsonDef>_overworldDef;
+const overworldDef = <WorldJsonDef><any>_overworldDef; // FIXME: remove any when interactables fully implemented
 
 export const WALKABLE = 0;
 export const NOT_WALKABLE = 1;

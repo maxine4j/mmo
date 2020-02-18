@@ -1,8 +1,12 @@
 import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
+import { EventEmitter } from 'events';
 import Model from './graphics/Model';
 
+type AnimationControllerEvent = 'finished';
+
 export default class AnimationController<T> {
+    private eventEmitter: EventEmitter = new EventEmitter();
     private model: Model;
     private animations: Map<T, AnimationAction> = new Map();
     private currentLoop: T;
@@ -12,12 +16,21 @@ export default class AnimationController<T> {
         this.model.mixer.addEventListener('finished', this.onMixerFinished.bind(this));
     }
 
+    public on(event: AnimationControllerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.on(event, listener);
+    }
+
+    public off(event: AnimationControllerEvent, listener: (...args: any[]) => void): void {
+        this.eventEmitter.off(event, listener);
+    }
+
+    protected emit(event: AnimationControllerEvent, ...args: any[]): void {
+        this.eventEmitter.emit(event, ...args);
+    }
+
     private onMixerFinished(ev: THREE.Event): void {
         this.play(this.currentLoop);
-        // this.targetAngle = null;
-        // if (this.killed) { // only mark as stale after death animation has played
-        //     this.stale = true;
-        // }
+        this.emit('finished', this, this.currentLoop);
     }
 
     public playOnce(anim: T, clamp: boolean = false): void {
