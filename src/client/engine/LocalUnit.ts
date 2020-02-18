@@ -215,7 +215,7 @@ export default class LocalUnit {
     private updateTeleport(): void {
         if (this.currentPosition) {
             const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-            if (this.position.dist(dataPos) > 3) {
+            if (this.position.dist(dataPos) > 5) {
                 this.currentPosition = dataPos;
             }
         }

@@ -10,6 +10,7 @@ export default class AnimationController<T> {
     private model: Model;
     private animations: Map<T, AnimationAction> = new Map();
     private currentLoop: T;
+    private overrideAnim: T;
 
     public constructor(model: Model) {
         this.model = model;
@@ -29,6 +30,7 @@ export default class AnimationController<T> {
     }
 
     private onMixerFinished(ev: THREE.Event): void {
+        this.overrideAnim = null;
         this.play(this.currentLoop);
         this.emit('finished', this, this.currentLoop);
     }
@@ -40,6 +42,7 @@ export default class AnimationController<T> {
             a.weight = 1;
             a.reset();
             this.model.mixer.stopAllAction();
+            this.overrideAnim = anim;
             a.play();
         }
     }
@@ -80,14 +83,14 @@ export default class AnimationController<T> {
     }
 
     public stopAll(): void {
-        for (const [_, anim] of this.animations) {
-            anim.stop();
+        for (const [id, anim] of this.animations) {
+            if (id !== this.overrideAnim) anim.stop();
         }
     }
 
     public stopAllExcept(execpt: T): void {
         for (const [id, anim] of this.animations) {
-            if (id !== execpt) anim.stop();
+            if (id !== execpt && id !== this.overrideAnim) anim.stop();
         }
     }
 }

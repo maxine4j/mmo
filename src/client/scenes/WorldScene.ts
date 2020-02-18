@@ -145,6 +145,7 @@ export default class WorldScene extends GameScene {
 
         NetClient.on(PacketHeader.PLAYER_EXP_DROP, (p: ExpDropPacket) => {
             if (p.amount > 0) {
+                // TODO: replace this with exp drop popups next to minimap
                 this.chatbox.addRawMessage(`Gained ${p.amount} experience in ${skillName(p.skill)}`);
             }
         });

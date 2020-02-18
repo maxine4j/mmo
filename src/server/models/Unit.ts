@@ -95,7 +95,7 @@ export default class Unit implements IModel {
     }
 
     private inMeleeRange(other: Unit): boolean {
-        return this.distance(other) < 1.5;
+        return this.distance(other) < 2.5;
     }
 
     protected attackUnit(target: Unit): void {
