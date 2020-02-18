@@ -82,6 +82,7 @@ export default interface UnitDef extends IDefinition {
     combatStyle: CombatStyle;
 
     running: boolean;
+    interacting: boolean;
     position: PointDef;
     moveQueue: PointDef[];
 

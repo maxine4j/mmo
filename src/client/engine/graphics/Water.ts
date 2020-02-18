@@ -22,7 +22,8 @@ export default class Water extends Water3 {
             waterColor: def.colour,
             distortionScale: 0.5,
             fog: chunk.world.scene.fog !== undefined,
-            clipBias: reflections ? 0 : -1000,
+            // clipBias: reflections ? 0 : -1000,
+            clipBias: -1000,
         });
 
         this.rotateX(-Math.PI / 2);

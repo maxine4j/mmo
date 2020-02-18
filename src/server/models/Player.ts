@@ -72,6 +72,7 @@ export default class Player extends Unit implements IModel {
     }
 
     public toNet(): CharacterDef {
+        this.data.interacting = this.state === UnitState.INTERACTING;
         return this.data;
     }
 

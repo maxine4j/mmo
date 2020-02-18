@@ -182,6 +182,7 @@ export default class LocalUnit {
             // always be walking, running, or standing
             if (this.isMoving()) {
                 this.animations.get(UnitAnimation.STAND).stop();
+                this.animations.get(UnitAnimation.SPELL_OMNI).stop();
                 if (this.movesThisTick > 1) { // running
                     this.animations.get(UnitAnimation.RUN).play();
                     this.animations.get(UnitAnimation.WALK).stop();
@@ -191,6 +192,12 @@ export default class LocalUnit {
                     this.animations.get(UnitAnimation.RUN).stop();
                     this.currentLoop = UnitAnimation.WALK;
                 }
+            } else if (this.data.interacting) {
+                this.animations.get(UnitAnimation.SPELL_OMNI).play();
+                this.animations.get(UnitAnimation.STAND).stop();
+                this.animations.get(UnitAnimation.WALK).stop();
+                this.animations.get(UnitAnimation.RUN).stop();
+                this.currentLoop = UnitAnimation.SPELL_OMNI;
             } else {
                 this.animations.get(UnitAnimation.STAND).play();
                 this.animations.get(UnitAnimation.WALK).stop();
