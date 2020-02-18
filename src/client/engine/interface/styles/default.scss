@@ -56,6 +56,10 @@ $cur-select: '../../../assets/cursors/select.cur';
         border: 1px solid $border-col;
         border-radius: 0px;
         background-color: $bg-col;
+        display: block;
+
+        // min-width: 100px;
+        // max-width: 250px;
 
         .context-menu-header {
             height: 20px;

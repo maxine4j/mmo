@@ -32,7 +32,7 @@ export default class Chunk {
         this.terrain.receiveShadow = true;
         this.terrain.castShadow = true;
         this.terrain.userData = {
-            chunk: def,
+            chunk: this,
         };
         this.loadDoodads();
         this.positionInWorld();

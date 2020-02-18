@@ -20,6 +20,8 @@ class ContextMenuOption extends Frame {
         this.element.textContent = this.value;
         this.element.value = this.key;
         this.element.classList.add('context-menu-option');
+        this.element.style.width = 'initial';
+        this.element.style.display = 'block';
         this.parent.addChild(this);
         this.style.width = '100%';
     }
@@ -36,7 +38,6 @@ export default class ContextMenu extends Frame {
     public constructor(parent: Frame) {
         super('div', parent);
         this.visible = false;
-        this.width = 120;
         this.element.classList.add('context-menu');
         this.element.addEventListener('mouseleave', (ev: MouseEvent) => { this.close(); });
 
@@ -51,6 +52,7 @@ export default class ContextMenu extends Frame {
         this.style.left = `${point.x - this.width / 2}px`;
         this.style.top = `${point.y - 10}px`;
         this.style.zIndex = (<number> this.strata).toString();
+
         this.show();
     }
 
