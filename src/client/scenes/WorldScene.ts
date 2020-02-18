@@ -179,12 +179,12 @@ export default class WorldScene extends GameScene {
             const defender = this.world.getUnit(packet.defender);
             const attacker = this.world.getUnit(packet.attacker);
             if (attacker) {
-                attacker.animPlayOnce(UnitAnimation.PUNCH);
+                attacker.animController.playOnce(UnitAnimation.PUNCH);
                 attacker.lookAt(defender);
             }
             if (defender) {
                 this.createNameplate(defender);
-                defender.animPlayOnce(UnitAnimation.FLINCH);
+                defender.animController.playOnce(UnitAnimation.FLINCH);
                 defender.lookAt(attacker);
                 const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
                 this.hitsplats.set(splat.id, splat);
