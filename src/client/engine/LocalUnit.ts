@@ -5,7 +5,7 @@ import World from './World';
 import UnitDef from '../../common/UnitDef';
 import { TilePoint, Point } from '../../common/Point';
 import AssetManager from './asset/AssetManager';
-import AnimationController from './AnimationController';
+import AnimationController from './graphics/AnimationController';
 
 export enum UnitAnimation {
     WALK,

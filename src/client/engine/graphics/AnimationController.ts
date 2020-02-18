@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { AnimationAction } from 'three/src/animation/AnimationAction';
 import { EventEmitter } from 'events';
-import Model from './graphics/Model';
+import Model from './Model';
 
 type AnimationControllerEvent = 'finished';
 
