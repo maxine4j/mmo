@@ -1,6 +1,10 @@
 import { Frame, FrameStrata } from './Frame';
 import { Point } from '../../../../common/Point';
+import Graphics from '../../graphics/Graphics';
 
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
 
 class ContextMenuOption extends Frame {
     public key: string;
@@ -49,8 +53,12 @@ export default class ContextMenu extends Frame {
 
     public open(point: Point): void {
         this.style.position = 'fixed';
-        this.style.left = `${point.x - this.width / 2}px`;
-        this.style.top = `${point.y - 10}px`;
+
+        const left = clamp(point.x - this.width / 2, 0, Graphics.viewportWidth - this.width);
+        const top = clamp(point.y - 10, 0, Graphics.viewportHeight - this.height);
+
+        this.style.left = `${left}px`;
+        this.style.top = `${top}px`;
         this.style.zIndex = (<number> this.strata).toString();
 
         this.show();

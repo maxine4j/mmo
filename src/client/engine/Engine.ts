@@ -4,12 +4,10 @@ import Graphics from './graphics/Graphics';
 import NetClient from './NetClient';
 import SceneManager from './scene/SceneManager';
 import GameScene from './scene/GameScene';
-// import Label from './interface/components/Label';
 import UIParent from './interface/components/UIParent';
 
 export default class Engine {
     private static lastrender: number = 0;
-    // private static lblFps: Label;
     private static stats: Stats;
 
     public static init(enableNetworking: boolean = true): void {
@@ -25,7 +23,6 @@ export default class Engine {
         // window.onbeforeunload = () => 'Are you sure you want to quit?';
 
         UIParent.get().clear();
-        // this.lblFps = new Label(UIParent.get(), '');
 
         // prevent default context menu
         const body = document.getElementById('body');

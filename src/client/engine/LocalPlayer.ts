@@ -181,6 +181,10 @@ export default class LocalPlayer extends LocalUnit {
                 });
             }
         }
+        options.push(<ContextOptionDef>{
+            text: 'Cancel',
+            listener: () => {},
+        });
         Input.openContextMenu(Input.mousePos(), options);
     }
 

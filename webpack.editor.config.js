@@ -72,6 +72,6 @@ module.exports = {
         contentBase: path.join(__dirname, 'dist/editor'),
         compress: true,
         port: 9000,
-        // writeToDisk: true,
+        writeToDisk: true,
     },
 };
