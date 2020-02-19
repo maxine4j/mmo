@@ -150,6 +150,15 @@ export default class Unit implements IModel {
             x: Math.round(dest.x),
             y: Math.floor(dest.y),
         });
+        // check if the start and end points are within the grid
+        const gridSize = navmap.matrix.length; // assume square
+        if (navmap.start.x < 0 || navmap.start.x >= gridSize
+            || navmap.start.y < 0 || navmap.start.y >= gridSize
+            || navmap.end.x < 0 || navmap.end.x >= gridSize
+            || navmap.end.y < 0 || navmap.end.y >= gridSize) {
+            return null;
+        }
+
         const grid = new PF.Grid(navmap.matrix);
 
         const finder = new PF.AStarFinder({
