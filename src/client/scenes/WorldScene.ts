@@ -263,19 +263,16 @@ export default class WorldScene extends GameScene {
     }
 
     private updateMousePoint(): void {
-        const intersects = this.camera.rcast(this.scene, Input.mousePos(), true);
-        let found = false;
-        for (const int of intersects) {
+        this.intersects = this.camera.rcast(this.scene.children, Input.mousePos(), true);
+        this.mousePoint = null;
+        for (const int of this.intersects) {
             if (int.object.name === 'terrain') {
                 this.mousePoint = new WorldPoint(int.point, this.world.chunkWorld);
-                this.intersects = intersects;
-                found = true;
                 break;
             }
-        }
-        if (!found) {
-            this.mousePoint = null;
-            this.intersects = [];
+            if ('doodad' in int.object.userData) {
+                console.log(int.object.userData);
+            }
         }
     }
 

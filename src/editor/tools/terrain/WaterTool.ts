@@ -209,7 +209,7 @@ export default class WaterTool extends Tool {
 
         // handle select
         if (this.mode === WaterToolMode.SELECT && Input.wasMousePressed(MouseButton.LEFT)) {
-            const intersects = this.props.camera.rcast(this.props.scene, Input.mousePos(), true);
+            const intersects = this.props.camera.rcast(this.props.scene.children, Input.mousePos());
             for (const ints of intersects) {
                 if (ints.object.userData.water) {
                     console.log('selecting water');

@@ -161,7 +161,7 @@ export default class ChunkTool extends Tool {
     public update(delta: number): void {
         super.update(delta);
         let hoverChunk: PhantomChunk;
-        for (const int of this.props.camera.rcast(this.props.scene, Input.mousePos())) {
+        for (const int of this.props.camera.rcast(this.props.scene.children, Input.mousePos())) {
             if (int.object.name === 'phantom') {
                 hoverChunk = <PhantomChunk>int.object.userData.phantomChunk;
                 if (Input.wasMousePressed(MouseButton.LEFT)) {

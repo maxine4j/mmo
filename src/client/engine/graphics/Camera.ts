@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import Graphics from './Graphics';
 import { Point } from '../../../common/Point';
-import Scene from './Scene';
 import Input, { MouseButton } from '../Input';
 
 export default class Camera extends THREE.PerspectiveCamera {
@@ -44,11 +43,11 @@ export default class Camera extends THREE.PerspectiveCamera {
         return new THREE.Vector3(0, 0, -1).applyQuaternion(this.quaternion);
     }
 
-    public rcast(scene: Scene, p: Point, recursive: boolean = false): THREE.Intersection[] {
+    public rcast(objs: THREE.Object3D[], p: Point, recursive: boolean = false): THREE.Intersection[] {
         const dx = (p.x / Graphics.viewportWidth) * 2 - 1;
         const dy = -(p.y / Graphics.viewportHeight) * 2 + 1;
         this.raycaster.setFromCamera({ x: dx, y: dy }, this);
-        return this.raycaster.intersectObjects(scene.children, recursive);
+        return this.raycaster.intersectObjects(objs, recursive);
     }
 
     protected clamp(n: number, min: number, max: number): number {
