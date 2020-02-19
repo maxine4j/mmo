@@ -74,16 +74,20 @@ module.exports = {
             name: 'MMO',
             short_name: 'MMO',
             description: 'Simple click to move browser MMO',
-            background_color: '#000000',
+            background_color: '#2e2e2e',
+            theme_color: '#2e2e2e',
             crossorigin: 'use-credentials', // can be null, use-credentials or anonymous
             orientation: 'landscape',
             display: 'fullscreen',
-            filename: 'manifest.json',
             icons: [
                 {
                     src: path.resolve('src/client/assets/icon512.png'),
                     sizes: [96, 128, 192, 256, 384, 512], // multiple sizes
                 },
+            ],
+            fingerprints: false,
+            categories: [
+                'games',
             ],
         })],
     devServer: {
