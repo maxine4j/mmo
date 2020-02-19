@@ -7,6 +7,10 @@ import { TilePoint, Point } from '../../common/Point';
 import AssetManager from './asset/AssetManager';
 import AnimationController from './graphics/AnimationController';
 
+const HB_MIN_X = 0.5;
+const HB_MIN_Y = 0.5;
+const HB_MIN_Z = 0.5;
+
 export enum UnitAnimation {
     WALK,
     RUN,
@@ -74,6 +78,7 @@ export default class LocalUnit {
                     this.model = model;
                     this.model.obj.castShadow = true;
                     this.model.obj.receiveShadow = true;
+                    this.model.generateHitbox(HB_MIN_X, HB_MIN_Y, HB_MIN_Z);
                     this.model.obj.traverse((o) => {
                         o.userData = {
                             unit: this,

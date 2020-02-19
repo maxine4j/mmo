@@ -62,6 +62,24 @@ export default class Model {
         }
     }
 
+    public generateHitbox(minX: number, minY: number, minZ: number): void {
+        const aabb = new THREE.Box3().setFromObject(this.obj);
+        const box = new THREE.Mesh(
+            new THREE.BoxBufferGeometry(
+                Math.max(minX, aabb.max.x - aabb.min.x),
+                Math.max(minY, aabb.max.y - aabb.min.y),
+                Math.max(minZ, aabb.max.z - aabb.min.z),
+            ),
+            new THREE.MeshBasicMaterial({
+                wireframe: true,
+                color: new THREE.Color(0xFFFFFF),
+                visible: false,
+            }),
+        );
+        box.translateY((aabb.max.y - aabb.min.y) / 2);
+        this.obj.add(box);
+    }
+
     private addAnim(anim: CachedAnimation): void {
         this.animations.set(anim.id, this.mixer.clipAction(anim.clip));
     }

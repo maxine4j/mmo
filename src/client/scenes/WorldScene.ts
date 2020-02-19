@@ -270,9 +270,6 @@ export default class WorldScene extends GameScene {
                 this.mousePoint = new WorldPoint(int.point, this.world.chunkWorld);
                 break;
             }
-            if ('doodad' in int.object.userData) {
-                console.log(int.object.userData);
-            }
         }
     }
 
