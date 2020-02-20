@@ -27,7 +27,7 @@ import Engine from '../engine/Engine';
 import Minimap from '../engine/interface/Minimap';
 import MinimapOrb from '../engine/interface/MinimapOrb';
 import LogoutTab from '../engine/interface/tabs/LogoutTab';
-import Unit, { UnitAnimation } from '../models/Unit';
+import Unit from '../models/Unit';
 import GroundItem from '../models/GroundItem';
 import UnitManager from '../managers/UnitManager';
 
@@ -173,7 +173,9 @@ export default class WorldScene extends GameScene {
     }
 
     private initNameplates(): void {
-        this.world.on('unitRemoved', this.disposeNameplate.bind(this));
+        this.world.units.on('removed', (self: UnitManager, unit: Unit) => {
+            this.disposeNameplate(unit);
+        });
     }
 
     private initSplats(): void {
@@ -196,10 +198,10 @@ export default class WorldScene extends GameScene {
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
             this.world.player.moveTo(pos);
         });
-        this.world.on('unitAdded', (unit: Unit) => {
+        this.world.units.on('added', (self: UnitManager, unit: Unit) => {
             this.minimap.trackUnit(unit);
         });
-        this.world.on('unitRemoved', (unit: Unit) => {
+        this.world.units.on('removed', (self: UnitManager, unit: Unit) => {
             this.minimap.untrackUnit(unit.data.id);
         });
         this.world.on('groundItemAdded', (gi: GroundItem) => {

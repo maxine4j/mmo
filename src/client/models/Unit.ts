@@ -52,6 +52,8 @@ export default class Unit extends TypedEmitter<UnitEvent> {
 
         this.world = world;
         this.data = data;
+        this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
+
         this.loadModel();
     }
 
@@ -152,11 +154,7 @@ export default class Unit extends TypedEmitter<UnitEvent> {
     }
 
     public tick(): void {
-        // TODO: this line causes camera to scroll over from 0,0,0 on first login
-        if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-
         if (this.path && this.path.length > 0) {
-            // this.currentPosition = Point.fromDef(this.path.pop()).toTile(this.world.chunkWorld);
             this.moveQueue = [];
             this.moveQueue.push(this.path.pop());
             if (this.data.running && this.path.length > 0) {
@@ -165,7 +163,6 @@ export default class Unit extends TypedEmitter<UnitEvent> {
             this.movesThisTick = this.moveQueue.length;
             this.targetPosition = Point.fromDef(this.moveQueue.shift()).toTile(this.world.chunkWorld);
         }
-
 
         this.moveTimer = 0;
         this.updateModel();

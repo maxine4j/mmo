@@ -13,7 +13,7 @@ import { GroundItemDef } from '../../common/ItemDef';
 import Grounditem from './GroundItem';
 import UnitManager from '../managers/UnitManager';
 
-type WorldEvent = 'tick' | 'unitAdded' | 'unitRemoved' | 'groundItemAdded' | 'groundItemRemoved';
+type WorldEvent = 'tick' | 'groundItemAdded' | 'groundItemRemoved';
 
 class World extends TypedEmitter<WorldEvent> {
     public scene: Scene;
@@ -37,15 +37,11 @@ class World extends TypedEmitter<WorldEvent> {
         super();
 
         this.scene = scene;
-
-        this._player = new LocalPlayer(this, info.self);
-        this._player.on('loaded', () => {
-            this.emit('unitAdded', this._player);
-        });
-        this.units.addUnit(this._player);
         this._tickRate = info.tickRate;
         this.chunkViewDist = info.chunkViewDist;
         this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);
+        this._player = new LocalPlayer(this, info.self);
+        this.units.addUnit(this._player);
 
         NetClient.on(PacketHeader.WORLD_TICK, this.tick.bind(this));
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkListPacket) => {
