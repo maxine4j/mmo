@@ -7,7 +7,7 @@ import Chunk from './Chunk';
 import IModel from './IModel';
 import Attack from './Attack';
 
-export type UnitManagerEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick' | 'moved';
+export type UnitEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick' | 'pathed' | 'updated';
 
 export enum UnitState {
     IDLE,
@@ -17,7 +17,7 @@ export enum UnitState {
     INTERACTING,
 }
 
-export default class Unit extends TypedEmitter<UnitManagerEvent> implements IModel {
+export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
     protected world: WorldManager;
     protected data: UnitDef;
     protected stats: CombatStatsDef;
@@ -75,7 +75,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
 
     protected setPath(path: PointDef[]): void {
         this._path = path;
-        this.emit('moved', this, this.position, this.path);
+        this.emit('pathed', this, this.position, this.path);
     }
 
     private calcCombatLevel(): void {
@@ -139,7 +139,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
         this.setPath([]);
         this._state = UnitState.IDLE;
         this.updateChunk();
-        this.emit('moved', this, this.position, this.path);
+        this.emit('pathed', this, this.position, this.path);
     }
 
     protected findPath(dest: PointDef): PointDef[] {
@@ -206,6 +206,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
             if (this.data.running && this.path.length > 0) {
                 this.data.position = this.path.pop();
             }
+            this.emit('updated', this);
             this.updateChunk();
         }
     }

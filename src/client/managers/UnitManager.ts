@@ -19,7 +19,8 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         this.world.on('tick', this.tick.bind(this));
 
         NetClient.on(PacketHeader.UNIT_ADDED, this.handleUnitAdded.bind(this));
-        NetClient.on(PacketHeader.UNIT_MOVED, this.handleUnitMoved.bind(this));
+        NetClient.on(PacketHeader.UNIT_PATHED, this.handleUnitPathed.bind(this));
+        NetClient.on(PacketHeader.UNIT_UPDATED, this.handleUnitUpdated.bind(this));
         NetClient.on(PacketHeader.UNIT_DIED, this.handleUnitDied.bind(this));
         NetClient.on(PacketHeader.UNIT_DAMAGED, this.handleUnitDamaged.bind(this));
     }
@@ -29,7 +30,14 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         this.addUnit(unit);
     }
 
-    private handleUnitMoved(packet: PathPacket): void {
+    private handleUnitUpdated(packet: IDPacket): void {
+        const unit = this.units.get(packet.uuid);
+        if (!unit) {
+            this.requestUnit(packet.uuid);
+        }
+    }
+
+    private handleUnitPathed(packet: PathPacket): void {
         const unit = this.units.get(packet.uuid);
         if (unit) {
             unit.updatePath(packet.start, packet.path);

@@ -2,10 +2,10 @@ import Unit from '../models/Unit';
 import Player from '../models/Player';
 import Client from '../models/Client';
 import {
-    PacketHeader, DamagePacket, TickPacket, Packet, PathPacket, UnitPacket,
+    PacketHeader, TickPacket, Packet,
 } from '../../common/Packet';
 import WorldManager from './WorldManager';
-import { Point, PointDef } from '../../common/Point';
+import { Point } from '../../common/Point';
 
 export default class PlayerManager {
     private world: WorldManager;
@@ -33,32 +33,11 @@ export default class PlayerManager {
     }
 
     private addPlayer(player: Player): void {
-        this.players.set(player.id, player); // WAS: socket.id
-        player.on('moved', (self: Player, start: PointDef, path: PointDef[]) => {
-            this.world.players.emitInRange(
-                self.position,
-                PacketHeader.UNIT_MOVED,
-                <PathPacket>{
-                    uuid: self.id,
-                    start,
-                    path,
-                },
-            );
+        this.players.set(player.id, player);
+        player.on('death', (self: Player, dmg: number, attacker: Unit) => {
+            self.respawn();
+            this.removePlayer(self);
         });
-        player.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
-            for (const p of this.inRange(player.position)) {
-                p.send(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
-                    damage: dmg,
-                    defender: defender.id,
-                    attacker: attacker.id,
-                });
-            }
-        });
-        player.on('death', () => {
-            player.respawn();
-        });
-
-        this.emitInRange(player.position, PacketHeader.UNIT_ADDED, <UnitPacket>player.toNet());
     }
 
     private async removePlayer(player: Player): Promise<void> {

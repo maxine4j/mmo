@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/definitions/CharacterDef';
 import WorldManager from '../managers/WorldManager';
-import Unit, { UnitState, UnitManagerEvent } from './Unit';
+import Unit, { UnitState, UnitEvent } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import Chunk from './Chunk';
@@ -20,7 +20,7 @@ import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
 import Interactable from './Interactable';
 
-type PlayerManagerEvent = UnitManagerEvent | 'saved' | 'levelup';
+type PlayerManagerEvent = UnitEvent | 'saved' | 'levelup' | 'moved';
 
 export default class Player extends Unit implements IModel {
     private socket: io.Socket;

@@ -139,6 +139,8 @@ export default class UnitManager {
         for (const unit of this.inRange(client.player.position)) {
             client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
         }
+
+        this.addUnit(client.player);
     }
 
     public getUnit(id: string): Unit {
@@ -160,17 +162,24 @@ export default class UnitManager {
         return inrange;
     }
 
-    private addUnit(unit: Unit): void {
+    public addUnit(unit: Unit): void {
         this.units.set(unit.id, unit);
-        unit.on('moved', (self: Unit, start: PointDef, path: PointDef[]) => {
+        unit.on('pathed', (self: Unit, start: PointDef, path: PointDef[]) => {
             this.world.players.emitInRange(
                 self.position,
-                PacketHeader.UNIT_MOVED,
+                PacketHeader.UNIT_PATHED,
                 <PathPacket>{
                     uuid: self.id,
                     start,
                     path,
                 },
+            );
+        });
+        unit.on('updated', (self: Unit) => {
+            this.world.players.emitInRange(
+                self.position,
+                PacketHeader.UNIT_UPDATED,
+                <UnitPacket>self.toNet(),
             );
         });
         unit.on('damaged', (self: Unit, dmg: number, attacker: Unit) => {
@@ -192,9 +201,7 @@ export default class UnitManager {
                     uuid: self.id,
                 },
             );
-            this.world.onNextTick(() => {
-                this.removeUnit(unit);
-            });
+            this.removeUnit(unit);
         });
 
         this.world.players.emitInRange(
