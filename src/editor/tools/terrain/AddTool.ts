@@ -1,4 +1,4 @@
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 import Tool from '../../Tool';
 import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';

@@ -76,18 +76,6 @@ export default class Player extends Unit implements IModel {
         return this.data;
     }
 
-    public on(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: PlayerManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
-
     private handleMoveTo(packet: PointPacket): void {
         this.data.target = '';
         this.moveTo(packet);
@@ -199,7 +187,7 @@ export default class Player extends Unit implements IModel {
         // drop inventory?
         this.teleport(new Point(0, 0));
         this.data.health = this.data.maxHealth;
-        this.data.moveQueue = [];
+        this.path = [];
         this.data.target = '';
         this._state = UnitState.IDLE;
         this.stopAttacking();
@@ -233,7 +221,7 @@ export default class Player extends Unit implements IModel {
             this.updateCombatStats();
             skill.current += 1;
             this.send(PacketHeader.PLAYER_LEVELUP, <LevelupPacket>skill.toNet());
-            this.emit('levelup', skill);
+            // this.emit('levelup', skill);
         }
         // update the clients skills tab
         this.send(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{

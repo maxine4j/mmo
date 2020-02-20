@@ -1,5 +1,5 @@
 import PF from 'pathfinding';
-import { EventEmitter } from 'events';
+import { TypedEmitter } from '../../common/TypedEmitter';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
@@ -7,7 +7,7 @@ import Chunk from './Chunk';
 import IModel from './IModel';
 import Attack from './Attack';
 
-export type UnitManagerEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';
+export type UnitManagerEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick' | 'moved';
 
 export enum UnitState {
     IDLE,
@@ -17,12 +17,14 @@ export enum UnitState {
     INTERACTING,
 }
 
-export default class Unit implements IModel {
-    protected eventEmitter: EventEmitter = new EventEmitter();
+export default class Unit extends TypedEmitter<UnitManagerEvent> implements IModel {
     protected world: WorldManager;
     protected data: UnitDef;
     protected stats: CombatStatsDef;
-    protected path: PointDef[];
+
+    private _path: PointDef[];
+    public get path(): PointDef[] { return this._path; }
+    public set path(path: PointDef[]) { this._path = path; this.emit('moved', this, this.path); }
     protected _state: UnitState;
     protected currentChunk: Chunk;
     private attackRate: number = 2;
@@ -45,6 +47,8 @@ export default class Unit implements IModel {
     public lastWanderTick: number = 0;
 
     public constructor(world: WorldManager, data: UnitDef) {
+        super();
+
         this.world = world;
         this.data = data;
         this._state = UnitState.IDLE;
@@ -53,7 +57,7 @@ export default class Unit implements IModel {
 
     public dispose(): void {
         this.currentChunk.units.delete(this.data.id);
-        this.eventEmitter.removeAllListeners();
+        this.removeAllListeners();
     }
 
     public toNet(): UnitDef {
@@ -78,18 +82,6 @@ export default class Unit implements IModel {
         this.data.level = Math.floor(base + Math.max(melee, range, mage));
     }
 
-    public on(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: UnitManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
-
     private distance(other: Unit): number {
         return this.position.dist(other.position);
     }
@@ -111,7 +103,7 @@ export default class Unit implements IModel {
     private retaliate(target: Unit): void {
         this.retaliateTarget = target;
         this._state = UnitState.ATTACKING;
-        this.data.moveQueue = [];
+        this.path = [];
     }
 
     public takeHit(dmg: number, attacker: Unit): void {
@@ -204,16 +196,11 @@ export default class Unit implements IModel {
     }
 
     private tickPath(): void {
-        this.data.moveQueue = [];
         if (this.path && this.path.length > 0) {
-            let nextPos = this.path.pop();
-            this.data.moveQueue.push(nextPos);
+            this.data.position = this.path.pop();
             if (this.data.running && this.path.length > 0) {
-                nextPos = this.path.pop();
-                this.data.moveQueue.push(nextPos);
+                this.data.position = this.path.pop();
             }
-            this.data.position = nextPos;
-            this.emit('updated', this);
             this.updateChunk();
         }
     }

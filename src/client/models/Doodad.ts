@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import { DoodadDef } from '../../common/ChunkDef';
-import Model from './graphics/Model';
+import Model from '../engine/graphics/Model';
 import Chunk from './Chunk';
 import { ChunkPoint } from '../../common/Point';
-import AssetManager from './asset/AssetManager';
+import AssetManager from '../engine/asset/AssetManager';
 
 export default class Doodad {
     public def: DoodadDef;

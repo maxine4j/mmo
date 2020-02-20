@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import * as THREE from 'three';
-import ChunkWorld from '../client/engine/ChunkWorld';
-import Chunk from '../client/engine/Chunk';
+import ChunkWorld from '../client/managers/ChunkManager';
+import Chunk from '../client/models/Chunk';
 import IDefinition from './IDefinition';
 
 interface IPoint<T> {

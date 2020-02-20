@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { Water as Water3 } from 'three/examples/jsm/objects/Water';
-import Chunk from '../Chunk';
+import Chunk from '../../models/Chunk';
 import { WaterDef } from '../../../common/ChunkDef';
 import { ChunkPoint } from '../../../common/Point';
 

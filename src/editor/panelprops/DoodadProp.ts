@@ -3,7 +3,7 @@ import PropsPanel from '../PropsPanel';
 import Panel from '../../client/engine/interface/components/Panel';
 import EditorProps from '../EditorProps';
 import TextboxProp from './TextboxProp';
-import Doodad from '../../client/engine/Doodad';
+import Doodad from '../../client/models/Doodad';
 import SliderProp from './SliderProp';
 
 export default class DoodadProp extends PanelProp {

@@ -1,13 +1,13 @@
 import { EventEmitter } from 'events';
 import Panel from './components/Panel';
 import { Frame } from './components/Frame';
-import World from '../World';
+import World from '../../models/World';
 import Slider from './components/Slider';
 import { TilePoint, Point } from '../../../common/Point';
-import LocalPlayer from '../LocalPlayer';
+import Player from '../../models/Player';
 import MinimapOrb from './MinimapOrb';
-import LocalUnit from '../LocalUnit';
-import LocalGroundItem from '../LocalGroundItem';
+import Unit from '../../models/Unit';
+import GroundItem from '../../models/GroundItem';
 
 type MinimapEvent = 'click';
 
@@ -21,8 +21,8 @@ export default class Minimap extends Panel {
     private orbPanel: Panel;
     private orbs: MinimapOrb[] = [];
 
-    private units: Map<string, LocalUnit> = new Map();
-    private groundItems: Map<string, LocalGroundItem> = new Map();
+    private units: Map<string, Unit> = new Map();
+    private groundItems: Map<string, GroundItem> = new Map();
 
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -65,7 +65,7 @@ export default class Minimap extends Panel {
         this.flag = new Image();
         this.flag.src = 'assets/imgs/flag.png';
 
-        this.world.player.on('moveTargetUpdated', (self: LocalPlayer, target: TilePoint) => {
+        this.world.player.on('moveTargetUpdated', (self: Player, target: TilePoint) => {
             this.flagPos = target;
         });
 
@@ -85,7 +85,7 @@ export default class Minimap extends Panel {
         this.eventEmitter.emit(event, ...args);
     }
 
-    public trackUnit(unit: LocalUnit): void {
+    public trackUnit(unit: Unit): void {
         this.units.set(unit.data.id, unit);
     }
 
@@ -93,11 +93,11 @@ export default class Minimap extends Panel {
         this.units.delete(id);
     }
 
-    public trackGrounItem(gi: LocalGroundItem): void {
+    public trackGrounItem(gi: GroundItem): void {
         this.groundItems.set(gi.def.item.uuid, gi);
     }
 
-    public untrackGroundItem(gi: LocalGroundItem): void {
+    public untrackGroundItem(gi: GroundItem): void {
         this.groundItems.delete(gi.def.item.uuid);
     }
 

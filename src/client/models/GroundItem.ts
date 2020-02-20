@@ -1,10 +1,10 @@
 import { GroundItemDef } from '../../common/ItemDef';
 import World from './World';
-import Model from './graphics/Model';
+import Model from '../engine/graphics/Model';
 import { TilePoint } from '../../common/Point';
-import AssetManager from './asset/AssetManager';
+import AssetManager from '../engine/asset/AssetManager';
 
-export default class LocalGroundItem {
+export default class Grounditem {
     public def: GroundItemDef;
     private world: World;
     public model: Model;

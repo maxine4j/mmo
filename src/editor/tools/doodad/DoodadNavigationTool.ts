@@ -5,7 +5,7 @@ import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
 import { Point, ChunkPoint } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Doodad from '../../../client/engine/Doodad';
+import Doodad from '../../../client/models/Doodad';
 import CheckBoxProp from '../../panelprops/CheckboxProp';
 
 class Navblock {

@@ -7,7 +7,7 @@ import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
 import Scene from '../engine/graphics/Scene';
 import UIParent from '../engine/interface/components/UIParent';
-import World from '../engine/World';
+import World from '../models/World';
 import Input from '../engine/Input';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';
@@ -18,7 +18,6 @@ import {
 import Chatbox from '../engine/interface/Chatbox';
 import ChatHoverMessage from '../engine/interface/components/ChatHoverMessage';
 import { WorldPoint, TilePoint } from '../../common/Point';
-import LocalUnit, { UnitAnimation } from '../engine/LocalUnit';
 import UnitNameplate from '../engine/interface/UnitNameplate';
 import HitSplat from '../engine/interface/HitSplat';
 import BagsTab, { InventorySlot } from '../engine/interface/tabs/BagsTab';
@@ -28,7 +27,8 @@ import Engine from '../engine/Engine';
 import Minimap from '../engine/interface/Minimap';
 import MinimapOrb from '../engine/interface/MinimapOrb';
 import LogoutTab from '../engine/interface/tabs/LogoutTab';
-import LocalGroundItem from '../engine/LocalGroundItem';
+import Unit, { UnitAnimation } from '../models/Unit';
+import GroundItem from '../models/GroundItem';
 
 const nameplateTimeout = 10;
 
@@ -155,7 +155,7 @@ export default class WorldScene extends GameScene {
         });
     }
 
-    private createNameplate(unit: LocalUnit): void {
+    private createNameplate(unit: Unit): void {
         const existing = this.nameplates.get(unit.data.id);
         if (existing == null) {
             const np = new UnitNameplate(this.world, this.camera, unit);
@@ -165,7 +165,7 @@ export default class WorldScene extends GameScene {
         }
     }
 
-    private disposeNameplate(unit: LocalUnit): void {
+    private disposeNameplate(unit: Unit): void {
         const plate = this.nameplates.get(unit.data.id);
         if (plate) plate.dispose();
         this.nameplates.delete(unit.data.id);
@@ -177,8 +177,8 @@ export default class WorldScene extends GameScene {
 
     private initSplats(): void {
         NetClient.on(PacketHeader.UNIT_DAMAGED, (packet: DamagePacket) => {
-            const defender = this.world.getUnit(packet.defender);
-            const attacker = this.world.getUnit(packet.attacker);
+            const defender = this.world.units.getUnit(packet.defender);
+            const attacker = this.world.units.getUnit(packet.attacker);
             if (attacker) {
                 attacker.animController.playOnce(UnitAnimation.PUNCH);
                 attacker.lookAt(defender);
@@ -202,16 +202,16 @@ export default class WorldScene extends GameScene {
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
             this.world.player.moveTo(pos);
         });
-        this.world.on('unitAdded', (unit: LocalUnit) => {
+        this.world.on('unitAdded', (unit: Unit) => {
             this.minimap.trackUnit(unit);
         });
-        this.world.on('unitRemoved', (unit: LocalUnit) => {
+        this.world.on('unitRemoved', (unit: Unit) => {
             this.minimap.untrackUnit(unit.data.id);
         });
-        this.world.on('groundItemAdded', (gi: LocalGroundItem) => {
+        this.world.on('groundItemAdded', (gi: GroundItem) => {
             this.minimap.trackGrounItem(gi);
         });
-        this.world.on('groundItemRemoved', (gi: LocalGroundItem) => {
+        this.world.on('groundItemRemoved', (gi: GroundItem) => {
             this.minimap.untrackGroundItem(gi);
         });
 

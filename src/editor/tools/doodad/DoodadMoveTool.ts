@@ -4,7 +4,7 @@ import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
 import { Point } from '../../../common/Point';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 
 export default class DoodadMoveTool extends BaseDoodadTool {
     private mouseStart: Point;

@@ -80,7 +80,6 @@ export default class Spawner {
                 model: this.data.unit.model,
                 running: false,
                 position,
-                moveQueue: [],
                 combatStyle: this.data.unit.combatStyle,
                 interacting: false,
             },

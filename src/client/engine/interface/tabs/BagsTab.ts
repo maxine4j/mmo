@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import Panel from '../components/Panel';
-import LocalItem from '../../LocalItem';
+import LocalItem from '../../../models/LocalItem';
 import AtlasSprite from '../components/AtlasSprite';
 import InventoryDef from '../../../../common/InventoryDef';
 import Input from '../../Input';

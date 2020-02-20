@@ -2,10 +2,10 @@ import Unit from '../models/Unit';
 import Player from '../models/Player';
 import Client from '../models/Client';
 import {
-    PacketHeader, DamagePacket, TickPacket,
+    PacketHeader, DamagePacket, TickPacket, Packet, UnitMovedPacket,
 } from '../../common/Packet';
 import WorldManager from './WorldManager';
-import { Point } from '../../common/Point';
+import { Point, PointDef } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
 import UnitDef from '../../common/UnitDef';
 import { GroundItemDef } from '../../common/ItemDef';
@@ -36,6 +36,16 @@ export default class PlayerManager implements IManager {
 
     private addPlayer(player: Player): void {
         this.players.set(player.id, player); // WAS: socket.id
+        player.on('moved', (self: Unit, p: PointDef[]) => {
+            this.world.players.emitInRange(
+                self.position,
+                PacketHeader.UNIT_MOVED,
+                <UnitMovedPacket>{
+                    uuid: self.id,
+                    path: self.path,
+                },
+            );
+        });
         player.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
             for (const p of this.inRange(player.position)) {
                 p.send(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
@@ -55,6 +65,12 @@ export default class PlayerManager implements IManager {
         this.players.delete(player.id); // WAS: socket.id
     }
 
+    public emitInRange(point: Point, header: PacketHeader, packet: Packet): void {
+        for (const player of this.inRange(point)) {
+            player.send(header, packet);
+        }
+    }
+
     public inRange(pos: Point, exclude?: Player): Player[] {
         const inrange: Player[] = [];
         const bounds = this.world.viewBounds(pos);
@@ -72,16 +88,8 @@ export default class PlayerManager implements IManager {
     private tick(): void {
         for (const [_, player] of this.players) {
             player.tick(); // tick the player
-            // send players, units, and ground items in range
-            const players: CharacterDef[] = this.inRange(player.position, player).map((p) => p.toNet());
-            const units: UnitDef[] = this.world.units.inRange(player.position).map((u) => u.toNet());
-            // const groundItems: GroundItemDef[] = Array.from(player.visibleGroundItems).map(([id, gi]) => gi.toNet());
-            const groundItems: GroundItemDef[] = this.world.ground.inRange(player.position).map((gi) => gi.toNet());
             player.send(PacketHeader.WORLD_TICK, <TickPacket>{
                 self: player.toNet(),
-                units,
-                players,
-                groundItems,
                 tick: this.world.currentTick,
             });
         }

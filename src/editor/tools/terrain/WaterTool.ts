@@ -7,7 +7,7 @@ import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
 import Water from '../../../client/engine/graphics/Water';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 import { WaterDef } from '../../../common/ChunkDef';
 import SliderProp from '../../panelprops/SliderProp';
 

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 import ChunkDef from '../../common/ChunkDef';
-import ChunkWorld from './ChunkWorld';
+import ChunkWorld from '../managers/ChunkManager';
 import Doodad from './Doodad';
-import TerrainMaterial, { ImageData3D } from './graphics/materials/TerrainMaterial';
-import AssetManager from './asset/AssetManager';
-import Water from './graphics/Water';
+import TerrainMaterial, { ImageData3D } from '../engine/graphics/materials/TerrainMaterial';
+import AssetManager from '../engine/asset/AssetManager';
+import Water from '../engine/graphics/Water';
 
 export default class Chunk {
     public def: ChunkDef;

@@ -7,7 +7,7 @@ import { ChunkPoint } from '../../../common/Point';
 import LibraryProp, { BookCover } from '../../panelprops/LibraryProp';
 import { TerrainTextureAssetDef } from '../../../client/engine/asset/AssetDef';
 import { contentDef, loadImage, defaultBlendSize } from '../../../client/engine/asset/AssetManager';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 import { ChunkTexture } from '../../../common/ChunkDef';
 import { ImageData3D } from '../../../client/engine/graphics/materials/TerrainMaterial';
 

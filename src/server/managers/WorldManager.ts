@@ -1,5 +1,4 @@
 import io from 'socket.io';
-import { EventEmitter } from 'events';
 import {
     PacketHeader, WorldInfoPacket, CharacterPacket, InventoryPacket, SkillsPacket,
 } from '../../common/Packet';
@@ -12,11 +11,11 @@ import Client from '../models/Client';
 import { Point } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 import IManager from './IManager';
+import { TypedEmitter } from '../../common/TypedEmitter';
 
-type WorldEvent = 'tick';
+type WorldManagerEvent = 'tick';
 
-export default class WorldManager implements IManager {
-    private eventEmitter: EventEmitter = new EventEmitter();
+export default class WorldManager extends TypedEmitter<WorldManagerEvent> implements IManager {
     private tickCounter: number = 0;
     private tickRate: number;
     private server: io.Server;
@@ -36,6 +35,8 @@ export default class WorldManager implements IManager {
     public get tileViewDist(): number { return this._tileViewDist; }
 
     public constructor(tickRate: number, server: io.Server) {
+        super();
+
         this.tickRate = tickRate;
         this.server = server;
 
@@ -46,22 +47,6 @@ export default class WorldManager implements IManager {
         this.units = new UnitManager(this);
 
         setTimeout(this.tick.bind(this), this.tickRate * 1000);
-    }
-
-    public on(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    public once(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.once(event, listener);
-    }
-
-    private emit(event: WorldEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     public enterWorld(client: Client): void {

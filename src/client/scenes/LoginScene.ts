@@ -90,6 +90,7 @@ export default class LoginScene extends GameScene {
         this.txtPassword.addEventListener('keypress', (self: TextBox, ev: KeyboardEvent) => {
             if (ev.key === Key.Enter) this.login();
         });
+        this.txtPassword.text = 'asdasd123';
 
         this.dialog = new Dialog(UIParent.get(), '', false);
 

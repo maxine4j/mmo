@@ -23,7 +23,7 @@ import DoodadNavigationTool from './tools/doodad/DoodadNavigationTool';
 import ChunkTool from './tools/chunk/ChunkTool';
 import ButtonProp from './panelprops/ButtonProp';
 import EditorChunkWorld from './EditorChunkWorld';
-import Chunk from '../client/engine/Chunk';
+import Chunk from '../client/models/Chunk';
 import SliderProp from './panelprops/SliderProp';
 import DoodadAddTool from './tools/doodad/DoodadAddTool';
 import _content from '../client/assets/content.json';

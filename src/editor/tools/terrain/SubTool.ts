@@ -2,7 +2,7 @@ import Tool from '../../Tool';
 import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 
 export default class SubTool extends Tool {
     private brush: Brush;

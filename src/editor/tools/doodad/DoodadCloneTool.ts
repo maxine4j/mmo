@@ -4,7 +4,7 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Doodad from '../../../client/engine/Doodad';
+import Doodad from '../../../client/models/Doodad';
 import { DoodadDef, NavblockDef } from '../../../common/ChunkDef';
 
 export default class DoodadCloneTool extends BaseDoodadTool {

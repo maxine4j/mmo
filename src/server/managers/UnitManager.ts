@@ -2,8 +2,10 @@ import Unit from '../models/Unit';
 import Spawner from '../models/Spanwer';
 import UnitSpawnsDef from '../data/UnitSpawnsDef';
 import WorldManager from './WorldManager';
-import { Point } from '../../common/Point';
-import { PacketHeader, DamagePacket } from '../../common/Packet';
+import { Point, PointDef } from '../../common/Point';
+import {
+    PacketHeader, DamagePacket, UnitMovedPacket, IDPacket, UnitPacket,
+} from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/UnitDef';
@@ -104,34 +106,6 @@ const unitSpawnDefs: UnitSpawnsDef = {
         spawnRate: 10,
         lootTable: 0,
     },
-    // 'stress-group': {
-    //     id: 'stress-group',
-    //     unit: {
-    //         id: 'stress',
-    //         name: 'Stress',
-    //         model: 'human',
-    //         combatStyle: CombatStyle.MELEE_AGGRESSIVE,
-    //         stats: {
-    //             attack: 1,
-    //             strength: 1,
-    //             defense: 1,
-    //             hitpoints: 3,
-    //             magic: 1,
-    //             ranged: 1,
-    //             prayer: 1,
-    //             bonuses: noBonuses,
-    //         },
-    //     },
-    //     center: { x: 0, y: 0 },
-    //     spawnRadius: { x: 10, y: 10 },
-    //     wanderRadius: { x: 20, y: 20 },
-    //     leashRadius: { x: 25, y: 25 },
-    //     wanderRate: 5,
-    //     minAlive: 100,
-    //     maxAlive: 100,
-    //     spawnRate: 10,
-    //     lootTable: 0,
-    // },
 };
 
 export default class UnitManager implements IManager {
@@ -151,8 +125,24 @@ export default class UnitManager implements IManager {
         this.world.on('tick', this.tick.bind(this));
     }
 
-    public enterWorld(client: Client): void {}
-    public leaveWorld(client: Client): void {}
+    public enterWorld(client: Client): void {
+        // let the client request units it think it should be able to see
+        client.socket.on(PacketHeader.UNIT_REQUEST, (packet: IDPacket) => {
+            const unit = this.getUnit(packet.uuid);
+            // ensure the client can actually see the unit
+            if (unit.position.dist(client.player.position) < this.world.tileViewDist) {
+                client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
+            }
+        });
+
+        // tell client to add all nearby units
+        for (const unit of this.inRange(client.player.position)) {
+            client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
+        }
+    }
+    public leaveWorld(client: Client): void {
+
+    }
 
     public getUnit(id: string): Unit {
         const unit = this.units.get(id);
@@ -175,20 +165,45 @@ export default class UnitManager implements IManager {
 
     private addUnit(unit: Unit): void {
         this.units.set(unit.id, unit);
-        unit.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
-            for (const player of this.world.players.inRange(unit.position)) {
-                player.send(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
-                    damage: dmg,
-                    defender: defender.id,
-                    attacker: attacker.id,
-                });
-            }
+        unit.on('moved', (self: Unit, p: PointDef[]) => {
+            this.world.players.emitInRange(
+                self.position,
+                PacketHeader.UNIT_MOVED,
+                <UnitMovedPacket>{
+                    uuid: self.id,
+                    path: self.path,
+                },
+            );
         });
-        unit.on('death', (dmg: number, attacker: Unit) => {
+        unit.on('damaged', (self: Unit, dmg: number, attacker: Unit) => {
+            this.world.players.emitInRange(
+                self.position,
+                PacketHeader.UNIT_DAMAGED,
+                <DamagePacket>{
+                    damage: dmg,
+                    defender: self.id,
+                    attacker: attacker.id,
+                },
+            );
+        });
+        unit.on('death', (self: Unit, dmg: number, attacker: Unit) => {
+            this.world.players.emitInRange(
+                self.position,
+                PacketHeader.UNIT_DIED,
+                <IDPacket>{
+                    uuid: self.id,
+                },
+            );
             this.world.onNextTick(() => {
                 this.removeUnit(unit);
             });
         });
+
+        this.world.players.emitInRange(
+            unit.position,
+            PacketHeader.UNIT_ADDED,
+            <UnitPacket>unit.toNet(),
+        );
     }
 
     private removeUnit(unit: Unit): void {

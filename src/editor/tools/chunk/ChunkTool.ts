@@ -6,7 +6,7 @@ import Tool from '../../Tool';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input, { MouseButton } from '../../../client/engine/Input';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import ContextMenu from '../../../client/engine/interface/components/ContextMenu';
 import ButtonProp from '../../panelprops/ButtonProp';

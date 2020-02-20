@@ -1,22 +1,22 @@
 import * as THREE from 'three';
-import NetClient from './NetClient';
+import NetClient from '../engine/NetClient';
 import {
     PacketHeader, PointPacket, TargetPacket, LootPacket, InteractPacket,
 } from '../../common/Packet';
-import LocalUnit, { LocalUnitEvent } from './LocalUnit';
-import Input, { MouseButton } from './Input';
+import Unit, { UnitEvent } from './Unit';
+import Input, { MouseButton } from '../engine/Input';
 import { WorldPoint, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/CharacterDef';
-import LocalGroundItem from './LocalGroundItem';
-import Graphics from './graphics/Graphics';
+import GroundItem from './GroundItem';
+import Graphics from '../engine/graphics/Graphics';
 import World from './World';
 import Doodad from './Doodad';
-import { ContextOptionDef } from './interface/components/ContextMenu';
+import { ContextOptionDef } from '../engine/interface/components/ContextMenu';
 import Chunk from './Chunk';
 
-type LocalPlayerEvent = LocalUnitEvent | 'moveTargetUpdated';
+type PlayerEvent = UnitEvent | 'moveTargetUpdated';
 
-export default class LocalPlayer extends LocalUnit {
+export default class Player extends Unit {
     public data: CharacterDef;
 
     public constructor(world: World, data: CharacterDef) {
@@ -25,16 +25,14 @@ export default class LocalPlayer extends LocalUnit {
         this._isPlayer = true;
     }
 
-    public on(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
+    public on(event: PlayerEvent, listener: (...args: any[]) => void): void {
+        super.on(<any>event, listener);
     }
-
-    public off(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
+    public off(event: PlayerEvent, listener: (...args: any[]) => void): void {
+        super.off(<any>event, listener);
     }
-
-    protected emit(event: LocalPlayerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+    protected emit(event: PlayerEvent, ...args: any[]): void {
+        super.emit(<any>event, ...args);
     }
 
     private tryInteract(intersects: THREE.Intersection[]): boolean {
@@ -59,7 +57,7 @@ export default class LocalPlayer extends LocalUnit {
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             for (const int of intersects) {
                 if ('groundItem' in int.object.userData) {
-                    const clickedItem = <LocalGroundItem>int.object.userData.groundItem;
+                    const clickedItem = <GroundItem>int.object.userData.groundItem;
                     Graphics.setOutlines([clickedItem.model.obj], new THREE.Color(0xFF0000));
                     Input.playClickMark(Input.mousePos(), 'red');
                     NetClient.send(PacketHeader.PLAYER_LOOT, <LootPacket>{ uuid: clickedItem.def.item.uuid });
@@ -75,7 +73,7 @@ export default class LocalPlayer extends LocalUnit {
         if (Input.mouseStartDown(MouseButton.LEFT)) {
             for (const int of intersects) {
                 if ('unit' in int.object.userData) {
-                    const clickedUnit = <LocalUnit>int.object.userData.unit;
+                    const clickedUnit = <Unit>int.object.userData.unit;
                     // but dont target ourselves
                     if (clickedUnit.data.id !== this.world.player.data.id) {
                         this.world.player.data.target = clickedUnit.data.id;
@@ -127,7 +125,7 @@ export default class LocalPlayer extends LocalUnit {
                     },
                 });
             } else if (data.unit) {
-                const unit = <LocalUnit>data.unit;
+                const unit = <Unit>data.unit;
                 if (unit.data.id !== this.world.player.data.id) { // dont target ourselves
                     if (ids.has(unit.data.id)) continue; // only add one set of options per unit intersect
                     ids.add(unit.data.id);
@@ -167,7 +165,7 @@ export default class LocalPlayer extends LocalUnit {
                     },
                 });
             } else if (data.groundItem) {
-                const groundItem = <LocalGroundItem>data.groundItem;
+                const groundItem = <GroundItem>data.groundItem;
                 if (ids.has(groundItem.def.item.uuid)) continue; // only add one set of options per item intersect
                 ids.add(groundItem.def.item.uuid);
                 options.push(<ContextOptionDef>{
@@ -188,9 +186,8 @@ export default class LocalPlayer extends LocalUnit {
         Input.openContextMenu(Input.mousePos(), options);
     }
 
-    public onTick(data: CharacterDef): void {
-        super.onTick(data);
-
+    public tick(): void {
+        super.tick();
         if (this.movesThisTick <= 0) {
             this.emit('moveTargetUpdated', this, null);
         }

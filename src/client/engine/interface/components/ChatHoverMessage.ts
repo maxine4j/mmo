@@ -3,15 +3,15 @@ import Label from './Label';
 import Camera from '../../graphics/Camera';
 import { Point } from '../../../../common/Point';
 import { ChatMsgPacket } from '../../../../common/Packet';
-import World from '../../World';
-import LocalUnit from '../../LocalUnit';
+import World from '../../../models/World';
+import Unit from '../../../models/Unit';
 import UIParent from './UIParent';
 
 const chatHoverHeight = 1.5;
 
 export default class ChatHoverMessage {
     public label: Label;
-    public unit: LocalUnit;
+    public unit: Unit;
     public packet: ChatMsgPacket;
     public world: World;
     public camera: Camera;

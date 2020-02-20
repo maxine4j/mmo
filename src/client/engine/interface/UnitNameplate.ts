@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import Label from './components/Label';
 import Camera from '../graphics/Camera';
-import World from '../World';
-import LocalUnit from '../LocalUnit';
+import World from '../../models/World';
+import Unit from '../../models/Unit';
 import UIParent from './components/UIParent';
 import Panel from './components/Panel';
 import ProgressBar from './components/ProgressBar';
@@ -14,13 +14,13 @@ const nameplatHeight = 1.5;
 export default class UnitNameplate extends Panel {
     public world: World;
     public camera: Camera;
-    public unit: LocalUnit;
+    public unit: Unit;
     public lastTickUpdated: number;
 
     private label: Label;
     private healthbar: ProgressBar;
 
-    public constructor(world: World, camera: Camera, unit: LocalUnit) {
+    public constructor(world: World, camera: Camera, unit: Unit) {
         super(UIParent.get());
         this.world = world;
         this.camera = camera;

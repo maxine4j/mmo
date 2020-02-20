@@ -5,7 +5,7 @@ import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import Input from '../../../client/engine/Input';
 import SliderProp from '../../panelprops/SliderProp';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 
 export default class SetTool extends Tool {
     private brush: Brush;

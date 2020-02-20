@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import Label from './components/Label';
 import Camera from '../graphics/Camera';
-import World from '../World';
-import LocalUnit from '../LocalUnit';
+import World from '../../models/World';
+import Unit from '../../models/Unit';
 import UIParent from './components/UIParent';
 import Panel from './components/Panel';
 
@@ -11,11 +11,11 @@ const splatHeight = 0.75;
 export default class HitSplat extends Panel {
     public world: World;
     public camera: Camera;
-    public unit: LocalUnit;
+    public unit: Unit;
 
     private label: Label;
 
-    public constructor(world: World, camera: Camera, unit: LocalUnit, dmg: number) {
+    public constructor(world: World, camera: Camera, unit: Unit, dmg: number) {
         super(UIParent.get());
         this.world = world;
         this.camera = camera;

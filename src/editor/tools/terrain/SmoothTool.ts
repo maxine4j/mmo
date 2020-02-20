@@ -3,7 +3,7 @@ import Brush from '../../Brush';
 import EditorProps from '../../EditorProps';
 import ToolPanel from '../../ToolPanel';
 import SliderProp from '../../panelprops/SliderProp';
-import Chunk from '../../../client/engine/Chunk';
+import Chunk from '../../../client/models/Chunk';
 
 export default class SmoothTool extends Tool {
     private brush: Brush;

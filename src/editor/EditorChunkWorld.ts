@@ -2,10 +2,10 @@ import uuid from 'uuid/v4';
 import { defaultBlendSize } from '../client/engine/asset/AssetManager';
 import WorldJsonDef from '../server/data/WorldsJsonDef';
 import ChunkDef from '../common/ChunkDef';
-import ChunkWorld from '../client/engine/ChunkWorld';
+import ChunkWorld from '../client/managers/ChunkManager';
 import { TilePoint, ChunkPoint } from '../common/Point';
 import Scene from '../client/engine/graphics/Scene';
-import Chunk from '../client/engine/Chunk';
+import Chunk from '../client/models/Chunk';
 import Map2D from '../common/Map2D';
 import { generateTexture } from './tools/terrain/PaintTool';
 

@@ -84,7 +84,6 @@ export default interface UnitDef extends IDefinition {
     running: boolean;
     interacting: boolean;
     position: PointDef;
-    moveQueue: PointDef[];
 
     target: string;
 }

@@ -35,6 +35,11 @@ export enum PacketHeader {
 
     UNIT_UPDATE = 'UNIT_UPDATE',
     UNIT_DAMAGED = 'UNIT_DAMAGED',
+    UNIT_ADDED = 'UNIT_ADDED',
+    UNIT_MOVED = 'UNIT_MOVED',
+    UNIT_DIED = 'UNIT_DIED',
+
+    UNIT_REQUEST = 'UNIT_REQUEST',
 
     CHAT_EVENT = 'CHAT_EVENT',
 
@@ -79,11 +84,13 @@ export interface CharacterListPacket extends Packet, ResponsePacket {
 
 export interface UnitPacket extends Packet, UnitDef { }
 
+export interface UnitMovedPacket extends Packet {
+    uuid: string;
+    path: PointDef[];
+}
+
 export interface TickPacket extends Packet {
     self: CharacterDef;
-    units: UnitDef[];
-    players: CharacterDef[];
-    groundItems: GroundItemDef[];
     tick: number;
 }
 
@@ -110,6 +117,10 @@ export interface DamagePacket extends Packet {
     attacker: string;
     defender: string;
     damage: number; // could add type here for poision etc
+}
+
+export interface IDPacket extends Packet {
+    uuid: string;
 }
 
 export interface InventorySwapPacket extends Packet {

@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import Scene from '../client/engine/graphics/Scene';
-import Doodad from '../client/engine/Doodad';
+import Doodad from '../client/models/Doodad';
 import Graphics from '../client/engine/graphics/Graphics';
 import { WorldPoint } from '../common/Point';
 import Input from '../client/engine/Input';

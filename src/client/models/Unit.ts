@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import { EventEmitter } from 'events';
-import Model from './graphics/Model';
+import { TypedEmitter } from '../../common/TypedEmitter';
+import Model from '../engine/graphics/Model';
 import World from './World';
 import UnitDef from '../../common/UnitDef';
-import { TilePoint, Point } from '../../common/Point';
-import AssetManager from './asset/AssetManager';
-import AnimationController from './graphics/AnimationController';
+import { TilePoint, Point, PointDef } from '../../common/Point';
+import AssetManager from '../engine/asset/AssetManager';
+import AnimationController from '../engine/graphics/AnimationController';
 
 const HB_MIN_X = 0.5;
 const HB_MIN_Y = 0.5;
@@ -26,26 +26,29 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
-export type LocalUnitEvent = 'loaded' | 'death' | 'disposed';
+export type UnitEvent = 'loaded' | 'death' | 'disposed';
 
-export default class LocalUnit {
+export default class Unit extends TypedEmitter<UnitEvent> {
     public data: UnitDef;
     public world: World;
     public model: Model;
     public animController: AnimationController<UnitAnimation>;
-    public lastTickUpdated: number;
+
     private currentPosition: TilePoint;
     private targetPosition: TilePoint;
     protected movesThisTick: number;
+    protected moveQueue: PointDef[];
     private moveTimer: number;
     private targetAngle: number = null;
-    protected eventEmitter: EventEmitter = new EventEmitter();
     private killed: boolean = false;
-    public stale: boolean = false;
     protected _isPlayer: boolean = false;
     public get isPlayer(): boolean { return this._isPlayer; }
 
+    private path: PointDef[];
+
     public constructor(world: World, data: UnitDef) {
+        super();
+
         this.world = world;
         this.data = data;
         this.loadModel();
@@ -54,19 +57,7 @@ export default class LocalUnit {
     public dispose(): void {
         this.model.dispose();
         this.emit('disposed', this);
-        this.eventEmitter.removeAllListeners();
-    }
-
-    public on(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: LocalUnitEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+        this.removeAllListeners();
     }
 
     public get position(): TilePoint { return this.currentPosition; }
@@ -109,9 +100,6 @@ export default class LocalUnit {
 
     private animControllerFinished(): void {
         this.targetAngle = null;
-        if (this.killed) { // only mark as stale after death animation has played
-            this.stale = true;
-        }
     }
 
     public kill(): void {
@@ -122,13 +110,10 @@ export default class LocalUnit {
     }
 
     private isMoving(): boolean {
-        if (this.movesThisTick > 0) {
-            return true;
-        }
-        return false;
+        return this.moveQueue && this.moveQueue.length > 0;
     }
 
-    public lookAt(other: LocalUnit): void {
+    public lookAt(other: Unit): void {
         const diff = this.currentPosition.sub(other.position);
         this.targetAngle = Math.atan2(diff.y, -diff.x);
     }
@@ -150,18 +135,25 @@ export default class LocalUnit {
         }
     }
 
-    public onTick(u: UnitDef): void {
-        this.data = u;
-        if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-        if (this.data.moveQueue) this.movesThisTick = this.data.moveQueue.length;
-        if (this.movesThisTick > 0) this.targetPosition = Point.fromDef(this.data.moveQueue.shift()).toTile(this.world.chunkWorld);
+    public updatePath(path: PointDef[]): void {
+        this.path = path;
+    }
 
-        // ensure we update out local position fully incase we desync
-        const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-        if (this.movesThisTick === 0 && !this.currentPosition.eq(dataPos)) {
-            this.targetPosition = dataPos;
-            this.movesThisTick = 1;
+    public tick(): void {
+        // TODO: this line causes camera to scroll over from 0,0,0 on first login
+        if (!this.currentPosition) this.currentPosition = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
+
+        if (this.path && this.path.length > 0) {
+            // this.currentPosition = Point.fromDef(this.path.pop()).toTile(this.world.chunkWorld);
+            this.moveQueue = [];
+            this.moveQueue.push(this.path.pop());
+            if (this.data.running && this.path.length > 0) {
+                this.moveQueue.push(this.path.pop());
+            }
+            this.movesThisTick = this.moveQueue.length;
+            this.targetPosition = Point.fromDef(this.moveQueue.shift()).toTile(this.world.chunkWorld);
         }
+
 
         this.moveTimer = 0;
         this.updateModel();
@@ -178,7 +170,9 @@ export default class LocalUnit {
     private updateModel(): void {
         if (this.model) {
             // set the model pos to the current tile position
-            this.model.obj.position.copy(this.currentPosition.toWorld());
+            if (this.currentPosition) {
+                this.model.obj.position.copy(this.currentPosition.toWorld());
+            }
             if (this.targetPosition) {
                 // lerp towards the target
                 this.model.obj.position.lerp(this.targetPosition.toWorld(), Math.min(this.moveTimer, 1));
@@ -203,17 +197,16 @@ export default class LocalUnit {
 
     private updateMovement(delta: number): void {
         this.moveTimer += (delta * this.movesThisTick) / this.world.tickRate;
-        if (this.moveTimer >= 1 - delta) {
-            if (this.targetPosition) {
-                this.currentPosition = this.targetPosition; // update the current position
-            }
-            const nextTarget = Point.fromDef(this.data.moveQueue.shift());
-            if (nextTarget) {
-                this.targetPosition = nextTarget.toTile(this.world.chunkWorld); // get a new target
-            } else {
-                this.targetPosition = null;
-            }
-            this.moveTimer -= 1; // reset the move timer, keep fractional for smooth lerping
+
+        if (this.moveTimer >= 1 - delta) { // we have finished the current move target
+            // update the current position
+            if (this.targetPosition) this.currentPosition = this.targetPosition;
+            // get a new target
+            const nextTarget = Point.fromDef(this.moveQueue.shift());
+            if (nextTarget) this.targetPosition = nextTarget.toTile(this.world.chunkWorld);
+            else this.targetPosition = null;
+            // reset the move timer, keep fractional for smooth lerping
+            this.moveTimer -= 1;
         }
     }
 
@@ -228,11 +221,9 @@ export default class LocalUnit {
 
     public update(delta: number): void {
         if (this.model) {
-            this.updateTeleport();
-            if (this.isMoving()) {
-                this.updateMovement(delta);
-                this.updateModel();
-            }
+            // this.updateTeleport();
+            this.updateMovement(delta);
+            this.updateModel();
             this.updateLookAt();
             this.model.update(delta);
         }
