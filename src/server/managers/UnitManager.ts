@@ -165,13 +165,14 @@ export default class UnitManager implements IManager {
 
     private addUnit(unit: Unit): void {
         this.units.set(unit.id, unit);
-        unit.on('moved', (self: Unit, p: PointDef[]) => {
+        unit.on('moved', (self: Unit, start: PointDef, path: PointDef[]) => {
             this.world.players.emitInRange(
                 self.position,
                 PacketHeader.UNIT_MOVED,
                 <UnitMovedPacket>{
                     uuid: self.id,
-                    path: self.path,
+                    start,
+                    path,
                 },
             );
         });

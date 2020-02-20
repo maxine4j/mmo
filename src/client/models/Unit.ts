@@ -30,21 +30,22 @@ export type UnitEvent = 'loaded' | 'death' | 'disposed';
 
 export default class Unit extends TypedEmitter<UnitEvent> {
     public data: UnitDef;
-    public world: World;
-    public model: Model;
+    protected world: World;
+    private model: Model;
     public animController: AnimationController<UnitAnimation>;
 
-    private currentPosition: TilePoint;
-    private targetPosition: TilePoint;
-    protected movesThisTick: number;
-    protected moveQueue: PointDef[];
-    private moveTimer: number;
-    private targetAngle: number = null;
     private killed: boolean = false;
     protected _isPlayer: boolean = false;
     public get isPlayer(): boolean { return this._isPlayer; }
 
+    // smooth movement
     private path: PointDef[];
+    private currentPosition: TilePoint;
+    private targetPosition: TilePoint;
+    protected movesThisTick: number;
+    private moveQueue: PointDef[];
+    private moveTimer: number;
+    private targetAngle: number = null;
 
     public constructor(world: World, data: UnitDef) {
         super();
@@ -100,6 +101,9 @@ export default class Unit extends TypedEmitter<UnitEvent> {
 
     private animControllerFinished(): void {
         this.targetAngle = null;
+        if (this.killed) {
+            this.emit('death', this);
+        }
     }
 
     public kill(): void {
@@ -110,7 +114,7 @@ export default class Unit extends TypedEmitter<UnitEvent> {
     }
 
     private isMoving(): boolean {
-        return this.moveQueue && this.moveQueue.length > 0;
+        return this.targetPosition != null;
     }
 
     public lookAt(other: Unit): void {
@@ -135,7 +139,15 @@ export default class Unit extends TypedEmitter<UnitEvent> {
         }
     }
 
-    public updatePath(path: PointDef[]): void {
+    public updatePath(start: PointDef, path: PointDef[]): void {
+        // check if we should teleport
+        const dataPos = Point.fromDef(start).toTile(this.world.chunkWorld);
+        if (this.position.dist(dataPos) > 5) {
+            this.moveQueue = [];
+            this.currentPosition = dataPos;
+            this.targetPosition = dataPos;
+        }
+        // update our path
         this.path = path;
     }
 
@@ -186,13 +198,10 @@ export default class Unit extends TypedEmitter<UnitEvent> {
     }
 
     public getWorldPosition(): THREE.Vector3 {
-        if (this.targetPosition) {
-            return this.currentPosition.toWorld().lerp(this.targetPosition.toWorld(), Math.min(this.moveTimer, 1));
+        if (this.model) {
+            return this.model.obj.position.clone();
         }
-        if (this.currentPosition) {
-            return this.currentPosition.toWorld();
-        }
-        return new THREE.Vector3();
+        return null;
     }
 
     private updateMovement(delta: number): void {
@@ -210,18 +219,8 @@ export default class Unit extends TypedEmitter<UnitEvent> {
         }
     }
 
-    private updateTeleport(): void {
-        if (this.currentPosition) {
-            const dataPos = Point.fromDef(this.data.position).toTile(this.world.chunkWorld);
-            if (this.position.dist(dataPos) > 5) {
-                this.currentPosition = dataPos;
-            }
-        }
-    }
-
     public update(delta: number): void {
         if (this.model) {
-            // this.updateTeleport();
             this.updateMovement(delta);
             this.updateModel();
             this.updateLookAt();

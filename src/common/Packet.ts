@@ -3,7 +3,7 @@ import CharacterDef, { SkillDef, ExperienceDrop } from './CharacterDef';
 import { PointDef } from './Point';
 import ChunkDef from './ChunkDef';
 import UnitDef from './UnitDef';
-import ItemDef, { GroundItemDef } from './ItemDef';
+import ItemDef from './ItemDef';
 import InventoryDef, { InventoryType } from './InventoryDef';
 
 export enum PacketHeader {
@@ -86,6 +86,7 @@ export interface UnitPacket extends Packet, UnitDef { }
 
 export interface UnitMovedPacket extends Packet {
     uuid: string;
+    start: PointDef;
     path: PointDef[];
 }
 

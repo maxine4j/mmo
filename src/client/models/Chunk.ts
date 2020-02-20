@@ -101,6 +101,10 @@ export default class Chunk {
             layerCtx.putImageData(data, 0, 0);
             mainCtx.drawImage(layerCanvas, 0, 0);
         }
+
+        // draw chunk border for testing
+        mainCtx.strokeStyle = 'red';
+        mainCtx.strokeRect(0, 0, this.minimapCanvas.width, this.minimapCanvas.height);
     }
 
     public reloadMaterial(): void {

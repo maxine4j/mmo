@@ -1,18 +1,14 @@
 import * as THREE from 'three';
-import { EventEmitter } from 'events';
-import { TypedEmitter, applyMixins } from '../../common/TypedEmitter';
+import { TypedEmitter } from '../../common/TypedEmitter';
 import Scene from '../engine/graphics/Scene';
 import LocalPlayer from './Player';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket, UnitMovedPacket,
+    PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket,
 } from '../../common/Packet';
-import Unit from './Unit';
-import UnitDef from '../../common/UnitDef';
 import ChunkWorld from '../managers/ChunkManager';
 import Chunk from './Chunk';
 import { TilePoint, WorldPoint } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
 import { GroundItemDef } from '../../common/ItemDef';
 import Grounditem from './GroundItem';
 import UnitManager from '../managers/UnitManager';
@@ -51,9 +47,7 @@ class World extends TypedEmitter<WorldEvent> {
         this.chunkViewDist = info.chunkViewDist;
         this.chunkWorld = new ChunkWorld(this.scene, info.chunkSize, info.chunkViewDist);
 
-        NetClient.on(PacketHeader.WORLD_TICK, (p: TickPacket) => {
-            this.onTick(p);
-        });
+        NetClient.on(PacketHeader.WORLD_TICK, this.tick.bind(this));
         NetClient.on(PacketHeader.CHUNK_LOAD, (p: ChunkListPacket) => {
             const chunkLoads: Promise<Chunk>[] = [];
             for (const def of p.chunks) {
@@ -90,9 +84,11 @@ class World extends TypedEmitter<WorldEvent> {
         }
     }
 
-    public onTick(packet: TickPacket): void {
+    private tick(packet: TickPacket): void {
         this._tickTimer = 0; // reset tick timer
         this._currentTick = packet.tick; // update the current tick
+
+        this.player.data = packet.self;
 
         this.emit('tick', this, packet.tick);
     }

@@ -2,13 +2,10 @@ import Unit from '../models/Unit';
 import Player from '../models/Player';
 import Client from '../models/Client';
 import {
-    PacketHeader, DamagePacket, TickPacket, Packet, UnitMovedPacket,
+    PacketHeader, DamagePacket, TickPacket, Packet, UnitMovedPacket, UnitPacket,
 } from '../../common/Packet';
 import WorldManager from './WorldManager';
 import { Point, PointDef } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
-import UnitDef from '../../common/UnitDef';
-import { GroundItemDef } from '../../common/ItemDef';
 import IManager from './IManager';
 
 export default class PlayerManager implements IManager {
@@ -36,13 +33,14 @@ export default class PlayerManager implements IManager {
 
     private addPlayer(player: Player): void {
         this.players.set(player.id, player); // WAS: socket.id
-        player.on('moved', (self: Unit, p: PointDef[]) => {
+        player.on('moved', (self: Player, start: PointDef, path: PointDef[]) => {
             this.world.players.emitInRange(
                 self.position,
                 PacketHeader.UNIT_MOVED,
                 <UnitMovedPacket>{
                     uuid: self.id,
-                    path: self.path,
+                    start,
+                    path,
                 },
             );
         });
@@ -58,6 +56,8 @@ export default class PlayerManager implements IManager {
         player.on('death', () => {
             player.respawn();
         });
+
+        this.emitInRange(player.position, PacketHeader.UNIT_ADDED, <UnitPacket>player.toNet());
     }
 
     private async removePlayer(player: Player): Promise<void> {

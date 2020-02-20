@@ -1,9 +1,9 @@
 import { TypedEmitter } from '../../common/TypedEmitter';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, UnitMovedPacket, UnitPacket, IDPacket,
+    PacketHeader, UnitMovedPacket, UnitPacket, IDPacket, DamagePacket,
 } from '../../common/Packet';
-import Unit from '../models/Unit';
+import Unit, { UnitAnimation } from '../models/Unit';
 import World from '../models/World';
 
 type UnitManagerEvent = 'added' | 'removed' | 'damaged';
@@ -20,6 +20,8 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
 
         NetClient.on(PacketHeader.UNIT_ADDED, this.handleUnitAdded.bind(this));
         NetClient.on(PacketHeader.UNIT_MOVED, this.handleUnitMoved.bind(this));
+        NetClient.on(PacketHeader.UNIT_DIED, this.handleUnitDied.bind(this));
+        NetClient.on(PacketHeader.UNIT_DAMAGED, this.handleUnitDamaged.bind(this));
     }
 
     private handleUnitAdded(packet: UnitPacket): void {
@@ -30,10 +32,33 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
     private handleUnitMoved(packet: UnitMovedPacket): void {
         const unit = this.units.get(packet.uuid);
         if (unit) {
-            unit.updatePath(packet.path);
+            unit.updatePath(packet.start, packet.path);
         } else {
             this.requestUnit(packet.uuid);
         }
+    }
+
+    private handleUnitDied(packet: IDPacket): void {
+        const unit = this.units.get(packet.uuid);
+        if (unit) {
+            unit.kill();
+        }
+    }
+
+    private handleUnitDamaged(packet: DamagePacket): void {
+        const defender = this.getUnit(packet.defender);
+        const attacker = this.getUnit(packet.attacker);
+        if (attacker) {
+            attacker.animController.playOnce(UnitAnimation.PUNCH);
+            attacker.lookAt(defender);
+        }
+        if (defender) {
+            defender.data.health -= packet.damage;
+            defender.animController.playOnce(UnitAnimation.FLINCH);
+            defender.lookAt(attacker);
+        }
+
+        this.emit('damaged', this, packet);
     }
 
     private requestUnit(uuid: string): void {
@@ -49,6 +74,11 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
     public addUnit(unit: Unit): void {
         this.units.set(unit.data.id, unit);
         this.emit('added', this, unit);
+
+        unit.on('death', (self: Unit) => {
+            this.units.delete(self.data.id);
+            self.dispose();
+        });
     }
 
     private tick(world: World, tick: number): void {

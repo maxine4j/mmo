@@ -43,8 +43,7 @@ export default class HitSplat extends Panel {
         this.update();
     }
 
-    private updatePosition(): void {
-        const wpos = this.unit.model.obj.position.clone();
+    private updatePosition(wpos: THREE.Vector3): void {
         wpos.add(new THREE.Vector3(0, splatHeight, 0));
         const pos = this.camera.worldToScreen(wpos);
         this.style.top = `${pos.y - this.height / 2}px`;
@@ -52,11 +51,12 @@ export default class HitSplat extends Panel {
     }
 
     public update(): void {
-        if (this.unit.model) {
-            this.visible = true;
-            this.updatePosition();
+        const wpos = this.unit.getWorldPosition();
+        if (wpos) {
+            this.show();
+            this.updatePosition(wpos);
         } else {
-            this.visible = false;
+            this.hide();
         }
     }
 }

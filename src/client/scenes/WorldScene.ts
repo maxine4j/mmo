@@ -29,6 +29,7 @@ import MinimapOrb from '../engine/interface/MinimapOrb';
 import LogoutTab from '../engine/interface/tabs/LogoutTab';
 import Unit, { UnitAnimation } from '../models/Unit';
 import GroundItem from '../models/GroundItem';
+import UnitManager from '../managers/UnitManager';
 
 const nameplateTimeout = 10;
 
@@ -176,17 +177,10 @@ export default class WorldScene extends GameScene {
     }
 
     private initSplats(): void {
-        NetClient.on(PacketHeader.UNIT_DAMAGED, (packet: DamagePacket) => {
+        this.world.units.on('damaged', (manager: UnitManager, packet: DamagePacket) => {
             const defender = this.world.units.getUnit(packet.defender);
-            const attacker = this.world.units.getUnit(packet.attacker);
-            if (attacker) {
-                attacker.animController.playOnce(UnitAnimation.PUNCH);
-                attacker.lookAt(defender);
-            }
             if (defender) {
                 this.createNameplate(defender);
-                defender.animController.playOnce(UnitAnimation.FLINCH);
-                defender.lookAt(attacker);
                 const splat = new HitSplat(this.world, this.camera, defender, packet.damage);
                 this.hitsplats.set(splat.id, splat);
                 setTimeout(() => {

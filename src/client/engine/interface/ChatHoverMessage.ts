@@ -33,9 +33,12 @@ export default class ChatHoverMessage {
     }
 
     private getScreenPos(): Point {
-        const wpos = this.unit.model.obj.position.clone();
-        wpos.add(new THREE.Vector3(0, chatHoverHeight, 0));
-        return this.camera.worldToScreen(wpos);
+        const wpos = this.unit.getWorldPosition();
+        if (wpos) {
+            wpos.add(new THREE.Vector3(0, chatHoverHeight, 0));
+            return this.camera.worldToScreen(wpos);
+        }
+        return null;
     }
 
     private findUnit(): void {
@@ -54,8 +57,13 @@ export default class ChatHoverMessage {
     public update(): boolean {
         if (!this.destroyed) {
             const pos = this.getScreenPos();
-            this.label.style.top = `${pos.y}px`;
-            this.label.style.left = `${pos.x - this.label.width / 2}px`;
+            if (pos) {
+                this.label.show();
+                this.label.style.top = `${pos.y}px`;
+                this.label.style.left = `${pos.x - this.label.width / 2}px`;
+            } else {
+                this.label.hide();
+            }
         }
         return this.destroyed;
     }

@@ -24,7 +24,6 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
 
     private _path: PointDef[];
     public get path(): PointDef[] { return this._path; }
-    public set path(path: PointDef[]) { this._path = path; this.emit('moved', this, this.path); }
     protected _state: UnitState;
     protected currentChunk: Chunk;
     private attackRate: number = 2;
@@ -74,6 +73,11 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
         this.data.maxHealth = this.stats.hitpoints;
     }
 
+    private setPath(path: PointDef[]): void {
+        this._path = path;
+        this.emit('moved', this, this.position, this.path);
+    }
+
     private calcCombatLevel(): void {
         const base = 0.25 * (this.stats.defense + this.stats.hitpoints + Math.floor(this.stats.prayer / 2));
         const melee = 0.325 * (this.stats.attack + this.stats.defense);
@@ -103,7 +107,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
     private retaliate(target: Unit): void {
         this.retaliateTarget = target;
         this._state = UnitState.ATTACKING;
-        this.path = [];
+        this.setPath([]);
     }
 
     public takeHit(dmg: number, attacker: Unit): void {
@@ -127,14 +131,15 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
 
     public moveTo(dest: PointDef): void {
         this._state = UnitState.IDLE;
-        this.path = this.findPath(dest);
+        this.setPath(this.findPath(dest));
     }
 
     public teleport(pos: Point): void {
         this.data.position = { x: pos.x, y: pos.y };
-        this.path = [];
+        this.setPath([]);
         this._state = UnitState.IDLE;
         this.updateChunk();
+        this.emit('moved', this, this.position, this.path);
     }
 
     protected findPath(dest: PointDef): PointDef[] {
@@ -208,8 +213,9 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
     private tickFollowing(): void {
         // keep following the target unit
         if (this.inMeleeRange(this.target)) {
-            this.path = this.findPath(this.target.data.position);
-            this.path.shift();
+            const newPath = this.findPath(this.target.data.position);
+            newPath.shift();
+            this.setPath(newPath);
         }
     }
 
@@ -222,8 +228,9 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
                 this.emit('attack', this, attack, dmgDone);
                 this.lastAttackTick = this.world.currentTick;
             } else {
-                this.path = this.findPath(this.target.data.position);
-                this.path.shift();
+                const newPath = this.findPath(this.target.data.position);
+                newPath.shift();
+                this.setPath(newPath);
             }
         } else if (this.retaliateTarget) { // this delays retaliation by 1 tick so we get nice turn based combat
             this.attackUnit(this.retaliateTarget);

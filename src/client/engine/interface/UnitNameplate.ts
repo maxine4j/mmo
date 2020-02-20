@@ -55,8 +55,7 @@ export default class UnitNameplate extends Panel {
         this.healthbar.value = this.unit.data.health;
     }
 
-    private updatePosition(): void {
-        const wpos = this.unit.model.obj.position.clone();
+    private updatePosition(wpos: THREE.Vector3): void {
         wpos.add(new THREE.Vector3(0, nameplatHeight, 0));
         const pos = this.camera.worldToScreen(wpos);
         this.style.bottom = `${Graphics.viewportHeight - pos.y}px`;
@@ -64,13 +63,14 @@ export default class UnitNameplate extends Panel {
     }
 
     public update(): void {
-        if (this.unit.model) {
-            this.visible = true;
+        const wpos = this.unit.getWorldPosition();
+        if (wpos) {
+            this.show();
             this.updateLabelText();
             this.updateHealthbar();
-            this.updatePosition();
+            this.updatePosition(wpos);
         } else {
-            this.visible = false;
+            this.hide();
         }
     }
 }
