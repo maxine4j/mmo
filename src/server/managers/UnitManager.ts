@@ -6,7 +6,6 @@ import { Point, PointDef } from '../../common/Point';
 import {
     PacketHeader, DamagePacket, PathPacket, IDPacket, UnitPacket,
 } from '../../common/Packet';
-import IManager from './IManager';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/definitions/UnitDef';
 
@@ -108,7 +107,7 @@ const unitSpawnDefs: UnitSpawnsDef = {
     },
 };
 
-export default class UnitManager implements IManager {
+export default class UnitManager {
     private world: WorldManager;
     private units: Map<string, Unit> = new Map();
     private spawners: Map<string, Spawner> = new Map();
@@ -123,14 +122,15 @@ export default class UnitManager implements IManager {
             });
         }
         this.world.on('tick', this.tick.bind(this));
+        this.world.on('enterworld', this.handleEnterWorld.bind(this));
     }
 
-    public enterWorld(client: Client): void {
+    private handleEnterWorld(world: WorldManager, client: Client): void {
         // let the client request units it think it should be able to see
         client.socket.on(PacketHeader.UNIT_REQUEST, (packet: IDPacket) => {
             const unit = this.getUnit(packet.uuid);
             // ensure the client can actually see the unit
-            if (unit.position.dist(client.player.position) < this.world.tileViewDist) {
+            if (this.world.viewBounds(client.player.position).contains(unit.position)) {
                 client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
             }
         });
@@ -139,9 +139,6 @@ export default class UnitManager implements IManager {
         for (const unit of this.inRange(client.player.position)) {
             client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
         }
-    }
-    public leaveWorld(client: Client): void {
-
     }
 
     public getUnit(id: string): Unit {

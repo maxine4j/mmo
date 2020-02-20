@@ -7,7 +7,6 @@ import _overworldDef from '../data/overworld.json';
 import { PointDef, TilePoint, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
 import ChunkDef from '../../common/definitions/ChunkDef';
-import IManager from './IManager';
 
 const overworldDef = <WorldJsonDef><any>_overworldDef; // FIXME: remove any when interactables fully implemented
 
@@ -21,7 +20,7 @@ export interface Navmap {
     end: Point,
 }
 
-export default class ChunkManager implements IManager {
+export default class ChunkManager {
     private world: WorldManager;
     private chunks: Map2D<number, number, Chunk> = new Map2D();
     private worldDef: WorldJsonDef = overworldDef;
@@ -29,18 +28,17 @@ export default class ChunkManager implements IManager {
 
     public constructor(world: WorldManager) {
         this.world = world;
+        this.world.on('enterworld', this.handleEnterWorld.bind(this));
+
         for (const id in this.worldDef.chunks) {
             this.loadChunk(id);
         }
     }
 
-    public enterWorld(client: Client): void {
+    private handleEnterWorld(world: WorldManager, client: Client): void {
         client.socket.on(PacketHeader.CHUNK_LOAD, (packet) => {
             this.handleChunkLoad(client);
         });
-    }
-
-    public leaveWorld(client: Client): void {
     }
 
     public inRange(pos: PointDef): Set<Chunk> {

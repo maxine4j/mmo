@@ -10,12 +10,11 @@ import UnitManager from './UnitManager';
 import Client from '../models/Client';
 import { Point } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
-import IManager from './IManager';
 import { TypedEmitter } from '../../common/TypedEmitter';
 
-type WorldManagerEvent = 'tick';
+type WorldManagerEvent = 'tick' | 'enterworld' | 'leaveworld';
 
-export default class WorldManager extends TypedEmitter<WorldManagerEvent> implements IManager {
+export default class WorldManager extends TypedEmitter<WorldManagerEvent> {
     private tickCounter: number = 0;
     private tickRate: number;
     private server: io.Server;
@@ -50,9 +49,7 @@ export default class WorldManager extends TypedEmitter<WorldManagerEvent> implem
     }
 
     public enterWorld(client: Client): void {
-        this.chunks.enterWorld(client);
-        this.players.enterWorld(client);
-        this.chat.enterWorld(client);
+        this.emit('enterworld', this, client);
 
         client.socket.on(PacketHeader.WORLD_INFO, () => {
             this.handleWorldInfo(client);
@@ -66,9 +63,7 @@ export default class WorldManager extends TypedEmitter<WorldManagerEvent> implem
     }
 
     public leaveWorld(client: Client): void {
-        this.chunks.leaveWorld(client);
-        this.players.leaveWorld(client);
-        this.chat.leaveWorld(client);
+        this.emit('leaveworld', this, client);
     }
 
     public onNextTick(action: () => void): void {

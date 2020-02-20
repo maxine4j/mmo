@@ -6,22 +6,23 @@ import {
 } from '../../common/Packet';
 import WorldManager from './WorldManager';
 import { Point, PointDef } from '../../common/Point';
-import IManager from './IManager';
 
-export default class PlayerManager implements IManager {
+export default class PlayerManager {
     private world: WorldManager;
     private players: Map<string, Player> = new Map();
 
     public constructor(world: WorldManager) {
         this.world = world;
         this.world.on('tick', this.tick.bind(this));
+        this.world.on('enterworld', this.handleEnterWorld.bind(this));
+        this.world.on('leaveworld', this.handleLeaveWorld.bind(this));
     }
 
-    public enterWorld(client: Client): void {
+    private handleEnterWorld(world: WorldManager, client: Client): void {
         this.addPlayer(client.player);
     }
 
-    public leaveWorld(client: Client): void {
+    private handleLeaveWorld(world: WorldManager, client: Client): void {
         if (client.player) {
             this.removePlayer(client.player);
         }

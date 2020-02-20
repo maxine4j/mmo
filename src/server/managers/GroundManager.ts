@@ -1,13 +1,11 @@
 import { Point, TilePoint } from '../../common/Point';
 import WorldManager from './WorldManager';
-import IManager from './IManager';
-import Client from '../models/Client';
 import ItemEntity from '../entities/Item.entity';
 import GroundItem from '../models/GroundItem';
 
 const itemDespawnTime = 100; // ticks
 
-export default class GroundManager implements IManager {
+export default class GroundManager {
     private world: WorldManager;
     private items: Map<string, GroundItem> = new Map();
 
@@ -15,9 +13,6 @@ export default class GroundManager implements IManager {
         this.world = world;
         this.world.on('tick', this.tick.bind(this));
     }
-
-    public enterWorld(client: Client): void {}
-    public leaveWorld(client: Client): void {}
 
     public inRange(pos: Point): GroundItem[] {
         const inrange: GroundItem[] = [];
