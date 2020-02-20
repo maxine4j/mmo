@@ -1,4 +1,4 @@
-import { PointDef } from './structures/Point';
+import { PointDef } from './Point';
 import IDefinition from './definitions/IDefinition';
 
 export default interface ItemDef extends IDefinition {
