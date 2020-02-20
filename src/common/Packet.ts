@@ -46,13 +46,6 @@ export enum PacketHeader {
     WORLD_TICK = 'WORLD_TICK',
 }
 
-export enum Channel {
-    AUTH,
-    CHARACTER,
-    WORLD,
-    PLAYER
-}
-
 export interface Packet { }
 
 export interface ResponsePacket extends Packet {
@@ -79,7 +72,7 @@ export interface CharacterListPacket extends Packet, ResponsePacket {
 
 export interface UnitPacket extends Packet, UnitDef { }
 
-export interface UnitMovedPacket extends Packet {
+export interface PathPacket extends Packet {
     uuid: string;
     start: PointDef;
     path: PointDef[];
@@ -133,15 +126,7 @@ export interface InventoryDropPacket extends Packet {
     slot: number;
 }
 
-export interface ItemPacket extends Packet, ItemDef {
-    invType: InventoryType;
-}
-
 export interface InventoryPacket extends Packet, InventoryDef { }
-
-export interface LootPacket extends Packet {
-    uuid: string;
-}
 
 export interface InteractPacket extends Packet {
     uuid: string;

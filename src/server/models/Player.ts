@@ -9,7 +9,7 @@ import InventoryManager from './Inventory';
 import CharacterEntity from '../entities/Character.entity';
 import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
-    PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket, InteractPacket,
+    PointPacket, TargetPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket, InteractPacket, IDPacket,
 } from '../../common/Packet';
 import ChunkDef from '../../common/definitions/ChunkDef';
 import IModel from './IModel';
@@ -88,7 +88,7 @@ export default class Player extends Unit implements IModel {
         }
     }
 
-    private handleLoot(packet: LootPacket): void {
+    private handleLoot(packet: IDPacket): void {
         const gi = this.world.ground.getItem(packet.uuid);
         if (gi) {
             this.pickUpItem(gi);

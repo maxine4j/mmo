@@ -4,7 +4,7 @@ import UnitSpawnsDef from '../data/UnitSpawnsDef';
 import WorldManager from './WorldManager';
 import { Point, PointDef } from '../../common/Point';
 import {
-    PacketHeader, DamagePacket, UnitMovedPacket, IDPacket, UnitPacket,
+    PacketHeader, DamagePacket, PathPacket, IDPacket, UnitPacket,
 } from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
@@ -169,7 +169,7 @@ export default class UnitManager implements IManager {
             this.world.players.emitInRange(
                 self.position,
                 PacketHeader.UNIT_MOVED,
-                <UnitMovedPacket>{
+                <PathPacket>{
                     uuid: self.id,
                     start,
                     path,

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, PointPacket, TargetPacket, LootPacket, InteractPacket,
+    PacketHeader, PointPacket, TargetPacket, InteractPacket, IDPacket,
 } from '../../common/Packet';
 import Unit, { UnitEvent } from './Unit';
 import Input, { MouseButton } from '../engine/Input';
@@ -60,7 +60,7 @@ export default class Player extends Unit {
                     const clickedItem = <GroundItem>int.object.userData.groundItem;
                     Graphics.setOutlines([clickedItem.model.obj], new THREE.Color(0xFF0000));
                     Input.playClickMark(Input.mousePos(), 'red');
-                    NetClient.send(PacketHeader.PLAYER_LOOT, <LootPacket>{ uuid: clickedItem.def.item.uuid });
+                    NetClient.send(PacketHeader.PLAYER_LOOT, <IDPacket>{ uuid: clickedItem.def.item.uuid });
                     return true;
                 }
             }
@@ -172,7 +172,7 @@ export default class Player extends Unit {
                     text: `Pick up ${groundItem.def.item.name}`,
                     listener: () => {
                         Input.playClickMark(Input.mousePos(), 'red');
-                        NetClient.send(PacketHeader.PLAYER_LOOT, <LootPacket>{
+                        NetClient.send(PacketHeader.PLAYER_LOOT, <IDPacket>{
                             uuid: groundItem.def.item.uuid,
                         });
                     },
