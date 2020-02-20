@@ -1,7 +1,7 @@
 import {
     Entity, BaseEntity, ManyToOne, Column, PrimaryColumn,
 } from 'typeorm';
-import ItemDef from '../../common/ItemDef';
+import ItemDef from '../../common/definitions/ItemDef';
 import ItemTypeEntity from './ItemType.entity';
 import InventoryEntity from './Inventory.entity';
 

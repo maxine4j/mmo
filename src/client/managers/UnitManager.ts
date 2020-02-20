@@ -72,12 +72,12 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
     }
 
     public addUnit(unit: Unit): void {
-        this.units.set(unit.data.id, unit);
+        this.units.set(unit.data.uuid, unit);
         this.emit('added', this, unit);
 
         unit.on('death', (self: Unit) => {
             this.emit('removed', this, self);
-            this.units.delete(self.data.id);
+            this.units.delete(self.data.uuid);
             self.dispose();
         });
     }

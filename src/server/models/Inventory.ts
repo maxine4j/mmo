@@ -1,5 +1,5 @@
 import { Point } from '../../common/Point';
-import InventoryDef from '../../common/InventoryDef';
+import InventoryDef from '../../common/definitions/InventoryDef';
 import ItemEntity from '../entities/Item.entity';
 import IModel from './IModel';
 import WorldManager from '../managers/WorldManager';

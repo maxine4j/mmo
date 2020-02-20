@@ -1,10 +1,9 @@
-import AccountDef from './AccountDef';
-import CharacterDef, { SkillDef, ExperienceDrop } from './CharacterDef';
+import CharacterDef, { SkillDef, ExperienceDrop } from './definitions/CharacterDef';
 import { PointDef } from './Point';
-import ChunkDef from './ChunkDef';
-import UnitDef from './UnitDef';
-import ItemDef from './ItemDef';
-import InventoryDef, { InventoryType } from './InventoryDef';
+import ChunkDef from './definitions/ChunkDef';
+import UnitDef from './definitions/UnitDef';
+import ItemDef from './definitions/ItemDef';
+import InventoryDef, { InventoryType } from './definitions/InventoryDef';
 
 export enum PacketHeader {
     AUTH_SIGNUP = 'AUTH_SIGNUP',
@@ -13,12 +12,10 @@ export enum PacketHeader {
 
     CHAR_MYLIST = 'CHAR_MYLIST',
     CHAR_CREATE = 'CHAR_CREATE',
-    CHAR_GET = 'CHAR_GET',
 
     PLAYER_ENTERWORLD = 'PLAYER_ENTERWORLD',
     PLAYER_LEAVEWORLD = 'PLAYER_LEAVEWORLD',
     PLAYER_MOVETO = 'PLAYER_MOVETO',
-    PLAYER_UPDATE = 'PLAYER_UPDATE',
     PLAYER_TARGET = 'PLAYER_TARGET',
     PLAYER_LOOT = 'PLAYER_LOOT',
     PLAYER_SKILLS = 'PLAYER_SKILLS',
@@ -29,11 +26,9 @@ export enum PacketHeader {
 
     INVENTORY_SWAP = 'INVENTORY_SWAP',
     INVENTORY_USE = 'INVENTORY_USE',
-    INVENTORY_FULL = 'INVENTORY_FULL',
-    INVENTORY_ITEM = 'INVENTORY_ITEM',
+    INVENTORY_UPDATE = 'INVENTORY_UPDATE',
     INVENTORY_DROP = 'INVENTORY_DROP',
 
-    UNIT_UPDATE = 'UNIT_UPDATE',
     UNIT_DAMAGED = 'UNIT_DAMAGED',
     UNIT_ADDED = 'UNIT_ADDED',
     UNIT_MOVED = 'UNIT_MOVED',
@@ -43,6 +38,8 @@ export enum PacketHeader {
 
     CHAT_EVENT = 'CHAT_EVENT',
 
+    CHUNK_REQUEST = 'CHUNK_REQUEST',
+    CHUNK_DATA = 'CHUNK_DATA',
     CHUNK_LOAD = 'CHUNK_LOAD',
 
     WORLD_INFO = 'WORLD_INFO',
@@ -67,8 +64,6 @@ export interface AuthLoginPacket extends Packet {
     username: string;
     password: string;
 }
-
-export interface AccountPacket extends Packet, ResponsePacket, AccountDef { }
 
 export interface WorldInfoPacket extends Packet {
     self: CharacterDef;

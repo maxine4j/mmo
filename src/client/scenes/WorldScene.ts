@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
-import { skillName, expToLevel } from '../../common/CharacterDef';
-import { InventoryType } from '../../common/InventoryDef';
+import { skillName, expToLevel } from '../../common/definitions/CharacterDef';
+import { InventoryType } from '../../common/definitions/InventoryDef';
 import GameScene from '../engine/scene/GameScene';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
@@ -83,7 +83,7 @@ export default class WorldScene extends GameScene {
                 }
             });
         });
-        NetClient.on(PacketHeader.INVENTORY_FULL, (packet: InventoryPacket) => {
+        NetClient.on(PacketHeader.INVENTORY_UPDATE, (packet: InventoryPacket) => {
             if (packet.type === InventoryType.BAGS) {
                 bagsTab.loadDef(packet);
             }
@@ -157,19 +157,19 @@ export default class WorldScene extends GameScene {
     }
 
     private createNameplate(unit: Unit): void {
-        const existing = this.nameplates.get(unit.data.id);
+        const existing = this.nameplates.get(unit.data.uuid);
         if (existing == null) {
             const np = new UnitNameplate(this.world, this.camera, unit);
-            this.nameplates.set(unit.data.id, np);
+            this.nameplates.set(unit.data.uuid, np);
         } else {
             existing.lastTickUpdated = this.world.currentTick;
         }
     }
 
     private disposeNameplate(unit: Unit): void {
-        const plate = this.nameplates.get(unit.data.id);
+        const plate = this.nameplates.get(unit.data.uuid);
         if (plate) plate.dispose();
-        this.nameplates.delete(unit.data.id);
+        this.nameplates.delete(unit.data.uuid);
     }
 
     private initNameplates(): void {
@@ -202,7 +202,7 @@ export default class WorldScene extends GameScene {
             this.minimap.trackUnit(unit);
         });
         this.world.units.on('removed', (self: UnitManager, unit: Unit) => {
-            this.minimap.untrackUnit(unit.data.id);
+            this.minimap.untrackUnit(unit.data.uuid);
         });
         this.world.on('groundItemAdded', (gi: GroundItem) => {
             this.minimap.trackGrounItem(gi);

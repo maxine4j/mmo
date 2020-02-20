@@ -8,7 +8,7 @@ import {
 } from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
-import { CombatStyle } from '../../common/UnitDef';
+import { CombatStyle } from '../../common/definitions/UnitDef';
 
 const noBonuses = {
     equipment: {

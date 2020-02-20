@@ -70,7 +70,7 @@ export default class Spawner {
         const unit = new Unit(
             this.world,
             {
-                id,
+                uuid: id,
                 target: '',
                 autoRetaliate: true,
                 health: null,

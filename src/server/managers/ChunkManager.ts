@@ -6,7 +6,7 @@ import { PacketHeader, ChunkListPacket } from '../../common/Packet';
 import _overworldDef from '../data/overworld.json';
 import { PointDef, TilePoint, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import IManager from './IManager';
 
 const overworldDef = <WorldJsonDef><any>_overworldDef; // FIXME: remove any when interactables fully implemented

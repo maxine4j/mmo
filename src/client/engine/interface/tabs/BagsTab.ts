@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events';
 import Panel from '../components/Panel';
-import LocalItem from '../../../models/LocalItem';
+import Item from '../../../models/Item';
 import AtlasSprite from '../components/AtlasSprite';
-import InventoryDef from '../../../../common/InventoryDef';
+import InventoryDef from '../../../../common/definitions/InventoryDef';
 import Input from '../../Input';
 import { Point } from '../../../../common/Point';
 import TabContainer from '../TabContainer';
@@ -24,11 +24,11 @@ type InventoryEvent = 'swap' | 'use' | 'drop';
 
 export class InventorySlot extends Panel {
     public icon: AtlasSprite;
-    private _item: LocalItem;
+    private _item: Item;
     public slot: number;
     public inventory: BagsTab;
 
-    public constructor(item: LocalItem, slot: number, parent: BagsTab) {
+    public constructor(item: Item, slot: number, parent: BagsTab) {
         super(parent);
         this.inventory = parent;
         this.element.draggable = true;
@@ -75,8 +75,8 @@ export class InventorySlot extends Panel {
         });
     }
 
-    public get item(): LocalItem { return this._item; }
-    public set item(i: LocalItem) { this._item = i; this.updateIcon(); }
+    public get item(): Item { return this._item; }
+    public set item(i: Item) { this._item = i; this.updateIcon(); }
 
     private initDragging(): void {
         this.element.addEventListener('dragstart', (ev: DragEvent) => {
@@ -152,7 +152,7 @@ export default class BagsTab extends BaseTab {
 
     public loadDef(def: InventoryDef): void {
         for (const idef of def.items) {
-            this.setSlot(idef.slot, new LocalItem(idef));
+            this.setSlot(idef.slot, new Item(idef));
         }
     }
 
@@ -166,7 +166,7 @@ export default class BagsTab extends BaseTab {
         this.emit('swap', slotA, slotB);
     }
 
-    public setSlot(slot: number, item: LocalItem): void {
+    public setSlot(slot: number, item: Item): void {
         const itemSlot = this.slots.get(slot);
         itemSlot.item = item;
     }

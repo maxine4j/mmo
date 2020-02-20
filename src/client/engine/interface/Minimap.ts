@@ -86,7 +86,7 @@ export default class Minimap extends Panel {
     }
 
     public trackUnit(unit: Unit): void {
-        this.units.set(unit.data.id, unit);
+        this.units.set(unit.data.uuid, unit);
     }
 
     public untrackUnit(id: string): void {

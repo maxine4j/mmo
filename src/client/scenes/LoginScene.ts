@@ -1,6 +1,6 @@
 import { AmbientLight } from 'three';
 import { Key } from 'ts-key-enum';
-import { AccountPacket, PacketHeader, AuthLoginPacket } from '../../common/Packet';
+import { ResponsePacket, PacketHeader, AuthLoginPacket } from '../../common/Packet';
 import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
@@ -33,7 +33,7 @@ export default class LoginScene extends GameScene {
         NetClient.sendRecv(PacketHeader.AUTH_LOGIN, <AuthLoginPacket>{
             username: this.txtUsername.text,
             password: this.txtPassword.text,
-        }).then((resp: AccountPacket) => {
+        }).then((resp: ResponsePacket) => {
             if (resp.success) {
                 if (this.cbRememberEmail.checked) {
                     localStorage.setItem('rememberedEmail', this.txtUsername.text);

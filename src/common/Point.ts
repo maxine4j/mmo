@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import ChunkWorld from '../client/managers/ChunkManager';
 import Chunk from '../client/models/Chunk';
-import IDefinition from './IDefinition';
+import IDefinition from './definitions/IDefinition';
 
 interface IPoint<T> {
     x: number;

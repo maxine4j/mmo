@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn, OneToMany, FindConditions, FindOneOptions,
 } from 'typeorm';
-import CharacterDef, { Race } from '../../common/CharacterDef';
+import CharacterDef, { Race } from '../../common/definitions/CharacterDef';
 import AccountEntity from './Account.entity';
 import InventoryEntity from './Inventory.entity';
 import SkillEntity from './Skill.entity';
@@ -52,7 +52,7 @@ export default class CharacterEntity extends BaseEntity {
     // converts a db entity to a network character
     public toNet(): CharacterDef {
         const char = <CharacterDef>{
-            id: this.id.toString(),
+            uuid: this.id.toString(),
             name: this.name,
             level: this.level,
             race: this.race,

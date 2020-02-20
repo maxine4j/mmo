@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import ChunkWorld from '../managers/ChunkManager';
 import Doodad from './Doodad';
 import TerrainMaterial, { ImageData3D } from '../engine/graphics/materials/TerrainMaterial';

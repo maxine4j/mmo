@@ -5,7 +5,7 @@ import BaseTab, { setUpTabPanel } from '../BaseTab';
 import Label from '../components/Label';
 import {
     SkillDef, expToLevel, skillName,
-} from '../../../../common/CharacterDef';
+} from '../../../../common/definitions/CharacterDef';
 import { Point } from '../../../../common/Point';
 import Input from '../../Input';
 import AssetManager from '../../asset/AssetManager';

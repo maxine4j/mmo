@@ -1,7 +1,6 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
 } from 'typeorm';
-import AccountDef from '../../common/AccountDef';
 import CharacterEntity from './Character.entity';
 
 @Entity()
@@ -20,12 +19,4 @@ export default class AccountEntity extends BaseEntity {
 
     @OneToMany((type) => CharacterEntity, (character) => character.account)
     public characters: CharacterEntity[];
-
-    // converts a db entity to a network account
-    public toNet(): AccountDef {
-        const a = <AccountDef>{
-            email: this.email,
-        };
-        return a;
-    }
 }

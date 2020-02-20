@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, Unique, ManyToOne,
 } from 'typeorm';
-import { SkillDef } from '../../common/CharacterDef';
+import { SkillDef } from '../../common/definitions/CharacterDef';
 import CharacterEntity from './Character.entity';
 import SkillTypeEntity from './SkillType.entity';
 

@@ -5,7 +5,7 @@ import Model from '../graphics/Model';
 import CachedModel from './CachedModel';
 import _content from '../../assets/content.json';
 import SpriteAtlas from './SpriteAtlas';
-import ChunkDef from '../../../common/ChunkDef';
+import ChunkDef from '../../../common/definitions/ChunkDef';
 
 export const contentDef = <ContentDef>_content;
 

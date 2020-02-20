@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { TypedEmitter } from '../../common/TypedEmitter';
 import Model from '../engine/graphics/Model';
 import World from './World';
-import UnitDef from '../../common/UnitDef';
+import UnitDef from '../../common/definitions/UnitDef';
 import { TilePoint, Point, PointDef } from '../../common/Point';
 import AssetManager from '../engine/asset/AssetManager';
 import AnimationController from '../engine/graphics/AnimationController';

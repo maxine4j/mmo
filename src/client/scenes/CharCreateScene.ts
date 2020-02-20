@@ -3,7 +3,7 @@ import GameScene from '../engine/scene/GameScene';
 import Button from '../engine/interface/components/Button';
 import UIParent from '../engine/interface/components/UIParent';
 import SceneManager from '../engine/scene/SceneManager';
-import CharacterDef, { Race } from '../../common/CharacterDef';
+import CharacterDef, { Race } from '../../common/definitions/CharacterDef';
 import Panel from '../engine/interface/components/Panel';
 import Label from '../engine/interface/components/Label';
 import NetClient from '../engine/NetClient';

@@ -1,14 +1,14 @@
 import io from 'socket.io';
 import uuid from 'uuid/v4';
 import bcrypt from 'bcrypt';
-import { expToLevel, Skill } from '../common/CharacterDef';
+import { expToLevel, Skill } from '../common/definitions/CharacterDef';
 import {
-    AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
+    AuthLoginPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../common/Packet';
 import AccountEntity from './entities/Account.entity';
 import CharacterEntity from './entities/Character.entity';
 import InventoryEntity from './entities/Inventory.entity';
-import { InventoryType } from '../common/InventoryDef';
+import { InventoryType } from '../common/definitions/InventoryDef';
 import ItemEntity from './entities/Item.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
 import SkillEntity from './entities/Skill.entity';
@@ -66,7 +66,7 @@ export async function handleSignup(session: io.Socket, packet: AuthLoginPacket):
 }
 
 // log a user in with plaintext password (TEMP)
-export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): Promise<AccountPacket> {
+export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): Promise<ResponsePacket> {
     console.log(`User ${packet.username} is attempting to log in`);
     const account = await AccountEntity.createQueryBuilder()
         .where('LOWER(email) = LOWER(:username)', { username: packet.username })
@@ -76,7 +76,7 @@ export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): 
     if (account && await bcrypt.compare(packet.password, account.passwordHash)) {
         if (account.session != null) {
             console.log(`User ${packet.username} is already logged in`);
-            return <AccountPacket>{
+            return <ResponsePacket>{
                 success: false,
                 message: 'This account is already logged in',
             };
@@ -85,14 +85,14 @@ export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): 
         console.log(`User ${packet.username} logged in successfully on ${account.session}`);
         account.save();
 
-        const ap = <AccountPacket>account.toNet();
-        ap.success = true;
-        ap.message = `logged in as ${account.email}`;
-        return ap;
+        return <ResponsePacket>{
+            success: true,
+            message: `logged in as ${account.email}`,
+        };
     }
 
     console.log(`User ${packet.username} provided incorrect login details`);
-    return <AccountPacket>{
+    return <ResponsePacket>{
         success: false,
         message: 'Incorrect username or password',
     };

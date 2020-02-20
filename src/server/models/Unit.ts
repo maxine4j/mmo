@@ -2,7 +2,7 @@ import PF from 'pathfinding';
 import { TypedEmitter } from '../../common/TypedEmitter';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
-import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
 import Attack from './Attack';
@@ -29,13 +29,13 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
     private attackRate: number = 2;
     private lastAttackTick: number = 0;
     private retaliateTarget: Unit;
-    public get id(): string { return this.data.id; }
+    public get id(): string { return this.data.uuid; }
     public get dead(): boolean { return this.data.health <= 0; }
     public get running(): boolean { return this.data.running; }
     public set running(r: boolean) { this.data.running = r; }
     public get position(): Point { return Point.fromDef(this.data.position); }
     public get target(): Unit { return this.world.units.getUnit(this.data.target); }
-    public set target(unit: Unit) { this.data.target = unit.data.id; }
+    public set target(unit: Unit) { this.data.target = unit.data.uuid; }
     public get state(): UnitState { return this._state; }
     public get name(): string { return this.data.name; }
     public get health(): number { return this.data.health; }
@@ -55,7 +55,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
     }
 
     public dispose(): void {
-        this.currentChunk.units.delete(this.data.id);
+        this.currentChunk.units.delete(this.data.uuid);
         this.removeAllListeners();
     }
 
@@ -73,7 +73,7 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
         this.data.maxHealth = this.stats.hitpoints;
     }
 
-    private setPath(path: PointDef[]): void {
+    protected setPath(path: PointDef[]): void {
         this._path = path;
         this.emit('moved', this, this.position, this.path);
     }
@@ -175,14 +175,14 @@ export default class Unit extends TypedEmitter<UnitManagerEvent> implements IMod
     }
 
     protected addToNewChunk(chunk: Chunk): void {
-        chunk.units.set(this.data.id, this);
-        chunk.allUnits.set(this.data.id, this);
+        chunk.units.set(this.data.uuid, this);
+        chunk.allUnits.set(this.data.uuid, this);
         this.currentChunk = chunk;
     }
 
     protected removeFromOldChunk(): void {
-        this.currentChunk.units.delete(this.data.id);
-        this.currentChunk.allUnits.delete(this.data.id);
+        this.currentChunk.units.delete(this.data.uuid);
+        this.currentChunk.allUnits.delete(this.data.uuid);
     }
 
     private updateChunk(): void {

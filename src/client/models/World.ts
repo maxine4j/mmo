@@ -9,13 +9,13 @@ import {
 import ChunkWorld from '../managers/ChunkManager';
 import Chunk from './Chunk';
 import { TilePoint, WorldPoint } from '../../common/Point';
-import { GroundItemDef } from '../../common/ItemDef';
+import { GroundItemDef } from '../../common/definitions/ItemDef';
 import Grounditem from './GroundItem';
 import UnitManager from '../managers/UnitManager';
 
 type WorldEvent = 'tick' | 'groundItemAdded' | 'groundItemRemoved';
 
-class World extends TypedEmitter<WorldEvent> {
+export default class World extends TypedEmitter<WorldEvent> {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
     public players: Map<string, LocalPlayer> = new Map();
@@ -98,5 +98,3 @@ class World extends TypedEmitter<WorldEvent> {
         this._tickTimer += delta;
     }
 }
-
-export default World;

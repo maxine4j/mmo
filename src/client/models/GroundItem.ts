@@ -1,4 +1,4 @@
-import { GroundItemDef } from '../../common/ItemDef';
+import { GroundItemDef } from '../../common/definitions/ItemDef';
 import World from './World';
 import Model from '../engine/graphics/Model';
 import { TilePoint } from '../../common/Point';

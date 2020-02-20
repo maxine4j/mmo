@@ -1,7 +1,7 @@
 import ItemEntity from '../entities/Item.entity';
 import { Point } from '../../common/Point';
 import IModel from './IModel';
-import { GroundItemDef } from '../../common/ItemDef';
+import { GroundItemDef } from '../../common/definitions/ItemDef';
 import WorldManager from '../managers/WorldManager';
 
 export default class GroundItem implements IModel {

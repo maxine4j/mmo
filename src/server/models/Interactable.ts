@@ -1,5 +1,5 @@
 import { Point } from '../../common/Point';
-import { DoodadDef } from '../../common/ChunkDef';
+import { DoodadDef } from '../../common/definitions/ChunkDef';
 import Chunk from './Chunk';
 import Player from './Player';
 import _actions from '../data/actions.json';

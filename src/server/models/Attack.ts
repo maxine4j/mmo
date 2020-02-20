@@ -1,5 +1,5 @@
-import { Skill, ExperienceDrop } from '../../common/CharacterDef';
-import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import { Skill, ExperienceDrop } from '../../common/definitions/CharacterDef';
+import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Unit from './Unit';
 
 function styleBonusAttack(style: CombatStyle): number {

@@ -1,4 +1,4 @@
-import { PointDef } from './Point';
+import { PointDef } from '../Point';
 import IDefinition from './IDefinition';
 
 export enum CombatStyle {
@@ -71,7 +71,7 @@ export interface CombatStatsDef {
 }
 
 export default interface UnitDef extends IDefinition {
-    id: string;
+    uuid: string;
     name: string;
     level: number;
     model: string;

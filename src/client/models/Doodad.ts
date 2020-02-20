@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { DoodadDef } from '../../common/ChunkDef';
+import { DoodadDef } from '../../common/definitions/ChunkDef';
 import Model from '../engine/graphics/Model';
 import Chunk from './Chunk';
 import { ChunkPoint } from '../../common/Point';

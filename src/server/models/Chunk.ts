@@ -1,12 +1,12 @@
-import InteractableDef from '../../common/InteractableDef';
-import ChunkDef from '../../common/ChunkDef';
+import InteractableDef from '../../common/definitions/InteractableDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import { Point, PointDef } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
 import Unit from './Unit';
 import Player from './Player';
 import IModel from './IModel';
 import GroundItem from './GroundItem';
-import { Skill } from '../../common/CharacterDef';
+import { Skill } from '../../common/definitions/CharacterDef';
 import Interactable from './Interactable';
 import WorldManager from '../managers/WorldManager';
 

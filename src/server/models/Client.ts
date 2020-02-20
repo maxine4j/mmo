@@ -62,7 +62,7 @@ export default class Client {
 
     private handlePlayerEnterWorld(packet: CharacterPacket): void {
         if (packet) {
-            CharacterEntity.findOneSorted({ id: Number(packet.id) }).then((ce) => {
+            CharacterEntity.findOneSorted({ id: Number(packet.uuid) }).then((ce) => {
                 this.player = new Player(this.world, ce, this);
                 this.world.enterWorld(this);
             });

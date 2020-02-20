@@ -6,7 +6,7 @@ import {
 import Unit, { UnitEvent } from './Unit';
 import Input, { MouseButton } from '../engine/Input';
 import { WorldPoint, TilePoint } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
+import CharacterDef from '../../common/definitions/CharacterDef';
 import GroundItem from './GroundItem';
 import Graphics from '../engine/graphics/Graphics';
 import World from './World';
@@ -75,8 +75,8 @@ export default class Player extends Unit {
                 if ('unit' in int.object.userData) {
                     const clickedUnit = <Unit>int.object.userData.unit;
                     // but dont target ourselves
-                    if (clickedUnit.data.id !== this.world.player.data.id) {
-                        this.world.player.data.target = clickedUnit.data.id;
+                    if (clickedUnit.data.uuid !== this.world.player.data.uuid) {
+                        this.world.player.data.target = clickedUnit.data.uuid;
                         // Graphics.setOutlines([clickedUnit.model.obj], new THREE.Color(0xFF0000));
                         Input.playClickMark(Input.mousePos(), 'red');
                         NetClient.send(PacketHeader.PLAYER_TARGET, <TargetPacket>{ target: this.world.player.data.target });
@@ -126,13 +126,13 @@ export default class Player extends Unit {
                 });
             } else if (data.unit) {
                 const unit = <Unit>data.unit;
-                if (unit.data.id !== this.world.player.data.id) { // dont target ourselves
-                    if (ids.has(unit.data.id)) continue; // only add one set of options per unit intersect
-                    ids.add(unit.data.id);
+                if (unit.data.uuid !== this.world.player.data.uuid) { // dont target ourselves
+                    if (ids.has(unit.data.uuid)) continue; // only add one set of options per unit intersect
+                    ids.add(unit.data.uuid);
                     options.push(<ContextOptionDef>{
                         text: `Attack ${unit.data.name} (level-${unit.data.level})`,
                         listener: () => {
-                            this.world.player.data.target = unit.data.id;
+                            this.world.player.data.target = unit.data.uuid;
                             Input.playClickMark(Input.mousePos(), 'red');
                             NetClient.send(PacketHeader.PLAYER_TARGET, <TargetPacket>{ target: this.world.player.data.target });
                         },

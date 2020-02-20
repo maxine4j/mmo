@@ -3,7 +3,7 @@ import LootTableEntity from './entities/LootTable.entity';
 import LootTableItemEntity from './entities/LootTableItem.entity';
 import LootTableEntryEntity from './entities/LootTableEntry.entity';
 import SkillTypeEntity from './entities/SkillType.entity';
-import { Skill } from '../common/CharacterDef';
+import { Skill } from '../common/definitions/CharacterDef';
 
 async function initSkills(): Promise<void> {
     await Promise.all([

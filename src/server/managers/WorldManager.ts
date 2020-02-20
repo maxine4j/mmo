@@ -59,7 +59,7 @@ export default class WorldManager extends TypedEmitter<WorldManagerEvent> implem
         });
 
         client.socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>client.player.toNet());
-        client.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>client.player.bags.toNet());
+        client.socket.emit(PacketHeader.INVENTORY_UPDATE, <InventoryPacket>client.player.bags.toNet());
         client.socket.emit(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
             skills: client.player.skills.map((s) => s.toNet()),
         });

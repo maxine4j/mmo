@@ -1,5 +1,5 @@
 import Chunk from '../models/Chunk';
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import Scene from '../engine/graphics/Scene';
 import Map2D from '../../common/Map2D';
 import { TilePoint } from '../../common/Point';

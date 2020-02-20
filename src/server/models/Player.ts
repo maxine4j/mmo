@@ -1,5 +1,5 @@
 import io from 'socket.io';
-import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/CharacterDef';
+import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/definitions/CharacterDef';
 import WorldManager from '../managers/WorldManager';
 import Unit, { UnitState, UnitManagerEvent } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
@@ -11,12 +11,12 @@ import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
     PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket, InteractPacket,
 } from '../../common/Packet';
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import IModel from './IModel';
 import Client from './Client';
 import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
-import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
 import Interactable from './Interactable';
 
@@ -64,7 +64,7 @@ export default class Player extends Unit implements IModel {
     public async dispose(): Promise<void> {
         super.dispose();
         await this.save();
-        this.currentChunk.players.delete(this.data.id);
+        this.currentChunk.players.delete(this.data.uuid);
     }
 
     public send(header: PacketHeader, packet: Packet): void {
@@ -130,19 +130,19 @@ export default class Player extends Unit implements IModel {
         if (this.interactTarget) {
             this._state = UnitState.INTERACTING;
             console.log('Pathing to interact at:', this.interactTarget.position);
-            this.path = this.findPath(this.interactTarget.position);
+            this.setPath(this.findPath(this.interactTarget.position));
         }
     }
 
     protected addToNewChunk(chunk: Chunk): void {
-        chunk.players.set(this.data.id, this);
-        chunk.allUnits.set(this.data.id, this);
+        chunk.players.set(this.data.uuid, this);
+        chunk.allUnits.set(this.data.uuid, this);
         this.currentChunk = chunk;
     }
 
     protected removeFromOldChunk(): void {
-        this.currentChunk.players.delete(this.data.id);
-        this.currentChunk.allUnits.delete(this.data.id);
+        this.currentChunk.players.delete(this.data.uuid);
+        this.currentChunk.allUnits.delete(this.data.uuid);
     }
 
     public pruneLoadedChunks(): void {
@@ -159,7 +159,7 @@ export default class Player extends Unit implements IModel {
     }
 
     public sendBagData(): void {
-        this.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket> this.bags.toNet());
+        this.socket.emit(PacketHeader.INVENTORY_UPDATE, <InventoryPacket> this.bags.toNet());
     }
 
     public sendSurroundingChunks(): void {
@@ -187,7 +187,7 @@ export default class Player extends Unit implements IModel {
         // drop inventory?
         this.teleport(new Point(0, 0));
         this.data.health = this.data.maxHealth;
-        this.path = [];
+        this.setPath([]);
         this.data.target = '';
         this._state = UnitState.IDLE;
         this.stopAttacking();
@@ -288,7 +288,7 @@ export default class Player extends Unit implements IModel {
     public pickUpItem(gi: GroundItem): void {
         this._state = UnitState.LOOTING;
         this.lootTarget = gi;
-        this.path = this.findPath(gi.position);
+        this.setPath(this.findPath(gi.position));
     }
 
     public teleport(pos: Point): void {
