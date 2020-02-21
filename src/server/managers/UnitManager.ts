@@ -4,7 +4,7 @@ import UnitSpawnsDef from '../data/UnitSpawnsDef';
 import WorldManager from './WorldManager';
 import { Point, PointDef } from '../../common/Point';
 import {
-    PacketHeader, DamagePacket, PathPacket, IDPacket, UnitPacket,
+    PacketHeader, DamagePacket, PathPacket, IDPacket, UnitPacket, UnitAddPacket,
 } from '../../common/Packet';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/definitions/UnitDef';
@@ -131,13 +131,28 @@ export default class UnitManager {
             const unit = this.getUnit(packet.uuid);
             // ensure the client can actually see the unit
             if (this.world.viewBounds(client.player.position).contains(unit.position)) {
-                client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
+                client.socket.emit(
+                    PacketHeader.UNIT_ADDED,
+                    <UnitAddPacket>{
+                        unit: unit.toNet(),
+                        start: unit.position.toNet(),
+                        path: unit.path,
+                    },
+                );
             }
         });
 
         // tell client to add all nearby units
         for (const unit of this.inRange(client.player.position)) {
-            client.socket.emit(PacketHeader.UNIT_ADDED, <UnitPacket>unit.toNet());
+            client.socket.emit(
+                PacketHeader.UNIT_ADDED,
+                PacketHeader.UNIT_ADDED,
+                <UnitAddPacket>{
+                    unit: unit.toNet(),
+                    start: unit.position.toNet(),
+                    path: unit.path,
+                },
+            );
         }
 
         this.addUnit(client.player);

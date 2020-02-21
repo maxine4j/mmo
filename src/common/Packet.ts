@@ -73,6 +73,12 @@ export interface CharacterListPacket extends Packet, ResponsePacket {
 
 export interface UnitPacket extends Packet, UnitDef { }
 
+export interface UnitAddPacket extends Packet {
+    unit: UnitDef;
+    start: PointDef;
+    path: PointDef[];
+}
+
 export interface PathPacket extends Packet {
     uuid: string;
     start: PointDef;

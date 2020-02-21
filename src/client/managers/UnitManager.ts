@@ -1,7 +1,7 @@
 import { TypedEmitter } from '../../common/TypedEmitter';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, PathPacket, UnitPacket, IDPacket, DamagePacket,
+    PacketHeader, PathPacket, UnitPacket, IDPacket, DamagePacket, UnitAddPacket,
 } from '../../common/Packet';
 import Unit, { UnitAnimation } from '../models/Unit';
 import World from '../models/World';
@@ -25,8 +25,9 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         NetClient.on(PacketHeader.UNIT_DAMAGED, this.handleUnitDamaged.bind(this));
     }
 
-    private handleUnitAdded(packet: UnitPacket): void {
-        const unit = new Unit(this.world, packet);
+    private handleUnitAdded(packet: UnitAddPacket): void {
+        const unit = new Unit(this.world, packet.unit);
+        unit.updatePath(packet.start, packet.path);
         this.addUnit(unit);
     }
 
