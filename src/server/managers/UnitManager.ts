@@ -123,6 +123,7 @@ export default class UnitManager {
         }
         this.world.on('tick', this.tick.bind(this));
         this.world.on('enterworld', this.handleEnterWorld.bind(this));
+        this.world.on('leaveworld', this.handleLeaveWorld.bind(this));
     }
 
     private handleEnterWorld(world: WorldManager, client: Client): void {
@@ -156,6 +157,16 @@ export default class UnitManager {
         }
 
         this.addUnit(client.player);
+    }
+
+    private handleLeaveWorld(world: WorldManager, client: Client): void {
+        this.world.players.emitInRange(
+            client.player.position,
+            PacketHeader.UNIT_REMOVED,
+            <IDPacket>{
+                uuid: client.player.id,
+            },
+        );
     }
 
     public getUnit(id: string): Unit {

@@ -19,6 +19,7 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         this.world.on('tick', this.tick.bind(this));
 
         NetClient.on(PacketHeader.UNIT_ADDED, this.handleUnitAdded.bind(this));
+        NetClient.on(PacketHeader.UNIT_REMOVED, this.handleUnitRemoved.bind(this));
         NetClient.on(PacketHeader.UNIT_PATHED, this.handleUnitPathed.bind(this));
         NetClient.on(PacketHeader.UNIT_UPDATED, this.handleUnitUpdated.bind(this));
         NetClient.on(PacketHeader.UNIT_DIED, this.handleUnitDied.bind(this));
@@ -29,6 +30,13 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         const unit = new Unit(this.world, packet.unit);
         unit.updatePath(packet.start, packet.path);
         this.addUnit(unit);
+    }
+
+    private handleUnitRemoved(packet: IDPacket): void {
+        const unit = this.getUnit(packet.uuid);
+        if (unit != null) {
+            this.removeUnit(unit);
+        }
     }
 
     private handleUnitUpdated(packet: IDPacket): void {
@@ -80,7 +88,7 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         return this.units.get(uuid);
     }
 
-    public addUnit(unit: Unit): void {
+    private addUnit(unit: Unit): void {
         this.units.set(unit.data.uuid, unit);
         this.emit('added', this, unit);
 
@@ -89,6 +97,11 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
             this.units.delete(self.data.uuid);
             self.dispose();
         });
+    }
+
+    private removeUnit(unit: Unit): void {
+        unit.dispose();
+        this.units.delete(unit.data.uuid);
     }
 
     private tick(world: World, tick: number): void {
