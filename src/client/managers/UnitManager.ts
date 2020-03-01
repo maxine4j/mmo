@@ -80,7 +80,7 @@ class UnitManager extends EventEmitter {
             attacker.lookAt(defender);
         }
         if (defender) {
-            defender.data.health -= packet.damage;
+            // defender.data.health -= packet.damage;
             defender.animController.playOnce(UnitAnimation.FLINCH);
             defender.lookAt(attacker);
         }
