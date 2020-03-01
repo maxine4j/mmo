@@ -132,22 +132,15 @@ export default class UnitManager {
         this.world.on('leaveworld', this.handleLeaveWorld.bind(this));
     }
 
-    private sendUnitUpdated(client: Client, unit: Unit): void {
-        client.socket.emit(
-            PacketHeader.UNIT_UPDATED,
-            <UnitPacket>{
-                unit: unit.toNet(),
-                start: unit.position.toNet(),
-                path: unit.path,
-            },
-        );
-    }
-
     private handleEnterWorld(world: WorldManager, client: Client): void {
         // tell client to add all nearby units
-        for (const unit of this.inRange(client.player.position)) {
-            client.socket.emit(PacketHeader.UNIT_UPDATED, buildUnitUpdate(unit));
-        }
+        setTimeout(() => { // FIXME: players do not recv existing stationary units on joining world without timeout...
+            for (const unit of this.inRange(client.player.position)) {
+                if (unit.isPlayer) console.log('ENTER_WORLD unit is a player!!! sending to', client.player.name, 'the units', unit.name);
+                client.socket.emit(PacketHeader.UNIT_UPDATED, buildUnitUpdate(unit));
+            }
+        }, 1000);
+
 
         this.addUnit(client.player);
     }
@@ -217,11 +210,7 @@ export default class UnitManager {
         this.world.players.emitInRange(
             unit.position,
             PacketHeader.UNIT_ADDED,
-            <UnitPacket>{
-                unit: unit.toNet(),
-                start: unit.position.toNet(),
-                path: unit.path,
-            },
+            buildUnitUpdate(unit),
         );
     }
 

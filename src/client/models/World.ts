@@ -26,8 +26,9 @@ declare interface World {
 class World extends EventEmitter {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
-    public players: Map<string, LocalPlayer> = new Map();
-    public groundItems: Map<string, GroundItem> = new Map();
+    public readonly players: Map<string, LocalPlayer> = new Map();
+    public readonly units: UnitManager = new UnitManager(this);
+    public readonly groundItems: Map<string, GroundItem> = new Map();
     private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
@@ -39,7 +40,6 @@ class World extends EventEmitter {
     public get tickProgression(): number { return this._tickTimer / this._tickRate; }
     public get currentTick(): number { return this._currentTick; }
 
-    public readonly units: UnitManager = new UnitManager(this);
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
         super();
