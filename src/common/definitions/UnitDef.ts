@@ -75,6 +75,7 @@ export default interface UnitDef extends IDefinition {
     name: string;
     level: number;
     model: string;
+    isPlayer: boolean;
 
     health: number;
     maxHealth: number;

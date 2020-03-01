@@ -3,7 +3,7 @@ import NetClient from '../engine/NetClient';
 import {
     PacketHeader, PointPacket, TargetPacket, InteractPacket, IDPacket,
 } from '../../common/Packet';
-import Unit, { UnitEvent } from './Unit';
+import Unit from './Unit';
 import Input, { MouseButton } from '../engine/Input';
 import { WorldPoint, TilePoint } from '../../common/Point';
 import CharacterDef from '../../common/definitions/CharacterDef';
@@ -14,25 +14,25 @@ import Doodad from './Doodad';
 import { ContextOptionDef } from '../engine/interface/components/ContextMenu';
 import Chunk from './Chunk';
 
-type PlayerEvent = UnitEvent | 'moveTargetUpdated';
+declare interface Player extends Unit {
+    emit(event: 'loaded', self: Player): boolean;
+    emit(event: 'death', self: Player): boolean;
+    emit(event: 'disposed', self: Player): boolean;
+    emit(event: 'moveTargetUpdated', self: Player, pos: TilePoint): boolean;
 
-export default class Player extends Unit {
+    on(event: 'loaded', listener: (self: Player) => void): this;
+    on(event: 'death', listener: (self: Player) => void): this;
+    on(event: 'disposed', listener: (self: Player) => void): this;
+    on(event: 'moveTargetUpdated', listener: (self: Player, pos: TilePoint) => void): this;
+}
+
+class Player extends Unit {
     public data: CharacterDef;
 
     public constructor(world: World, data: CharacterDef) {
         super(world, data);
 
         this._isPlayer = true;
-    }
-
-    public on(event: PlayerEvent, listener: (...args: any[]) => void): void {
-        super.on(<any>event, listener);
-    }
-    public off(event: PlayerEvent, listener: (...args: any[]) => void): void {
-        super.off(<any>event, listener);
-    }
-    protected emit(event: PlayerEvent, ...args: any[]): void {
-        super.emit(<any>event, ...args);
     }
 
     private tryInteract(intersects: THREE.Intersection[]): boolean {
@@ -206,3 +206,5 @@ export default class Player extends Unit {
         }
     }
 }
+
+export default Player;

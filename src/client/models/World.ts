@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TypedEmitter } from '../../common/TypedEmitter';
+import { EventEmitter } from 'events';
 import Scene from '../engine/graphics/Scene';
 import LocalPlayer from './Player';
 import NetClient from '../engine/NetClient';
@@ -10,16 +10,24 @@ import ChunkWorld from '../managers/ChunkManager';
 import Chunk from './Chunk';
 import { TilePoint, WorldPoint } from '../../common/Point';
 import { GroundItemDef } from '../../common/definitions/ItemDef';
-import Grounditem from './GroundItem';
+import GroundItem from './GroundItem';
 import UnitManager from '../managers/UnitManager';
 
-type WorldEvent = 'tick' | 'groundItemAdded' | 'groundItemRemoved';
+declare interface World {
+    emit(event: 'tick', self: World, tick: number): boolean;
+    emit(event: 'groundItemAdded', self: World, item: GroundItem): boolean;
+    emit(event: 'groundItemRemoved', self: World, item: GroundItem): boolean;
 
-export default class World extends TypedEmitter<WorldEvent> {
+    on(event: 'tick', listener: (self: World, tick: number) => void): this;
+    on(event: 'groundItemAdded', listener: (self: World, item: GroundItem) => void): this;
+    on(event: 'groundItemRemoved', listener: (self: World, item: GroundItem) => void): this;
+}
+
+class World extends EventEmitter {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
     public players: Map<string, LocalPlayer> = new Map();
-    public groundItems: Map<string, Grounditem> = new Map();
+    public groundItems: Map<string, GroundItem> = new Map();
     private _player: LocalPlayer;
     private _tickTimer: number;
     private _tickRate: number;
@@ -62,9 +70,9 @@ export default class World extends TypedEmitter<WorldEvent> {
         for (const def of giDefs) {
             let gi = this.groundItems.get(def.item.uuid);
             if (!gi) {
-                gi = new Grounditem(this, def);
+                gi = new GroundItem(this, def);
                 this.groundItems.set(def.item.uuid, gi);
-                this.emit('groundItemAdded', gi);
+                this.emit('groundItemAdded', this, gi);
             }
             gi.lastTickUpdated = tick;
         }
@@ -75,7 +83,7 @@ export default class World extends TypedEmitter<WorldEvent> {
             if (gi.lastTickUpdated !== this._currentTick) {
                 gi.dispose();
                 this.groundItems.delete(id);
-                this.emit('groundItemRemoved', gi);
+                this.emit('groundItemRemoved', this, gi);
             }
         }
     }
@@ -98,3 +106,5 @@ export default class World extends TypedEmitter<WorldEvent> {
         this._tickTimer += delta;
     }
 }
+
+export default World;

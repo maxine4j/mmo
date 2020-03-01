@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { TypedEmitter } from '../../common/TypedEmitter';
+import { EventEmitter } from 'events';
 import Model from '../engine/graphics/Model';
 import World from './World';
 import UnitDef from '../../common/definitions/UnitDef';
@@ -26,9 +26,17 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
-export type UnitEvent = 'loaded' | 'death' | 'disposed';
+declare interface Unit {
+    emit(event: 'loaded', self: Unit): boolean;
+    emit(event: 'death', self: Unit): boolean;
+    emit(event: 'disposed', self: Unit): boolean;
 
-export default class Unit extends TypedEmitter<UnitEvent> {
+    on(event: 'loaded', listener: (self: Unit) => void): this;
+    on(event: 'death', listener: (self: Unit) => void): this;
+    on(event: 'disposed', listener: (self: Unit) => void): this;
+}
+
+class Unit extends EventEmitter {
     public data: UnitDef;
     protected world: World;
     private model: Model;
@@ -225,3 +233,5 @@ export default class Unit extends TypedEmitter<UnitEvent> {
         }
     }
 }
+
+export default Unit;

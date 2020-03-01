@@ -2,8 +2,7 @@ import CharacterDef, { SkillDef, ExperienceDrop } from './definitions/CharacterD
 import { PointDef } from './Point';
 import ChunkDef from './definitions/ChunkDef';
 import UnitDef from './definitions/UnitDef';
-import ItemDef from './definitions/ItemDef';
-import InventoryDef, { InventoryType } from './definitions/InventoryDef';
+import InventoryDef from './definitions/InventoryDef';
 
 export enum PacketHeader {
     AUTH_SIGNUP = 'AUTH_SIGNUP',
@@ -29,14 +28,12 @@ export enum PacketHeader {
     INVENTORY_UPDATE = 'INVENTORY_UPDATE',
     INVENTORY_DROP = 'INVENTORY_DROP',
 
-    UNIT_DAMAGED = 'UNIT_DAMAGED',
-    UNIT_ADDED = 'UNIT_ADDED',
-    UNIT_REMOVED = 'UNIT_REMOVED',
-    UNIT_PATHED = 'UNIT_PATHED',
     UNIT_UPDATED = 'UNIT_UPDATED',
+    UNIT_DAMAGED = 'UNIT_DAMAGED',
+    UNIT_ACTION = 'UNIT_ACTION',
+    UNIT_ADDED = 'UNIT_ADDED',
     UNIT_DIED = 'UNIT_DIED',
-
-    UNIT_REQUEST = 'UNIT_REQUEST',
+    UNIT_REMOVED = 'UNIT_REMOVED',
 
     CHAT_EVENT = 'CHAT_EVENT',
 
@@ -72,9 +69,7 @@ export interface CharacterListPacket extends Packet, ResponsePacket {
     characters: CharacterDef[];
 }
 
-export interface UnitPacket extends Packet, UnitDef { }
-
-export interface UnitAddPacket extends Packet {
+export interface UnitPacket extends Packet {
     unit: UnitDef;
     start: PointDef;
     path: PointDef[];

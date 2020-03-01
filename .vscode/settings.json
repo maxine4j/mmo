@@ -1,5 +1,12 @@
 {
     "editor.codeActionsOnSave": {
         "source.fixAll": true
-    }
+    },
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex"
+    ]
 }

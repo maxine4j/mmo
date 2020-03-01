@@ -1,7 +1,7 @@
 import io from 'socket.io';
 import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/definitions/CharacterDef';
 import WorldManager from '../managers/WorldManager';
-import Unit, { UnitState, UnitEvent } from './Unit';
+import Unit, { UnitState } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import Chunk from './Chunk';
@@ -20,9 +20,29 @@ import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
 import Interactable from './Interactable';
 
-type PlayerManagerEvent = UnitEvent | 'saved' | 'levelup' | 'moved';
+declare interface Player extends Unit {
+    // unit
+    emit(event: 'updated', self: Player): boolean;
+    emit(event: 'tick', self: Player): boolean;
+    emit(event: 'damaged', self: Player, dmg: number, attacker: Unit): boolean;
+    emit(event: 'death', self: Player, dmg: number, attacker: Unit): boolean;
+    emit(event: 'attack', self: Player, attack: Attack, dmg: number): boolean;
 
-export default class Player extends Unit implements IModel {
+    on(event: 'updated', listener: (self: Player) => void): this;
+    on(event: 'tick', listener: (self: Player) => void): this;
+    on(event: 'damaged', listener: (self: Player, dmg: number, attacker: Unit) => void): this;
+    on(event: 'death', listener: (self: Player, dmg: number, attacker: Unit) => void): this;
+    on(event: 'attack', listener: (self: Player, attack: Attack, dmg: number) => void): this;
+
+    // player
+    emit(event: 'saved', self: Player): boolean;
+    emit(event: 'levelup', self: Player): boolean;
+
+    on(event: 'saved', listener: (self: Player) => void): this;
+    on(event: 'levelup', listener: (self: Player) => void): this;
+}
+
+class Player extends Unit implements IModel {
     private socket: io.Socket;
     protected data: CharacterDef;
     private entity: CharacterEntity;
@@ -38,6 +58,7 @@ export default class Player extends Unit implements IModel {
     public constructor(world: WorldManager, entity: CharacterEntity, client: Client) {
         super(world, entity.toNet());
         this.entity = entity;
+        this.data.isPlayer = true;
 
         this.updateCombatStats();
 
@@ -121,6 +142,7 @@ export default class Player extends Unit implements IModel {
 
     private handleSetRun(packet: BooleanPacket): void {
         this.data.running = packet.value;
+        this.emit('updated', this);
     }
 
     private handleInteract(packet: InteractPacket): void {
@@ -136,13 +158,12 @@ export default class Player extends Unit implements IModel {
 
     protected addToNewChunk(chunk: Chunk): void {
         chunk.players.set(this.data.uuid, this);
-        chunk.allUnits.set(this.data.uuid, this);
-        this.currentChunk = chunk;
+        super.addToNewChunk(chunk);
     }
 
     protected removeFromOldChunk(): void {
         this.currentChunk.players.delete(this.data.uuid);
-        this.currentChunk.allUnits.delete(this.data.uuid);
+        super.removeFromOldChunk();
     }
 
     public pruneLoadedChunks(): void {
@@ -351,3 +372,5 @@ export default class Player extends Unit implements IModel {
         await this.entity.save();
     }
 }
+
+export default Player;

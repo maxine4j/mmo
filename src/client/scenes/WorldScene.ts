@@ -204,10 +204,10 @@ export default class WorldScene extends GameScene {
         this.world.units.on('removed', (self: UnitManager, unit: Unit) => {
             this.minimap.untrackUnit(unit.data.uuid);
         });
-        this.world.on('groundItemAdded', (gi: GroundItem) => {
+        this.world.on('groundItemAdded', (self: World, gi: GroundItem) => {
             this.minimap.trackGrounItem(gi);
         });
-        this.world.on('groundItemRemoved', (gi: GroundItem) => {
+        this.world.on('groundItemRemoved', (self: World, gi: GroundItem) => {
             this.minimap.untrackGroundItem(gi);
         });
 

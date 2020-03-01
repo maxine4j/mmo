@@ -1,4 +1,5 @@
 import io from 'socket.io';
+import { EventEmitter } from 'events';
 import {
     PacketHeader, WorldInfoPacket, CharacterPacket, InventoryPacket, SkillsPacket,
 } from '../../common/Packet';
@@ -10,11 +11,20 @@ import UnitManager from './UnitManager';
 import Client from '../models/Client';
 import { Point } from '../../common/Point';
 import Rectangle from '../../common/Rectangle';
-import { TypedEmitter } from '../../common/TypedEmitter';
 
 type WorldManagerEvent = 'tick' | 'enterworld' | 'leaveworld';
 
-export default class WorldManager extends TypedEmitter<WorldManagerEvent> {
+declare interface WorldManager {
+    emit(event: 'tick', self: WorldManager, tick: number): boolean;
+    emit(event: 'enterworld', self: WorldManager, client: Client): boolean;
+    emit(event: 'leaveworld', self: WorldManager, client: Client): boolean;
+
+    on(event: 'tick', listener: (self: WorldManager, tick: number) => void): this;
+    on(event: 'enterworld', listener: (self: WorldManager, client: Client) => void): this;
+    on(event: 'leaveworld', listener: (self: WorldManager, client: Client) => void): this;
+}
+
+class WorldManager extends EventEmitter {
     private tickCounter: number = 0;
     private tickRate: number;
     private server: io.Server;
@@ -97,3 +107,5 @@ export default class WorldManager extends TypedEmitter<WorldManagerEvent> {
         );
     }
 }
+
+export default WorldManager;

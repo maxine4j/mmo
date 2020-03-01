@@ -2,9 +2,9 @@ import Unit from '../models/Unit';
 import Spawner from '../models/Spanwer';
 import UnitSpawnsDef from '../data/UnitSpawnsDef';
 import WorldManager from './WorldManager';
-import { Point, PointDef } from '../../common/Point';
+import { Point } from '../../common/Point';
 import {
-    PacketHeader, DamagePacket, PathPacket, IDPacket, UnitPacket, UnitAddPacket,
+    PacketHeader, DamagePacket, IDPacket, UnitPacket,
 } from '../../common/Packet';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/definitions/UnitDef';
@@ -107,6 +107,12 @@ const unitSpawnDefs: UnitSpawnsDef = {
     },
 };
 
+const buildUnitUpdate = (unit: Unit): UnitPacket => <UnitPacket>{
+    unit: unit.toNet(),
+    start: unit.position.toNet(),
+    path: unit.path,
+};
+
 export default class UnitManager {
     private world: WorldManager;
     private units: Map<string, Unit> = new Map();
@@ -126,47 +132,36 @@ export default class UnitManager {
         this.world.on('leaveworld', this.handleLeaveWorld.bind(this));
     }
 
-    private handleEnterWorld(world: WorldManager, client: Client): void {
-        // let the client request units it think it should be able to see
-        client.socket.on(PacketHeader.UNIT_REQUEST, (packet: IDPacket) => {
-            const unit = this.getUnit(packet.uuid);
-            // ensure the client can actually see the unit
-            if (this.world.viewBounds(client.player.position).contains(unit.position)) {
-                client.socket.emit(
-                    PacketHeader.UNIT_ADDED,
-                    <UnitAddPacket>{
-                        unit: unit.toNet(),
-                        start: unit.position.toNet(),
-                        path: unit.path,
-                    },
-                );
-            }
-        });
+    private sendUnitUpdated(client: Client, unit: Unit): void {
+        client.socket.emit(
+            PacketHeader.UNIT_UPDATED,
+            <UnitPacket>{
+                unit: unit.toNet(),
+                start: unit.position.toNet(),
+                path: unit.path,
+            },
+        );
+    }
 
+    private handleEnterWorld(world: WorldManager, client: Client): void {
         // tell client to add all nearby units
         for (const unit of this.inRange(client.player.position)) {
-            client.socket.emit(
-                PacketHeader.UNIT_ADDED,
-                PacketHeader.UNIT_ADDED,
-                <UnitAddPacket>{
-                    unit: unit.toNet(),
-                    start: unit.position.toNet(),
-                    path: unit.path,
-                },
-            );
+            client.socket.emit(PacketHeader.UNIT_UPDATED, buildUnitUpdate(unit));
         }
 
         this.addUnit(client.player);
     }
 
     private handleLeaveWorld(world: WorldManager, client: Client): void {
-        this.world.players.emitInRange(
-            client.player.position,
-            PacketHeader.UNIT_REMOVED,
-            <IDPacket>{
-                uuid: client.player.id,
-            },
-        );
+        if (client.player) { // only do this if the client was logged in
+            this.world.players.emitInRange(
+                client.player.position,
+                PacketHeader.UNIT_REMOVED,
+                <IDPacket>{
+                    uuid: client.player.id,
+                },
+            );
+        }
     }
 
     public getUnit(id: string): Unit {
@@ -190,22 +185,11 @@ export default class UnitManager {
 
     public addUnit(unit: Unit): void {
         this.units.set(unit.id, unit);
-        unit.on('pathed', (self: Unit, start: PointDef, path: PointDef[]) => {
-            this.world.players.emitInRange(
-                self.position,
-                PacketHeader.UNIT_PATHED,
-                <PathPacket>{
-                    uuid: self.id,
-                    start,
-                    path,
-                },
-            );
-        });
         unit.on('updated', (self: Unit) => {
             this.world.players.emitInRange(
                 self.position,
                 PacketHeader.UNIT_UPDATED,
-                <UnitPacket>self.toNet(),
+                buildUnitUpdate(self),
             );
         });
         unit.on('damaged', (self: Unit, dmg: number, attacker: Unit) => {
@@ -233,7 +217,11 @@ export default class UnitManager {
         this.world.players.emitInRange(
             unit.position,
             PacketHeader.UNIT_ADDED,
-            <UnitPacket>unit.toNet(),
+            <UnitPacket>{
+                unit: unit.toNet(),
+                start: unit.position.toNet(),
+                path: unit.path,
+            },
         );
     }
 

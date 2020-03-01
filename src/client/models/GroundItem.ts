@@ -4,7 +4,7 @@ import Model from '../engine/graphics/Model';
 import { TilePoint } from '../../common/Point';
 import AssetManager from '../engine/asset/AssetManager';
 
-export default class Grounditem {
+export default class GroundItem {
     public def: GroundItemDef;
     private world: World;
     public model: Model;

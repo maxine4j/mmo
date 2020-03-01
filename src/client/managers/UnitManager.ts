@@ -1,14 +1,26 @@
-import { TypedEmitter } from '../../common/TypedEmitter';
+import { EventEmitter } from 'events';
+import CharacterDef from '../../common/definitions/CharacterDef';
 import NetClient from '../engine/NetClient';
 import {
-    PacketHeader, PathPacket, UnitPacket, IDPacket, DamagePacket, UnitAddPacket,
+    PacketHeader, IDPacket, DamagePacket, UnitPacket,
 } from '../../common/Packet';
 import Unit, { UnitAnimation } from '../models/Unit';
 import World from '../models/World';
+import Player from '../models/Player';
 
 type UnitManagerEvent = 'added' | 'removed' | 'damaged';
 
-export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
+declare interface UnitManager {
+    emit(event: 'added', self: UnitManager, unit: Unit): boolean;
+    emit(event: 'removed', self: UnitManager, unit: Unit): boolean;
+    emit(event: 'damaged', self: UnitManager, packet: DamagePacket): boolean;
+
+    on(event: 'added', listener: (self: UnitManager, unit: Unit) => void): this;
+    on(event: 'removed', listener: (self: UnitManager, unit: Unit) => void): this;
+    on(event: 'damaged', listener: (self: UnitManager, packet: DamagePacket) => void): this;
+}
+
+class UnitManager extends EventEmitter {
     private world: World;
     private units: Map<string, Unit> = new Map();
 
@@ -20,14 +32,18 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
 
         NetClient.on(PacketHeader.UNIT_ADDED, this.handleUnitAdded.bind(this));
         NetClient.on(PacketHeader.UNIT_REMOVED, this.handleUnitRemoved.bind(this));
-        NetClient.on(PacketHeader.UNIT_PATHED, this.handleUnitPathed.bind(this));
         NetClient.on(PacketHeader.UNIT_UPDATED, this.handleUnitUpdated.bind(this));
         NetClient.on(PacketHeader.UNIT_DIED, this.handleUnitDied.bind(this));
         NetClient.on(PacketHeader.UNIT_DAMAGED, this.handleUnitDamaged.bind(this));
     }
 
-    private handleUnitAdded(packet: UnitAddPacket): void {
-        const unit = new Unit(this.world, packet.unit);
+    private handleUnitAdded(packet: UnitPacket): void {
+        let unit: Unit;
+        if (packet.unit.isPlayer) {
+            unit = new Player(this.world, <CharacterDef>packet.unit);
+        } else {
+            unit = new Unit(this.world, packet.unit);
+        }
         unit.updatePath(packet.start, packet.path);
         this.addUnit(unit);
     }
@@ -39,19 +55,13 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         }
     }
 
-    private handleUnitUpdated(packet: IDPacket): void {
-        const unit = this.units.get(packet.uuid);
-        if (!unit) {
-            this.requestUnit(packet.uuid);
-        }
-    }
-
-    private handleUnitPathed(packet: PathPacket): void {
-        const unit = this.units.get(packet.uuid);
+    private handleUnitUpdated(packet: UnitPacket): void {
+        const unit = this.units.get(packet.unit.uuid);
         if (unit) {
+            unit.data = packet.unit;
             unit.updatePath(packet.start, packet.path);
         } else {
-            this.requestUnit(packet.uuid);
+            this.handleUnitAdded(packet);
         }
     }
 
@@ -78,17 +88,11 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         this.emit('damaged', this, packet);
     }
 
-    private requestUnit(uuid: string): void {
-        NetClient.send(PacketHeader.UNIT_REQUEST, <IDPacket>{
-            uuid,
-        });
-    }
-
     public getUnit(uuid: string): Unit {
         return this.units.get(uuid);
     }
 
-    private addUnit(unit: Unit): void {
+    public addUnit(unit: Unit): void {
         this.units.set(unit.data.uuid, unit);
         this.emit('added', this, unit);
 
@@ -116,3 +120,5 @@ export default class UnitManager extends TypedEmitter<UnitManagerEvent> {
         }
     }
 }
+
+export default UnitManager;

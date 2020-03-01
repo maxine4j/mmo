@@ -17,7 +17,6 @@ export default class Chunk implements IModel {
     private def: ChunkDef;
     public world: WorldManager;
     public navmap: number[][];
-    public allUnits: Map<string, Unit> = new Map();
     public units: Map<string, Unit> = new Map();
     public players: Map<string, Player> = new Map();
     public groundItems: Map<string, GroundItem> = new Map();

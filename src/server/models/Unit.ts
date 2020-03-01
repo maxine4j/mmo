@@ -1,13 +1,11 @@
 import PF from 'pathfinding';
-import { TypedEmitter } from '../../common/TypedEmitter';
+import { EventEmitter } from 'events';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
 import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
 import Attack from './Attack';
-
-export type UnitEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick' | 'pathed' | 'updated';
 
 export enum UnitState {
     IDLE,
@@ -17,7 +15,21 @@ export enum UnitState {
     INTERACTING,
 }
 
-export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
+declare interface Unit {
+    emit(event: 'updated', self: Unit): boolean;
+    emit(event: 'tick', self: Unit): boolean;
+    emit(event: 'damaged', self: Unit, dmg: number, attacker: Unit): boolean;
+    emit(event: 'death', self: Unit, dmg: number, attacker: Unit): boolean;
+    emit(event: 'attack', self: Unit, attack: Attack, dmg: number): boolean;
+
+    on(event: 'updated', listener: (self: Unit) => void): this;
+    on(event: 'tick', listener: (self: Unit) => void): this;
+    on(event: 'damaged', listener: (self: Unit, dmg: number, attacker: Unit) => void): this;
+    on(event: 'death', listener: (self: Unit, dmg: number, attacker: Unit) => void): this;
+    on(event: 'attack', listener: (self: Unit, attack: Attack, dmg: number) => void): this;
+}
+
+class Unit extends EventEmitter implements IModel {
     protected world: WorldManager;
     protected data: UnitDef;
     protected stats: CombatStatsDef;
@@ -42,6 +54,7 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
     public set health(hp: number) { this.data.health = hp; }
     public get maxHealth(): number { return this.data.maxHealth; }
     public get combatStyle(): CombatStyle { return this.data.combatStyle; }
+    public get isPlayer(): boolean { return this.data.isPlayer; }
 
     public lastWanderTick: number = 0;
 
@@ -75,7 +88,7 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
 
     protected setPath(path: PointDef[]): void {
         this._path = path;
-        this.emit('pathed', this, this.position, this.path);
+        this.emit('updated', this);
     }
 
     private calcCombatLevel(): void {
@@ -139,7 +152,7 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
         this.setPath([]);
         this._state = UnitState.IDLE;
         this.updateChunk();
-        this.emit('pathed', this, this.position, this.path);
+        this.emit('updated', this);
     }
 
     protected findPath(dest: PointDef): PointDef[] {
@@ -176,13 +189,11 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
 
     protected addToNewChunk(chunk: Chunk): void {
         chunk.units.set(this.data.uuid, this);
-        chunk.allUnits.set(this.data.uuid, this);
         this.currentChunk = chunk;
     }
 
     protected removeFromOldChunk(): void {
         this.currentChunk.units.delete(this.data.uuid);
-        this.currentChunk.allUnits.delete(this.data.uuid);
     }
 
     private updateChunk(): void {
@@ -206,7 +217,8 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
             if (this.data.running && this.path.length > 0) {
                 this.data.position = this.path.pop();
             }
-            this.emit('updated', this);
+            // this line causes jerky movement
+            // this.emit('updated', this);
             this.updateChunk();
         }
     }
@@ -252,3 +264,5 @@ export default class Unit extends TypedEmitter<UnitEvent> implements IModel {
         this.emit('tick', this);
     }
 }
+
+export default Unit;
