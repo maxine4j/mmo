@@ -7,17 +7,29 @@ import {
     PacketHeader, TickPacket, ChunkListPacket, WorldInfoPacket,
 } from '../../common/Packet';
 import LocalUnit from './LocalUnit';
-import UnitDef from '../../common/UnitDef';
+import UnitDef from '../../common/definitions/UnitDef';
 import ChunkWorld from './ChunkWorld';
 import Chunk from './Chunk';
 import { TilePoint, WorldPoint } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
-import { GroundItemDef } from '../../common/ItemDef';
+import CharacterDef from '../../common/definitions/CharacterDef';
+import { GroundItemDef } from '../../common/definitions/ItemDef';
 import LocalGroundItem from './LocalGroundItem';
 
-type WorldEvent = 'tick' | 'unitAdded' | 'unitRemoved' | 'groundItemAdded' | 'groundItemRemoved';
+declare interface World {
+    emit(event: 'tick', self: World, tick: number): boolean;
+    emit(event: 'unitAdded', self: World, unit: LocalUnit): boolean;
+    emit(event: 'unitRemoved', self: World, unit: LocalUnit): boolean;
+    emit(event: 'groundItemAdded', self: World, item: LocalGroundItem): boolean;
+    emit(event: 'groundItemRemoved', self: World, item: LocalGroundItem): boolean;
 
-export default class World {
+    on(event: 'tick', listener: (self: World, tick: number) => void): this;
+    on(event: 'unitAdded', listener: (self: World, unit: LocalUnit) => void): this;
+    on(event: 'unitRemoved', listener: (self: World, unit: LocalUnit) => void): this;
+    on(event: 'groundItemAdded', listener: (self: World, item: LocalGroundItem) => void): this;
+    on(event: 'groundItemRemoved', listener: (self: World, item: LocalGroundItem) => void): this;
+}
+
+class World extends EventEmitter {
     public scene: Scene;
     public chunkWorld: ChunkWorld;
     public units: Map<string, LocalUnit> = new Map();
@@ -28,7 +40,6 @@ export default class World {
     private _tickRate: number;
     private _currentTick: number;
     private chunkViewDist: number;
-    private eventEmitter: EventEmitter = new EventEmitter();
     public get player(): LocalPlayer { return this._player; }
     public get tickTimer(): number { return this._tickTimer; }
     public get tickRate(): number { return this._tickRate; }
@@ -36,10 +47,11 @@ export default class World {
     public get currentTick(): number { return this._currentTick; }
 
     public constructor(scene: Scene, info: WorldInfoPacket) {
+        super();
         this.scene = scene;
         this._player = new LocalPlayer(this, info.self);
         this._player.on('loaded', () => {
-            this.emit('unitAdded', this._player);
+            this.emit('unitAdded', this, this._player);
         });
         this._tickRate = info.tickRate;
         this.chunkViewDist = info.chunkViewDist;
@@ -62,18 +74,6 @@ export default class World {
         NetClient.send(PacketHeader.CHUNK_LOAD);
     }
 
-    public on(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: WorldEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
-
     public getUnit(id: string): LocalUnit {
         const unit = this.units.get(id);
         if (unit) {
@@ -92,7 +92,7 @@ export default class World {
                 unit = new LocalUnit(this, def);
                 this.units.set(def.id, unit);
                 unit.on('loaded', () => {
-                    this.emit('unitAdded', unit);
+                    this.emit('unitAdded', this, unit);
                 });
             }
             unit.onTick(def);
@@ -107,7 +107,7 @@ export default class World {
                 player = new LocalPlayer(this, def);
                 this.players.set(def.id, player);
                 player.on('loaded', () => {
-                    this.emit('unitAdded', player);
+                    this.emit('unitAdded', this, player);
                 });
             }
             player.onTick(def);
@@ -121,7 +121,7 @@ export default class World {
             if (!gi) {
                 gi = new LocalGroundItem(this, def);
                 this.groundItems.set(def.item.uuid, gi);
-                this.emit('groundItemAdded', gi);
+                this.emit('groundItemAdded', this, gi);
             }
             gi.lastTickUpdated = tick;
         }
@@ -133,7 +133,7 @@ export default class World {
                 if (u.data.health <= 0 && !u.stale) {
                     u.kill();
                 } else {
-                    this.emit('unitRemoved', u);
+                    this.emit('unitRemoved', this, u);
                     u.dispose();
                     this.units.delete(id);
                 }
@@ -147,7 +147,7 @@ export default class World {
                 if (p.data.health <= 0 && !p.stale) {
                     p.kill();
                 } else {
-                    this.emit('unitRemoved', p);
+                    this.emit('unitRemoved', this, p);
                     p.dispose();
                     this.players.delete(id);
                 }
@@ -160,7 +160,7 @@ export default class World {
             if (gi.lastTickUpdated !== this._currentTick) {
                 gi.dispose();
                 this.groundItems.delete(id);
-                this.emit('groundItemRemoved', gi);
+                this.emit('groundItemRemoved', this, gi);
             }
         }
     }
@@ -177,7 +177,7 @@ export default class World {
         this.removeStalePlayers();
         this.removeStaleGroundItems();
 
-        this.emit('tick');
+        this.emit('tick', this, this.currentTick);
     }
 
     private updateUnits(delta: number): void {
@@ -203,3 +203,5 @@ export default class World {
         this._tickTimer += delta;
     }
 }
+
+export default World;

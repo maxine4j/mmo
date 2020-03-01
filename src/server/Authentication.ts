@@ -1,14 +1,14 @@
 import io from 'socket.io';
 import uuid from 'uuid/v4';
 import bcrypt from 'bcrypt';
-import { expToLevel, Skill } from '../common/CharacterDef';
+import { expToLevel, Skill } from '../common/definitions/CharacterDef';
 import {
     AuthLoginPacket, AccountPacket, CharacterListPacket, ResponsePacket, CharacterPacket,
 } from '../common/Packet';
 import AccountEntity from './entities/Account.entity';
 import CharacterEntity from './entities/Character.entity';
 import InventoryEntity from './entities/Inventory.entity';
-import { InventoryType } from '../common/InventoryDef';
+import { InventoryType } from '../common/definitions/InventoryDef';
 import ItemEntity from './entities/Item.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
 import SkillEntity from './entities/Skill.entity';

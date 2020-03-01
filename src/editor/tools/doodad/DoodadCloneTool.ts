@@ -5,7 +5,7 @@ import ToolPanel from '../../ToolPanel';
 import BaseDoodadTool from './BaseDoodadTool';
 import Input, { MouseButton } from '../../../client/engine/Input';
 import Doodad from '../../../client/engine/Doodad';
-import { DoodadDef, NavblockDef } from '../../../common/ChunkDef';
+import { DoodadDef, NavblockDef } from '../../../common/definitions/ChunkDef';
 
 export default class DoodadCloneTool extends BaseDoodadTool {
     public constructor(props: EditorProps, panel: ToolPanel) {

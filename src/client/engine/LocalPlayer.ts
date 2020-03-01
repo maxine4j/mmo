@@ -3,10 +3,10 @@ import NetClient from './NetClient';
 import {
     PacketHeader, PointPacket, TargetPacket, LootPacket, InteractPacket,
 } from '../../common/Packet';
-import LocalUnit, { LocalUnitEvent } from './LocalUnit';
+import LocalUnit from './LocalUnit';
 import Input, { MouseButton } from './Input';
 import { WorldPoint, TilePoint } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
+import CharacterDef from '../../common/definitions/CharacterDef';
 import LocalGroundItem from './LocalGroundItem';
 import Graphics from './graphics/Graphics';
 import World from './World';
@@ -14,27 +14,29 @@ import Doodad from './Doodad';
 import { ContextOptionDef } from './interface/components/ContextMenu';
 import Chunk from './Chunk';
 
-type LocalPlayerEvent = LocalUnitEvent | 'moveTargetUpdated';
+declare interface LocalPlayer extends LocalUnit {
+    // local player
+    emit(event: 'moveTargetUpdated', self: LocalPlayer, pos: TilePoint): boolean;
 
-export default class LocalPlayer extends LocalUnit {
+    on(event: 'moveTargetUpdated', listener: (self: LocalPlayer, pos: TilePoint) => void): this;
+
+    // local unit
+    emit(event: 'loaded', self: LocalPlayer): boolean;
+    emit(event: 'death', self: LocalPlayer): boolean;
+    emit(event: 'disposed', self: LocalPlayer): boolean;
+
+    on(event: 'loaded', listener: (self: LocalPlayer) => void): this;
+    on(event: 'death', listener: (self: LocalPlayer) => void): this;
+    on(event: 'disposed', listener: (self: LocalPlayer) => void): this;
+}
+
+class LocalPlayer extends LocalUnit {
     public data: CharacterDef;
 
     public constructor(world: World, data: CharacterDef) {
         super(world, data);
 
         this._isPlayer = true;
-    }
-
-    public on(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: LocalPlayerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: LocalPlayerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     private tryInteract(intersects: THREE.Intersection[]): boolean {
@@ -209,3 +211,5 @@ export default class LocalPlayer extends LocalUnit {
         }
     }
 }
+
+export default LocalPlayer;

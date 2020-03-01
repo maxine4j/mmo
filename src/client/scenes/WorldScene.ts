@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Key } from 'ts-key-enum';
-import { skillName, expToLevel } from '../../common/CharacterDef';
-import { InventoryType } from '../../common/InventoryDef';
+import { skillName, expToLevel } from '../../common/definitions/CharacterDef';
+import { InventoryType } from '../../common/definitions/InventoryDef';
 import GameScene from '../engine/scene/GameScene';
 import Graphics from '../engine/graphics/Graphics';
 import Camera from '../engine/graphics/Camera';
@@ -172,7 +172,7 @@ export default class WorldScene extends GameScene {
     }
 
     private initNameplates(): void {
-        this.world.on('unitRemoved', this.disposeNameplate.bind(this));
+        this.world.on('unitRemoved', (self: World, unit: LocalUnit) => this.disposeNameplate(unit));
     }
 
     private initSplats(): void {
@@ -202,16 +202,16 @@ export default class WorldScene extends GameScene {
         this.minimap.on('click', (self: Minimap, pos: TilePoint) => {
             this.world.player.moveTo(pos);
         });
-        this.world.on('unitAdded', (unit: LocalUnit) => {
+        this.world.on('unitAdded', (self: World, unit: LocalUnit) => {
             this.minimap.trackUnit(unit);
         });
-        this.world.on('unitRemoved', (unit: LocalUnit) => {
+        this.world.on('unitRemoved', (self: World, unit: LocalUnit) => {
             this.minimap.untrackUnit(unit.data.id);
         });
-        this.world.on('groundItemAdded', (gi: LocalGroundItem) => {
+        this.world.on('groundItemAdded', (self: World, gi: LocalGroundItem) => {
             this.minimap.trackGrounItem(gi);
         });
-        this.world.on('groundItemRemoved', (gi: LocalGroundItem) => {
+        this.world.on('groundItemRemoved', (self: World, gi: LocalGroundItem) => {
             this.minimap.untrackGroundItem(gi);
         });
 

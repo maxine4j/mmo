@@ -29,17 +29,17 @@ export default class Client {
     }
 
     private registerBase(): void {
-        this.socket.on(PacketHeader.AUTH_SIGNUP, this.handleAuthSignup.bind(this));
-        this.socket.on(PacketHeader.AUTH_LOGIN, this.handleAuthLogin.bind(this));
-        this.socket.on(PacketHeader.AUTH_LOGOUT, this.handleAuthLogout.bind(this));
-        this.socket.on('disconnect', this.handleAuthLogout.bind(this));
+        this.socket.on(PacketHeader.AUTH_SIGNUP, (packet) => this.handleAuthSignup(packet));
+        this.socket.on(PacketHeader.AUTH_LOGIN, (packet) => this.handleAuthLogin(packet));
+        this.socket.on(PacketHeader.AUTH_LOGOUT, () => this.handleAuthLogout());
+        this.socket.on('disconnect', () => this.handleAuthLogout());
     }
 
     private registerAuthenticated(): void {
-        this.socket.on(PacketHeader.CHAR_MYLIST, this.handleCharMyList.bind(this));
-        this.socket.on(PacketHeader.CHAR_CREATE, this.handleCharCreate.bind(this));
-        this.socket.on(PacketHeader.PLAYER_ENTERWORLD, this.handlePlayerEnterWorld.bind(this));
-        this.socket.on(PacketHeader.PLAYER_LEAVEWORLD, this.handlePlayerLeaveWorld.bind(this));
+        this.socket.on(PacketHeader.CHAR_MYLIST, () => this.handleCharMyList());
+        this.socket.on(PacketHeader.CHAR_CREATE, (packet) => this.handleCharCreate(packet));
+        this.socket.on(PacketHeader.PLAYER_ENTERWORLD, (packet) => this.handlePlayerEnterWorld(packet));
+        this.socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => this.handlePlayerLeaveWorld());
     }
 
     private async handleAuthSignup(packet: AuthLoginPacket): Promise<void> {

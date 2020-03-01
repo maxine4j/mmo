@@ -8,7 +8,7 @@ import Input, { MouseButton } from '../../../client/engine/Input';
 import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
 import DoodadMoveTool from './DoodadMoveTool';
-import { DoodadDef } from '../../../common/ChunkDef';
+import { DoodadDef } from '../../../common/definitions/ChunkDef';
 import Doodad from '../../../client/engine/Doodad';
 import LibraryProp, { BookCover } from '../../panelprops/LibraryProp';
 import { contentDef } from '../../EditorScene';

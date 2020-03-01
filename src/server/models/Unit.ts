@@ -2,12 +2,10 @@ import PF from 'pathfinding';
 import { EventEmitter } from 'events';
 import { Point, PointDef, TilePoint } from '../../common/Point';
 import WorldManager from '../managers/WorldManager';
-import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import UnitDef, { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Chunk from './Chunk';
 import IModel from './IModel';
 import Attack from './Attack';
-
-export type UnitManagerEvent = 'damaged' | 'death' | 'attack' | 'updated' | 'wandered' | 'startedAttack' | 'stoppedAttack' | 'tick';
 
 export enum UnitState {
     IDLE,
@@ -17,8 +15,21 @@ export enum UnitState {
     INTERACTING,
 }
 
-export default class Unit implements IModel {
-    protected eventEmitter: EventEmitter = new EventEmitter();
+declare interface Unit {
+    emit(event: 'updated', self: Unit): boolean;
+    emit(event: 'tick', self: Unit): boolean;
+    emit(event: 'damaged', self: Unit, dmg: number, attacker: Unit): boolean;
+    emit(event: 'death', self: Unit, dmg: number, attacker: Unit): boolean;
+    emit(event: 'attack', self: Unit, attack: Attack, dmg: number): boolean;
+
+    on(event: 'updated', listener: (self: Unit) => void): this;
+    on(event: 'tick', listener: (self: Unit) => void): this;
+    on(event: 'damaged', listener: (self: Unit, dmg: number, attacker: Unit) => void): this;
+    on(event: 'death', listener: (self: Unit, dmg: number, attacker: Unit) => void): this;
+    on(event: 'attack', listener: (self: Unit, attack: Attack, dmg: number) => void): this;
+}
+
+class Unit extends EventEmitter implements IModel {
     protected world: WorldManager;
     protected data: UnitDef;
     protected stats: CombatStatsDef;
@@ -45,6 +56,7 @@ export default class Unit implements IModel {
     public lastWanderTick: number = 0;
 
     public constructor(world: WorldManager, data: UnitDef) {
+        super();
         this.world = world;
         this.data = data;
         this._state = UnitState.IDLE;
@@ -53,7 +65,7 @@ export default class Unit implements IModel {
 
     public dispose(): void {
         this.currentChunk.units.delete(this.data.id);
-        this.eventEmitter.removeAllListeners();
+        this.removeAllListeners();
     }
 
     public toNet(): UnitDef {
@@ -76,18 +88,6 @@ export default class Unit implements IModel {
         const range = 0.325 * Math.floor(3 * (this.stats.ranged / 2));
         const mage = 0.325 * Math.floor(3 * (this.stats.magic / 2));
         this.data.level = Math.floor(base + Math.max(melee, range, mage));
-    }
-
-    public on(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: UnitManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: UnitManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     private distance(other: Unit): number {
@@ -257,3 +257,5 @@ export default class Unit implements IModel {
         this.emit('tick', this);
     }
 }
+
+export default Unit;

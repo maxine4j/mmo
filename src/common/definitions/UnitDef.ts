@@ -1,4 +1,4 @@
-import { PointDef } from './Point';
+import { PointDef } from '../Point';
 import IDefinition from './IDefinition';
 
 export enum CombatStyle {

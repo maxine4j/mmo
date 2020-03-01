@@ -1,10 +1,10 @@
-import AccountDef from './AccountDef';
-import CharacterDef, { SkillDef, ExperienceDrop } from './CharacterDef';
+import AccountDef from './definitions/AccountDef';
+import CharacterDef, { SkillDef, ExperienceDrop } from './definitions/CharacterDef';
 import { PointDef } from './Point';
-import ChunkDef from './ChunkDef';
-import UnitDef from './UnitDef';
-import ItemDef, { GroundItemDef } from './ItemDef';
-import InventoryDef, { InventoryType } from './InventoryDef';
+import ChunkDef from './definitions/ChunkDef';
+import UnitDef from './definitions/UnitDef';
+import ItemDef, { GroundItemDef } from './definitions/ItemDef';
+import InventoryDef, { InventoryType } from './definitions/InventoryDef';
 
 export enum PacketHeader {
     AUTH_SIGNUP = 'AUTH_SIGNUP',

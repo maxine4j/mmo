@@ -13,7 +13,7 @@ export default class GroundManager implements IManager {
 
     public constructor(world: WorldManager) {
         this.world = world;
-        this.world.on('tick', this.tick.bind(this));
+        this.world.on('tick', () => this.tick());
     }
 
     public enterWorld(client: Client): void {}

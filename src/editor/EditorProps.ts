@@ -9,8 +9,13 @@ import EditorCamera from './EditorCamera';
 
 type EditorPropsEvent = 'selectedDoodadChanged';
 
-export default class EditorProps {
-    private eventEmitter: EventEmitter = new EventEmitter();
+declare interface EditorProps {
+    emit(event: 'selectedDoodadChanged', self: EditorProps, doodad: Doodad): boolean;
+
+    on(event: 'selectedDoodadChanged', listener: (self: EditorProps, doodad: Doodad) => void): this;
+}
+
+class EditorProps extends EventEmitter {
     public point: WorldPoint;
     public world: EditorChunkWorld;
     public scene: Scene;
@@ -26,18 +31,6 @@ export default class EditorProps {
         this.emit('selectedDoodadChanged', this, this.selectedDoodad);
     }
 
-    public on(event: EditorPropsEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: EditorPropsEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: EditorPropsEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
-
     public update(delta: number): void {
         const intersects = this.camera.rcast(this.scene.children, Input.mousePos(), true);
         let idx = 0;
@@ -51,3 +44,5 @@ export default class EditorProps {
         this.world.update(delta);
     }
 }
+
+export default EditorProps;

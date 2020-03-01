@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { EventEmitter } from 'events';
 import Model from './graphics/Model';
 import World from './World';
-import UnitDef from '../../common/UnitDef';
+import UnitDef from '../../common/definitions/UnitDef';
 import { TilePoint, Point } from '../../common/Point';
 import AssetManager from './asset/AssetManager';
 import AnimationController from './graphics/AnimationController';
@@ -26,9 +26,17 @@ export enum UnitAnimation {
     SPELL_OMNI,
 }
 
-export type LocalUnitEvent = 'loaded' | 'death' | 'disposed';
+declare interface LocalUnit {
+    emit(event: 'loaded', self: LocalUnit): boolean;
+    emit(event: 'death', self: LocalUnit): boolean;
+    emit(event: 'disposed', self: LocalUnit): boolean;
 
-export default class LocalUnit {
+    on(event: 'loaded', listener: (self: LocalUnit) => void): this;
+    on(event: 'death', listener: (self: LocalUnit) => void): this;
+    on(event: 'disposed', listener: (self: LocalUnit) => void): this;
+}
+
+class LocalUnit extends EventEmitter {
     public data: UnitDef;
     public world: World;
     public model: Model;
@@ -39,13 +47,13 @@ export default class LocalUnit {
     protected movesThisTick: number;
     private moveTimer: number;
     private targetAngle: number = null;
-    protected eventEmitter: EventEmitter = new EventEmitter();
     private killed: boolean = false;
     public stale: boolean = false;
     protected _isPlayer: boolean = false;
     public get isPlayer(): boolean { return this._isPlayer; }
 
     public constructor(world: World, data: UnitDef) {
+        super();
         this.world = world;
         this.data = data;
         this.loadModel();
@@ -54,19 +62,7 @@ export default class LocalUnit {
     public dispose(): void {
         this.model.dispose();
         this.emit('disposed', this);
-        this.eventEmitter.removeAllListeners();
-    }
-
-    public on(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: LocalUnitEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: LocalUnitEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+        this.removeAllListeners();
     }
 
     public get position(): TilePoint { return this.currentPosition; }
@@ -100,7 +96,7 @@ export default class LocalUnit {
                     this.animController.load(UnitAnimation.FLINCH, 'CombatCritical', THREE.LoopOnce);
                     this.animController.load(UnitAnimation.LOOT, 'Loot', THREE.LoopOnce);
 
-                    this.animController.on('finished', this.animControllerFinished.bind(this));
+                    this.animController.on('finished', () => this.animControllerFinished());
 
                     this.emit('loaded', this);
                 });
@@ -238,3 +234,5 @@ export default class LocalUnit {
         }
     }
 }
+
+export default LocalUnit;

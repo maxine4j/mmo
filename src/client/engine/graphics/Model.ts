@@ -28,7 +28,7 @@ export default class Model {
     public obj: THREE.Object3D;
     public mixer: THREE.AnimationMixer;
 
-    private animLoadedListender: (anim: CachedAnimation) => void = (anim: CachedAnimation) => {
+    private animLoadedListender = (self: CachedModel, anim: CachedAnimation): void => {
         this.addAnim(anim);
     };
 

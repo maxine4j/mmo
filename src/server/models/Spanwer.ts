@@ -10,8 +10,13 @@ import LootTableEntity from '../entities/LootTable.entity';
 type SpawnerEvent = 'spawn';
 const maxSpawnRetries = 10;
 
-export default class Spawner {
-    private eventEmitter: EventEmitter = new EventEmitter();
+declare interface Spawner {
+    emit(event: 'spawn', self: Spawner, unit: Unit): boolean;
+
+    on(event: 'spawn', listener: (self: Spawner, unit: Unit) => void): this;
+}
+
+class Spawner extends EventEmitter {
     private world: WorldManager;
     private data: UnitSpawnGroup;
     private lootTable: LootTable;
@@ -20,23 +25,12 @@ export default class Spawner {
     public get center(): Point { return Point.fromDef(this.data.center); }
 
     public constructor(def: UnitSpawnGroup, world: WorldManager) {
+        super();
         this.world = world;
         this.data = def;
         LootTableEntity.findOne({ where: { id: def.lootTable } }).then((table) => {
             this.lootTable = new LootTable(table);
         });
-    }
-
-    public on(event: SpawnerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: SpawnerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: SpawnerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     private getRandomPoint(center: PointDef, radius: PointDef): PointDef {
@@ -139,3 +133,5 @@ export default class Spawner {
         }
     }
 }
+
+export default Spawner;

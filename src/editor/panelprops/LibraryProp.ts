@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events';
 import Panel from '../../client/engine/interface/components/Panel';
 import PanelProp from '../PanelProp';
 import { Frame } from '../../client/engine/interface/components/Frame';
@@ -57,10 +56,13 @@ class Book<T> extends Panel {
     }
 }
 
-type ShelfEvent = 'select';
+declare interface Shelf<T> {
+    emit(event: 'select', self: Shelf<T>, selected: Book<T>): boolean;
+
+    on(event: 'select', listener: (self: Shelf<T>, selected: Book<T>) => void): this;
+}
 
 class Shelf<T> extends Panel {
-    private eventEmitter: EventEmitter = new EventEmitter();
     private books: Book<T>[] = [];
     private selected: Book<T>;
 
@@ -79,18 +81,6 @@ class Shelf<T> extends Panel {
             });
             this.books.push(book);
         }
-    }
-
-    public on(event: ShelfEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: ShelfEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: ShelfEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 }
 

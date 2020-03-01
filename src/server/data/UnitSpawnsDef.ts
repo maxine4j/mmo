@@ -1,4 +1,4 @@
-import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import { PointDef } from '../../common/Point';
 
 export interface UnitSpawnDef {

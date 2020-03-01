@@ -6,7 +6,7 @@ import { Point } from '../../common/Point';
 import { PacketHeader, DamagePacket } from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
-import { CombatStyle } from '../../common/UnitDef';
+import { CombatStyle } from '../../common/definitions/UnitDef';
 
 const noBonuses = {
     equipment: {
@@ -99,39 +99,11 @@ const unitSpawnDefs: UnitSpawnsDef = {
         wanderRadius: { x: 30, y: 30 },
         leashRadius: { x: 35, y: 35 },
         wanderRate: 20,
-        minAlive: 5,
-        maxAlive: 15,
+        minAlive: 20,
+        maxAlive: 20,
         spawnRate: 10,
         lootTable: 0,
     },
-    // 'stress-group': {
-    //     id: 'stress-group',
-    //     unit: {
-    //         id: 'stress',
-    //         name: 'Stress',
-    //         model: 'human',
-    //         combatStyle: CombatStyle.MELEE_AGGRESSIVE,
-    //         stats: {
-    //             attack: 1,
-    //             strength: 1,
-    //             defense: 1,
-    //             hitpoints: 3,
-    //             magic: 1,
-    //             ranged: 1,
-    //             prayer: 1,
-    //             bonuses: noBonuses,
-    //         },
-    //     },
-    //     center: { x: 0, y: 0 },
-    //     spawnRadius: { x: 10, y: 10 },
-    //     wanderRadius: { x: 20, y: 20 },
-    //     leashRadius: { x: 25, y: 25 },
-    //     wanderRate: 5,
-    //     minAlive: 100,
-    //     maxAlive: 100,
-    //     spawnRate: 10,
-    //     lootTable: 0,
-    // },
 };
 
 export default class UnitManager implements IManager {
@@ -148,7 +120,7 @@ export default class UnitManager implements IManager {
                 this.addUnit(u);
             });
         }
-        this.world.on('tick', this.tick.bind(this));
+        this.world.on('tick', () => this.tick());
     }
 
     public enterWorld(client: Client): void {}
@@ -184,7 +156,7 @@ export default class UnitManager implements IManager {
                 });
             }
         });
-        unit.on('death', (dmg: number, attacker: Unit) => {
+        unit.on('death', (self: Unit, dmg: number, attacker: Unit) => {
             this.world.onNextTick(() => {
                 this.removeUnit(unit);
             });

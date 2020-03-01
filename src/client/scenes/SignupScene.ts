@@ -115,7 +115,7 @@ export default class SignupScene extends GameScene {
         btnSignup.style.position = 'initial';
         btnSignup.style.width = '145px';
         btnSignup.style.marginTop = '110px';
-        btnSignup.addEventListener('click', this.signup.bind(this));
+        btnSignup.addEventListener('click', () => this.signup());
     }
 
     public async init(): Promise<void> {

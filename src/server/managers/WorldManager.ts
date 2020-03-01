@@ -15,8 +15,13 @@ import IManager from './IManager';
 
 type WorldEvent = 'tick';
 
-export default class WorldManager implements IManager {
-    private eventEmitter: EventEmitter = new EventEmitter();
+declare interface WorldManager {
+    emit(event: 'tick', self: WorldManager, tick: number): boolean;
+
+    on(event: 'tick', listener: (self: WorldManager, tick: number) => void): this;
+}
+
+class WorldManager extends EventEmitter implements IManager {
     private tickCounter: number = 0;
     private tickRate: number;
     private server: io.Server;
@@ -36,6 +41,7 @@ export default class WorldManager implements IManager {
     public get tileViewDist(): number { return this._tileViewDist; }
 
     public constructor(tickRate: number, server: io.Server) {
+        super();
         this.tickRate = tickRate;
         this.server = server;
 
@@ -45,23 +51,7 @@ export default class WorldManager implements IManager {
         this.players = new PlayerManager(this);
         this.units = new UnitManager(this);
 
-        setTimeout(this.tick.bind(this), this.tickRate * 1000);
-    }
-
-    public on(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    public once(event: WorldEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.once(event, listener);
-    }
-
-    private emit(event: WorldEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+        setTimeout(() => this.tick(), this.tickRate * 1000);
     }
 
     public enterWorld(client: Client): void {
@@ -96,7 +86,7 @@ export default class WorldManager implements IManager {
     private tick(): void {
         this.tickCounter++;
         this.emit('tick', this, this.tickCounter);
-        setTimeout(this.tick.bind(this), this.tickRate * 1000);
+        setTimeout(() => this.tick(), this.tickRate * 1000);
     }
 
     private handleWorldInfo(client: Client): void {
@@ -117,3 +107,5 @@ export default class WorldManager implements IManager {
         );
     }
 }
+
+export default WorldManager;

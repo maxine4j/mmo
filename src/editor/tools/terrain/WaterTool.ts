@@ -8,7 +8,7 @@ import Graphics from '../../../client/engine/graphics/Graphics';
 import { Point } from '../../../common/Point';
 import Water from '../../../client/engine/graphics/Water';
 import Chunk from '../../../client/engine/Chunk';
-import { WaterDef } from '../../../common/ChunkDef';
+import { WaterDef } from '../../../common/definitions/ChunkDef';
 import SliderProp from '../../panelprops/SliderProp';
 
 enum WaterToolMode {

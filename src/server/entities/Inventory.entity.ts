@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany,
 } from 'typeorm';
-import { InventoryType } from '../../common/InventoryDef';
+import { InventoryType } from '../../common/definitions/InventoryDef';
 import ItemEntity from './Item.entity';
 
 @Entity()

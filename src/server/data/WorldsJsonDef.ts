@@ -1,4 +1,4 @@
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 
 export interface ChunkJsonDef {
     [key: string]: ChunkDef;

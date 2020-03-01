@@ -1,7 +1,9 @@
 import io from 'socket.io';
-import CharacterDef, { Skill, expToLevel, ExperienceDrop } from '../../common/CharacterDef';
+import CharacterDef, {
+    Skill, expToLevel, ExperienceDrop, SkillDef,
+} from '../../common/definitions/CharacterDef';
 import WorldManager from '../managers/WorldManager';
-import Unit, { UnitState, UnitManagerEvent } from './Unit';
+import Unit, { UnitState } from './Unit';
 import { TilePoint, Point } from '../../common/Point';
 import Map2D from '../../common/Map2D';
 import Chunk from './Chunk';
@@ -11,18 +13,38 @@ import {
     PacketHeader, InventoryPacket, ChunkListPacket, InventorySwapPacket, ResponsePacket, InventoryUsePacket,
     PointPacket, TargetPacket, LootPacket, InventoryDropPacket, Packet, SkillsPacket, ExpDropPacket, LevelupPacket, BooleanPacket, InteractPacket,
 } from '../../common/Packet';
-import ChunkDef from '../../common/ChunkDef';
+import ChunkDef from '../../common/definitions/ChunkDef';
 import IModel from './IModel';
 import Client from './Client';
 import GroundItem from './GroundItem';
 import SkillEntity from '../entities/Skill.entity';
-import { CombatStatsDef, CombatStyle } from '../../common/UnitDef';
+import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
 import Interactable from './Interactable';
 
-type PlayerManagerEvent = UnitManagerEvent | 'saved' | 'levelup';
+declare interface Player extends Unit {
+    // unit
+    emit(event: 'updated', self: Player): boolean;
+    emit(event: 'tick', self: Player): boolean;
+    emit(event: 'damaged', self: Player, dmg: number, attacker: Unit): boolean;
+    emit(event: 'death', self: Player, dmg: number, attacker: Unit): boolean;
+    emit(event: 'attack', self: Player, attack: Attack, dmg: number): boolean;
 
-export default class Player extends Unit implements IModel {
+    on(event: 'updated', listener: (self: Player) => void): this;
+    on(event: 'tick', listener: (self: Player) => void): this;
+    on(event: 'damaged', listener: (self: Player, dmg: number, attacker: Unit) => void): this;
+    on(event: 'death', listener: (self: Player, dmg: number, attacker: Unit) => void): this;
+    on(event: 'attack', listener: (self: Player, attack: Attack, dmg: number) => void): this;
+
+    // player
+    emit(event: 'saved', self: Player): boolean;
+    emit(event: 'levelup', self: Player, skill: SkillDef): boolean;
+
+    on(event: 'saved', listener: (self: Player) => void): this;
+    on(event: 'levelup', listener: (self: Player, skill: SkillDef) => void): this;
+}
+
+class Player extends Unit implements IModel {
     private socket: io.Socket;
     protected data: CharacterDef;
     private entity: CharacterEntity;
@@ -48,17 +70,17 @@ export default class Player extends Unit implements IModel {
         this.bags = new InventoryManager(this.world, entity.bags);
         this.bank = new InventoryManager(this.world, entity.bank);
 
-        this.on('attack', this.onAttack.bind(this));
-        this.on('damaged', this.onDamaged.bind(this));
+        this.on('attack', (self, attack, dmg) => this.onAttack(self, attack, dmg));
+        this.on('damaged', (self, dmg, attacker) => this.onDamaged(self, dmg, attacker));
 
-        this.socket.on(PacketHeader.PLAYER_MOVETO, this.handleMoveTo.bind(this));
-        this.socket.on(PacketHeader.PLAYER_TARGET, this.handleTarget.bind(this));
-        this.socket.on(PacketHeader.PLAYER_LOOT, this.handleLoot.bind(this));
-        this.socket.on(PacketHeader.INVENTORY_SWAP, this.handleInventorySwap.bind(this));
-        this.socket.on(PacketHeader.INVENTORY_USE, this.handleInventoryUse.bind(this));
-        this.socket.on(PacketHeader.INVENTORY_DROP, this.handleInventoryDrop.bind(this));
-        this.socket.on(PacketHeader.PLAYER_SET_RUN, this.handleSetRun.bind(this));
-        this.socket.on(PacketHeader.PLAYER_INTERACT, this.handleInteract.bind(this));
+        this.socket.on(PacketHeader.PLAYER_MOVETO, (packet) => this.handleMoveTo(packet));
+        this.socket.on(PacketHeader.PLAYER_TARGET, (packet) => this.handleTarget(packet));
+        this.socket.on(PacketHeader.PLAYER_LOOT, (packet) => this.handleLoot(packet));
+        this.socket.on(PacketHeader.INVENTORY_SWAP, (packet) => this.handleInventorySwap(packet));
+        this.socket.on(PacketHeader.INVENTORY_USE, (packet) => this.handleInventoryUse(packet));
+        this.socket.on(PacketHeader.INVENTORY_DROP, (packet) => this.handleInventoryDrop(packet));
+        this.socket.on(PacketHeader.PLAYER_SET_RUN, (packet) => this.handleSetRun(packet));
+        this.socket.on(PacketHeader.PLAYER_INTERACT, (packet) => this.handleInteract(packet));
     }
 
     public async dispose(): Promise<void> {
@@ -74,18 +96,6 @@ export default class Player extends Unit implements IModel {
     public toNet(): CharacterDef {
         this.data.interacting = this.state === UnitState.INTERACTING;
         return this.data;
-    }
-
-    public on(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: PlayerManagerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: PlayerManagerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     private handleMoveTo(packet: PointPacket): void {
@@ -233,7 +243,7 @@ export default class Player extends Unit implements IModel {
             this.updateCombatStats();
             skill.current += 1;
             this.send(PacketHeader.PLAYER_LEVELUP, <LevelupPacket>skill.toNet());
-            this.emit('levelup', skill);
+            this.emit('levelup', this, skill.toNet());
         }
         // update the clients skills tab
         this.send(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
@@ -363,3 +373,5 @@ export default class Player extends Unit implements IModel {
         await this.entity.save();
     }
 }
+
+export default Player;

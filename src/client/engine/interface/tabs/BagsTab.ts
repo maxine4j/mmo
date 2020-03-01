@@ -1,8 +1,7 @@
-import { EventEmitter } from 'events';
 import Panel from '../components/Panel';
 import LocalItem from '../../LocalItem';
 import AtlasSprite from '../components/AtlasSprite';
-import InventoryDef from '../../../../common/InventoryDef';
+import InventoryDef from '../../../../common/definitions/InventoryDef';
 import Input from '../../Input';
 import { Point } from '../../../../common/Point';
 import TabContainer from '../TabContainer';
@@ -15,12 +14,9 @@ const slotsPerRow = 4;
 const margin = 5;
 const itemIconAtlas = AssetManager.getAtlas('items');
 
-
 const slotBg = 'rgba(255,255,255,0.0)';
 const slotBgOver = 'rgba(255,255,255,0.2)';
 const slotBgSelected = 'rgba(255,255,255,0.4)';
-
-type InventoryEvent = 'swap' | 'use' | 'drop';
 
 export class InventorySlot extends Panel {
     public icon: AtlasSprite;
@@ -120,11 +116,20 @@ export class InventorySlot extends Panel {
     }
 }
 
-export default class BagsTab extends BaseTab {
+declare interface BagsTab {
+    emit(event: 'swap', self: BaseTab, slotA: InventorySlot, slotB: InventorySlot): boolean;
+    emit(event: 'use', self: BaseTab, slotA: InventorySlot, slotB: InventorySlot): boolean;
+    emit(event: 'drop', self: BaseTab, slot: InventorySlot): boolean;
+
+    on(event: 'swap', listener: (self: BaseTab, slotA: InventorySlot, slotB: InventorySlot) => void): this;
+    on(event: 'use', listener: (self: BaseTab, slotA: InventorySlot, slotB: InventorySlot) => void): this;
+    on(event: 'drop', listener: (self: BaseTab, slot: InventorySlot) => void): this;
+}
+
+class BagsTab extends BaseTab {
     public get name(): string { return 'Inventory'; }
     private slots: Map<number, InventorySlot> = new Map();
     private selectedSlot: InventorySlot = null;
-    private eventEmitter: EventEmitter = new EventEmitter();
 
     public constructor(parent: TabContainer) {
         super(parent);
@@ -136,18 +141,6 @@ export default class BagsTab extends BaseTab {
         for (let i = 0; i < slotCount; i++) {
             this.slots.set(i, new InventorySlot(null, i, this));
         }
-    }
-
-    public on(event: InventoryEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: InventoryEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: InventoryEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     public loadDef(def: InventoryDef): void {
@@ -163,7 +156,7 @@ export default class BagsTab extends BaseTab {
         const itemB = slotB.item;
         slotA.item = itemB;
         slotB.item = itemA;
-        this.emit('swap', slotA, slotB);
+        this.emit('swap', this, slotA, slotB);
     }
 
     public setSlot(slot: number, item: LocalItem): void {
@@ -174,7 +167,7 @@ export default class BagsTab extends BaseTab {
     public useItem(slot: InventorySlot): void {
         if (this.selectedSlot) { // send the use event we already have a selected item
             this.selectedSlot.style.backgroundColor = slotBg;
-            this.emit('use', this.selectedSlot, slot);
+            this.emit('use', this, this.selectedSlot, slot);
             this.selectedSlot = null;
         } else { // else we select this as our first item
             this.selectedSlot = slot;
@@ -183,6 +176,8 @@ export default class BagsTab extends BaseTab {
     }
 
     public dropItem(slot: InventorySlot): void {
-        this.emit('drop', slot);
+        this.emit('drop', this, slot);
     }
 }
+
+export default BagsTab;

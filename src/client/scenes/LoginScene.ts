@@ -112,7 +112,7 @@ export default class LoginScene extends GameScene {
         btnLogin.style.position = 'initial';
         btnLogin.style.width = '145px';
         btnLogin.style.marginTop = '30px';
-        btnLogin.addEventListener('click', this.login.bind(this));
+        btnLogin.addEventListener('click', () => this.login());
     }
 
     public async init(): Promise<void> {

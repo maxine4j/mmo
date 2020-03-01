@@ -1,7 +1,7 @@
 import {
     Entity, PrimaryGeneratedColumn, Column, BaseEntity, ManyToOne, OneToOne, JoinColumn, OneToMany, FindConditions, FindOneOptions,
 } from 'typeorm';
-import CharacterDef, { Race } from '../../common/CharacterDef';
+import CharacterDef, { Race } from '../../common/definitions/CharacterDef';
 import AccountEntity from './Account.entity';
 import InventoryEntity from './Inventory.entity';
 import SkillEntity from './Skill.entity';

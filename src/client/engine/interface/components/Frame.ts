@@ -1,5 +1,6 @@
 import '../styles/default';
 import uuid from 'uuid/v4';
+import { EventEmitter } from 'events';
 
 export enum FrameStrata {
     WORLD = 0,
@@ -13,7 +14,7 @@ export enum FrameStrata {
     TOOLTIP = 80,
 }
 
-export abstract class Frame {
+export abstract class Frame extends EventEmitter {
     public readonly id: string;
     private _children: Map<string, Frame>;
     protected _visible: boolean;
@@ -24,6 +25,7 @@ export abstract class Frame {
     private _strata: FrameStrata;
 
     public constructor(tag: string, parent: Frame, createElement: boolean = true) {
+        super();
         this.id = uuid();
         this.tag = tag;
         this.clickThrough = false;

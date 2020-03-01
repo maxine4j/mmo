@@ -3,10 +3,15 @@ import { AtlasAssetDef } from './AssetDef';
 import AtlasSprite from '../interface/components/AtlasSprite';
 import { Frame } from '../interface/components/Frame';
 
-type SpriteAtlasEvent = 'loaded' | 'error';
+declare interface SpriteAtlas {
+    emit(event: 'loaded', self: SpriteAtlas): boolean;
+    emit(event: 'error', self: SpriteAtlas): boolean;
 
-export default class SpriteAtlas {
-    private eventEmitter: EventEmitter = new EventEmitter();
+    on(event: 'loaded', listener: (self: SpriteAtlas) => void): this;
+    on(event: 'error', listener: (self: SpriteAtlas) => void): this;
+}
+
+class SpriteAtlas extends EventEmitter {
     private _loaded: boolean = false;
     private def: AtlasAssetDef;
     private atlas: HTMLImageElement;
@@ -17,6 +22,7 @@ export default class SpriteAtlas {
     public get loaded(): boolean { return this._loaded; }
 
     public constructor(def: AtlasAssetDef) {
+        super();
         this.def = def;
         this.atlas = new Image();
         this.atlas.src = this.def.src;
@@ -24,18 +30,6 @@ export default class SpriteAtlas {
             this._loaded = true;
             this.emit('loaded', this);
         });
-    }
-
-    public on(event: SpriteAtlasEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: SpriteAtlasEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: SpriteAtlasEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     public getSprite(id: string, parent: Frame): AtlasSprite {
@@ -49,3 +43,5 @@ export default class SpriteAtlas {
         return new AtlasSprite(parent, this, spriteDef.src);
     }
 }
+
+export default SpriteAtlas;

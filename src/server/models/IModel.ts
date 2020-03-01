@@ -1,4 +1,4 @@
-import IDefinition from '../../common/IDefinition';
+import IDefinition from '../../common/definitions/IDefinition';
 
 export default interface IModel {
     toNet(): IDefinition;

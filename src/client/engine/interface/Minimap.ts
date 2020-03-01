@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events';
 import Panel from './components/Panel';
 import { Frame } from './components/Frame';
 import World from '../World';
@@ -9,13 +8,16 @@ import MinimapOrb from './MinimapOrb';
 import LocalUnit from '../LocalUnit';
 import LocalGroundItem from '../LocalGroundItem';
 
-type MinimapEvent = 'click';
-
 const minimapBorder = 5;
 const minimapSize = 256;
 
-export default class Minimap extends Panel {
-    private eventEmitter: EventEmitter = new EventEmitter();
+declare interface Minimap {
+    emit(event: 'click', self: Minimap, pos: TilePoint): boolean;
+
+    on(event: 'click', listener: (self: Minimap, pos: TilePoint) => void): this;
+}
+
+class Minimap extends Panel {
     private world: World;
 
     private orbPanel: Panel;
@@ -53,7 +55,7 @@ export default class Minimap extends Panel {
         this.canvas.style.border = `${minimapBorder}px solid rgba(255, 255, 255, 0.8)`;
         this.element.appendChild(this.canvas);
         this.ctx = this.canvas.getContext('2d');
-        this.canvas.addEventListener('click', this.canvasClick.bind(this));
+        this.canvas.addEventListener('click', (ev) => this.canvasClick(ev));
 
         const slider = new Slider(this, 2, 10, this.scale, 0.1);
         slider.style.position = 'initial';
@@ -71,18 +73,6 @@ export default class Minimap extends Panel {
 
         this.orbPanel = new Panel(this);
         this.orbPanel.style.position = 'initital';
-    }
-
-    public on(event: MinimapEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: MinimapEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: MinimapEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
     }
 
     public trackUnit(unit: LocalUnit): void {
@@ -177,3 +167,5 @@ export default class Minimap extends Panel {
         }
     }
 }
+
+export default Minimap;

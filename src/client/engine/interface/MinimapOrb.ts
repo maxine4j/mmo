@@ -9,8 +9,13 @@ type MinimapOrbEvent = 'click';
 const bgColNormal = 'rgba(0,0,0,0.2)';
 const bgColOver = 'rgba(0,0,0,0.4)';
 
-export default class MinimapOrb extends Panel {
-    private eventEmitter: EventEmitter = new EventEmitter();
+declare interface MinimapOrb {
+    emit(event: 'click', self: MinimapOrb, active: boolean): boolean;
+
+    on(event: 'click', listener: (self: MinimapOrb, active: boolean) => void): this;
+}
+
+class MinimapOrb extends Panel {
     private img: ImageFrame;
     private minimap: Minimap;
     private _active: boolean;
@@ -63,16 +68,6 @@ export default class MinimapOrb extends Panel {
             this.img.style.borderColor = 'rgba(0,0,0,0)';
         }
     }
-
-    public on(event: MinimapOrbEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: MinimapOrbEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    private emit(event: MinimapOrbEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
-    }
 }
+
+export default MinimapOrb;

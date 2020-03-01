@@ -1,7 +1,7 @@
 import uuid from 'uuid/v4';
 import { defaultBlendSize } from '../client/engine/asset/AssetManager';
 import WorldJsonDef from '../server/data/WorldsJsonDef';
-import ChunkDef from '../common/ChunkDef';
+import ChunkDef from '../common/definitions/ChunkDef';
 import ChunkWorld from '../client/engine/ChunkWorld';
 import { TilePoint, ChunkPoint } from '../common/Point';
 import Scene from '../client/engine/graphics/Scene';

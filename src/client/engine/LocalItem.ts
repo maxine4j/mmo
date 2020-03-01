@@ -1,4 +1,4 @@
-import ItemDef from '../../common/ItemDef';
+import ItemDef from '../../common/definitions/ItemDef';
 
 export default class LocalItem {
     public data: ItemDef;

@@ -6,9 +6,9 @@ import {
 } from '../../common/Packet';
 import WorldManager from './WorldManager';
 import { Point } from '../../common/Point';
-import CharacterDef from '../../common/CharacterDef';
-import UnitDef from '../../common/UnitDef';
-import { GroundItemDef } from '../../common/ItemDef';
+import CharacterDef from '../../common/definitions/CharacterDef';
+import UnitDef from '../../common/definitions/UnitDef';
+import { GroundItemDef } from '../../common/definitions/ItemDef';
 import IManager from './IManager';
 
 export default class PlayerManager implements IManager {
@@ -17,7 +17,7 @@ export default class PlayerManager implements IManager {
 
     public constructor(world: WorldManager) {
         this.world = world;
-        this.world.on('tick', this.tick.bind(this));
+        this.world.on('tick', () => this.tick());
     }
 
     public enterWorld(client: Client): void {

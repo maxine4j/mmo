@@ -56,7 +56,7 @@ export default class DoodadProp extends PanelProp {
             });
 
 
-        this.editorProps.on('selectedDoodadChanged', this.updateValues.bind(this));
+        this.editorProps.on('selectedDoodadChanged', () => this.updateValues());
     }
 
     private updateValues(): void {

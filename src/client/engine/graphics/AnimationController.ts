@@ -3,30 +3,22 @@ import { AnimationAction } from 'three/src/animation/AnimationAction';
 import { EventEmitter } from 'events';
 import Model from './Model';
 
-type AnimationControllerEvent = 'finished';
+declare interface AnimationController<T> {
+    emit(event: 'finished', self: AnimationController<T>, loop: T): boolean;
 
-export default class AnimationController<T> {
-    private eventEmitter: EventEmitter = new EventEmitter();
+    on(event: 'finished', listener: (self: AnimationController<T>, loop: T) => void): this;
+}
+
+class AnimationController<T> extends EventEmitter {
     private model: Model;
     private animations: Map<T, AnimationAction> = new Map();
     private currentLoop: T;
     private overrideAnim: T;
 
     public constructor(model: Model) {
+        super();
         this.model = model;
-        this.model.mixer.addEventListener('finished', this.onMixerFinished.bind(this));
-    }
-
-    public on(event: AnimationControllerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.on(event, listener);
-    }
-
-    public off(event: AnimationControllerEvent, listener: (...args: any[]) => void): void {
-        this.eventEmitter.off(event, listener);
-    }
-
-    protected emit(event: AnimationControllerEvent, ...args: any[]): void {
-        this.eventEmitter.emit(event, ...args);
+        this.model.mixer.addEventListener('finished', (ev) => this.onMixerFinished(ev));
     }
 
     private onMixerFinished(ev: THREE.Event): void {
@@ -94,3 +86,5 @@ export default class AnimationController<T> {
         }
     }
 }
+
+export default AnimationController;
