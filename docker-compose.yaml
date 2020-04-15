@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  mmo:
+    build: ./
+    volumes:
+      - ./dist/server:/app/dist/server
+      - ./data.db:/app/data.db
+    command: node /app/dist/server/index.js
