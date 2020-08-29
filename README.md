@@ -21,3 +21,8 @@ Tile based, click to move, simple combat MMO inspired by Oldschool Runescape
 - NodeJS
 - TypeORM
 
+## Dev Environment
+
+```
+WORLD_URL=http://localhost:3000
+```

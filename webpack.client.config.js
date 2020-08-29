@@ -1,9 +1,15 @@
+const { EnvironmentPlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CheckerPlugin } = require('awesome-typescript-loader');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
+const dotenv = require('dotenv');
+
+dotenv.config({
+    path: `.env.${process.env.NODE_ENV || 'development'}`,
+});
 
 module.exports = {
     entry: './src/client/index.ts',
@@ -49,6 +55,7 @@ module.exports = {
         'uws',
     ],
     plugins: [
+        new EnvironmentPlugin(['NODE_ENV', 'WORLD_URL']),
         new CheckerPlugin(),
         new HtmlWebpackPlugin({
             hash: true,
@@ -61,6 +68,9 @@ module.exports = {
             {
                 from: path.join(__dirname, 'src/client/assets'),
                 to: path.join(__dirname, 'dist/client/assets'),
+            },
+            {
+                from: path.join(__dirname, 'src/client/CNAME'),
             },
         ]),
         new WorkboxPlugin.GenerateSW({
