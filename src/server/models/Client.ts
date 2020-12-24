@@ -21,9 +21,9 @@ Client connects to socketio
 const patchSocketEmit = (socket: io.Socket): io.Socket => {
     const original = socket.emit;
     socket.emit = (event: string | symbol, ...args: any[]) => {
-        metrics.packetSent('single', event.toString());
-        return original(event, ...args);
-    } 
+        metrics.packetSent('single', String(event));
+        return original(String(event), ...args);
+    };
     return socket;
 };
 
@@ -40,7 +40,7 @@ export default class Client {
         this.registerBase();
     }
 
-    private registerPacketListener(header: PacketHeader | 'disconnect', listener: (...args: any[]) => void) {
+    private registerPacketListener(header: PacketHeader | 'disconnect', listener: (...args: any[]) => void): void {
         metrics.packetReceived(header);
         this.socket.on(header, listener);
     }
