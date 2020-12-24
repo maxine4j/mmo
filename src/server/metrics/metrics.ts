@@ -96,6 +96,18 @@ const chunkLoadCounter = new Counter({
   help: 'count of chunks loaded',
 });
 
+const packetsReceivedCounter = new Counter({
+  name: 'mmo_packets_received_count',
+  help: 'count of packets received',
+  labelNames: ['header'],
+});
+
+const packetsSentCounter = new Counter({
+  name: 'mmo_packets_sent_count',
+  help: 'count of packets sent',
+  labelNames: ['target', 'header'],
+});
+
 type UnitType = 'player' | 'monster'
 
 export interface MetricsEmitter {
@@ -117,6 +129,8 @@ export interface MetricsEmitter {
   lootGenerated: () => void;
   chunkLoad: () => void;
   characterCreate: () => void;
+  packetReceived: (header: string) => void;
+  packetSent: (target: 'broadcast' | 'single', header: string) => void;
 }
 
 export const metricsEmitter = (): MetricsEmitter => ({
@@ -138,4 +152,6 @@ export const metricsEmitter = (): MetricsEmitter => ({
   lootGenerated: () => lootGeneratedCounter.inc(),
   chunkLoad: () => chunkLoadCounter.inc(),
   characterCreate: () => characterCreatCounter.inc(),
+  packetReceived: (header) => packetsReceivedCounter.labels(header).inc(),
+  packetSent: (target, header) => packetsSentCounter.labels(target, header).inc(),
 });

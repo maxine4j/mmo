@@ -6,6 +6,9 @@ import {
 } from '../Authentication';
 import WorldManager from '../managers/WorldManager';
 import CharacterEntity from '../entities/Character.entity';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 /*
 Client connects to socketio
@@ -15,6 +18,15 @@ Client connects to socketio
                 Client can now play the game
 */
 
+const patchSocketEmit = (socket: io.Socket): io.Socket => {
+    const original = socket.emit;
+    socket.emit = (event: string | symbol, ...args: any[]) => {
+        metrics.packetSent('single', event.toString());
+        return original(event, ...args);
+    } 
+    return socket;
+};
+
 export default class Client {
     private world: WorldManager;
     public socket: io.Socket;
@@ -22,24 +34,29 @@ export default class Client {
     public get id(): string { return this.socket.id; }
 
     public constructor(socket: io.Socket, world: WorldManager) {
-        this.socket = socket;
+        this.socket = patchSocketEmit(socket);
         this.world = world;
 
         this.registerBase();
     }
 
+    private registerPacketListener(header: PacketHeader | 'disconnect', listener: (...args: any[]) => void) {
+        metrics.packetReceived(header);
+        this.socket.on(header, listener);
+    }
+
     private registerBase(): void {
-        this.socket.on(PacketHeader.AUTH_SIGNUP, (packet) => this.handleAuthSignup(packet));
-        this.socket.on(PacketHeader.AUTH_LOGIN, (packet) => this.handleAuthLogin(packet));
-        this.socket.on(PacketHeader.AUTH_LOGOUT, () => this.handleAuthLogout());
-        this.socket.on('disconnect', () => this.handleAuthLogout());
+        this.registerPacketListener(PacketHeader.AUTH_SIGNUP, (packet) => this.handleAuthSignup(packet));
+        this.registerPacketListener(PacketHeader.AUTH_LOGIN, (packet) => this.handleAuthLogin(packet));
+        this.registerPacketListener(PacketHeader.AUTH_LOGOUT, () => this.handleAuthLogout());
+        this.registerPacketListener('disconnect', () => this.handleAuthLogout());
     }
 
     private registerAuthenticated(): void {
-        this.socket.on(PacketHeader.CHAR_MYLIST, () => this.handleCharMyList());
-        this.socket.on(PacketHeader.CHAR_CREATE, (packet) => this.handleCharCreate(packet));
-        this.socket.on(PacketHeader.PLAYER_ENTERWORLD, (packet) => this.handlePlayerEnterWorld(packet));
-        this.socket.on(PacketHeader.PLAYER_LEAVEWORLD, () => this.handlePlayerLeaveWorld());
+        this.registerPacketListener(PacketHeader.CHAR_MYLIST, () => this.handleCharMyList());
+        this.registerPacketListener(PacketHeader.CHAR_CREATE, (packet) => this.handleCharCreate(packet));
+        this.registerPacketListener(PacketHeader.PLAYER_ENTERWORLD, (packet) => this.handlePlayerEnterWorld(packet));
+        this.registerPacketListener(PacketHeader.PLAYER_LEAVEWORLD, () => this.handlePlayerLeaveWorld());
     }
 
     private async handleAuthSignup(packet: AuthLoginPacket): Promise<void> {
