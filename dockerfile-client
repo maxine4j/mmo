@@ -2,15 +2,17 @@ FROM node:14.15.3-buster
 
 WORKDIR /app
 
+RUN yarn global add http-server
+
 COPY package.json yarn.lock ./
 RUN yarn install --pure-lockfile --network-timeout 600000
 
-COPY ormconfig.json ./
 COPY tsconfig.json ./
-COPY tsconfig.server.json ./
+COPY tsconfig.client.json ./
+COPY webpack.client.config.js ./
 COPY src/ ./src/
-RUN yarn build:server
+RUN yarn build:client
 
 EXPOSE 3000
 
-CMD ["node", "/app/dist/server/index.js"]
+CMD ["http-server", "-p", "3000", "/app/dist/client"]

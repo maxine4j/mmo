@@ -19,3 +19,5 @@ spec:
           env:
             - name: PUSHGATEWAY_URL
               value: "{{ $.Values.pushgatewayUrl }}"
+            - name: CLIENT_URL
+              value: https://mmo.arwic.io

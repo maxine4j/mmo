@@ -33,8 +33,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./client-dockerfile
+          file: ./dockerfile-client
           push: true
           tags: ghcr.io/tim-ings/mmo-client:${{ steps.vars.outputs.tag }}
-          build-args: |
-             world_url=${{ secrets.WORLD_URL }}

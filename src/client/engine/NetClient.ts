@@ -2,11 +2,14 @@ import * as io from 'socket.io-client';
 import { Packet, PacketHeader } from '../../common/Packet';
 import SceneManager from './scene/SceneManager';
 
+const env = {
+    worldUrl: process.env.WORLD_URL as string,
+};
+
 export default class NetClient {
     private static _client: SocketIOClient.Socket;
 
-    // https://world1.mmo.arwic.io
-    public static init(url: string = process.env.WORLD_URL): void {
+    public static init(url: string = env.worldUrl): void {
         this._client = io.connect(url);
         this.initEvents();
     }

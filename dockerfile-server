@@ -5,17 +5,15 @@ ENV WORLD_URL=${world_url}
 
 WORKDIR /app
 
-RUN yarn global add http-server
-
 COPY package.json yarn.lock ./
 RUN yarn install --pure-lockfile --network-timeout 600000
 
+COPY ormconfig.json ./
 COPY tsconfig.json ./
-COPY tsconfig.client.json ./
-COPY webpack.client.config.js ./
+COPY tsconfig.server.json ./
 COPY src/ ./src/
-RUN yarn build:client
+RUN yarn build:server
 
 EXPOSE 3000
 
-CMD ["http-server", "-p", "3000", "/app/dist/client"]
+CMD ["node", "/app/dist/server/index.js"]
