@@ -63,9 +63,9 @@ class WorldManager extends EventEmitter implements IManager {
             this.handleWorldInfo(client);
         });
 
-        client.socket.emit(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>client.player.toNet());
-        client.socket.emit(PacketHeader.INVENTORY_FULL, <InventoryPacket>client.player.bags.toNet());
-        client.socket.emit(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
+        client.emitSocket(PacketHeader.PLAYER_ENTERWORLD, <CharacterPacket>client.player.toNet());
+        client.emitSocket(PacketHeader.INVENTORY_FULL, <InventoryPacket>client.player.bags.toNet());
+        client.emitSocket(PacketHeader.PLAYER_SKILLS, <SkillsPacket>{
             skills: client.player.skills.map((s) => s.toNet()),
         });
     }
@@ -90,7 +90,7 @@ class WorldManager extends EventEmitter implements IManager {
     }
 
     private handleWorldInfo(client: Client): void {
-        client.socket.emit(PacketHeader.WORLD_INFO, <WorldInfoPacket>{
+        client.emitSocket(PacketHeader.WORLD_INFO, <WorldInfoPacket>{
             tickRate: this.tickRate,
             chunkSize: this.chunks.chunkSize,
             chunkViewDist: this.chunkViewDist,

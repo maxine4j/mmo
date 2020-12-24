@@ -18,15 +18,6 @@ Client connects to socketio
                 Client can now play the game
 */
 
-const patchSocketEmit = (socket: io.Socket): io.Socket => {
-    const original = socket.emit;
-    socket.emit = (event: string | symbol, ...args: any[]) => {
-        metrics.packetSent('single', String(event));
-        return original(String(event), ...args);
-    };
-    return socket;
-};
-
 export default class Client {
     private world: WorldManager;
     public socket: io.Socket;
@@ -34,10 +25,14 @@ export default class Client {
     public get id(): string { return this.socket.id; }
 
     public constructor(socket: io.Socket, world: WorldManager) {
-        this.socket = patchSocketEmit(socket);
+        this.socket = socket;
         this.world = world;
-
         this.registerBase();
+    }
+
+    public emitSocket(header: PacketHeader, ...args: any[]): boolean {
+        metrics.packetSent('single', header);
+        return this.socket.emit(header, ...args);
     }
 
     private registerPacketListener(header: PacketHeader | 'disconnect', listener: (...args: any[]) => void): void {
@@ -61,13 +56,13 @@ export default class Client {
 
     private async handleAuthSignup(packet: AuthLoginPacket): Promise<void> {
         const resp = await handleSignup(this.socket, packet);
-        this.socket.emit(PacketHeader.AUTH_SIGNUP, resp);
+        this.emitSocket(PacketHeader.AUTH_SIGNUP, resp);
     }
 
     private async handleAuthLogin(packet: AuthLoginPacket): Promise<void> {
         const resp = await handleLogin(this.socket, packet);
         if (resp.success) this.registerAuthenticated();
-        this.socket.emit(PacketHeader.AUTH_LOGIN, resp);
+        this.emitSocket(PacketHeader.AUTH_LOGIN, resp);
     }
 
     private async handleAuthLogout(): Promise<void> {
@@ -95,11 +90,11 @@ export default class Client {
 
     private async handleCharMyList(): Promise<void> {
         const resp = await handleMyList(this.socket);
-        this.socket.emit(PacketHeader.CHAR_MYLIST, resp);
+        this.emitSocket(PacketHeader.CHAR_MYLIST, resp);
     }
 
     private async handleCharCreate(packet: CharacterPacket): Promise<void> {
         const resp = await handleCreate(this.id, packet);
-        this.socket.emit(PacketHeader.CHAR_CREATE, resp);
+        this.emitSocket(PacketHeader.CHAR_CREATE, resp);
     }
 }

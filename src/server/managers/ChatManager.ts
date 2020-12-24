@@ -56,7 +56,7 @@ export default class ChatManager implements IManager {
                 timestamp: Date.now(),
                 message: msg.message,
             };
-            client.socket.emit(PacketHeader.CHAT_EVENT, out);
+            client.emitSocket(PacketHeader.CHAT_EVENT, out);
             for (const player of this.world.players.inRange(client.player.position)) {
                 // TODO: better chat processing here
                 // channels, commands, etc

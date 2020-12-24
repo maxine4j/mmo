@@ -115,7 +115,7 @@ export default class ChunkManager implements IManager {
             }
         }
         client.player.pruneLoadedChunks(); // prune the chunks the player will unload
-        client.socket.emit(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
+        client.emitSocket(PacketHeader.CHUNK_LOAD, <ChunkListPacket>{
             center: client.player.position.toNet(),
             chunks,
         });
