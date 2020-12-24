@@ -1,4 +1,4 @@
-FROM node:13
+FROM node:14.15.3-alpine3.10
 
 WORKDIR /app
 
@@ -13,4 +13,4 @@ RUN yarn build:server
 
 EXPOSE 3000
 
-CMD ["node", "/app/dist/server/index.js"]
+CMD ["node", "/app/dist/client/index.js"]
