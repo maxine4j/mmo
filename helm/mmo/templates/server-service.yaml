@@ -4,6 +4,8 @@ metadata:
   name: "{{ .Chart.Name }}-server-service"
   labels:
     app: {{ .Chart.Name }}-server
+  annotations:
+    kubernetes.digitalocean.com/firewall-managed: "false"
 spec:
   type: NodePort
   selector:
