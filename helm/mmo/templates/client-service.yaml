@@ -6,6 +6,7 @@ metadata:
     app: {{ .Chart.Name }}-client
   annotations:
     kubernetes.digitalocean.com/firewall-managed: "false"
+    kubernetes.tim-ings.com/domain: "mmo.arwic.io"
 spec:
   type: NodePort
   selector:
