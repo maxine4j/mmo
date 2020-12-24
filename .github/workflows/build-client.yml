@@ -9,7 +9,7 @@ jobs:
   build:
     name: Build and Push to GitHub Registry
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - name: Checkout git repository
@@ -36,3 +36,5 @@ jobs:
           file: ./client-dockerfile
           push: true
           tags: ghcr.io/tim-ings/mmo-client:${{ steps.vars.outputs.tag }}
+          build-args: |
+             world_url=${{ secrets.WORLD_URL }}

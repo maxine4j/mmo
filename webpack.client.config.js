@@ -7,10 +7,6 @@ const WorkboxPlugin = require('workbox-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 const dotenv = require('dotenv');
 
-dotenv.config({
-    path: `.env.${process.env.NODE_ENV || 'development'}`,
-});
-
 module.exports = {
     entry: './src/client/index.ts',
     devtool: 'inline-source-map',
