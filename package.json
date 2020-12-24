@@ -59,6 +59,7 @@
     "nodemon": "^2.0.2",
     "pathfinding": "https://github.com/tim-ings/PathFinding.js/",
     "pg": "^7.17.0",
+    "prom-client": "^13.0.0",
     "reflect-metadata": "^0.1.13",
     "remove": "^0.1.5",
     "socket.io": "^2.3.0",

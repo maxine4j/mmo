@@ -3,6 +3,9 @@ import LootTableEntity from '../entities/LootTable.entity';
 import ItemEntity from '../entities/Item.entity';
 import LootTableEntryEntity from '../entities/LootTableEntry.entity';
 import ItemTypeEntity from '../entities/ItemType.entity';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 export default class LootTable {
     private entity: LootTableEntity;
@@ -65,6 +68,7 @@ export default class LootTable {
                 allItems = allItems.concat(items);
             }
         }
+        metrics.lootGenerated();
         return allItems;
     }
 }

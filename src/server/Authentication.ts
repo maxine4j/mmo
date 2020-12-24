@@ -12,6 +12,9 @@ import { InventoryType } from '../common/definitions/InventoryDef';
 import ItemEntity from './entities/Item.entity';
 import ItemTypeEntity from './entities/ItemType.entity';
 import SkillEntity from './entities/Skill.entity';
+import { metricsEmitter } from './metrics/metrics';
+
+const metrics = metricsEmitter();
 
 const hashRounds = 12;
 const emailRegex = /(?!.*\.\.)(^[^.][^@\s]*@[^@\s]+\.[^@\s.]+$)/;
@@ -53,6 +56,7 @@ export async function handleSignup(session: io.Socket, packet: AuthLoginPacket):
         newAccount.email = packet.username;
         newAccount.passwordHash = hash;
         await newAccount.save();
+        metrics.userSignup();
         return <ResponsePacket>{
             success: true,
             message: '',
@@ -88,6 +92,7 @@ export async function handleLogin(session: io.Socket, packet: AuthLoginPacket): 
         const ap = <AccountPacket>account.toNet();
         ap.success = true;
         ap.message = `logged in as ${account.email}`;
+        metrics.userLogin();
         return ap;
     }
 
@@ -103,6 +108,7 @@ export async function handleLogout(session: io.Socket): Promise<void> {
     const account = await AccountEntity.findOne({ session: session.id });
     if (account) {
         console.log(`User ${account.email} has logged out`);
+        metrics.userLogout();
         account.session = null;
         account.save();
     }
@@ -223,6 +229,7 @@ export async function handleCreate(sessionid: string, packet: CharacterPacket): 
 
     await char.save();
     // send success response
+    metrics.characterCreate();
     return <ResponsePacket>{
         success: true,
         message: '',

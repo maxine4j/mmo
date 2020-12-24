@@ -4,6 +4,9 @@ import IManager from './IManager';
 import Client from '../models/Client';
 import ItemEntity from '../entities/Item.entity';
 import GroundItem from '../models/GroundItem';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 const itemDespawnTime = 100; // ticks
 
@@ -58,6 +61,7 @@ export default class GroundManager implements IManager {
     private tick(): void {
         for (const [id, item] of this.items) {
             if (item.tickDropped + itemDespawnTime < this.world.currentTick) {
+                metrics.itemDespawned();
                 this.removeItem(id); // remove the item from the ground
                 item.item.remove(); // remove the item from the database
             }

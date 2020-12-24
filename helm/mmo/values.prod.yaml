@@ -1,3 +1,5 @@
+pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
+
 client:
   image: ghcr.io/tim-ings/mmo-client
   port: 3000

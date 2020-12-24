@@ -1,6 +1,6 @@
 import io from 'socket.io';
 import CharacterDef, {
-    Skill, expToLevel, ExperienceDrop, SkillDef,
+    Skill, expToLevel, ExperienceDrop, SkillDef, skillName,
 } from '../../common/definitions/CharacterDef';
 import WorldManager from '../managers/WorldManager';
 import Unit, { UnitState } from './Unit';
@@ -21,6 +21,9 @@ import SkillEntity from '../entities/Skill.entity';
 import { CombatStatsDef, CombatStyle } from '../../common/definitions/UnitDef';
 import Attack, { calcCombatExp } from './Attack';
 import Interactable from './Interactable';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 declare interface Player extends Unit {
     // unit
@@ -45,6 +48,7 @@ declare interface Player extends Unit {
 }
 
 class Player extends Unit implements IModel {
+    public isPlayer = true;
     private socket: io.Socket;
     protected data: CharacterDef;
     private entity: CharacterEntity;
@@ -135,6 +139,7 @@ class Player extends Unit implements IModel {
 
     private handleInventoryDrop(packet: InventoryDropPacket): void {
         this.bags.dropItem(packet.slot, this.position);
+        metrics.itemDropped();
         this.socket.emit(PacketHeader.INVENTORY_DROP, <ResponsePacket>{
             success: true,
             message: '',
@@ -239,9 +244,12 @@ class Player extends Unit implements IModel {
         const oldLevel = expToLevel(skill.experience);
         skill.experience += drop.amount * this.world.expModifier;
         const newLevel = expToLevel(skill.experience);
+        metrics.playerExpGained(skillName(drop.skill), drop.amount);
+
         if (newLevel > oldLevel) { // level up has occured
             this.updateCombatStats();
             skill.current += 1;
+            metrics.playerLevelup(skillName(drop.skill));
             this.send(PacketHeader.PLAYER_LEVELUP, <LevelupPacket>skill.toNet());
             this.emit('levelup', this, skill.toNet());
         }
@@ -325,6 +333,7 @@ class Player extends Unit implements IModel {
             if (this.world.ground.groundItemExists(this.lootTarget)) {
                 if (this.bags.tryAddItem(this.lootTarget.item)) {
                     this.world.ground.removeItem(this.lootTarget.uuid);
+                    metrics.itemPickedUp();
                     this.sendBagData();
                 }
             }

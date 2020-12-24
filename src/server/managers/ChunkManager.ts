@@ -8,6 +8,9 @@ import { PointDef, TilePoint, Point } from '../../common/Point';
 import WorldManager from './WorldManager';
 import ChunkDef from '../../common/definitions/ChunkDef';
 import IManager from './IManager';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 const overworldDef = <WorldJsonDef><any>_overworldDef; // FIXME: remove any when interactables fully implemented
 
@@ -95,6 +98,7 @@ export default class ChunkManager implements IManager {
     }
 
     private loadChunk(id: string): void {
+        metrics.chunkLoad();
         const cm = new Chunk(this.worldDef.chunks[id], this.chunkSize, this.world);
         this.chunks.set(cm.x, cm.y, cm);
     }

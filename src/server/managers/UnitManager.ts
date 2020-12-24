@@ -7,6 +7,9 @@ import { PacketHeader, DamagePacket } from '../../common/Packet';
 import IManager from './IManager';
 import Client from '../models/Client';
 import { CombatStyle } from '../../common/definitions/UnitDef';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 const noBonuses = {
     equipment: {
@@ -148,6 +151,7 @@ export default class UnitManager implements IManager {
     private addUnit(unit: Unit): void {
         this.units.set(unit.id, unit);
         unit.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
+            metrics.damageDealt(attacker.isPlayer ? 'player' : 'monster', defender.isPlayer ? 'player' : 'monster', dmg);
             for (const player of this.world.players.inRange(unit.position)) {
                 player.send(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
                     damage: dmg,
@@ -157,6 +161,7 @@ export default class UnitManager implements IManager {
             }
         });
         unit.on('death', (self: Unit, dmg: number, attacker: Unit) => {
+            metrics.unitDied('monster');
             this.world.onNextTick(() => {
                 this.removeUnit(unit);
             });

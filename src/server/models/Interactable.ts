@@ -7,6 +7,9 @@ import ActionJsonDef, { ActionNodeDef } from '../data/ActionsJsonDef';
 import LootTable from './LootTable';
 import LootTableEntity from '../entities/LootTable.entity';
 import GroundItem from './GroundItem';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 const actions = <ActionJsonDef>_actions;
 
@@ -45,6 +48,7 @@ export default class Interactable {
             // TODO: make this chance go up with skill
             if (Math.random() < this.action.harvestChance) {
                 console.log('the player successfully harvested!');
+                metrics.resourceHarvest('unknown');
 
                 for (const item of this.lootTable.roll()) {
                     console.log('\trecv an item', item.type.name);

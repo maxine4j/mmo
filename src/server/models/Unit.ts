@@ -30,6 +30,7 @@ declare interface Unit {
 }
 
 class Unit extends EventEmitter implements IModel {
+    public isPlayer = false;
     protected world: WorldManager;
     protected data: UnitDef;
     protected stats: CombatStatsDef;

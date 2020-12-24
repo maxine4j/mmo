@@ -10,6 +10,9 @@ import CharacterDef from '../../common/definitions/CharacterDef';
 import UnitDef from '../../common/definitions/UnitDef';
 import { GroundItemDef } from '../../common/definitions/ItemDef';
 import IManager from './IManager';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 export default class PlayerManager implements IManager {
     private world: WorldManager;
@@ -21,11 +24,13 @@ export default class PlayerManager implements IManager {
     }
 
     public enterWorld(client: Client): void {
+        metrics.playerEnterWorld();
         this.addPlayer(client.player);
     }
 
     public leaveWorld(client: Client): void {
         if (client.player) {
+            metrics.playerLeaveWorld();
             this.removePlayer(client.player);
         }
     }
@@ -37,6 +42,7 @@ export default class PlayerManager implements IManager {
     private addPlayer(player: Player): void {
         this.players.set(player.id, player); // WAS: socket.id
         player.on('damaged', (defender: Unit, dmg: number, attacker: Unit) => {
+            metrics.damageDealt(attacker.isPlayer ? 'player' : 'monster', defender.isPlayer ? 'player' : 'monster', dmg);
             for (const p of this.inRange(player.position)) {
                 p.send(PacketHeader.UNIT_DAMAGED, <DamagePacket>{
                     damage: dmg,
@@ -46,6 +52,7 @@ export default class PlayerManager implements IManager {
             }
         });
         player.on('death', () => {
+            metrics.unitDied('player');
             player.respawn();
         });
     }

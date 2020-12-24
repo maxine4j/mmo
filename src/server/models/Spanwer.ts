@@ -6,6 +6,9 @@ import { UnitSpawnGroup } from '../data/UnitSpawnsDef';
 import Unit, { UnitState } from './Unit';
 import LootTable from './LootTable';
 import LootTableEntity from '../entities/LootTable.entity';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 type SpawnerEvent = 'spawn';
 const maxSpawnRetries = 10;
@@ -89,6 +92,7 @@ class Spawner extends EventEmitter {
         // save the new unit to the world and also keep track of it here
         this.units.set(unit.id, unit);
         this.lastSpawnTick = this.world.currentTick; // update the last spawn tick
+        metrics.unitSpawn();
         this.emit('spawn', this, unit);
     }
 

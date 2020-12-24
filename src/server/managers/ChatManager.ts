@@ -3,6 +3,9 @@ import Client from '../models/Client';
 import { PacketHeader, ChatMsgPacket } from '../../common/Packet';
 import WorldManager from './WorldManager';
 import IManager from './IManager';
+import { metricsEmitter } from '../metrics/metrics';
+
+const metrics = metricsEmitter();
 
 export default class ChatManager implements IManager {
     private world: WorldManager;
@@ -43,8 +46,10 @@ export default class ChatManager implements IManager {
 
     public handleChatMessage(client: Client, msg: ChatMsgPacket): void {
         if (msg.message.startsWith('/')) {
+            metrics.chatMessage('command');
             this.parseChatCommand(client, msg);
         } else {
+            metrics.chatMessage('message');
             const out = <ChatMsgPacket>{
                 authorId: client.player.id,
                 authorName: client.player.name,
