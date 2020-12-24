@@ -1,0 +1,9 @@
+client:
+  image: ghcr.io/tim-ings/mmo-client
+  port: 3000
+  nodePort: 30052
+
+server:
+  image: ghcr.io/tim-ings/mmo-server
+  port: 3000
+  nodePort: 30053
