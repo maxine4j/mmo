@@ -1,5 +1,8 @@
 FROM node:14.15.3-buster
 
+ARG world_url
+ENV WORLD_URL=${world_url}
+
 WORKDIR /app
 
 RUN yarn global add http-server

@@ -16,6 +16,3 @@ spec:
           image: "{{ $.Values.client.image }}:{{ $.Chart.Version }}"
           ports:
             - containerPort: {{ .Values.client.port }}
-          env:
-            - name: WORLD_URL
-              value: https://world1.mmo.arwic.io

@@ -1,11 +1,10 @@
-const { EnvironmentPlugin } = require('webpack');
+const { EnvironmentPlugin, DefinePlugin } = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CheckerPlugin } = require('awesome-typescript-loader');
 const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
-const dotenv = require('dotenv');
 
 module.exports = {
     entry: './src/client/index.ts',
@@ -20,7 +19,7 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ["style-loader", "css-loader"],
+                use: ['style-loader', 'css-loader'],
             },
             {
                 test: /\.glsl$/,
@@ -69,6 +68,11 @@ module.exports = {
                 from: path.join(__dirname, 'src/client/CNAME'),
             },
         ]),
+        new DefinePlugin({
+            'process.env': {
+                WORLD_URL: process.env.WORLD_URL ?? 'INVALID_WORLD_URL',
+            },
+        }),
         new WorkboxPlugin.GenerateSW({
             // these options encourage the ServiceWorkers to get in there fast
             // and not allow any straggling "old" SWs to hang around
