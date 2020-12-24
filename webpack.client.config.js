@@ -70,7 +70,7 @@ module.exports = {
         ]),
         new DefinePlugin({
             'process.env': {
-                WORLD_URL: process.env.WORLD_URL ?? 'INVALID_WORLD_URL',
+                WORLD_URL: JSON.stringify(process.env.WORLD_URL ?? 'INVALID_WORLD_URL'),
             },
         }),
         new WorkboxPlugin.GenerateSW({
