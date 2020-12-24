@@ -1,4 +1,4 @@
-import '../styles/default';
+import '../styles/default.css';
 import uuid from 'uuid/v4';
 import { EventEmitter } from 'events';
 

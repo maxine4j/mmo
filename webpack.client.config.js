@@ -23,8 +23,8 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.scss$/,
-                use: ['style-loader', 'css-loader', 'sass-loader'],
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
             },
             {
                 test: /\.glsl$/,

@@ -6,7 +6,7 @@ import LocalUnit from '../LocalUnit';
 import UIParent from './components/UIParent';
 import Panel from './components/Panel';
 import ProgressBar from './components/ProgressBar';
-import './styles/healthbar';
+import './styles/healthbar.css';
 import Graphics from '../graphics/Graphics';
 
 const nameplatHeight = 1.5;

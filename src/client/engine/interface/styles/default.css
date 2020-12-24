@@ -1,0 +1,77 @@
+* {
+    cursor: url("../../../assets/cursors/default.cur"), auto !important;
+  }
+  
+  #canvas {
+    position: fixed;
+    z-index: 0;
+  }
+  
+  #uiparent.default {
+    z-index: 1;
+    user-select: "none";
+    position: fixed;
+    color: white;
+    width: 100vw;
+    height: 100vh;
+  }
+  #uiparent.default *:focus {
+    outline: none;
+  }
+  #uiparent.default input[type=text], #uiparent.default input[type=password] {
+    background-color: #3b3b3b69;
+    border-color: rgba(167, 167, 167, 0.733) 3b69;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 18px;
+    cursor: url("../../../assets/cursors/default.cur"), auto;
+  }
+  #uiparent.default button {
+    font-size: 20px;
+    background-color: #660608;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 5px 15px;
+    cursor: url("../../../assets/cursors/default.cur"), pointer;
+  }
+  #uiparent.default button:hover {
+    background-color: #7e070a;
+  }
+  #uiparent.default button:active {
+    background-color: #8a080b;
+  }
+  #uiparent.default .context-menu {
+    border: 1px solid #616161;
+    border-radius: 0px;
+    background-color: #3b3b3b;
+    display: block;
+  }
+  #uiparent.default .context-menu .context-menu-header {
+    height: 20px;
+    line-height: 20px;
+    padding: 2px 10px;
+    text-align: left;
+    margin: 0;
+    background-color: #151515;
+    border: 1px solid #616161;
+    font-size: 90%;
+  }
+  #uiparent.default .context-menu .context-menu-option {
+    color: "white";
+    background-color: #3b3b3b;
+    border: none;
+    border-radius: 0px;
+    border-top: 1px solid #616161;
+    font-size: 90%;
+    text-align: left;
+  }
+  #uiparent.default .context-menu .context-menu-option:hover {
+    background-color: #555555;
+  }
+  #uiparent.default .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  #uiparent.default .hide-scrollbar::-webkit-scrollbar {
+    width: 0;
+  }
