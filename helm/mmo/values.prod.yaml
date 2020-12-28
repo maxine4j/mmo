@@ -1,11 +1,13 @@
 pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
 
 client:
+  host: mmo.arwic.io
   image: ghcr.io/tim-ings/mmo-client
   port: 3000
   nodePort: 30052
 
 server:
+  host: world1.mmo.arwic.io
   image: ghcr.io/tim-ings/mmo-server
   port: 3000
   nodePort: 30053
