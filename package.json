@@ -67,7 +67,7 @@
     "sqlite3": "^4.1.1",
     "stats.js": "^0.17.0",
     "style-loader": "^1.1.2",
-    "three": "^0.112.1",
+    "three": "^0.125.0",
     "ts-key-enum": "^2.0.2",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.4",
