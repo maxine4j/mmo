@@ -1,4 +1,6 @@
-pushgatewayUrl: http://prometheus-pushgateway.metrics:9091
+pushgatewayUrl: http://prometheus-pushgateway.prometheus:9091
+
+targetHost: homelab.tim-ings.com
 
 client:
   host: mmo.tim-ings.com
